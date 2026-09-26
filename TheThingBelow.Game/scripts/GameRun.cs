@@ -37,6 +37,8 @@ public sealed class GameRun
 {
     private readonly FixedStepLoop loop = new();
     private readonly List<Intent> queued = [];
+    private readonly List<SaveWrite> saves = [];
+    private readonly List<MapService> openedServices = [];
     private readonly BattleEventQueue events = new();
     private readonly Simulation simulation;
     private readonly RunRecorder recorder;
@@ -179,7 +181,8 @@ public sealed class GameRun
 
     /// <summary>
     /// True when the menu action and the map action open a window: on the walk, with no menu, no
-    /// fight, no encounter, and no story scene (D-162, D-986, D-1009).
+    /// fight, no encounter, and no story scene (D-162, D-986, D-1009). The confirm of the map takes
+    /// the same gate, because the rules refuse it at the same times (D-1131).
     /// </summary>
     /// <remarks>
     /// The rules refuse the open of the menu while a story scene runs, so the host opens no
@@ -348,7 +351,7 @@ public sealed class GameRun
     /// <see cref="DebugIntentHandlers.None"/> (D-260, D-492).
     /// </param>
     /// <param name="messageSpeed">The message speed of the settings (D-866).</param>
-    /// <returns>The run, at tick zero, on the first map (D-528).</returns>
+    /// <returns>The run, at tick zero, on the first map, with every map of the content to enter (D-528, D-1133).</returns>
     /// <exception cref="ArgumentNullException">The content set or the handler set is null (T-2).</exception>
     /// <exception cref="ContentException">This build holds no first map (T-2).</exception>
     public static GameRun Start(ContentSet content, ulong seed, DebugIntentHandlers debugHandlers, MessageSpeed messageSpeed)
@@ -357,7 +360,7 @@ public sealed class GameRun
         ArgumentNullException.ThrowIfNull(debugHandlers);
 
         RunHeader header = RunHeader.ForThisBuild(content.Hash, seed);
-        Simulation simulation = Simulation.Start(seed, content.Map(MapIds.FirstMap), content.Battle, content.Notices, content.Story, debugHandlers);
+        Simulation simulation = Simulation.Start(seed, MapSet.Of(content.Maps), MapIds.FirstMap, content.Battle, content.Notices, content.Story, debugHandlers);
         return new GameRun(simulation, new RunRecorder(header, simulation.Snapshot()), content, messageSpeed);
     }
 
@@ -374,7 +377,7 @@ public sealed class GameRun
     /// <param name="log">Takes the log line of each change that a save of another build takes (D-1113).</param>
     /// <returns>The run, with a new record that starts at its first tick.</returns>
     /// <exception cref="ArgumentNullException">The content, the handlers, or the log are null (T-2).</exception>
-    /// <exception cref="ArgumentException">The save is not a state of a run of this build (T-2, D-1110).</exception>
+    /// <exception cref="ArgumentException">The save is not a state of a run of this build, or it names a map that this build lacks (T-2, D-1110).</exception>
     /// <remarks>
     /// A save of another build, which holds another simulation version or another content hash,
     /// takes the drift rules of D-1111 and D-1112: each enemy matches by its id, a lead off the
@@ -403,7 +406,7 @@ public sealed class GameRun
         Simulation simulation = Simulation.Resume(
             save.Header.Seed,
             snapshot,
-            content.Map(snapshot.MapIdOrFirst),
+            MapSet.Of(content.Maps),
             content.Battle,
             content.Notices,
             content.Story,
@@ -416,8 +419,9 @@ public sealed class GameRun
 
     /// <summary>
     /// Takes the save of the run at the end of the last tick, and the record drops every intent
-    /// before it, so the record of a long run stays bounded (F-10, D-651, D-1115). PR-16 writes
-    /// the document to its file at each save point and each autosave.
+    /// before it, so the record of a long run stays bounded (F-10, D-651, D-1115). The run calls it
+    /// after each tick for each save that a rule asked for: the slot save of a hub service and the
+    /// autosave of the entry to a hub (D-224, D-1132). PR-16 adds the save points.
     /// </summary>
     /// <returns>The save: the header of this build and the snapshot of the run.</returns>
     public SaveDocument Save()
@@ -425,6 +429,28 @@ public sealed class GameRun
         RunSnapshot snapshot = this.simulation.Snapshot();
         this.recorder.Save(snapshot);
         return new SaveDocument(SaveHeader.ForThisBuild(this.contentHash, this.Seed), snapshot);
+    }
+
+    /// <summary>
+    /// Takes every save that a rule asked for since the last take, each with the document that
+    /// <see cref="Save"/> took at the end of its tick (D-224, D-1115, D-1132).
+    /// </summary>
+    /// <returns>The saves, in the order of the asks. The host writes each one to its file.</returns>
+    public IReadOnlyList<SaveWrite> TakeSaves()
+    {
+        SaveWrite[] taken = [.. this.saves];
+        this.saves.Clear();
+        return taken;
+    }
+
+    /// <summary>Takes every hub service that a confirm opened since the last take (D-1131).</summary>
+    /// <returns>The services, in the order of the opens. The host opens the window of each one.</returns>
+    /// <remarks>The rules opened the menu with each service, so the host sends no open intent (D-162).</remarks>
+    public IReadOnlyList<MapService> TakeOpenedServices()
+    {
+        MapService[] taken = [.. this.openedServices];
+        this.openedServices.Clear();
+        return taken;
     }
 
     /// <summary>
@@ -506,6 +532,15 @@ public sealed class GameRun
             {
                 this.notices.Add(posted.Id, this.strings.Text(posted.Id).Length, this.simulation.State.WorldTick);
             }
+
+            // A save takes the snapshot at the end of the tick that asked for it, so the record drops
+            // the intents of that tick too (D-1115, D-1132). The host writes each one after the frame.
+            foreach (SaveRequestKind asked in this.simulation.TakeSaveRequests())
+            {
+                this.saves.Add(new SaveWrite(SaveWrite.FileOf(asked), this.Save()));
+            }
+
+            this.openedServices.AddRange(this.simulation.TakeOpenedServices());
 
             IReadOnlyList<BattleEvent> taken = this.simulation.TakeBattleEvents();
             if (StartsFight(taken))

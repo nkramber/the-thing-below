@@ -77,6 +77,27 @@ public sealed class MenuPathTests
         Assert.Empty(Windows(path));
     }
 
+    [Theory]
+    [InlineData("Rest")]
+    [InlineData("Save")]
+    public void TheWindowOfAServiceOpensFromTheWalkAloneAndBackClosesTheMenu(string window)
+    {
+        // D-1131, D-1132: a confirm on the host of a service opens its window alone, and the main
+        // list never holds it (D-1143).
+        GameValue path = GameValue.New("MenuPath");
+        Open(path, "MainList");
+        Assert.Throws<InvalidOperationException>(() => Open(path, window));
+        path.Call("CloseAll");
+
+        Open(path, window);
+
+        Assert.Equal([window], Windows(path));
+        Assert.Throws<InvalidOperationException>(() => Open(path, "MainList"));
+        Assert.Throws<InvalidOperationException>(() => Open(path, "Party"));
+        Assert.True((bool)path.Call("Back")!);
+        Assert.False(path.Read<bool>("IsOpen"));
+    }
+
     [Fact]
     public void ABackWithNoWindowAndATopWithNoWindowAreErrors()
     {

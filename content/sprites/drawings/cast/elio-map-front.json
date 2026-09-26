@@ -4,7 +4,8 @@
  "width": 32,
  "height": 32,
  "draws": [
-  { "content": "cast.elio", "use": "map_front" }
+  { "content": "cast.elio", "use": "map_front" },
+  { "content": "npc.fixture_hub_child", "use": "map_front" }
  ],
  "frames": [
   {

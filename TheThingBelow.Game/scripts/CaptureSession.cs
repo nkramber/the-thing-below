@@ -7,6 +7,7 @@ using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Effects;
 using TheThingBelow.Core.Light;
 using TheThingBelow.Core.Logging;
+using TheThingBelow.Core.Maps;
 using TheThingBelow.Game.Ui;
 using TheThingBelow.Storage;
 
@@ -351,6 +352,116 @@ public sealed partial class CaptureSession : Node
     }
 
     /// <summary>
+    /// Builds the running screen on the fixture hub: the run starts on the first map, the debug
+    /// command `goto` puts the party on the hub, and the NPCs walk <see cref="ScreenCaptures.HubTicks"/>
+    /// ticks before the frame (exit test 18 of PR-14, D-1133). The map on screen follows the party
+    /// onto the hub by the path of a play session (<see cref="MapFixture.Follow"/>).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The command put the party on no hub, or a tick wrote an error (T-2).</exception>
+    private void BuildHub(FrameRoot built, UiBase @base)
+    {
+        GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
+        MapScreen first = MapFixture.Build(built, @base, open, this.content, seekParticles: true);
+        GoToHub(open);
+        MapScreen drawn = MapFixture.Follow(first, built, @base, open, this.content);
+        this.RunTicks(open, ScreenCaptures.HubTicks);
+        drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld);
+        drawn.ShowWeather(open.Tick, seek: true);
+    }
+
+    /// <summary>
+    /// Types the debug command `goto` with the id of the fixture hub, and runs the tick that
+    /// applies it (D-1133). The capture of the hub and the smoke session take this path.
+    /// </summary>
+    /// <param name="run">The run, on a map with no battle, no story scene, and no open menu.</param>
+    /// <exception cref="ArgumentNullException">The run is null (T-2).</exception>
+    /// <exception cref="InvalidOperationException">The tick wrote an error, or the party stands on another map after it (T-2).</exception>
+    public static void GoToHub(GameRun run)
+    {
+        ArgumentNullException.ThrowIfNull(run);
+
+        _ = DebugSeam.Run($"{ScreenCaptures.GoToCommand} {ScreenCaptures.HubMap}", () => run.State, run.Queue);
+        foreach (LogEntry entry in run.Advance(OneTickSeconds))
+        {
+            if (entry.Level == LogLevel.Error)
+            {
+                throw new InvalidOperationException($"The tick {run.Tick} of the command '{ScreenCaptures.GoToCommand}' wrote an error: {entry.Message} (T-2).");
+            }
+        }
+
+        if (string.CompareOrdinal(run.Party.Map.Id.Value, ScreenCaptures.HubMap) != 0)
+        {
+            throw new InvalidOperationException(
+                $"The command '{ScreenCaptures.GoToCommand} {ScreenCaptures.HubMap}' left the party on the map '{run.Party.Map.Id.Value}' at tick {run.Tick} (D-1133, T-2).");
+        }
+    }
+
+    /// <summary>
+    /// Puts the party on the fixture hub, walks the lead to the host of one service with the step
+    /// intents of a player, and confirms the host (D-1131, D-1133). The lead stands and faces the
+    /// host, so the rules open the service on the tick of the confirm.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">An NPC stopped a step, so the lead stands elsewhere, or a tick wrote an error (T-2).</exception>
+    private void ConfirmHost(GameRun run, ServiceKind kind)
+    {
+        GoToHub(run);
+        bool rest = kind == ServiceKind.Rest;
+        foreach (string action in rest ? ScreenCaptures.KeeperRoute : ScreenCaptures.WaystoneRoute)
+        {
+            this.StepOnce(run, action);
+        }
+
+        // A step into an NPC turns the lead with no step (D-1139), so the route checks where it ended.
+        TilePoint stand = rest ? ScreenCaptures.KeeperStand : ScreenCaptures.WaystoneStand;
+        StepDirection facing = rest ? StepDirection.North : StepDirection.East;
+        if (run.Party.LeadAt != stand || run.Party.Facing != facing)
+        {
+            throw new InvalidOperationException(
+                $"The route to the {ServiceKinds.NameOf(kind)} service ended at {run.Party.LeadAt} facing {run.Party.Facing} at tick {run.Tick}, and the host needs {stand} facing {facing} (D-1131, T-2).");
+        }
+
+        run.Queue(run.IntentOf(InputActions.Confirm));
+        this.RunTicks(run, 1);
+    }
+
+    /// <summary>
+    /// Opens the window of the one service that the confirm opened, through the menu host, as the
+    /// play session does after a tick (D-1131, D-1132).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The confirm opened no service, or more than one (T-2).</exception>
+    private static void OpenService(FrameRoot built, UiBase @base, GameRun run, ContentSet content)
+    {
+        IReadOnlyList<MapService> opened = run.TakeOpenedServices();
+        if (opened.Count != 1)
+        {
+            throw new InvalidOperationException(
+                $"The confirm at tick {run.Tick} opened {opened.Count} services, and the capture of a service window needs one (D-1131, T-2).");
+        }
+
+        var host = new MenuHost(
+            built,
+            @base,
+            run,
+            content,
+            () => FixtureSettings,
+            _ => throw new InvalidOperationException("The capture of a service window closed a settings screen, and it opens none (T-2)."),
+            RefuseErrors);
+        host.OpenService(opened[0].Kind);
+    }
+
+    /// <summary>Fails on an error line of the menu host, and drops its other lines, because the capture session writes no log file (T-2).</summary>
+    private static void RefuseErrors(IReadOnlyList<LogEntry> entries)
+    {
+        foreach (LogEntry entry in entries)
+        {
+            if (entry.Level == LogLevel.Error)
+            {
+                throw new InvalidOperationException($"The menu host of a capture wrote an error at tick {entry.Tick}: {entry.Message} (T-2).");
+            }
+        }
+    }
+
+    /// <summary>
     /// Holds the torch out through the torch action, as the player does, so a lit fixture shows
     /// the carried light and the torch in the hand (D-1064, D-1071). The run takes one tick.
     /// </summary>
@@ -548,6 +659,12 @@ public sealed partial class CaptureSession : Node
             return;
         }
 
+        if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.HubFixture) == 0)
+        {
+            this.BuildHub(built, @base);
+            return;
+        }
+
         if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.UiFixture) == 0)
         {
             var panel = new UiFixture();
@@ -595,6 +712,14 @@ public sealed partial class CaptureSession : Node
             }
         }
 
+        // The window of a hub service opens by the path of a play session: the lead walks to the host,
+        // faces it, and confirms, and the rules open the service (D-1131, D-1132).
+        bool service = string.CompareOrdinal(frame, ScreenCaptures.MenuRestFrame) == 0 || string.CompareOrdinal(frame, ScreenCaptures.MenuSaveFrame) == 0;
+        if (service)
+        {
+            this.ConfirmHost(open, string.CompareOrdinal(frame, ScreenCaptures.MenuRestFrame) == 0 ? ServiceKind.Rest : ServiceKind.Save);
+        }
+
         // The map stays visible beside the main list, so each particle takes the tick of the run and
         // never the clock of the engine, and two sessions draw the same pixels (D-172, T-7).
         MapScreen drawn = MapFixture.Build(built, @base, open, this.content, seekParticles: true);
@@ -603,6 +728,12 @@ public sealed partial class CaptureSession : Node
         if (string.CompareOrdinal(frame, ScreenCaptures.MenuMapFrame) == 0)
         {
             _ = new DungeonMapView(built, @base, open.Party);
+            return;
+        }
+
+        if (service)
+        {
+            OpenService(built, @base, open, this.content);
             return;
         }
 
@@ -625,7 +756,7 @@ public sealed partial class CaptureSession : Node
         _ = new MainListView(built, @base, list);
         if (string.CompareOrdinal(frame, ScreenCaptures.MenuPartyFrame) == 0)
         {
-            _ = new PartyView(built, @base, open.State, new PartyList(open.State.Characters.Members.Count));
+            _ = new PartyView(built, @base, new PartyList(open.State));
         }
         else if (string.CompareOrdinal(frame, ScreenCaptures.MenuStatusFrame) == 0)
         {

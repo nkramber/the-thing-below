@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
 
 namespace TheThingBelow.Debug.Commands;
@@ -50,9 +51,10 @@ public sealed class DebugSession
     /// </returns>
     /// <exception cref="ArgumentNullException">The line is null (T-2).</exception>
     /// <remarks>
-    /// A battle command that aims takes one argument, the slot of its target, and every other
-    /// command takes none. A line of the wrong shape is a fault, and the answer names it (D-767,
-    /// T-2). The item command uses the first item that the pack holds (D-780).
+    /// A battle command that aims takes one argument, the slot of its target, the go-to-map
+    /// command takes the id of its map, and every other command takes none. A line of the wrong
+    /// shape is a fault, and the answer names it (D-767, D-1133, T-2). The item command uses the
+    /// first item that the pack holds (D-780).
     /// </remarks>
     public IReadOnlyList<string> Run(string line)
     {
@@ -74,6 +76,19 @@ public sealed class DebugSession
         if (!DebugCommands.TryFind(name, out DebugCommand? command) || command is null)
         {
             return [$"> {shown}", $"no command takes the name '{name}'. {Names()}"];
+        }
+
+        if (command.TakesMap)
+        {
+            if (!TryMap(command, words, out ContentId? map, out string mapFault))
+            {
+                return [$"> {shown}", mapFault];
+            }
+
+            // The handler checks the map against the maps of the run on the tick of the rules,
+            // because the state can change before that tick (D-1133, T-7).
+            this.queue(Intent.OfDebugMap(command.Action!, map!));
+            return [$"> {shown}", $"the record takes the intent '{command.Action!.Value}' to '{map!.Value}' on the next tick"];
         }
 
         if (!TryTarget(command, words, out BattleTarget? target, out string fault))
@@ -128,6 +143,27 @@ public sealed class DebugSession
         }
 
         target = new BattleTarget(side, slot);
+        return true;
+    }
+
+    /// <summary>Reads the map argument of the go-to-map command: one id of the kind `map` (D-646, D-1133).</summary>
+    private static bool TryMap(DebugCommand command, string[] words, out ContentId? map, out string fault)
+    {
+        map = null;
+        fault = $"the command '{command.Name}' takes the id of its map, such as '{MapIds.FirstMap.Value}' (D-1133)";
+        if (words.Length != 2 || !ContentId.IsWellFormed(words[1]))
+        {
+            return false;
+        }
+
+        ContentId id = ContentId.Parse(words[1], "the debug console", command.Name);
+        if (string.CompareOrdinal(id.Kind, GameMap.IdKind) != 0)
+        {
+            return false;
+        }
+
+        map = id;
+        fault = string.Empty;
         return true;
     }
 

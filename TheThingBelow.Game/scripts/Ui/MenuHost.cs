@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Godot;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Logging;
+using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
 using TheThingBelow.Storage;
 
@@ -17,10 +18,12 @@ namespace TheThingBelow.Game.Ui;
 /// screen. Back closes the window on top, and the menu closes with the last one. The menu
 /// action closes every window, and the map action closes the map screen (D-986). The world waits
 /// while a window is open, and the host sends the open intent and the close intent of the run
-/// (D-162, D-650).
+/// (D-162, D-650). A confirm on the host of a hub service opens the menu in the rules, and the
+/// host then opens the window of the service with no open intent (D-1131, D-1132).
 /// <para>
-/// The host holds no rule. A choice of the party window becomes the row intent of the run, and
-/// a move of a cursor makes no intent (D-493). The settings screen writes and applies its
+/// The host holds no rule. A choice of the party window becomes the row intent or the swap intent
+/// of the run, a choice of the window of a service becomes its intent and the close, and a move of
+/// a cursor makes no intent (D-493, D-1134). The settings screen writes and applies its
 /// settings through the host of the session when it closes (D-860, D-871).
 /// </para>
 /// </remarks>
@@ -40,6 +43,7 @@ public sealed class MenuHost
     private LessonCursor? lessonCursor;
     private GearCursor? gearCursor;
     private ItemCursor? itemCursor;
+    private ServiceChoice? serviceChoice;
 
     /// <summary>Makes the host of the menu of one run, with no window open.</summary>
     /// <param name="frame">The frame, whose UI layer takes each window.</param>
@@ -100,6 +104,29 @@ public sealed class MenuHost
     /// <exception cref="InvalidOperationException">A window is already open (T-2).</exception>
     /// <exception cref="ArgumentException">The map is larger than 80 by 45 tiles (D-982, T-2).</exception>
     public void OpenDungeonMap() => this.OpenMenu(MenuWindowKind.DungeonMap);
+
+    /// <summary>
+    /// Opens the window of a hub service that a confirm opened in the rules (D-1131, D-1132). The
+    /// rules opened the menu with the service, so the host sends no open intent, and the close of
+    /// the window sends the close intent (D-162).
+    /// </summary>
+    /// <param name="kind">The kind of the service.</param>
+    /// <exception cref="InvalidOperationException">A window is already open, or the run holds no open menu (T-2).</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The value names no kind of service (T-2).</exception>
+    public void OpenService(ServiceKind kind)
+    {
+        if (!this.run.MenuOpen)
+        {
+            throw new InvalidOperationException(
+                $"The window of a {ServiceKinds.NameOf(kind)} service opens at tick {this.run.Tick}, and the run holds no open menu, which the confirm on the host opens (D-1131, T-2).");
+        }
+
+        MenuWindowKind window = kind == ServiceKind.Rest ? MenuWindowKind.Rest : MenuWindowKind.Save;
+        this.serviceChoice = new ServiceChoice(kind);
+        this.path.Open(window);
+        this.views.Add(this.Build(window, null));
+        this.writeLog([new LogEntry(LogLevel.Info, "the menu opened the window of a service", this.run.Tick, LogSubsystems.Game, [WindowField(window)])]);
+    }
 
     /// <summary>Gives one input event to the menu.</summary>
     /// <param name="signal">The event.</param>
@@ -191,7 +218,7 @@ public sealed class MenuHost
             MenuWindowKind kind = MainList.WindowOf(this.mainList.Current);
             if (kind == MenuWindowKind.Party)
             {
-                this.partyList = new PartyList(this.run.State.Characters.Members.Count);
+                this.partyList = new PartyList(this.run.State);
             }
 
             if (kind == MenuWindowKind.Lessons)
@@ -215,11 +242,20 @@ public sealed class MenuHost
             return;
         }
 
-        if (top == MenuWindowKind.Party)
+        // The party window made the intent of a whole choice: a row change or a swap (D-558, D-1134).
+        if (top == MenuWindowKind.Party && this.views[^1] is PartyView party && party.TakeIntent() is Intent chosen)
         {
-            PartyList list = this.partyList ?? throw new InvalidOperationException(
-                $"The party window chose at tick {this.run.Tick}, and the host made no cursor for it (T-2).");
-            this.run.Queue(list.Choose());
+            this.run.Queue(chosen);
+        }
+
+        // The window of a service made the rest intent or the save intent, and the window closes
+        // the menu after it, so the record holds the intent and the close (D-493, D-1131, D-1132).
+        if ((top == MenuWindowKind.Rest || top == MenuWindowKind.Save) && this.views[^1] is ServiceView service)
+        {
+            Intent asked = service.TakeIntent() ?? throw new InvalidOperationException(
+                $"The window '{top}' chose at tick {this.run.Tick}, and it made no intent of its service (T-2).");
+            this.run.Queue(asked);
+            this.Back();
         }
 
         // The lesson window made the intent of a whole choice: a swap or a cast (D-391, D-1030).
@@ -294,7 +330,7 @@ public sealed class MenuHost
     private IMenuView Build(MenuWindowKind kind, GameSettings? changed) => kind switch
     {
         MenuWindowKind.MainList => new MainListView(this.frame, this.ui, this.mainList),
-        MenuWindowKind.Party => new PartyView(this.frame, this.ui, this.run.State, this.partyList ?? throw new InvalidOperationException(
+        MenuWindowKind.Party => new PartyView(this.frame, this.ui, this.partyList ?? throw new InvalidOperationException(
             $"The party window builds at tick {this.run.Tick}, and the host made no cursor for it (T-2).")),
         MenuWindowKind.Lessons => new LessonsView(this.frame, this.ui, this.content.Strings, this.run.State, this.lessonCursor ?? throw new InvalidOperationException(
             $"The lesson window builds at tick {this.run.Tick}, and the host made no cursor for it (T-2).")),
@@ -313,6 +349,8 @@ public sealed class MenuHost
                 BodySize.DefaultFor(this.frame.Fit.Height, this.content.Style.SmallBody, this.content.Style.LargeBody)),
             InputActions.Menu),
         MenuWindowKind.DungeonMap => new DungeonMapView(this.frame, this.ui, this.run.Party),
+        MenuWindowKind.Rest or MenuWindowKind.Save => new ServiceView(this.frame, this.ui, this.serviceChoice ?? throw new InvalidOperationException(
+            $"The window '{kind}' builds at tick {this.run.Tick}, and the host made no cursor for it (T-2).")),
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "The menu builds no such window (T-2)."),
     };
 }

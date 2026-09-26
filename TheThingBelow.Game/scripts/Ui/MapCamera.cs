@@ -118,6 +118,37 @@ public static class MapCamera
         return SlideOf(patrol.At.Y, DownOf(patrol.Stepping), patrol.StepTicks, patrol.Patrol.StepTicks, tickPart);
     }
 
+    /// <summary>
+    /// Gives the pixel of the west edge of one NPC, with the slide of the step that runs
+    /// (D-203, D-1138).
+    /// </summary>
+    /// <param name="npc">The NPC on its map.</param>
+    /// <param name="tickPart">The part of the next tick that the frame reached, from 0 to 999 (D-820).</param>
+    /// <returns>The pixel, in art pixels of the world viewport.</returns>
+    /// <exception cref="ArgumentNullException">The NPC is null (T-2).</exception>
+    /// <remarks>Each NPC carries the count of ticks of its own step, as an enemy does (D-821).</remarks>
+    public static int NpcX(NpcState npc, int tickPart)
+    {
+        ArgumentNullException.ThrowIfNull(npc);
+
+        return SlideOf(npc.At.X, AcrossOf(npc.Stepping), npc.StepTicks, npc.Npc.StepTicks, tickPart);
+    }
+
+    /// <summary>
+    /// Gives the pixel of the north edge of one NPC, with the slide of the step that runs
+    /// (D-203, D-1138).
+    /// </summary>
+    /// <param name="npc">The NPC on its map.</param>
+    /// <param name="tickPart">The part of the next tick that the frame reached, from 0 to 999 (D-820).</param>
+    /// <returns>The pixel, in art pixels of the world viewport.</returns>
+    /// <exception cref="ArgumentNullException">The NPC is null (T-2).</exception>
+    public static int NpcY(NpcState npc, int tickPart)
+    {
+        ArgumentNullException.ThrowIfNull(npc);
+
+        return SlideOf(npc.At.Y, DownOf(npc.Stepping), npc.StepTicks, npc.Npc.StepTicks, tickPart);
+    }
+
     /// <summary>Gives the place of the view on one axis (D-717).</summary>
     /// <param name="mapPixels">The length of the map on that axis, in art pixels.</param>
     /// <param name="viewPixels">The length of the view on that axis, in art pixels.</param>

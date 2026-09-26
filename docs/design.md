@@ -130,6 +130,8 @@ The fixture dungeon turns dark (D-1067). The T key and the Y button work the tor
 
 2026-09-25 review gate pass: PR-102 fixes seven gate findings of the repository review of 2026-09-24 in one PR, as the owner directed (D-1081). Each git list of paths in a workflow takes `--no-renames`, so a move into `docs/` no longer skips CI (F-109). The review gate gives each large value to jq through a file (F-110). Each push to `main` gets a concurrency group of its own (F-111). An export step prints its log before it fails (F-112).
 
+2026-09-25 hub pass: a player reaches each service of a hub through an NPC or a thing. PR-14 adds the confirm rule of the map (D-1131). PR-14 builds the save window, the save of a hub, and the autosave of a hub (D-1132). The party swaps anywhere outside a fight, and it stays full (D-1134 to D-1136). NPCs wander, walk a route, or chase, and they walk home after a story scene (D-1137 to D-1140). D-1141 to D-1148 settle exit test 6, the service point, the save entry, the reserve, and four details.
+
 The rules AGENTS 1 and DOCS 1 of ste-check read the exact text, as their tests do (F-113). The local settings file of the harness takes the review (D-1086, F-114). Each program of the `codex-review` command runs under a time limit (D-1087, F-115).
 
 The owner also answered four findings of the review. The `codex-review` command keeps its setup (D-1082). The menu action in a fight pauses the fight with a dimmed screen (D-1083). A loss of focus pauses the world until the focus comes back (D-1084). A step into a group in its grace time starts no encounter (D-1085).
@@ -354,7 +356,7 @@ Status: ✅ done (code merged, or "doc" for a document-only correction) · 🔧 
 | F-4 | The repository had no commit, so no branch and no PR could exist | 2026-09-12 | ✅ D-25. The owner made the root commit `6b899dd` with an empty `CLAUDE.md` |
 | F-5 | The Python checker applies the 20-word limit to every numbered item, and the C# tool applied it under a Sequence or Procedure heading alone | 2026-09-12 | ✅ D-604 and PR-2. The limit reads every numbered item, under any heading, and the skill text states it |
 | F-6 | D-39 took seeded dungeon variation on a replay premise, and D-46 removed the premise | 2026-09-12 | ✅ D-47. No variation. L-13 |
-| F-7 | D-36 leaves a fallen character down until a hub, and a three-character party (D-31) then fights with two. No decision balances the short-handed party | 2026-09-12 | ⚠ D-58 gives a reserve and a swap at save points. Binds PR-16 and M-4 |
+| F-7 | D-36 leaves a fallen character down until a hub, and a three-character party (D-31) then fights with two. No decision balances the short-handed party | 2026-09-12 | ⚠ D-58 gives a reserve, and D-1134 lets the party swap anywhere outside a fight. Binds PR-14 and M-4 |
 | F-8 | D-42 empties a caster's MP across a dungeon, and no decision gives a job a no-MP action | 2026-09-12 | ⚠ Binds PR-9 and PR-12. D-359 gives every character a basic attack with no MP cost |
 | F-9 | D-48 sets the floor at 120 by 40, and a default macOS Terminal window is 80 by 24 | 2026-09-12 | ✅ doc. D-80 superseded D-48, D-103 superseded D-80, D-228 superseded D-103, and D-98 ended the terminal, so PR-7 has no size message |
 | F-10 | D-62 puts the run record in the save, and a record grows without bound over 20 to 40 hours (D-30) | 2026-09-12 | ✅ PR-6 wrote the compaction rule: the record takes a new snapshot at each save, and it drops every intent before it (D-651). ⚠ No save called it before PR-105. `GameRun.Save` calls it now, and PR-16 calls that at each save (D-1115). A held walk adds about 15 MB of record each hour until then |
@@ -636,7 +638,7 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 41. PR-104: the boot message, the enemy reply, and six rule guards, in one PR, after PR-103 (D-1098 to D-1108).
 42. PR-105: the save drift rules, the wipe pick, the save hook, and six guards, in one PR, after PR-104 (D-1109 to D-1119).
 43. PR-106: the gate trust, the map behind a menu, and four more findings, in one PR, after PR-105 (D-1121 to D-1130).
-44. PR-14: the hub map, the NPCs, the rest, the save, and the party and lesson swaps (D-59, D-112, D-356).
+44. PR-14: the hub map, the NPCs and their movement, the rest, the save, and the party swap (D-59, D-112, D-1131 to D-1140).
 45. PR-65: the shop and the gold economy, after PR-13 (D-60, D-530).
 46. PR-36: the dialogue box, the portraits, and the story scene on screen (D-114, D-223).
 47. PR-15: the headless runner, the two bot policies, and the bot job (D-64, D-505).

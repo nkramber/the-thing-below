@@ -1,0 +1,80 @@
+{
+ "comment": "The fixture hub of PR-14 (D-112, D-1131, D-1137). The inn lies to the west and the yard to the east, with one doorway between them. The keeper stands at the end of the bar and holds the rest service (D-740). The waystone of the yard is a solid service point, and it holds the save service (D-1142). The barmaid walks from the bar to the tables and waits at each end (D-1138). The dog wanders the two rectangles of the yard, and the child chases the dog inside the same rectangles. The map holds no story trigger, because Game sends no end of a step before PR-36. The debug command `goto map.fixture_hub` puts the party here (D-1133). PR-17 writes the hubs of the first playable.",
+ "id": "map.fixture_hub",
+ "region": "region.fixture",
+ "label": "label.fixture_hub",
+ "kind": "hub",
+ "time": "day",
+ "dark": false,
+ "terrain": [
+  "####################",
+  "#........#.........#",
+  "#........#.........#",
+  "#.####...#.........#",
+  "#........#.........#",
+  "#........+.........#",
+  "#........#.........#",
+  "#........#.........#",
+  "#........#.........#",
+  "#........#.........#",
+  "#........#.........#",
+  "####################"
+ ],
+ "things": [
+  { "id": "spawn_point.fixture_hub_start", "kind": "spawn_point", "x": 4, "y": 6 },
+  { "id": "service_point.fixture_hub_waystone", "kind": "service_point", "x": 14, "y": 2 }
+ ],
+ "enemies": [],
+ "npcs": [
+  {
+   "id": "npc.fixture_hub_keeper",
+   "facing": "south",
+   "step_ticks": 32,
+   "move": "route",
+   "tiles": [{ "x": 6, "y": 3, "wait_ticks": 0 }]
+  },
+  {
+   "id": "npc.fixture_hub_barmaid",
+   "facing": "south",
+   "step_ticks": 32,
+   "move": "route",
+   "tiles": [
+    { "x": 7, "y": 2, "wait_ticks": 90 },
+    { "x": 7, "y": 8, "wait_ticks": 0 },
+    { "x": 2, "y": 8, "wait_ticks": 120 }
+   ]
+  },
+  {
+   "id": "npc.fixture_hub_dog",
+   "facing": "west",
+   "step_ticks": 16,
+   "move": "wander",
+   "x": 12,
+   "y": 5,
+   "areas": [
+    { "x": 11, "y": 4, "width": 8, "height": 3 },
+    { "x": 15, "y": 7, "width": 4, "height": 4 }
+   ],
+   "pace_ticks": 48
+  },
+  {
+   "id": "npc.fixture_hub_child",
+   "facing": "north",
+   "step_ticks": 32,
+   "move": "chase",
+   "x": 17,
+   "y": 9,
+   "areas": [
+    { "x": 11, "y": 4, "width": 8, "height": 3 },
+    { "x": 15, "y": 7, "width": 4, "height": 4 }
+   ],
+   "pace_ticks": 32,
+   "target": "npc.fixture_hub_dog"
+  }
+ ],
+ "services": [
+  { "id": "service.fixture_hub_rest", "kind": "rest", "npc": "npc.fixture_hub_keeper", "condition": { "always": true } },
+  { "id": "service.fixture_hub_save", "kind": "save", "thing": "service_point.fixture_hub_waystone", "condition": { "always": true } }
+ ],
+ "triggers": []
+}

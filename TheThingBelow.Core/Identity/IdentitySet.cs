@@ -83,6 +83,7 @@ public static partial class IdentitySet
      "label": "label.identity_run",
      "time": "day",
      "dark": false,
+     "kind": "dungeon", "npcs": [], "services": [],
      "terrain": [
       "#########",
       "#.......#",
@@ -141,6 +142,7 @@ public static partial class IdentitySet
      "label": "label.identity_battle",
      "time": "day",
      "dark": false,
+     "kind": "dungeon", "npcs": [], "services": [],
      "terrain": [
       "#########",
       "#.......#",
@@ -180,6 +182,7 @@ public static partial class IdentitySet
      "label": "label.identity_torch",
      "time": "night",
      "dark": true,
+     "kind": "dungeon", "npcs": [], "services": [],
      "terrain": [
       "################",
       "#..............#",
@@ -219,6 +222,7 @@ public static partial class IdentitySet
      "label": "label.identity_record",
      "time": "day",
      "dark": false,
+     "kind": "dungeon", "npcs": [], "services": [],
      "terrain": [
       "#########",
       "#.......#",
@@ -258,6 +262,7 @@ public static partial class IdentitySet
      "label": "label.identity_status",
      "time": "day",
      "dark": false,
+     "kind": "dungeon", "npcs": [], "services": [],
      "terrain": [
       "#########",
       "#.......#",
@@ -297,6 +302,7 @@ public static partial class IdentitySet
      "label": "label.identity_evaluator",
      "time": "day",
      "dark": false,
+     "kind": "dungeon", "npcs": [], "services": [],
      "terrain": [
       "#########",
       "#.......#",

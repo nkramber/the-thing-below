@@ -214,29 +214,53 @@ public static class LessonRules
     /// </summary>
     /// <param name="state">The run, whose party took the health of the fight back.</param>
     /// <param name="battle">The battle won.</param>
+    /// <remarks>
+    /// The lessons of a reserve character gain half, after the shrink, and those of a downed one
+    /// gain none (D-357, D-1019, D-1022). The reserve takes no event, because the battle summary
+    /// names the party alone until OQ-249 has its answer.
+    /// </remarks>
     internal static void Award(RunState state, Battle battle)
     {
-        BattleContent content = state.BattleContent;
         for (int slot = 0; slot < battle.Party.Count; slot += 1)
         {
             PartyMember member = state.Characters.Members[slot];
             ExperienceStanding standing = member.Down ? ExperienceStanding.Down : ExperienceStanding.Fought;
-            foreach (ContentId? held in member.Slots)
+            AwardLessonsOf(state, battle, member, standing, slot);
+        }
+
+        foreach (PartyMember waiting in state.Characters.Reserve)
+        {
+            ExperienceStanding standing = waiting.Down ? ExperienceStanding.Down : ExperienceStanding.Reserve;
+            AwardLessonsOf(state, battle, waiting, standing, null);
+        }
+    }
+
+    /// <summary>
+    /// Gives the points of each equipped lesson of one character. A character of the party names
+    /// its slot and takes the event of each opened form, and a character of the reserve names no
+    /// slot and takes none.
+    /// </summary>
+    private static void AwardLessonsOf(RunState state, Battle battle, PartyMember member, ExperienceStanding standing, int? slot)
+    {
+        BattleContent content = state.BattleContent;
+        foreach (ContentId? held in member.Slots)
+        {
+            if (held is not ContentId lessonId)
             {
-                if (held is not ContentId lessonId)
-                {
-                    continue;
-                }
+                continue;
+            }
 
-                LessonRecord lesson = content.Lessons.Lesson(lessonId);
-                int before = member.PointsOf(lessonId);
-                int earned = Experience.EarnedBy(ShrunkForLesson(before, battle, content), standing);
-                if (earned == 0 || member.GainPoints(lesson, earned) == 0)
-                {
-                    continue;
-                }
+            LessonRecord lesson = content.Lessons.Lesson(lessonId);
+            int before = member.PointsOf(lessonId);
+            int earned = Experience.EarnedBy(ShrunkForLesson(before, battle, content), standing);
+            if (earned == 0 || member.GainPoints(lesson, earned) == 0)
+            {
+                continue;
+            }
 
-                AddOpenedForms(state, lesson, slot, before, member.PointsOf(lessonId));
+            if (slot is int partySlot)
+            {
+                AddOpenedForms(state, lesson, partySlot, before, member.PointsOf(lessonId));
             }
         }
     }

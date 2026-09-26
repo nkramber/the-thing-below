@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Story;
+using TheThingBelow.Tools.Content;
 using Xunit;
 
 namespace TheThingBelow.Tests;
@@ -49,7 +51,7 @@ public sealed class ContentSetTests
         ContentSet set = ContentSet.Load(Files(Rule("rules/a.json", "fixture.lamp", "label.lamp")));
 
         Assert.Single(set.Palette.Colors);
-        Assert.Equal(49, set.Strings.Count);
+        Assert.Equal(52, set.Strings.Count);
         Assert.Equal(64, set.Hash.Length);
         RuleFixtureEntry entry = Assert.Single(set.RuleEntries);
         Assert.Equal("fixture.lamp", entry.Id.Value);
@@ -605,6 +607,45 @@ public sealed class ContentSetTests
         Assert.Contains(FlagList.Path, error.Message, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void TheShippedContentHoldsTheFixtureHubWithEachMoveAndBothServices()
+    {
+        // Exit test 18 of PR-14 (D-1133): the debug command and the capture reach this hub. It
+        // holds one NPC of each move and a service on an NPC and on a service point (D-1131,
+        // D-1138, D-1142).
+        ContentSet set = ContentSet.Load(ContentFolder.Read(RepositoryRoot.Find()));
+
+        GameMap hub = set.Map(ContentId.Parse("map.fixture_hub", "test", "id"));
+
+        Assert.Equal(MapKind.Hub, hub.Kind);
+        Assert.False(hub.Dark);
+        Assert.Equal(
+            [NpcMove.Route, NpcMove.Route, NpcMove.Wander, NpcMove.Chase],
+            hub.Npcs.Select(npc => npc.Move));
+        Assert.Single(hub.Npcs[0].Route);
+        Assert.True(hub.Npcs[1].Route.Count > 1);
+        Assert.Equal(hub.Npcs[2].Id.Value, hub.Npcs[3].Target?.Value);
+
+        MapService rest = Assert.Single(hub.Services, service => service.Kind == ServiceKind.Rest);
+        MapService save = Assert.Single(hub.Services, service => service.Kind == ServiceKind.Save);
+        Assert.Equal(hub.Npcs[0].Id.Value, rest.Npc?.Value);
+        MapThing point = Assert.Single(hub.Things, thing => thing.Kind == MapThingKind.ServicePoint);
+        Assert.Equal(point.Id.Value, save.Thing?.Value);
+        Assert.Equal(hub.Time, set.Light.SetupOf(hub.Id, hub.Time).Time);
+    }
+
+    [Fact]
+    public void TheFixtureHubHoldsNoStoryTrigger()
+    {
+        // Game sends no end of a story step before PR-36, so a trigger on the hub would hold the
+        // run in its story scene for good. The hub gains its triggers with the hub lines of PR-36.
+        ContentSet set = ContentSet.Load(ContentFolder.Read(RepositoryRoot.Find()));
+
+        GameMap hub = set.Map(ContentId.Parse("map.fixture_hub", "test", "id"));
+
+        Assert.Empty(hub.Triggers);
+    }
+
     /// <summary>The text of one story scene file with one line, for a test of the content set (D-173).</summary>
     private static ContentFile SceneFile(string line) =>
         File(
@@ -629,6 +670,7 @@ public sealed class ContentSetTests
              "label": "{{label}}",
              "time": "day",
              "dark": false,
+             "kind": "dungeon", "npcs": [], "services": [],
              "terrain": [ "###", "#.#", "###" ],
              "things": [
               { "id": "spawn_point.one_start", "kind": "spawn_point", "x": 1, "y": 1 }

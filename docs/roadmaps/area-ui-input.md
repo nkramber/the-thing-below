@@ -130,7 +130,7 @@ Built by PR-61. Phase file: `phase-2-first-playable.md`.
 
 Built by PR-62. Phase file: `phase-2-first-playable.md`.
 
-- A main list opens one window for each task: party, lessons, gear, items, status, log, save, and settings (D-211, D-992). An entry whose window a later PR builds shows dim (D-988).
+- A main list opens one window for each task: party, lessons, gear, items, status, log, and settings (D-211, D-992, D-1143). An entry whose window a later PR builds shows dim (D-988). A save opens from the save service of a hub or from a save point (D-1143).
 - Each window stacks over the last, back closes it, and the map stays visible behind (D-211).
 - A menu pauses the world (D-162). The tick rises while a menu is open, and the world systems skip their work (D-650).
 - A menu action is an intent, and the record holds no cursor move (D-493).

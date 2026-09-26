@@ -816,3 +816,7 @@ How to file a question (D-19, D-24):
     - A quarter of the hit, rounded down, the recommendation and the proposal of the owner. The rate falls to 2500. An absorb stays a real gain for the target, and a wrong spell costs less.
     - The full hit, as it stands. Nothing changes. A wrong spell on a boss can undo many turns of damage.
     - Half of the hit, rounded down. The rate falls to 5000. The cost of a wrong spell sits between the two other options.
+249. **OQ-249. The experience of the reserve on screen.** A reserve character earns half the experience of a battle won (D-73, D-974), and PR-14 adds that award. The battle summary names the party alone. A reserve character can thus gain a level with no line on the screen. Does the summary show the reserve? Raised 2026-09-25. Blocks PR-17, the first PR with a reserve in the shipped content (D-1144).
+    - A line for each reserve character in the summary, the recommendation. The player sees the half share and each level of the reserve.
+    - A line for the level of a reserve character alone. The summary stays short, and a level still shows.
+    - No line. The Status window shows each level, and the summary stays as it is.

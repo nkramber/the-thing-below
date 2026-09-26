@@ -147,6 +147,9 @@ public static class SaveText
     /// map. Its reader gives a snapshot with no map, and `RunState.Resume` then puts the
     /// party on the spawn point of the first map (D-166, D-654). Format 2 holds the map and
     /// no enemy, and its migration puts each enemy on the start tile of its station (D-750).
+    /// Format 14 and older hold no NPC, no NPC stream, and no reserve. The resume puts each NPC on
+    /// its start tile, the NPC stream joins at its first value, from the seed of the header, and
+    /// the reserve starts empty (D-1136, D-1137).
     /// <para>
     /// The PR that next changes the snapshot raises <see cref="SaveFormat.Current"/>, adds a
     /// reader of each older version, and commits a fixture save of the version that it
@@ -161,15 +164,16 @@ public static class SaveText
             3 => ReadLine(line, file, (ref ContentReader reader) => RunSnapshotText.ReadFormatThree(ref reader, seed)),
             4 => ReadLine(line, file, (ref ContentReader reader) => RunSnapshotText.ReadFormatFour(ref reader, seed)),
             5 => ReadLine(line, file, (ref ContentReader reader) => RunSnapshotText.ReadFormatFive(ref reader, seed)),
-            6 => ReadLine(line, file, RunSnapshotText.ReadFormatSix),
-            7 => ReadLine(line, file, RunSnapshotText.ReadFormatSeven),
-            8 => ReadLine(line, file, RunSnapshotText.ReadFormatEight),
-            9 => ReadLine(line, file, RunSnapshotText.ReadFormatNine),
-            10 => ReadLine(line, file, RunSnapshotText.ReadFormatTen),
-            11 => ReadLine(line, file, RunSnapshotText.ReadFormatEleven),
-            12 => ReadLine(line, file, RunSnapshotText.ReadFormatTwelve),
-            13 => ReadLine(line, file, RunSnapshotText.ReadFormatThirteen),
-            14 => ReadLine(line, file, RunSnapshotText.Read),
+            6 => ReadLine(line, file, (ref ContentReader reader) => RunSnapshotText.ReadFormatSix(ref reader, seed)),
+            7 => ReadLine(line, file, (ref ContentReader reader) => RunSnapshotText.ReadFormatSeven(ref reader, seed)),
+            8 => ReadLine(line, file, (ref ContentReader reader) => RunSnapshotText.ReadFormatEight(ref reader, seed)),
+            9 => ReadLine(line, file, (ref ContentReader reader) => RunSnapshotText.ReadFormatNine(ref reader, seed)),
+            10 => ReadLine(line, file, (ref ContentReader reader) => RunSnapshotText.ReadFormatTen(ref reader, seed)),
+            11 => ReadLine(line, file, (ref ContentReader reader) => RunSnapshotText.ReadFormatEleven(ref reader, seed)),
+            12 => ReadLine(line, file, (ref ContentReader reader) => RunSnapshotText.ReadFormatTwelve(ref reader, seed)),
+            13 => ReadLine(line, file, (ref ContentReader reader) => RunSnapshotText.ReadFormatThirteen(ref reader, seed)),
+            14 => ReadLine(line, file, (ref ContentReader reader) => RunSnapshotText.ReadFormatFourteen(ref reader, seed)),
+            15 => ReadLine(line, file, RunSnapshotText.Read),
 
             // `CheckFormat` passed, so this build named the version and wrote no reader for
             // it. The message thus names a fault of the build and never a fault of the file (T-2).

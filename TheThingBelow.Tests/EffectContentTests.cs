@@ -45,7 +45,7 @@ public sealed class EffectContentTests
         ]));
 
         Assert.Equal(EffectFixtures.HitPath, error.File);
-        Assert.Equal("serves[5]", error.Field);
+        Assert.Equal("serves[6]", error.Field);
         Assert.Contains("enemy.absent", error.Message, StringComparison.Ordinal);
     }
 
@@ -56,7 +56,7 @@ public sealed class EffectContentTests
         ContentException error = Assert.Throws<ContentException>(() => Load(
         [
             EffectFixtures.File(BattleEffects.Path, EffectFixtures.BattleBody),
-            EffectFixtures.File(EffectFixtures.HitPath, EffectFixtures.HitBody("\"character.marrek\", \"character.test_second\", \"character.test_third\", \"enemy.fixture_grunt\"")),
+            EffectFixtures.File(EffectFixtures.HitPath, EffectFixtures.HitBody("\"character.marrek\", \"character.test_second\", \"character.test_third\", \"character.test_fourth\", \"enemy.fixture_grunt\"")),
         ]));
 
         Assert.Equal(HitEffect.Folder, error.File);

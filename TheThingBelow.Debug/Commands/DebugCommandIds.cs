@@ -58,4 +58,8 @@ public static class DebugCommandIds
     /// <summary>The console put one copy of each item and each piece of gear in the pack, to each stack limit (D-385, D-1038).</summary>
     public static readonly ContentId Stock =
         ContentId.Parse("debug.stock", Source, nameof(Stock));
+
+    /// <summary>The console put the party on the spawn point of one map, which the intent names (D-1133).</summary>
+    public static readonly ContentId GoToMap =
+        ContentId.Parse("debug.go_to_map", Source, nameof(GoToMap));
 }

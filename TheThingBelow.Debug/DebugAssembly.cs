@@ -28,7 +28,7 @@ public static class DebugAssembly
 
     /// <summary>
     /// The handlers of every debug intent of this build, which the host passes to
-    /// <see cref="Simulation.Start"/> (D-260, D-492).
+    /// the start of a <see cref="Simulation"/> (D-260, D-492).
     /// </summary>
     /// <returns>One handler for each command that sends an intent.</returns>
     public static DebugIntentHandlers Handlers() => DebugCommands.Handlers();

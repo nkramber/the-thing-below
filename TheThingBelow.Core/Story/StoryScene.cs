@@ -187,8 +187,8 @@ public sealed class StoryScene
             SceneStepKind.Choose => new ChooseStep(OptionsOf(ref reader, depth, fields)),
             SceneStepKind.SetFlag => new SetFlagStep(reader.Require(fields.Flag, depth, "flag")),
             SceneStepKind.Join => new JoinStep(reader.Require(fields.Character, depth, "character")),
-            SceneStepKind.Show => new ShowStep(CastOf(ref reader, depth, fields), reader.Require(fields.At, depth, "at"), reader.RequireValue(fields.Facing, depth, "facing")),
-            SceneStepKind.Hide => new HideStep(CastOf(ref reader, depth, fields)),
+            SceneStepKind.Show => new ShowStep(ShownOf(ref reader, depth, fields), reader.Require(fields.At, depth, "at"), reader.RequireValue(fields.Facing, depth, "facing")),
+            SceneStepKind.Hide => new HideStep(ShownOf(ref reader, depth, fields)),
             SceneStepKind.Camera => new CameraStep(reader.Require(fields.At, depth, "at")),
             SceneStepKind.StartBattle => new StartBattleStep(reader.Require(fields.Group, depth, "group")),
             _ => throw reader.RefuseField(depth, "kind", $"the step kind '{name}' has no reader (T-2)"),
@@ -279,9 +279,9 @@ public sealed class StoryScene
         }
 
         ContentId id = ContentId.Parse(text, reader.File, "actor");
-        if (string.CompareOrdinal(id.Kind, BattleFixture.CharacterKind) != 0)
+        if (string.CompareOrdinal(id.Kind, BattleFixture.CharacterKind) != 0 && !SceneActor.IsNpcId(id))
         {
-            throw reader.Refuse($"the actor '{text}' is neither '{SceneActor.LeadName}' nor an id of the kind '{BattleFixture.CharacterKind}'. PR-14 adds the NPC as an actor (D-1005, D-1006)");
+            throw reader.Refuse($"the actor '{text}' is not '{SceneActor.LeadName}', an id of the kind '{BattleFixture.CharacterKind}', or an id of the kind '{Npc.IdKind}' (D-1006)");
         }
 
         return new SceneActor(id);
@@ -385,9 +385,9 @@ public sealed class StoryScene
         }
 
         ContentId id = ContentId.Parse(speaker, reader.File, "speaker");
-        if (string.CompareOrdinal(id.Kind, BattleFixture.CharacterKind) != 0)
+        if (string.CompareOrdinal(id.Kind, BattleFixture.CharacterKind) != 0 && !SceneActor.IsNpcId(id))
         {
-            throw reader.RefuseField(depth, "speaker", $"the speaker '{speaker}' is not '{NoSpeaker}', '{SceneActor.LeadName}', or an id of the kind '{BattleFixture.CharacterKind}' (D-997)");
+            throw reader.RefuseField(depth, "speaker", $"the speaker '{speaker}' is not '{NoSpeaker}', '{SceneActor.LeadName}', an id of the kind '{BattleFixture.CharacterKind}', or an id of the kind '{Npc.IdKind}' (D-997, D-1006)");
         }
 
         return new SceneActor(id);
@@ -415,13 +415,13 @@ public sealed class StoryScene
         return options;
     }
 
-    private static ContentId CastOf(ref ContentReader reader, int depth, StepFields fields)
+    private static ContentId ShownOf(ref ContentReader reader, int depth, StepFields fields)
     {
         SceneActor actor = reader.Require(fields.Actor, depth, "actor");
-        return actor.Character ?? throw reader.RefuseField(
+        return actor.Id ?? throw reader.RefuseField(
             depth,
             "actor",
-            "a show or a hide names the lead, and the lead stays on the map. A show or a hide names a cast member (D-1006)");
+            "a show or a hide names the lead, and the lead stays on the map. A show or a hide names a cast member or a scene-only NPC (D-1006)");
     }
 
     /// <summary>The fields of one step as the reader finds them, before the kind picks its record.</summary>

@@ -44,6 +44,9 @@ namespace TheThingBelow.Tests;
 /// Format 12 and older predate the torch, and the migration puts the torch away (D-1064).
 /// Format 13 and older predate the step id of a story scene, and the resume reads the index of
 /// the step alone (D-1112).
+/// Format 14 and older predate the NPCs and the NPC stream, and the migration puts each NPC of the
+/// map on its start tile and opens the NPC stream at its first value from the seed of the header
+/// (D-1137).
 /// </para>
 /// </remarks>
 public sealed class SaveFixtureTests
@@ -97,6 +100,7 @@ public sealed class SaveFixtureTests
                 new(StreamId.Progression, 0xd9107d3e42db0c22, 0x0000000000000007),
                 new(StreamId.Story, 0x9881a20135b0f29e, 0x0000000000000009),
                 EvaluatorAtFirstValue(save.Header.Seed),
+                NpcAtFirstValue(save.Header.Seed),
             },
             save.Snapshot.Streams);
     }
@@ -300,7 +304,8 @@ public sealed class SaveFixtureTests
         SaveDocument save = ReadFormat(5);
 
         Assert.Equal(RandomStreams.All.Count, save.Snapshot.Streams.Count);
-        Assert.Equal(EvaluatorAtFirstValue(save.Header.Seed), save.Snapshot.Streams[^1]);
+        Assert.Equal(EvaluatorAtFirstValue(save.Header.Seed), save.Snapshot.Streams[4]);
+        Assert.Equal(NpcAtFirstValue(save.Header.Seed), save.Snapshot.Streams[5]);
         Assert.Equal(new StreamPosition(StreamId.Battle, 0xc4ea2e33f9109a59, 0x0000000000000005), save.Snapshot.Streams[1]);
     }
 
@@ -348,7 +353,7 @@ public sealed class SaveFixtureTests
         Combatant fighter = BattleRuns.BattleOf(run).Party[0];
         Assert.Equal(TestBattles.MarrekAt(2).Health, fighter.FullHealth);
         Assert.Equal(TestBattles.MarrekAt(2).Attack, fighter.Attack);
-        Assert.Equal(RunSnapshotText.Write(save.Snapshot with { Notices = [], Story = MigratedStory, Characters = MigratedParty(save.Snapshot.Characters), Battle = WithSteals(save.Snapshot.Battle) }), RunSnapshotText.Write(run.Snapshot()));
+        Assert.Equal(RunSnapshotText.Write(AsFormatFifteen(save.Snapshot with { Notices = [], Story = MigratedStory, Characters = MigratedParty(save.Snapshot.Characters), Battle = WithSteals(save.Snapshot.Battle) })), RunSnapshotText.Write(run.Snapshot()));
     }
 
     [Fact]
@@ -373,7 +378,7 @@ public sealed class SaveFixtureTests
 
         Assert.Equal([TestBattles.KeptNotice.Value], Values(run.State.NoticeLog.Entries));
         Assert.Equal(20, save.Header.SimulationVersion);
-        Assert.Equal(RunSnapshotText.Write(save.Snapshot with { Story = MigratedStory, Characters = MigratedParty(save.Snapshot.Characters), Battle = WithSteals(save.Snapshot.Battle) }), RunSnapshotText.Write(run.Snapshot()));
+        Assert.Equal(RunSnapshotText.Write(AsFormatFifteen(save.Snapshot with { Story = MigratedStory, Characters = MigratedParty(save.Snapshot.Characters), Battle = WithSteals(save.Snapshot.Battle) })), RunSnapshotText.Write(run.Snapshot()));
     }
 
     [Fact]
@@ -419,7 +424,7 @@ public sealed class SaveFixtureTests
         Assert.Equal(ScenePhase.WaitIntent, story.Phase);
         Assert.True(story.Paused);
         Assert.Equal(2, run.State.Characters.Members.Count);
-        Assert.Equal(RunSnapshotText.Write(save.Snapshot with { Characters = MigratedParty(save.Snapshot.Characters), Battle = WithSteals(save.Snapshot.Battle), Story = WithStepId(save.Snapshot.Story, "step.ambush") }), RunSnapshotText.Write(run.Snapshot()));
+        Assert.Equal(RunSnapshotText.Write(AsFormatFifteen(save.Snapshot with { Characters = MigratedParty(save.Snapshot.Characters), Battle = WithSteals(save.Snapshot.Battle), Story = WithStepId(save.Snapshot.Story, "step.ambush") })), RunSnapshotText.Write(run.Snapshot()));
     }
 
     [Fact]
@@ -450,7 +455,7 @@ public sealed class SaveFixtureTests
             ["lesson.fixture_purge", "lesson.fixture_rot", "lesson.fixture_quicken", "lesson.fixture_bolt", "lesson.fixture_cinder"],
             Values(run.State.Characters.LessonPack));
         Assert.DoesNotContain("swap_place", RunSnapshotText.Write(run.Snapshot()), StringComparison.Ordinal);
-        Assert.Equal(RunSnapshotText.Write(save.Snapshot with { Characters = WithGear(save.Snapshot.Characters), Battle = WithSteals(save.Snapshot.Battle) }), RunSnapshotText.Write(run.Snapshot()));
+        Assert.Equal(RunSnapshotText.Write(AsFormatFifteen(save.Snapshot with { Characters = WithGear(save.Snapshot.Characters), Battle = WithSteals(save.Snapshot.Battle) })), RunSnapshotText.Write(run.Snapshot()));
     }
 
     [Fact]
@@ -482,7 +487,7 @@ public sealed class SaveFixtureTests
         // value from the curve of the tests (D-1052, G-5).
         Assert.Equal((TestBattles.MarrekAt(1).Magic, TestBattles.MarrekAt(1).Resistance), (fighter.Magic, fighter.Resistance));
         Assert.Equal(Affinity.Resist, fighter.Elements.Of(Element.Fire));
-        Assert.Equal(RunSnapshotText.Write(save.Snapshot with { Characters = WithTorch(save.Snapshot.Characters) }), RunSnapshotText.Write(run.Snapshot()));
+        Assert.Equal(RunSnapshotText.Write(AsFormatFifteen(save.Snapshot with { Characters = WithTorch(save.Snapshot.Characters) })), RunSnapshotText.Write(run.Snapshot()));
     }
 
     [Fact]
@@ -495,11 +500,11 @@ public sealed class SaveFixtureTests
         Simulation run = ResumeInBattle(save);
 
         Assert.Equal(24, save.Header.SimulationVersion);
-        Assert.DoesNotContain("swap_place", RunSnapshotText.Write(save.Snapshot with { Characters = WithTorch(save.Snapshot.Characters) }), StringComparison.Ordinal);
+        Assert.DoesNotContain("swap_place", RunSnapshotText.Write(AsFormatFifteen(save.Snapshot with { Characters = WithTorch(save.Snapshot.Characters) })), StringComparison.Ordinal);
         Combatant fighter = BattleRuns.BattleOf(run).Party[0];
         StatRow curve = TestBattles.MarrekAt(1);
         Assert.Equal((curve.Attack + 5, curve.Magic, curve.Defense, curve.Resistance), (fighter.Attack, fighter.Magic, fighter.Defense, fighter.Resistance));
-        Assert.Equal(RunSnapshotText.Write(save.Snapshot with { Characters = WithTorch(save.Snapshot.Characters) }), RunSnapshotText.Write(run.Snapshot()));
+        Assert.Equal(RunSnapshotText.Write(AsFormatFifteen(save.Snapshot with { Characters = WithTorch(save.Snapshot.Characters) })), RunSnapshotText.Write(run.Snapshot()));
     }
 
     [Fact]
@@ -512,7 +517,7 @@ public sealed class SaveFixtureTests
 
         Assert.Equal(25, save.Header.SimulationVersion);
         Assert.Equal(true, run.Snapshot().Characters?.TorchHeld);
-        Assert.Equal(RunSnapshotText.Write(save.Snapshot), RunSnapshotText.Write(run.Snapshot()));
+        Assert.Equal(RunSnapshotText.Write(AsFormatFifteen(save.Snapshot)), RunSnapshotText.Write(run.Snapshot()));
     }
 
     [Fact]
@@ -527,7 +532,106 @@ public sealed class SaveFixtureTests
         Assert.Equal(29, save.Header.SimulationVersion);
         Assert.Equal("step.pause", save.Snapshot.Story?.Scene?.StepId?.Value);
         Assert.Equal((5, ScenePhase.Ticks, 3, true), (story.Step, story.Phase, story.TicksLeft, story.Paused));
+        Assert.Equal(RunSnapshotText.Write(AsFormatFifteen(save.Snapshot)), RunSnapshotText.Write(run.Snapshot()));
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatFifteenHoldsEachNpcOfItsHub()
+    {
+        // PR-14 wrote format 15 from the group of four in the yard of the tests after 150 ticks
+        // with no input: the barmaid waits 20 more ticks at the end of her route, the dog steps
+        // south, and the child waits for its next pace (D-1137, D-1138).
+        SaveDocument save = ReadFormat(15);
+        Simulation run = ResumeYard(save);
+
+        IReadOnlyList<NpcState> npcs = run.State.Party.Npcs.All;
+        Assert.Equal(31, save.Header.SimulationVersion);
+        Assert.Equal(["npc.hub_keeper", "npc.hub_barmaid", "npc.hub_dog", "npc.hub_child"], NpcIds(npcs));
+        Assert.Equal((new TilePoint(3, 5), 20, 1, false), (npcs[1].At, npcs[1].WaitTicks, npcs[1].Target, npcs[1].Forward));
+        Assert.Equal((new TilePoint(6, 5), StepDirection.South, 21), (npcs[2].At, npcs[2].Stepping, npcs[2].StepTicks));
+        Assert.Equal((new TilePoint(7, 5), 11), (npcs[3].At, npcs[3].WaitTicks));
         Assert.Equal(RunSnapshotText.Write(save.Snapshot), RunSnapshotText.Write(run.Snapshot()));
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatFifteenHoldsTheReserve()
+    {
+        // D-1136: the party of three is full, so the fourth character waits in the reserve, and the
+        // resume puts it back there with its values.
+        SaveDocument save = ReadFormat(15);
+        Simulation run = ResumeYard(save);
+
+        Assert.Equal(["character.marrek", "character.test_second", "character.test_third"], MemberIds(run.State.Characters.Members));
+        PartyMember waiting = Assert.Single(run.State.Characters.Reserve);
+        Assert.Equal((TestParty.Fourth.Value, 45, 1, 6), (waiting.Record.Id.Value, waiting.Health, waiting.Level, waiting.Mp));
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatFourteenStartsTheReserveEmpty()
+    {
+        // D-1136: format 14 predates the reserve, so the read gives no reserve list and the resume
+        // gives an empty reserve.
+        SaveDocument save = ReadFormat(14);
+
+        Assert.Null(save.Snapshot.Characters?.Reserve);
+        Assert.Empty(TestStory.Resume(save.Header.Seed, save.Snapshot).State.Characters.Reserve);
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatFifteenWalksOnAsTheRunThatWroteIt()
+    {
+        // D-259: the save holds each value that the walk of the NPCs reads, the NPC stream
+        // included, so the resumed run and the live run keep one state hash (G-5).
+        SaveDocument save = ReadFormat(15);
+        Simulation resumed = ResumeYard(save);
+        Simulation live = TestParty.StartFour(save.Header.Seed, HubMaps.Yard);
+        for (int tick = 0; tick < 150; tick += 1)
+        {
+            live.Step([]);
+        }
+
+        for (int tick = 0; tick < 400; tick += 1)
+        {
+            live.Step([]);
+            resumed.Step([]);
+            Assert.True(live.State.StateHash() == resumed.State.StateHash(), $"The resumed run left the live run at tick {resumed.Tick}.");
+        }
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatFourteenGainsTheNpcStreamAtItsFirstValueAndNoNpcList()
+    {
+        // D-1137: no build before PR-14 drew from the NPC stream, so the migration opens it from the
+        // seed of the header, and each older stream keeps its position.
+        SaveDocument save = ReadFormat(14);
+
+        Assert.Null(save.Snapshot.Map?.Npcs);
+        Assert.Equal(RandomStreams.All.Count, save.Snapshot.Streams.Count);
+        Assert.Equal(NpcAtFirstValue(save.Header.Seed), save.Snapshot.Streams[5]);
+        Assert.Equal(new StreamPosition(StreamId.Evaluator, 0x0438da591c72253b, 0x000000000000000b), save.Snapshot.Streams[4]);
+        Assert.Empty(TestStory.Resume(save.Header.Seed, save.Snapshot).State.Party.Npcs.All);
+    }
+
+    [Fact]
+    public void ASnapshotOfFormatFourteenPutsEachNpcOfItsHubOnItsStartTile()
+    {
+        // D-1137: format 14 holds no NPC, so a map of this build that places NPCs puts each one on
+        // its start tile, and the NPC stream starts again at its first value.
+        Simulation live = Simulation.Start(SaveRuns.Seed, HubMaps.Yard, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
+        for (int tick = 0; tick < 150; tick += 1)
+        {
+            live.Step([]);
+        }
+
+        string line = SnapshotLines.AsFormatFourteen(RunSnapshotText.Write(live.Snapshot()));
+        var reader = new ContentReader(System.Text.Encoding.UTF8.GetBytes(line), "the test");
+        RunSnapshot older = RunSnapshotText.ReadFormatFourteen(ref reader, SaveRuns.Seed);
+        Simulation run = Simulation.Resume(SaveRuns.Seed, older, HubMaps.Yard, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
+
+        Assert.DoesNotContain("npcs", line, StringComparison.Ordinal);
+        Assert.Equal(NpcTexts(MapNpcs.Enter(HubMaps.Yard).Values()), NpcTexts(run.State.Party.Npcs.Values()));
+        Assert.Equal(NpcAtFirstValue(SaveRuns.Seed), run.Snapshot().Streams[5]);
+        Assert.NotEqual(NpcAtFirstValue(SaveRuns.Seed), live.Snapshot().Streams[5]);
     }
 
     [Fact]
@@ -655,13 +759,23 @@ public sealed class SaveFixtureTests
     private static PartySnapshot? WithTorch(PartySnapshot? party) =>
         party is null ? null : party with { TorchHeld = party.TorchHeld ?? false };
 
-    /// <summary>Gives the battle of a save of format 10 or older as the migration gives it: no steal try (D-166, D-1045).</summary>
+    /// <summary>
+    /// Gives a snapshot of format 14 or older as the migration of format 15 gives it: the NPCs of
+    /// its map, which places none, so the list is empty (D-1137), and an empty reserve (D-1136).
+    /// </summary>
+    private static RunSnapshot AsFormatFifteen(RunSnapshot snapshot)
+    {
+        RunSnapshot withNpcs = snapshot.Map is null ? snapshot : snapshot with { Map = snapshot.Map with { Npcs = snapshot.Map.Npcs ?? [] } };
+        return withNpcs.Characters is null ? withNpcs : withNpcs with { Characters = withNpcs.Characters with { Reserve = withNpcs.Characters.Reserve ?? [] } };
+    }
+
     /// <summary>Gives the story values that a resume of a snapshot before format 14 writes: the step id of the index (D-1112).</summary>
     private static StoryValues? WithStepId(StoryValues? story, string stepId) =>
         story is null || story.Scene is null
             ? story
             : story with { Scene = story.Scene with { StepId = ContentId.Parse(stepId, "test", "step_id") } };
 
+    /// <summary>Gives the battle of a save of format 10 or older as the migration gives it: no steal try (D-166, D-1045).</summary>
     private static BattleValues? WithSteals(BattleValues? battle) =>
         battle is null ? null : battle with { Steals = battle.Steals ?? new StealValues(0, []) };
 
@@ -673,6 +787,49 @@ public sealed class SaveFixtureTests
     {
         RandomStream evaluator = RandomStreams.Open(seed, StreamId.Evaluator);
         return new StreamPosition(StreamId.Evaluator, evaluator.Generator.State, evaluator.Generator.Increment);
+    }
+
+    private static Simulation ResumeYard(SaveDocument save) =>
+        Simulation.Resume(save.Header.Seed, save.Snapshot, HubMaps.Yard, TestParty.FourContent, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
+
+    private static List<string> MemberIds(IReadOnlyList<PartyMember> members)
+    {
+        List<string> ids = [];
+        foreach (PartyMember member in members)
+        {
+            ids.Add(member.Record.Id.Value);
+        }
+
+        return ids;
+    }
+
+    private static List<string> NpcIds(IReadOnlyList<NpcState> npcs)
+    {
+        List<string> ids = [];
+        foreach (NpcState npc in npcs)
+        {
+            ids.Add(npc.Npc.Id.Value);
+        }
+
+        return ids;
+    }
+
+    /// <summary>Gives the text of each stored NPC, which compares by value, as the ids of two reads of one map are two objects.</summary>
+    private static List<string> NpcTexts(IReadOnlyList<NpcValues> npcs)
+    {
+        List<string> texts = [];
+        foreach (NpcValues npc in npcs)
+        {
+            texts.Add(npc.ToString());
+        }
+
+        return texts;
+    }
+
+    private static StreamPosition NpcAtFirstValue(ulong seed)
+    {
+        RandomStream npcs = RandomStreams.Open(seed, StreamId.Npc);
+        return new StreamPosition(StreamId.Npc, npcs.Generator.State, npcs.Generator.Increment);
     }
 
     private static SaveDocument ReadFormat(int version)

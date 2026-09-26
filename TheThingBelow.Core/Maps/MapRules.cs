@@ -31,6 +31,7 @@ public static class MapRules
     /// <summary>Tells whether an enemy can step in a count of ticks (D-821).</summary>
     /// <param name="ticks">The count of ticks of one step of the enemy.</param>
     /// <returns>True when the count is one of <see cref="EnemyStepTicks"/>.</returns>
+    /// <remarks>An NPC steps in the same counts, for the same even slide (D-821, D-1137).</remarks>
     public static bool IsEnemyStep(int ticks)
     {
         foreach (int allowed in EnemyStepTicks)
@@ -143,17 +144,21 @@ public static class MapRules
     /// <summary>Tells whether the party can step onto one tile of a map.</summary>
     /// <param name="map">The map.</param>
     /// <param name="at">The tile that the step reaches, which can lie outside the map.</param>
-    /// <returns>True when the tile lies inside the map and its kind takes a step.</returns>
+    /// <returns>
+    /// True when the tile lies inside the map, its kind takes a step, and it holds no solid
+    /// thing.
+    /// </returns>
     /// <exception cref="ArgumentNullException">The map is null (T-2).</exception>
     /// <remarks>
-    /// A door, a lock, a chest, and a save point answer the step into them in PR-16 and
-    /// PR-64. This build reads the terrain alone, so a thing never blocks a step yet.
+    /// A service point is solid, so the lead faces it and never walks onto it (D-1142). PR-16
+    /// makes the chest and the door solid in the same rule, and a lock, a trap, and a save
+    /// point answer the step into them in PR-16 and PR-64.
     /// </remarks>
     public static bool CanEnter(GameMap map, TilePoint at)
     {
         ArgumentNullException.ThrowIfNull(map);
 
-        return map.Holds(at) && TileKinds.CanWalk(map.TileAt(at));
+        return map.Holds(at) && TileKinds.CanWalk(map.TileAt(at)) && !map.HoldsSolidThing(at);
     }
 
     /// <summary>Tells whether the body of an enemy can stand on one map (D-206, D-209).</summary>

@@ -38,6 +38,49 @@ public sealed class MenuLayoutTests
     [Theory]
     [InlineData(24)]
     [InlineData(32)]
+    public void EachChoiceOfTheWindowOfAServiceFitsWithItsHelp(int body)
+    {
+        // D-1131, D-1132: a label holds 16 characters at most, and a line of help one line of the window.
+        int fits = (int)GameValue.Static(Layout, "ServiceLineCharacters", body)!;
+        foreach (Core.Maps.ServiceKind kind in new[] { Core.Maps.ServiceKind.Rest, Core.Maps.ServiceKind.Save })
+        {
+            foreach (object option in (IEnumerable)GameValue.StaticProperty("ServiceChoice", "Options")!)
+            {
+                string label = Text((ContentId)GameValue.Static("ServiceView", "LabelOf", kind, option)!);
+                string help = Text((ContentId)GameValue.Static("ServiceView", "HelpOf", kind, option)!);
+                Assert.True(label.Length <= 16 && label.Length <= fits, $"The label '{label}' passes 16 characters or the {fits} of the window at a body of {body}.");
+                Assert.True(help.Length <= fits, $"The help '{help}' passes the {fits} characters of the window at a body of {body}.");
+            }
+        }
+    }
+
+    [Theory]
+    [InlineData(24)]
+    [InlineData(32)]
+    public void ThePartyWindowHoldsTheReserveOfTheFirstRegionAndEachOfItsLinesFits(int body)
+    {
+        // D-58, D-1136: two characters wait in the reserve by the end of region one, and each line
+        // of help and each action fits a line of the window.
+        int title = body * Content.Value.Style.TitleScale;
+        int room = (int)GameValue.Static("PartyView", "MostReserveLines", body, title)!;
+        Assert.True(room >= 2, $"The party window holds {room} reserve lines at a body of {body}.");
+
+        int fits = (int)GameValue.Static(Layout, "TaskLineCharacters", body)!;
+        foreach (string id in new[] { "menu.party_help", "menu.party_reserve_help", "menu.swap_help", "menu.reserve" })
+        {
+            Assert.True(Text(Id(id)).Length <= fits, $"The line of '{id}' passes the {fits} characters of the window at a body of {body}.");
+        }
+
+        foreach (object action in (IEnumerable)GameValue.StaticProperty("PartyList", "Actions")!)
+        {
+            string label = Text((ContentId)GameValue.Static("PartyView", "ActionIdOf", action)!);
+            Assert.True(label.Length <= 16, $"The action '{label}' passes 16 characters.");
+        }
+    }
+
+    [Theory]
+    [InlineData(24)]
+    [InlineData(32)]
     public void EachNoticeFitsTheNoticeBoxAndALineOfTheLog(int body)
     {
         // D-221, D-987: the notice box and the log show a notice on one line.
@@ -144,7 +187,7 @@ public sealed class MenuLayoutTests
     public void EachWindowStaysInsideTheFrame(int body)
     {
         // D-568: every window fits the frame of 1280 by 720.
-        foreach (object box in new[] { GameValue.Static(Layout, "MainListBox", body)!, GameValue.Static(Layout, "TaskBox")!, GameValue.Static(Layout, "NoticePlace", body)! })
+        foreach (object box in new[] { GameValue.Static(Layout, "MainListBox", body)!, GameValue.Static(Layout, "ServiceBox", body)!, GameValue.Static(Layout, "TaskBox")!, GameValue.Static(Layout, "NoticePlace", body)! })
         {
             int x = Read(box, "X");
             int y = Read(box, "Y");

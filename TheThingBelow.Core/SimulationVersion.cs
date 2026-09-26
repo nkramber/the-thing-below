@@ -76,6 +76,33 @@ public static class SimulationVersion
     /// PR-106 raised it to 30: the light budget counts each torch at the widest step of its fire (D-891), and the
     /// particle budget of a fight counts the weather, the largest hit burst, and the largest spell burst at once
     /// (D-1032).
+    /// PR-14 raised it to 31: a map file names its kind, a hub or a dungeon, and it holds its NPCs and its services
+    /// (D-112, D-1131, D-1137, D-1138). The load checks the range, the route, and the start of each NPC, the host and
+    /// the flags of each service, and the NPC of each talk trigger, and it refuses a service on a dungeon. A service
+    /// point is a solid thing that blocks each step onto its tile (D-1142). Each NPC walks on the world tick on a
+    /// stream of its own: a wander NPC draws a direction or a pause on each pace tick, a route NPC waits at each route
+    /// tile, and a chaser takes the step closest to its target (D-1137, D-1138). An NPC is solid: no NPC steps onto
+    /// the lead, a wall, a thing, another NPC, or an enemy, no enemy steps onto an NPC, and a step of the lead into an
+    /// NPC turns the lead alone. A story scene ends the step of each NPC (D-1139). The state hash and the snapshot
+    /// hold each NPC and the NPC stream. The party gains a reserve: a join into a full party goes to the reserve, and
+    /// the party swap trades one character of the party with one of the reserve while a menu is open outside a fight
+    /// and an encounter (D-1134, D-1136). A downed character can go out, and a downed reserve character never comes
+    /// in (D-1135). A rest and a save point restore the reserve too. After a battle won, each reserve character earns
+    /// half the experience and half the lesson points, and a downed reserve character earns none (D-73, D-357,
+    /// D-974, D-1022). The state hash and the snapshot hold the reserve. The confirm of the player acts on the tile
+    /// that the lead faces while it stands: an NPC there ends its step and turns to the lead, and then its talk
+    /// trigger fires or its service opens, and a service point opens its service (D-1131, D-1139, D-1142). A service
+    /// whose condition fails posts a notice and stays closed, and an open service opens the menu (D-543). The rest
+    /// intent fills and cures the party and the reserve at the open rest service, and the save intent emits a request
+    /// for the slot save at the open save service (D-390, D-1132, D-1141). A move step and a face step of a story scene
+    /// can name an NPC of the map, a show step can put a scene-only NPC on a marker, and an NPC that a story scene
+    /// leaves outside its home walks home on a shortest path after it (D-1006, D-1140). The state hash and the
+    /// snapshot hold the walk home of each NPC. A line can name an NPC speaker with no body on the map (D-1146). After
+    /// a talk, an NPC holds its pace, or a route NPC the wait of its route tile, before it moves again, and the
+    /// confirm follows the walk of the NPCs in the world tick (D-1147). A run holds a set of maps, and a debug intent
+    /// that names a map puts the party on the spawn point of that map, outside a battle, an encounter, a story scene,
+    /// and a menu. The entry notes the entry triggers of the map, the map that the party leaves keeps no memory, and
+    /// the entry to a hub asks for the autosave (D-224, D-1132, D-1133).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number
@@ -84,5 +111,5 @@ public static class SimulationVersion
     /// hash differs from this build takes the drift rules of D-1111 and D-1112. A change of this
     /// number also changes the expected hashes of the identity file (D-504).
     /// </remarks>
-    public const int Current = 30;
+    public const int Current = 31;
 }

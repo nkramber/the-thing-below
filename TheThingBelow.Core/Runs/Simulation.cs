@@ -19,8 +19,15 @@ namespace TheThingBelow.Core.Runs;
 /// tick is the one time line of a run and no intent needs a second order value (D-650).
 /// <para>
 /// The four step intents move the party one tile, and the world step of the same tick starts
-/// that step (D-493, D-716). The confirm intent and the cancel intent reach no rule of this
-/// build, and PR-16 gives them the door, the chest, and the save point of a map (D-493).
+/// that step (D-493, D-716). The confirm intent acts on the tile that the lead faces in the world
+/// step of the same tick: it talks with an NPC or opens a service of a hub, and PR-16 adds the
+/// door, the chest, and the save point (D-1131). A confirm that no world step reads ends with the
+/// tick and a log line. The cancel intent reaches no rule of this build (D-493).
+/// </para>
+/// <para>
+/// The rest intent and the save intent of a hub act at the open service of their kind (D-1131,
+/// D-1141). A save emits a save request, which Game takes with <see cref="TakeSaveRequests"/>,
+/// and a confirm that opens a service emits it for <see cref="TakeOpenedServices"/> (D-1132).
 /// </para>
 /// <para>
 /// The row intent of the party window moves one character to the other row while a menu is
@@ -46,7 +53,12 @@ namespace TheThingBelow.Core.Runs;
 /// <para>
 /// A debug intent goes to the handlers that the host passed at the start. A host with no
 /// handler for that action refuses the intent, and the report names the intent and the tick
-/// (D-171, D-260, D-492, T-2).
+/// (D-171, D-260, D-492, T-2). A debug intent alone can name a map, and an intent of the player
+/// that names one is an error (D-1133).
+/// </para>
+/// <para>
+/// The run holds a set of maps, and the entry to a map of the set emits the autosave request of a
+/// hub for <see cref="TakeSaveRequests"/> (D-224, D-1132, D-1133).
 /// </para>
 /// <para>
 /// A step returns the log entries of that step, and Core keeps none of them. Core adds no
@@ -70,7 +82,7 @@ public sealed class Simulation
     /// <summary>The count of ticks since the start of the run (D-164).</summary>
     public long Tick => this.State.Tick;
 
-    /// <summary>Starts a run at tick zero, on one map.</summary>
+    /// <summary>Starts a run at tick zero, on one map, with no other map to enter.</summary>
     /// <param name="seed">The seed of the run (G-3, G-4).</param>
     /// <param name="map">The map that the run opens, with the party on its spawn point (D-528).</param>
     /// <param name="battleContent">The battle rules and the fixture, which hold every group that the map names (D-766).</param>
@@ -85,15 +97,32 @@ public sealed class Simulation
     public static Simulation Start(ulong seed, GameMap map, BattleContent battleContent, NoticeList notices, StoryContent story, DebugIntentHandlers debugHandlers)
     {
         ArgumentNullException.ThrowIfNull(map);
-        ArgumentNullException.ThrowIfNull(battleContent);
-        ArgumentNullException.ThrowIfNull(notices);
-        ArgumentNullException.ThrowIfNull(story);
-        ArgumentNullException.ThrowIfNull(debugHandlers);
 
-        return new Simulation(RunState.Start(seed, map, battleContent, notices, story), debugHandlers);
+        return Start(seed, MapSet.Of([map]), map.Id, battleContent, notices, story, debugHandlers);
     }
 
-    /// <summary>Starts a run again from a snapshot (D-651).</summary>
+    /// <summary>Starts a run at tick zero, on one map of a set (D-528, D-1133).</summary>
+    /// <param name="seed">The seed of the run (G-3, G-4).</param>
+    /// <param name="maps">Every map that the party can enter in the run, such as every map of the content.</param>
+    /// <param name="first">The id of the map that the run opens, with the party on its spawn point (D-528).</param>
+    /// <param name="battleContent">The battle rules and the fixture, which hold every group that a map of the set names (D-766).</param>
+    /// <param name="notices">The notice file of this build (D-989).</param>
+    /// <param name="story">The story content of this build (D-1004).</param>
+    /// <param name="debugHandlers">
+    /// The extra intent handlers of the host. A release build passes
+    /// <see cref="DebugIntentHandlers.None"/> (D-260, D-492).
+    /// </param>
+    /// <returns>The run.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="ArgumentException">The set holds no map with the first id (T-2).</exception>
+    public static Simulation Start(ulong seed, MapSet maps, ContentId first, BattleContent battleContent, NoticeList notices, StoryContent story, DebugIntentHandlers debugHandlers)
+    {
+        ArgumentNullException.ThrowIfNull(debugHandlers);
+
+        return new Simulation(RunState.Start(seed, maps, first, battleContent, notices, story), debugHandlers);
+    }
+
+    /// <summary>Starts a run again from a snapshot, with no other map to enter (D-651).</summary>
     /// <param name="seed">The seed of the run, which the record header holds (G-5).</param>
     /// <param name="snapshot">The snapshot that the record or the save holds.</param>
     /// <param name="map">
@@ -116,20 +145,39 @@ public sealed class Simulation
         StoryContent story,
         DebugIntentHandlers debugHandlers)
     {
-        ArgumentNullException.ThrowIfNull(snapshot);
         ArgumentNullException.ThrowIfNull(map);
-        ArgumentNullException.ThrowIfNull(battleContent);
-        ArgumentNullException.ThrowIfNull(notices);
-        ArgumentNullException.ThrowIfNull(story);
-        ArgumentNullException.ThrowIfNull(debugHandlers);
 
-        return new Simulation(RunState.Resume(seed, snapshot, map, battleContent, notices, story), debugHandlers);
+        return Resume(seed, snapshot, MapSet.Of([map]), battleContent, notices, story, debugHandlers);
+    }
+
+    /// <summary>Starts a run again from a snapshot that this build wrote, on a map of a set (D-651, D-1133).</summary>
+    /// <param name="seed">The seed of the run, which the record header holds (G-5).</param>
+    /// <param name="snapshot">The snapshot that the record or the save holds.</param>
+    /// <param name="maps">Every map that the party can enter in the run, the map of the snapshot included (D-166).</param>
+    /// <param name="battleContent">The battle rules and the fixture of this build (D-766).</param>
+    /// <param name="notices">The notice file of this build (D-985).</param>
+    /// <param name="story">The story content of this build (D-166).</param>
+    /// <param name="debugHandlers">The extra intent handlers of the host (D-260).</param>
+    /// <returns>The run, at the tick of the snapshot.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="ArgumentException">The snapshot is not a state of a run, or the set holds no map of its id (T-2).</exception>
+    public static Simulation Resume(
+        ulong seed,
+        RunSnapshot snapshot,
+        MapSet maps,
+        BattleContent battleContent,
+        NoticeList notices,
+        StoryContent story,
+        DebugIntentHandlers debugHandlers)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
+
+        return Resume(seed, snapshot, maps, battleContent, notices, story, debugHandlers, ResumeDrift.Of(SnapshotOrigin.ThisBuild, snapshot.Tick));
     }
 
     /// <summary>
-    /// Starts a run again from a snapshot that this build or another build wrote (D-259,
-    /// D-1111). A save calls it, because a patch can edit a map or a story scene between the
-    /// save and the load.
+    /// Starts a run again from a snapshot that this build or another build wrote, with no other
+    /// map to enter (D-259, D-1111).
     /// </summary>
     /// <param name="seed">The seed of the run, which the save header holds (G-5).</param>
     /// <param name="snapshot">The snapshot that the save holds.</param>
@@ -152,10 +200,41 @@ public sealed class Simulation
         DebugIntentHandlers debugHandlers,
         ResumeDrift drift)
     {
+        ArgumentNullException.ThrowIfNull(map);
+
+        return Resume(seed, snapshot, MapSet.Of([map]), battleContent, notices, story, debugHandlers, drift);
+    }
+
+    /// <summary>
+    /// Starts a run again from a snapshot that this build or another build wrote, on a map of a
+    /// set (D-259, D-1111, D-1133). A save calls it, because a patch can edit a map or a story
+    /// scene between the save and the load.
+    /// </summary>
+    /// <param name="seed">The seed of the run, which the save header holds (G-5).</param>
+    /// <param name="snapshot">The snapshot that the save holds.</param>
+    /// <param name="maps">Every map that the party can enter in the run, from the content of this build, the map of the snapshot included (D-166).</param>
+    /// <param name="battleContent">The battle rules and the fixture of this build (D-766).</param>
+    /// <param name="notices">The notice file of this build (D-985).</param>
+    /// <param name="story">The story content of this build (D-166).</param>
+    /// <param name="debugHandlers">The extra intent handlers of the host (D-260).</param>
+    /// <param name="drift">The build of the snapshot. It takes the log line of each change (D-1113).</param>
+    /// <returns>The run, at the tick of the snapshot.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="ArgumentException">The snapshot is not a state of a run, or the set holds no map of its id (T-2).</exception>
+    public static Simulation Resume(
+        ulong seed,
+        RunSnapshot snapshot,
+        MapSet maps,
+        BattleContent battleContent,
+        NoticeList notices,
+        StoryContent story,
+        DebugIntentHandlers debugHandlers,
+        ResumeDrift drift)
+    {
         ArgumentNullException.ThrowIfNull(debugHandlers);
         ArgumentNullException.ThrowIfNull(drift);
 
-        return new Simulation(RunState.Resume(seed, snapshot, map, battleContent, notices, story, drift), debugHandlers);
+        return new Simulation(RunState.Resume(seed, snapshot, maps, battleContent, notices, story, drift), debugHandlers);
     }
 
     /// <summary>Runs one tick of the rules.</summary>
@@ -188,6 +267,13 @@ public sealed class Simulation
             WorldRules.Step(this.State, log);
         }
 
+        // A confirm that a menu, a pause, a battle, an encounter, or a story scene of this tick
+        // left unread ends here, and never acts on a later tick (D-1131, T-7).
+        if (this.State.Party.TakeConfirm())
+        {
+            log.Add(new LogEntry(LogLevel.Debug, "a confirm of the map found the world held, and it ended with the tick", this.State.Tick, LogSubsystems.World, []));
+        }
+
         // A move intent lasts its own tick alone. A battle, a menu, or a story scene can hold the
         // world for this tick, and the direction then ends here and starts no later step (T-7).
         this.State.Party.EndTick();
@@ -202,6 +288,14 @@ public sealed class Simulation
     /// <summary>Takes every notice that a rule posted since the last take, in the order of the posts (D-221).</summary>
     /// <returns>The notices. Game queues them and shows them in order (D-994).</returns>
     public IReadOnlyList<NoticeRecord> TakeNotices() => this.State.TakeNotices();
+
+    /// <summary>Takes every service that a confirm opened since the last take (D-1131).</summary>
+    /// <returns>The services, in the order of the opens. Game opens the window of each one.</returns>
+    public IReadOnlyList<MapService> TakeOpenedServices() => this.State.TakeOpenedServices();
+
+    /// <summary>Takes every save that a rule asked for since the last take (D-1132).</summary>
+    /// <returns>The kinds of the saves, in the order of the asks. Game writes each one through `GameRun.Save`.</returns>
+    public IReadOnlyList<SaveRequestKind> TakeSaveRequests() => this.State.TakeSaveRequests();
 
     /// <summary>Stores the whole state of the run (F-10, D-651).</summary>
     /// <returns>The snapshot.</returns>
@@ -226,6 +320,15 @@ public sealed class Simulation
 
             handler!(this.State, intent, context, log);
             return;
+        }
+
+        // The go-to-map command of the debug console alone names a map. The player reaches
+        // another map through the travel of PR-35, which names no map in an intent (D-1133).
+        if (intent.Map is ContentId map)
+        {
+            throw new SimulationException(
+                $"an intent of the player that names the map '{map.Value}', and the debug console alone names a map (D-1133)",
+                context);
         }
 
         if (intent.Target is not null || intent.Item is not null || intent.Option is not null || intent.Lesson is not null || intent.Actor is not null)
@@ -284,6 +387,25 @@ public sealed class Simulation
             return;
         }
 
+        if (Is(intent, IntentIds.Confirm))
+        {
+            // The world step of this tick reads the confirm, as it starts a step (D-1131).
+            this.State.WantConfirm(context);
+            return;
+        }
+
+        if (Is(intent, IntentIds.HubRest))
+        {
+            ServiceRules.Rest(this.State, context, log);
+            return;
+        }
+
+        if (Is(intent, IntentIds.HubSave))
+        {
+            ServiceRules.Save(this.State, context, log);
+            return;
+        }
+
         if (string.CompareOrdinal(intent.Action.Value, IntentIds.PartyRow.Value) == 0)
         {
             BattleTarget target = intent.Target ?? throw new SimulationException("a row change that names no character (D-558)", context);
@@ -294,6 +416,15 @@ public sealed class Simulation
                 this.State.Tick,
                 LogSubsystems.Run,
                 [new LogField("target", target.Describe())]));
+            return;
+        }
+
+        if (Is(intent, IntentIds.PartySwap))
+        {
+            int slot = intent.Actor ?? throw new SimulationException("a party swap that names no party slot (D-1134)", context);
+            int reserve = intent.Option ?? throw new SimulationException("a party swap that names no reserve index (D-1134)", context);
+            this.State.SwapReserve(slot, reserve, context);
+            log.Add(new LogEntry(LogLevel.Info, "a character of the reserve swapped into the party", this.State.Tick, LogSubsystems.Run, [new LogField("intent", intent.Describe())]));
             return;
         }
 
@@ -426,16 +557,17 @@ public sealed class Simulation
         bool swap = Is(intent, IntentIds.LessonSwap);
         bool menuItem = Is(intent, IntentIds.MenuItem);
         bool wear = Is(intent, IntentIds.GearWear);
+        bool partySwap = Is(intent, IntentIds.PartySwap);
         bool unread =
             (intent.Target is not null && !attack && !item && !row && !use && !cast && !menuItem) ||
             (intent.Item is not null && !item && !menuItem && !wear) ||
-            (intent.Option is not null && !pick && !use && !cast && !swap && !wear) ||
+            (intent.Option is not null && !pick && !use && !cast && !swap && !wear && !partySwap) ||
             (intent.Lesson is not null && !use && !cast && !swap) ||
-            (intent.Actor is not null && !cast && !swap && !wear);
+            (intent.Actor is not null && !cast && !swap && !wear && !partySwap);
         if (unread)
         {
             throw new SimulationException(
-                "an intent that carries a target, an item, an option, a lesson, or an actor that no rule of its action reads (D-558, D-764, D-780, D-1007, D-1027, D-1030)",
+                "an intent that carries a target, an item, an option, a lesson, or an actor that no rule of its action reads (D-558, D-764, D-780, D-1007, D-1027, D-1030, D-1134)",
                 context);
         }
     }

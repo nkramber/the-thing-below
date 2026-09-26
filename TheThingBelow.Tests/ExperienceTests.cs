@@ -153,6 +153,56 @@ public sealed class ExperienceTests
     }
 
     [Fact]
+    public void AReserveCharacterEarnsHalfOfAWonFightAndShowsNoLine()
+    {
+        // D-73, D-969: two grunts of level 1 give 12 to a character of level 1, and the reserve
+        // earns half after the shrink. The battle summary names the party alone (OQ-249).
+        Simulation run = TestParty.StartFour(9, BattleRuns.Map("group.test_pair"), TestBattles.ExactWithParty(3), (_, stored) => stored);
+        run.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
+        Assert.Equal(BattleOutcome.Won, BattleRuns.FightToEnd(run, 9));
+
+        List<BattleEvent> after = EventsAfterTheWin(run);
+        PartyMember waiting = Assert.Single(run.State.Characters.Reserve);
+        Assert.Equal(6, waiting.Experience);
+        Assert.All(after, played => Assert.InRange(played.Actor.Slot, 0, run.State.Characters.Members.Count - 1));
+        Assert.Equal(12, run.State.Characters.Members[0].Experience);
+    }
+
+    [Fact]
+    public void ADownedReserveCharacterEarnsNothingFromAWonFight()
+    {
+        // D-974: a down earns no experience, in the party or in the reserve.
+        Simulation run = TestParty.StartFour(9, BattleRuns.Map("group.test_pair"), TestBattles.ExactWithParty(3), (place, stored) => place == 3 ? stored with { Health = 0 } : stored);
+        run.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
+        Assert.Equal(BattleOutcome.Won, BattleRuns.FightToEnd(run, 9));
+
+        PartyMember waiting = Assert.Single(run.State.Characters.Reserve);
+        Assert.Equal(0, waiting.Experience);
+        Assert.True(waiting.Down);
+    }
+
+    [Theory]
+    [InlineData(45, 6)]
+    [InlineData(0, 0)]
+    public void TheLessonsOfAReserveCharacterGainHalfAndNoneWhenDown(int health, int points)
+    {
+        // D-357, D-1019, D-1022: the lesson shrink reads the lesson level, the reserve takes half
+        // after it, and the lessons of a downed character gain none. Marrek starts with the hew
+        // alone, so the fourth character carries the one copy of the cinder (D-1023).
+        ContentId cinder = ContentId.Parse("lesson.fixture_cinder", "test", "lesson");
+        string fixture = TestBattles.FixtureFile
+            .Replace("\"start_party\": [\"character.marrek\"]", "\"start_party\": [\"character.marrek\", \"character.test_second\", \"character.test_third\"]", StringComparison.Ordinal)
+            .Replace("\"lessons\": [\"lesson.fixture_hew\", \"lesson.fixture_cinder\"]", "\"lessons\": [\"lesson.fixture_hew\"]", StringComparison.Ordinal);
+        BattleContent content = TestBattles.WithLessonFiles(fixture: fixture, exact: true);
+        Simulation run = TestParty.StartFour(9, BattleRuns.Map("group.test_pair"), content, (place, stored) =>
+            place == 3 ? stored with { Health = health, Lessons = new LessonValues([cinder, null], [new LessonPoints(cinder, 0)]) } : stored);
+        run.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
+        Assert.Equal(BattleOutcome.Won, BattleRuns.FightToEnd(run, 9));
+
+        Assert.Equal(points, Assert.Single(run.State.Characters.Reserve).PointsOf(cinder));
+    }
+
+    [Fact]
     public void ACharacterAtTheTopOfTheTableGainsNothingAndShowsNoLine()
     {
         // D-972: the experience stops at the total of level 40. The rules of this test take no cut
@@ -230,7 +280,7 @@ public sealed class ExperienceTests
         CharacterValues stored = new(Marrek, 10, BattleRow.Front, [], new GrowthValues(level, experience, mp), null, null);
 
         ArgumentException error = Assert.Throws<ArgumentException>(() =>
-            PartyState.Resume(TestBattles.Content, [stored], [], null, null, null, "the test"));
+            PartyState.Resume(TestBattles.Content, [stored], null, [], null, null, null, "the test"));
 
         Assert.Contains(reason, error.Message, StringComparison.Ordinal);
     }
@@ -241,6 +291,7 @@ public sealed class ExperienceTests
         PartyState.Resume(
             TestBattles.Content,
             [new CharacterValues(Marrek, 10, BattleRow.Front, [StatusKind.Poison], new GrowthValues(2, 25, 1), null, null)],
+            null,
             [],
             null,
             null,

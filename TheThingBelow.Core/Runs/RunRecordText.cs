@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Maps;
 
 namespace TheThingBelow.Core.Runs;
 
@@ -226,6 +227,11 @@ public static class RunRecordText
                     writer.WriteNumber("actor", actor);
                 }
 
+                if (intent.Map is ContentId map)
+                {
+                    writer.WriteString("map", map.Value);
+                }
+
                 writer.WriteEndObject();
             }
 
@@ -283,6 +289,7 @@ public static class RunRecordText
         int? option = null;
         ContentId? lesson = null;
         int? actor = null;
+        ContentId? map = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -310,6 +317,9 @@ public static class RunRecordText
                 case "actor":
                     actor = reader.ReadInt();
                     break;
+                case "map":
+                    map = reader.ReadContentId(GameMap.IdKind);
+                    break;
                 default:
                     throw reader.UnknownField(field);
             }
@@ -322,7 +332,8 @@ public static class RunRecordText
             item,
             option,
             lesson,
-            actor);
+            actor,
+            map);
     }
 
     /// <summary>Reads the item field of an intent: an item of an item use, or a piece of a change of gear (D-780, D-1048).</summary>

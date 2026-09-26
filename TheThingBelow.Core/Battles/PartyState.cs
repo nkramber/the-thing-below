@@ -259,25 +259,40 @@ public sealed class PartyMember
 /// The characters of the party, their pack, and their gold, which last between battles (D-36,
 /// D-765, D-775, D-1043). The snapshot holds them from save format 4, the statuses that last
 /// from save format 5 (D-792), the level, the experience, and the MP from save format 7
-/// (D-966), and the gear slots, the spare gear, and the gold from save format 11 (D-44, D-1038).
+/// (D-966), the gear slots, the spare gear, and the gold from save format 11 (D-44, D-1038), and
+/// the reserve from save format 15 (D-58, D-1136).
 /// </summary>
+/// <remarks>
+/// The party is the one, two, or three characters who fight (D-31, D-336). The reserve holds
+/// every other character, and it holds one only while the party is full (D-1136). A swap trades
+/// one character of the party with one of the reserve anywhere outside a fight (D-1134, D-1135).
+/// </remarks>
 public sealed class PartyState
 {
     private readonly SortedDictionary<string, PackValues> pack;
     private readonly List<ContentId> lessonPack;
     private PartyMember[] members;
+    private PartyMember[] reserve;
 
-    private PartyState(PartyMember[] members, SortedDictionary<string, PackValues> pack, List<ContentId> lessonPack, int gold, bool torchHeld)
+    private PartyState(PartyMember[] members, PartyMember[] reserve, SortedDictionary<string, PackValues> pack, List<ContentId> lessonPack, int gold, bool torchHeld)
     {
         this.TorchHeld = torchHeld;
         this.members = members;
+        this.reserve = reserve;
         this.pack = pack;
         this.lessonPack = lessonPack;
         this.Gold = gold;
     }
 
-    /// <summary>The characters, in slot order (D-336).</summary>
+    /// <summary>The characters who fight, in slot order (D-336).</summary>
     public IReadOnlyList<PartyMember> Members => this.members;
+
+    /// <summary>
+    /// The characters who wait outside the party, in reserve order (D-58). The list is empty
+    /// while the party holds fewer than three characters, because a join fills the party
+    /// first (D-1136).
+    /// </summary>
+    public IReadOnlyList<PartyMember> Reserve => this.reserve;
 
     /// <summary>The items and the spare gear of the pack, in the ordinal order of the ids. Each entry holds a count from 1 (D-775, D-1038).</summary>
     public IReadOnlyList<PackValues> Pack
@@ -329,13 +344,15 @@ public sealed class PartyState
             pack.Add(entry.Id.Value, new PackValues(entry.Id, entry.Count));
         }
 
-        // The party first gets the torch put away (D-1064).
-        return new PartyState([.. members], pack, new List<ContentId>(content.Fixture.LessonPack), 0, false);
+        // The party first gets the torch put away (D-1064). The start party holds three
+        // characters at most, so the reserve starts empty (D-336, D-1136).
+        return new PartyState([.. members], [], pack, new List<ContentId>(content.Fixture.LessonPack), 0, false);
     }
 
     /// <summary>Puts the party back from the values of a snapshot (D-166, D-765).</summary>
     /// <param name="content">The battle content of this build.</param>
     /// <param name="characters">The stored characters, in slot order.</param>
+    /// <param name="reserve">The stored reserve, in reserve order, or no value for a snapshot of save format 14 or older, which holds no reserve (D-1136).</param>
     /// <param name="pack">The stored pack.</param>
     /// <param name="source">What the values came from, such as `the save`, for an error (T-2).</param>
     /// <returns>The party.</returns>
@@ -353,6 +370,7 @@ public sealed class PartyState
     public static PartyState Resume(
         BattleContent content,
         IReadOnlyList<CharacterValues> characters,
+        IReadOnlyList<CharacterValues>? reserve,
         IReadOnlyList<PackValues> pack,
         IReadOnlyList<ContentId>? lessonPack,
         int? gold,
@@ -368,42 +386,27 @@ public sealed class PartyState
             characters.Count == 0 || characters.Count > BattleFixture.MostCharacters,
             source,
             $"it holds {characters.Count} characters, and a party holds 1 to {BattleFixture.MostCharacters} (D-31)");
+        IReadOnlyList<CharacterValues> waiting = reserve ?? [];
+        Refuse(
+            waiting.Count > 0 && characters.Count < BattleFixture.MostCharacters,
+            source,
+            $"it holds {waiting.Count} characters in the reserve while the party holds {characters.Count}, and a join fills the party to {BattleFixture.MostCharacters} before the reserve (D-1136)");
 
         List<PartyMember> members = [];
         foreach (CharacterValues stored in characters)
         {
-            ArgumentNullException.ThrowIfNull(stored);
-            CharacterRecord record = content.Character(stored.Character);
-            GrowthValues growth = stored.Growth ?? PartyMember.JoinValues(record, content.Rules);
-            CheckGrowth(record, growth, content.Rules, source);
-            StatRow full = record.At(growth.Level);
-            Refuse(
-                stored.Health < 0 || stored.Health > full.Health,
-                source,
-                $"the character '{record.Id.Value}' holds the health {stored.Health}, and the range at level {growth.Level} is 0 to {full.Health}");
-            foreach (PartyMember earlier in members)
-            {
-                Refuse(
-                    string.CompareOrdinal(earlier.Record.Id.Value, record.Id.Value) == 0,
-                    source,
-                    $"it holds the character '{record.Id.Value}' two times");
-            }
-
-            CheckStatuses(stored, source);
-            Refuse(
-                (stored.Lessons is null) != (lessonPack is null),
-                source,
-                $"the character '{record.Id.Value}' and the lesson pack differ on the save format: one holds lessons and one does not (D-166)");
-            LessonValues lessons = stored.Lessons ?? StartLessonsOf(record, growth.Level, content);
-            CheckLessons(record, growth.Level, lessons, content, source);
-            Refuse(
-                (stored.Gear is null) != (gold is null),
-                source,
-                $"the character '{record.Id.Value}' and the gold differ on the save format: one holds gear and one does not (D-166)");
-            IReadOnlyList<ContentId?> worn = stored.Gear ?? StartGearOf(record, content);
-            CheckGear(record, worn, content, source);
-            members.Add(new PartyMember(record, growth, stored.Health, stored.Row, stored.Statuses, lessons, worn));
+            members.Add(ResumeMember(content, stored, lessonPack, gold, source));
         }
+
+        List<PartyMember> waiters = [];
+        foreach (CharacterValues stored in waiting)
+        {
+            waiters.Add(ResumeMember(content, stored, lessonPack, gold, source));
+        }
+
+        List<PartyMember> everyone = new(members);
+        everyone.AddRange(waiters);
+        CheckEachCharacterOnce(everyone, source);
 
         // A snapshot of save format 10 or older can hold an item at zero, and the pack now
         // keeps no empty entry (D-166, D-1038).
@@ -422,7 +425,7 @@ public sealed class PartyState
 
         Refuse(gold < 0, source, $"it holds the gold {gold}, which is below zero (D-1043)");
 
-        List<ContentId> owned = lessonPack is null ? OlderLessonPack(members, content) : new List<ContentId>(lessonPack);
+        List<ContentId> owned = lessonPack is null ? OlderLessonPack(everyone, content) : new List<ContentId>(lessonPack);
         foreach (ContentId lesson in owned)
         {
             ArgumentNullException.ThrowIfNull(lesson);
@@ -432,16 +435,15 @@ public sealed class PartyState
         bool held = torchHeld ?? false;
         Refuse(held && !items.ContainsKey(TorchRules.Torch.Value), source, $"it holds the torch out, and the pack holds no '{TorchRules.Torch.Value}' (D-1064)");
 
-        var party = new PartyState([.. members], items, owned, gold ?? 0, held);
+        var party = new PartyState([.. members], [.. waiters], items, owned, gold ?? 0, held);
         party.CheckOneCopy(source);
         party.CheckStackLimits(content, source);
         return party;
     }
 
-    /// <summary>Tells whether the player owns a lesson: in the lesson pack, or in a slot of a character of the party (D-1023, D-1024).</summary>
+    /// <summary>Tells whether the player owns a lesson: in the lesson pack, or in a slot of a character of the party or of the reserve (D-1023, D-1024).</summary>
     /// <param name="lesson">The id of the lesson.</param>
     /// <returns>True when the player owns the lesson.</returns>
-    /// <remarks>No rule of this build moves a character to the reserve of D-58, so the party holds each character (D-563).</remarks>
     public bool Owns(ContentId lesson)
     {
         ArgumentNullException.ThrowIfNull(lesson);
@@ -454,7 +456,7 @@ public sealed class PartyState
             }
         }
 
-        foreach (PartyMember member in this.members)
+        foreach (PartyMember member in this.Everyone())
         {
             if (member.SlotOf(lesson) is not null)
             {
@@ -582,7 +584,7 @@ public sealed class PartyState
         return this.pack.TryGetValue(id.Value, out PackValues? entry) ? entry.Count : 0;
     }
 
-    /// <summary>Gives the count of the copies that the party owns: in the pack, and in the gear slots of each character (D-1039).</summary>
+    /// <summary>Gives the count of the copies that the party owns: in the pack, and in the gear slots of each character of the party and of the reserve (D-1039).</summary>
     /// <param name="id">The id of the item or the piece.</param>
     /// <returns>The count, from zero. The stack limit holds it.</returns>
     public int OwnedCount(ContentId id)
@@ -590,7 +592,7 @@ public sealed class PartyState
         ArgumentNullException.ThrowIfNull(id);
 
         int owned = this.CountOf(id);
-        foreach (PartyMember member in this.members)
+        foreach (PartyMember member in this.Everyone())
         {
             foreach (ContentId? piece in member.Gear)
             {
@@ -752,25 +754,13 @@ public sealed class PartyState
         }
     }
 
-    /// <summary>Gives the stored values of every character, in slot order (D-765).</summary>
+    /// <summary>Gives the stored values of every character of the party, in slot order (D-765).</summary>
     /// <returns>The values.</returns>
-    public IReadOnlyList<CharacterValues> CharacterValues()
-    {
-        List<CharacterValues> values = [];
-        foreach (PartyMember member in this.members)
-        {
-            values.Add(new CharacterValues(
-                member.Record.Id,
-                member.Health,
-                member.Row,
-                member.Statuses,
-                new GrowthValues(member.Level, member.Experience, member.Mp),
-                new LessonValues(PartyMember.CopyOf(member.Slots), member.Points),
-                PartyMember.CopyOf(member.Gear)));
-        }
+    public IReadOnlyList<CharacterValues> CharacterValues() => ValuesOf(this.members);
 
-        return values;
-    }
+    /// <summary>Gives the stored values of every character of the reserve, in reserve order (D-1136).</summary>
+    /// <returns>The values, which are empty while the party holds no reserve.</returns>
+    public IReadOnlyList<CharacterValues> ReserveValues() => ValuesOf(this.reserve);
 
     /// <summary>Gives a copy of the pack for a snapshot (D-775).</summary>
     /// <returns>A new list, which a later use of an item never changes.</returns>
@@ -781,7 +771,7 @@ public sealed class PartyState
     /// </remarks>
     public IReadOnlyList<PackValues> PackValues() => this.Pack;
 
-    /// <summary>Adds every value of the party to the state hash, in slot order (G-5).</summary>
+    /// <summary>Adds every value of the party to the state hash: the party in slot order, then the reserve in reserve order (G-5, D-1136).</summary>
     /// <param name="hasher">The hasher of the state.</param>
     public void Hash(StateHasher hasher)
     {
@@ -790,36 +780,13 @@ public sealed class PartyState
         hasher.AddInt32(this.members.Length);
         foreach (PartyMember member in this.members)
         {
-            hasher.AddText(member.Record.Id.Value);
-            hasher.AddInt32(member.Level);
-            hasher.AddInt32(member.Experience);
-            hasher.AddInt32(member.Health);
-            hasher.AddInt32(member.Mp);
-            hasher.AddInt32((int)member.Row);
-            hasher.AddInt32(member.Statuses.Count);
-            foreach (StatusKind status in member.Statuses)
-            {
-                hasher.AddInt32((int)status);
-            }
+            HashMember(hasher, member);
+        }
 
-            hasher.AddInt32(member.Slots.Count);
-            foreach (ContentId? lesson in member.Slots)
-            {
-                hasher.AddText(lesson?.Value ?? string.Empty);
-            }
-
-            IReadOnlyList<LessonPoints> points = member.Points;
-            hasher.AddInt32(points.Count);
-            foreach (LessonPoints entry in points)
-            {
-                hasher.AddText(entry.Lesson.Value);
-                hasher.AddInt32(entry.Points);
-            }
-
-            foreach (ContentId? piece in member.Gear)
-            {
-                hasher.AddText(piece?.Value ?? string.Empty);
-            }
+        hasher.AddInt32(this.reserve.Length);
+        foreach (PartyMember member in this.reserve)
+        {
+            HashMember(hasher, member);
         }
 
         hasher.AddInt32(this.pack.Count);
@@ -840,24 +807,26 @@ public sealed class PartyState
     }
 
     /// <summary>
-    /// The restore of a save point: each character gets full MP, and no health (D-389, D-967).
-    /// PR-16 calls it once for each place, until a story event reopens the place (D-555, D-970).
+    /// The restore of a save point: each character of the party and of the reserve gets full MP,
+    /// and no health (D-389, D-967). PR-16 calls it once for each place, until a story event
+    /// reopens the place (D-555, D-970).
     /// </summary>
     public void RestoreAtSavePoint()
     {
-        foreach (PartyMember member in this.members)
+        foreach (PartyMember member in this.Everyone())
         {
             member.Mp = member.Stats.Mp;
         }
     }
 
     /// <summary>
-    /// The rest at a hub: each character gets full health and full MP, a down character stands
-    /// again, and poison, blind, and silence end (D-36, D-390, D-967). PR-14 calls it (D-970).
+    /// The rest at a hub: each character of the party and of the reserve gets full health and
+    /// full MP, a down character stands again, and poison, blind, and silence end (D-36, D-390,
+    /// D-967, D-1135). PR-14 calls it (D-970).
     /// </summary>
     public void RestAtHub()
     {
-        foreach (PartyMember member in this.members)
+        foreach (PartyMember member in this.Everyone())
         {
             member.Fill();
             member.Statuses = [];
@@ -865,17 +834,79 @@ public sealed class PartyState
     }
 
     /// <summary>
-    /// Adds a cast member to the last slot of the party, at its join level with full health
-    /// and full MP, in the row of its record (D-363, D-563).
+    /// Gives the reason that the rules refuse a swap between the party and the reserve now, or
+    /// no value when the swap is legal (D-1134, D-1135, D-1136). The Party window reads it to
+    /// show each legal swap. The run checks the place of the swap: no swap happens inside a
+    /// fight (D-1134).
+    /// </summary>
+    /// <param name="slot">The slot of the character in the party, who goes to the reserve.</param>
+    /// <param name="reserve">The index of the character in the reserve, who comes into the party.</param>
+    /// <returns>The reason, such as a downed character in the reserve, or no value.</returns>
+    /// <remarks>
+    /// A downed character of the party can go out, and it stays down in the reserve until a
+    /// rest or a cure. A downed character of the reserve never comes in (D-1135).
+    /// </remarks>
+    public string? RefusalOfReserveSwap(int slot, int reserve)
+    {
+        if (this.reserve.Length == 0)
+        {
+            return "a swap with the reserve, and the reserve holds no character (D-1136)";
+        }
+
+        if (slot < 0 || slot >= this.members.Length)
+        {
+            return $"the party slot {slot}, and the party holds the slots 0 to {this.members.Length - 1}";
+        }
+
+        if (reserve < 0 || reserve >= this.reserve.Length)
+        {
+            return $"the reserve index {reserve}, and the reserve holds the indexes 0 to {this.reserve.Length - 1}";
+        }
+
+        PartyMember incoming = this.reserve[reserve];
+        if (incoming.Down)
+        {
+            return $"the downed reserve character '{incoming.Record.Id.Value}', and a downed character never comes into the party (D-1135)";
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Swaps one character of the party with one character of the reserve: each takes the place
+    /// of the other, so the party stays full (D-1135, D-1136). The character who comes in keeps
+    /// its row, and it fights from the first round of the next battle (D-1135).
+    /// </summary>
+    /// <param name="slot">The slot of the character in the party, who goes to the reserve.</param>
+    /// <param name="reserve">The index of the character in the reserve, who comes into the party.</param>
+    /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
+    /// <exception cref="SimulationException">The rules refuse the swap, and the error names the reason (T-2).</exception>
+    public void SwapReserve(int slot, int reserve, RunContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+
+        if (this.RefusalOfReserveSwap(slot, reserve) is string refusal)
+        {
+            throw new SimulationException($"a swap with the reserve, and the rules refuse it: {refusal}", context);
+        }
+
+        PartyMember outgoing = this.members[slot];
+        this.members[slot] = this.reserve[reserve];
+        this.reserve[reserve] = outgoing;
+    }
+
+    /// <summary>
+    /// Adds a cast member at its join level with full health and full MP, in the row of its
+    /// record (D-363, D-563). The cast member takes the last slot of the party while the party
+    /// holds fewer than three characters, and the end of the reserve otherwise (D-1136).
     /// </summary>
     /// <param name="record">The cast member.</param>
     /// <param name="rules">The rules, which hold the experience table.</param>
     /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
-    /// <exception cref="SimulationException">The cast member is in the party, or the party is full (T-2).</exception>
+    /// <exception cref="SimulationException">The cast member is in the party or in the reserve (T-2).</exception>
     /// <remarks>
-    /// A party holds three characters at most (D-31), and no rule of this build moves a character
-    /// to the reserve of D-58. The story adds each character in its order, so a join into a full
-    /// party points at a fault in the content (D-342).
+    /// The story adds each character in its order, so a second join of one character points at
+    /// a fault in the content (D-342).
     /// </remarks>
     internal void Join(CharacterRecord record, BattleRules rules, RunContext context)
     {
@@ -887,16 +918,23 @@ public sealed class PartyState
             }
         }
 
-        if (this.members.Length >= BattleFixture.MostCharacters)
+        foreach (PartyMember member in this.reserve)
         {
-            throw new SimulationException(
-                $"a join of '{record.Id.Value}', and the party already holds {this.members.Length} characters, the most that it holds (D-31, D-563)",
-                context);
+            if (string.CompareOrdinal(member.Record.Id.Value, record.Id.Value) == 0)
+            {
+                throw new SimulationException($"a join of '{record.Id.Value}', who is already in the reserve (D-563, D-1136)", context);
+            }
         }
 
         GrowthValues growth = PartyMember.JoinValues(record, rules);
         var joined = new PartyMember(record, growth, record.At(growth.Level).Health, record.Row, [], PartyMember.EmptyLessons(growth.Level, rules), new ContentId?[GearRules.SlotCount]);
-        this.members = [.. this.members, joined];
+        if (this.members.Length < BattleFixture.MostCharacters)
+        {
+            this.members = [.. this.members, joined];
+            return;
+        }
+
+        this.reserve = [.. this.reserve, joined];
     }
 
     /// <summary>Takes one copy of an item or a piece from the pack. An entry at zero leaves the pack (D-775).</summary>
@@ -964,7 +1002,7 @@ public sealed class PartyState
         }
     }
 
-    /// <summary>Refuses a party that owns more copies of an item or a piece than its stack limit, the worn copies included (D-1038, D-1039).</summary>
+    /// <summary>Refuses a party that owns more copies of an item or a piece than its stack limit, the worn copies of the party and of the reserve included (D-1038, D-1039).</summary>
     private void CheckStackLimits(BattleContent content, string source)
     {
         var ids = new SortedDictionary<string, ContentId>(StringComparer.Ordinal);
@@ -973,7 +1011,7 @@ public sealed class PartyState
             ids[entry.Id.Value] = entry.Id;
         }
 
-        foreach (PartyMember member in this.members)
+        foreach (PartyMember member in this.Everyone())
         {
             foreach (ContentId? piece in member.Gear)
             {
@@ -1081,7 +1119,7 @@ public sealed class PartyState
         }
     }
 
-    /// <summary>Refuses one lesson two times across the lesson pack and the slots, because the player never owns two copies (D-1023).</summary>
+    /// <summary>Refuses one lesson two times across the lesson pack and the slots of the party and of the reserve, because the player never owns two copies (D-1023).</summary>
     private void CheckOneCopy(string source)
     {
         var owned = new SortedSet<string>(StringComparer.Ordinal);
@@ -1090,7 +1128,7 @@ public sealed class PartyState
             Refuse(!owned.Add(lesson.Value), source, $"the player owns '{lesson.Value}' two times, and the player never owns two copies of one lesson (D-1023)");
         }
 
-        foreach (PartyMember member in this.members)
+        foreach (PartyMember member in this.Everyone())
         {
             foreach (ContentId? lesson in member.Slots)
             {
@@ -1141,6 +1179,110 @@ public sealed class PartyState
             growth.Mp < 0 || growth.Mp > fullMp,
             source,
             $"the character '{who}' holds the MP {growth.Mp}, and the range at level {growth.Level} is 0 to {fullMp}");
+    }
+
+    /// <summary>
+    /// Puts one stored character back, after the checks of a state of a run: the growth, the
+    /// health, the statuses, the lessons, and the gear (D-166, D-765). A character of the party
+    /// and a character of the reserve take the same checks.
+    /// </summary>
+    private static PartyMember ResumeMember(BattleContent content, CharacterValues stored, IReadOnlyList<ContentId>? lessonPack, int? gold, string source)
+    {
+        ArgumentNullException.ThrowIfNull(stored);
+        CharacterRecord record = content.Character(stored.Character);
+        GrowthValues growth = stored.Growth ?? PartyMember.JoinValues(record, content.Rules);
+        CheckGrowth(record, growth, content.Rules, source);
+        StatRow full = record.At(growth.Level);
+        Refuse(
+            stored.Health < 0 || stored.Health > full.Health,
+            source,
+            $"the character '{record.Id.Value}' holds the health {stored.Health}, and the range at level {growth.Level} is 0 to {full.Health}");
+        CheckStatuses(stored, source);
+        Refuse(
+            (stored.Lessons is null) != (lessonPack is null),
+            source,
+            $"the character '{record.Id.Value}' and the lesson pack differ on the save format: one holds lessons and one does not (D-166)");
+        LessonValues lessons = stored.Lessons ?? StartLessonsOf(record, growth.Level, content);
+        CheckLessons(record, growth.Level, lessons, content, source);
+        Refuse(
+            (stored.Gear is null) != (gold is null),
+            source,
+            $"the character '{record.Id.Value}' and the gold differ on the save format: one holds gear and one does not (D-166)");
+        IReadOnlyList<ContentId?> worn = stored.Gear ?? StartGearOf(record, content);
+        CheckGear(record, worn, content, source);
+        return new PartyMember(record, growth, stored.Health, stored.Row, stored.Statuses, lessons, worn);
+    }
+
+    /// <summary>Refuses one character two times across the party and the reserve (D-563, D-1136).</summary>
+    private static void CheckEachCharacterOnce(List<PartyMember> everyone, string source)
+    {
+        var seen = new SortedSet<string>(StringComparer.Ordinal);
+        foreach (PartyMember member in everyone)
+        {
+            Refuse(!seen.Add(member.Record.Id.Value), source, $"it holds the character '{member.Record.Id.Value}' two times");
+        }
+    }
+
+    /// <summary>Gives every character: the party in slot order, then the reserve in reserve order (D-1136).</summary>
+    private List<PartyMember> Everyone()
+    {
+        List<PartyMember> everyone = new(this.members);
+        everyone.AddRange(this.reserve);
+        return everyone;
+    }
+
+    /// <summary>Gives the stored values of each character of one list, in its order (D-765).</summary>
+    private static List<CharacterValues> ValuesOf(PartyMember[] characters)
+    {
+        List<CharacterValues> values = [];
+        foreach (PartyMember member in characters)
+        {
+            values.Add(new CharacterValues(
+                member.Record.Id,
+                member.Health,
+                member.Row,
+                member.Statuses,
+                new GrowthValues(member.Level, member.Experience, member.Mp),
+                new LessonValues(PartyMember.CopyOf(member.Slots), member.Points),
+                PartyMember.CopyOf(member.Gear)));
+        }
+
+        return values;
+    }
+
+    /// <summary>Adds every value of one character to the state hash (G-5).</summary>
+    private static void HashMember(StateHasher hasher, PartyMember member)
+    {
+        hasher.AddText(member.Record.Id.Value);
+        hasher.AddInt32(member.Level);
+        hasher.AddInt32(member.Experience);
+        hasher.AddInt32(member.Health);
+        hasher.AddInt32(member.Mp);
+        hasher.AddInt32((int)member.Row);
+        hasher.AddInt32(member.Statuses.Count);
+        foreach (StatusKind status in member.Statuses)
+        {
+            hasher.AddInt32((int)status);
+        }
+
+        hasher.AddInt32(member.Slots.Count);
+        foreach (ContentId? lesson in member.Slots)
+        {
+            hasher.AddText(lesson?.Value ?? string.Empty);
+        }
+
+        IReadOnlyList<LessonPoints> points = member.Points;
+        hasher.AddInt32(points.Count);
+        foreach (LessonPoints entry in points)
+        {
+            hasher.AddText(entry.Lesson.Value);
+            hasher.AddInt32(entry.Points);
+        }
+
+        foreach (ContentId? piece in member.Gear)
+        {
+            hasher.AddText(piece?.Value ?? string.Empty);
+        }
     }
 
     private static void Refuse(bool broken, string source, string reason)

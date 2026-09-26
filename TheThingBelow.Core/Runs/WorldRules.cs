@@ -14,22 +14,30 @@ namespace TheThingBelow.Core.Runs;
 /// this system only while no menu is open (D-162, D-650).
 /// </summary>
 /// <remarks>
-/// The world of this build is the party and the enemies on a tile map. The party walks one
-/// tile at a time, and a step takes a fixed count of ticks (D-106, D-164, D-203). The map
-/// runs in real time, so each enemy walks here on the same tick, whether or not the player
-/// moves (D-162).
+/// The world of this build is the party, the enemies, and the NPCs on a tile map. The party
+/// walks one tile at a time, and a step takes a fixed count of ticks (D-106, D-164, D-203).
+/// The map runs in real time, so each enemy and each NPC walks here on the same tick, whether
+/// or not the player moves (D-162, D-1137).
 /// <para>
 /// The tick runs in one fixed order: the beat of a mark, the party, the encounter of a step
-/// into a body, and then the enemies and the sight (D-168). An encounter starts its battle on
-/// the same tick. While the encounter runs, no map system ticks, so the patrols and the grace
-/// time all stand still (D-531). A snapshot of save format 3 can hold an encounter with no
-/// battle, and the next world step starts that battle (D-765).
+/// into a body, the NPCs, the confirm, and then the enemies and the sight (D-168, D-1131,
+/// D-1137). An encounter
+/// starts its battle on the same tick. While the encounter runs, no map system ticks, so the
+/// patrols, the NPCs, and the grace time all stand still (D-531). A snapshot of save format 3
+/// can hold an encounter with no battle, and the next world step starts that battle (D-765).
 /// </para>
 /// <para>
 /// A story scene holds the map still as a battle does, and the tick runs its steps alone
 /// (D-1009). With no story scene, the tick first reads the entry trigger and the battle end
 /// trigger that wait, and it reads the tile trigger of a tile that the party reached after
 /// the encounter of the same step (D-1004).
+/// </para>
+/// <para>
+/// The confirm of the player acts only while the lead stands (D-1131). It follows the walk of
+/// the NPCs, so the hold of a talk starts after the NPC walk of its tick, and the NPC moves again
+/// on the world tick that ends its hold (D-1147). A talk that starts a story scene or a service
+/// that opens holds the world from that tick, so no enemy walks after it. A confirm during a step
+/// of the lead ends with a log line.
 /// </para>
 /// <para>
 /// A step of the party and a step of an enemy each take the debug level, and a sight and an
@@ -113,6 +121,19 @@ public static class WorldRules
             return;
         }
 
+        AddNpcEntries(state, party, log);
+        if (party.TakeConfirm())
+        {
+            if (party.Stepping is not null)
+            {
+                log.Add(new LogEntry(LogLevel.Debug, "a confirm of the map came while the lead stepped, and it ended with the tick", state.Tick, LogSubsystems.World, [LogField.OfNumber("world-tick", state.WorldTick)]));
+            }
+            else if (ConfirmRules.Confirm(state, log))
+            {
+                return;
+            }
+        }
+
         AddEnemyEntries(state, patrols, party, log);
     }
 
@@ -144,6 +165,36 @@ public static class WorldRules
                     LogField.OfNumber("x", party.LeadAt.X),
                     LogField.OfNumber("y", party.LeadAt.Y),
                     new LogField("direction", StepDirections.NameOf(direction)),
+                ]));
+        }
+    }
+
+    /// <summary>
+    /// Walks every NPC of the map on the NPC stream, before the enemies, so an enemy reads the
+    /// NPC steps of this tick as bodies (D-1137, D-1139).
+    /// </summary>
+    private static void AddNpcEntries(RunState state, MapState party, List<LogEntry> log)
+    {
+        List<NpcState> moved = [];
+        party.Npcs.Walk(
+            party.Map,
+            party,
+            state.Stream(StreamId.Npc),
+            state.Context("npcs"),
+            moved);
+
+        foreach (NpcState npc in moved)
+        {
+            log.Add(new LogEntry(
+                LogLevel.Debug,
+                "an NPC reached a tile",
+                state.Tick,
+                LogSubsystems.World,
+                [
+                    new LogField("npc", npc.Npc.Id.Value),
+                    LogField.OfNumber("x", npc.At.X),
+                    LogField.OfNumber("y", npc.At.Y),
+                    new LogField("facing", StepDirections.NameOf(npc.Facing)),
                 ]));
         }
     }

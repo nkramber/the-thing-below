@@ -17,7 +17,7 @@ public sealed class StoryFileTests
     public void TheFlagFileReadsEachFlagInTheOrderOfTheFile()
     {
         Assert.Equal(
-            ["flag.test_met", "flag.test_yes", "flag.test_no", "flag.test_done", "flag.test_victor", "flag.test_marrek_side", "flag.test_second_side", "flag.test_third_side"],
+            ["flag.test_met", "flag.test_yes", "flag.test_no", "flag.test_done", "flag.test_victor", "flag.test_marrek_side", "flag.test_second_side", "flag.test_third_side", "flag.test_fourth_side"],
             Values(TestStory.Flags.Ids()));
         Assert.Equal("The ally met Marrek.", TestStory.Flags.Records[0].Note);
         Assert.True(TestStory.Flags.Declares(ContentId.Parse("flag.test_no", "test", "flag")));
@@ -59,15 +59,15 @@ public sealed class StoryFileTests
         Assert.Equal("marker.test_story_door", Assert.IsType<CameraStep>(meet.Steps[1]).Marker.Value);
         MoveStep move = Assert.IsType<MoveStep>(meet.Steps[2]);
         Assert.Equal([StepDirection.West, StepDirection.West], move.Path);
-        Assert.Equal(TestStory.Ally.Value, move.Actor.Character?.Value);
+        Assert.Equal(TestStory.Ally.Value, move.Actor.Id?.Value);
         FaceStep face = Assert.IsType<FaceStep>(meet.Steps[3]);
         Assert.True(face.Actor.IsLead);
-        Assert.Equal(TestStory.Ally.Value, Assert.IsType<SayStep>(meet.Steps[4]).Speaker?.Character?.Value);
+        Assert.Equal(TestStory.Ally.Value, Assert.IsType<SayStep>(meet.Steps[4]).Speaker?.Id?.Value);
         Assert.Equal(5, Assert.IsType<WaitStep>(meet.Steps[5]).Ticks);
         Assert.Equal(2, Assert.IsType<ChooseStep>(meet.Steps[6]).Options.Count);
         Assert.Equal("flag.test_met", Assert.IsType<SetFlagStep>(meet.Steps[7]).Flag.Value);
         Assert.Equal(TestStory.Ally.Value, Assert.IsType<JoinStep>(meet.Steps[8]).Character.Value);
-        Assert.Equal(TestStory.Ally.Value, Assert.IsType<HideStep>(meet.Steps[9]).Character.Value);
+        Assert.Equal(TestStory.Ally.Value, Assert.IsType<HideStep>(meet.Steps[9]).Actor.Value);
         Assert.Null(Assert.IsType<SayStep>(fight.Steps[0]).Speaker);
         Assert.Equal("group.one", Assert.IsType<StartBattleStep>(fight.Steps[1]).Group.Value);
         Assert.True(Assert.IsType<SayStep>(fight.Steps[3]).Speaker?.IsLead);
@@ -99,7 +99,7 @@ public sealed class StoryFileTests
     [InlineData("""{ "id": "step.s2", "kind": "wait", "ticks": 5, "line": "line.test_greet" }""", "reads no field 'line'")]
     [InlineData("""{ "id": "step.s3", "kind": "move", "actor": "lead", "path": [] }""", "the path holds no direction")]
     [InlineData("""{ "id": "step.s4", "kind": "move", "actor": "lead", "path": ["up"] }""", "the direction is 'up'")]
-    [InlineData("""{ "id": "step.s5", "kind": "move", "actor": "enemy.test", "path": ["north"] }""", "PR-14 adds the NPC")]
+    [InlineData("""{ "id": "step.s5", "kind": "move", "actor": "enemy.test", "path": ["north"] }""", "or an id of the kind 'npc'")]
     [InlineData("""{ "id": "step.s6", "kind": "face", "actor": "lead" }""", ".facing)")]
     [InlineData("""{ "id": "step.s7", "kind": "say", "speaker": "notice.test_kept", "line": "line.test_greet" }""", "the speaker 'notice.test_kept'")]
     [InlineData("""{ "id": "step.s8", "kind": "say", "line": "line.test_greet" }""", ".speaker)")]
@@ -179,8 +179,10 @@ public sealed class StoryFileTests
     [Fact]
     public void ATalkTriggerReadsItsNpc()
     {
-        // D-1005: PR-68 reads the talk kind, and PR-14 fires it with the NPCs.
-        GameMap map = MapWith("""{ "id": "trigger.test_talk", "kind": "talk", "npc": "npc.test_elder", "scene": "scene.test_meet", "condition": { "always": true } }""");
+        // D-1005: PR-68 reads the talk kind, and PR-14 fires it with the NPCs of the map.
+        GameMap map = MapWith(
+            """{ "id": "trigger.test_talk", "kind": "talk", "npc": "npc.test_elder", "scene": "scene.test_meet", "condition": { "always": true } }""",
+            """{ "id": "npc.test_elder", "facing": "south", "step_ticks": 32, "move": "route", "tiles": [{ "x": 5, "y": 2, "wait_ticks": 0 }] }""");
 
         SceneTrigger talk = Assert.Single(map.Triggers);
         Assert.Equal(TriggerKind.Talk, talk.Kind);
@@ -194,6 +196,7 @@ public sealed class StoryFileTests
     [InlineData("""{ "id": "trigger.a", "kind": "battle_end", "patrol": "patrol.test_absent", "scene": "scene.test_meet", "condition": { "always": true } }""", "places no such patrol")]
     [InlineData("""{ "id": "trigger.a", "kind": "battle_end", "scene": "scene.test_meet", "condition": { "always": true } }""", ".patrol)")]
     [InlineData("""{ "id": "trigger.a", "kind": "talk", "scene": "scene.test_meet", "condition": { "always": true } }""", ".npc)")]
+    [InlineData("""{ "id": "trigger.a", "kind": "talk", "npc": "npc.test_absent", "scene": "scene.test_meet", "condition": { "always": true } }""", "names the NPC 'npc.test_absent', and this map places no such NPC")]
     [InlineData("""{ "id": "trigger.a", "kind": "entry", "scene": "scene.test_meet" }""", ".condition)")]
     [InlineData("""{ "id": "trigger.a", "kind": "leave", "scene": "scene.test_meet", "condition": { "always": true } }""", "one of tile, talk, entry, battle_end")]
     [InlineData("""{ "id": "trigger.a", "kind": "entry", "scene": "scene.test_meet", "condition": { "always": true } }, { "id": "trigger.a", "kind": "entry", "scene": "scene.test_meet", "condition": { "always": true } }""", "two triggers of this map take the id")]
@@ -203,6 +206,80 @@ public sealed class StoryFileTests
 
         Assert.Contains(reason, error.Message, StringComparison.Ordinal);
         Assert.Contains("test-triggers.json", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AnNpcIsAnActorOfAMoveAFaceAShowAndALine()
+    {
+        // D-1006: a step names an NPC by an id of the kind `npc`.
+        StoryScene talk = TestStory.Scene(StoryTalkTests.TalkFile, "talk");
+
+        Assert.Equal("npc.hub_keeper", Assert.IsType<SayStep>(talk.Steps[0]).Speaker?.Id?.Value);
+        Assert.True(Assert.IsType<MoveStep>(talk.Steps[1]).Actor.IsNpc);
+        Assert.True(Assert.IsType<FaceStep>(talk.Steps[2]).Actor.IsNpc);
+        Assert.Equal("npc.hub_stranger", Assert.IsType<ShowStep>(talk.Steps[3]).Actor.Value);
+        Assert.False(new SceneActor(TestStory.Ally).IsNpc);
+    }
+
+    [Fact]
+    public void AStorySceneOfASceneOnlyNpcLoadsAgainstAMapThatDoesNotPlaceIt()
+    {
+        // D-1006: a show puts the stranger on the marker, a move walks it, and a hide takes it off.
+        StoryContent story = NpcStory(
+            """{ "id": "step.s1", "kind": "show", "actor": "npc.hub_stranger", "at": "marker.hub_corner", "facing": "east" }""",
+            """{ "id": "step.s2", "kind": "move", "actor": "npc.hub_stranger", "path": ["north"] }""",
+            """{ "id": "step.s3", "kind": "say", "speaker": "npc.hub_stranger", "line": "line.test_greet" }""",
+            """{ "id": "step.s4", "kind": "hide", "actor": "npc.hub_stranger" }""",
+            """{ "id": "step.s5", "kind": "face", "actor": "npc.hub_keeper", "facing": "west" }""");
+
+        story.RequireScenesOf(NpcMap());
+    }
+
+    [Theory]
+    [InlineData("""{ "id": "step.s1", "kind": "show", "actor": "npc.hub_keeper", "at": "marker.hub_corner", "facing": "east" }""", "shows the NPC 'npc.hub_keeper', which this map places")]
+    [InlineData("""{ "id": "step.s1", "kind": "move", "actor": "npc.hub_stranger", "path": ["east"] }""", "names the NPC 'npc.hub_stranger', which this map does not place and no earlier show put on the map")]
+    [InlineData("""{ "id": "step.s1", "kind": "face", "actor": "npc.hub_stranger", "facing": "east" }""", "names the NPC 'npc.hub_stranger', which this map does not place")]
+    public void AnNpcActorThatBreaksTheRulesOfItsMapFailsWithTheMapAndTheStep(string step, string reason)
+    {
+        // D-1006: an NPC of the map acts where it stands, and a show names a scene-only NPC.
+        StoryContent story = NpcStory(step);
+
+        ContentException error = Assert.Throws<ContentException>(() => story.RequireScenesOf(NpcMap()));
+
+        Assert.Contains(reason, error.Message, StringComparison.Ordinal);
+        Assert.Contains("hub-test.json", error.Message, StringComparison.Ordinal);
+        Assert.Contains("step 0", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ALineOfAnNpcWithNoBodyOnTheMapLoads()
+    {
+        // D-1146: a voice through a door speaks with no body on the map, so the load checks the
+        // kind of the id alone.
+        StoryContent story = NpcStory("""{ "id": "step.s1", "kind": "say", "speaker": "npc.hub_voice", "line": "line.test_greet" }""");
+
+        story.RequireScenesOf(NpcMap());
+        Assert.Equal("npc.hub_voice", Assert.IsType<SayStep>(Assert.Single(story.Scenes).Steps[0]).Speaker?.Id?.Value);
+    }
+
+    [Fact]
+    public void ALineWithASpeakerOfAnotherKindFails()
+    {
+        // D-997 and D-1146: a speaker is `none`, `lead`, a cast member, or an NPC, and no other kind.
+        ContentException error = Assert.Throws<ContentException>(() => NpcStory("""{ "id": "step.s1", "kind": "say", "speaker": "patrol.hub_voice", "line": "line.test_greet" }"""));
+
+        Assert.Contains("the speaker 'patrol.hub_voice' is not", error.Message, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData("""{ "id": "step.s1", "kind": "hide", "actor": "npc.hub_keeper" }""", "the actor 'npc.hub_keeper' is not on the map at this step, and a hide takes an actor that a show step put there")]
+    [InlineData("""{ "id": "step.s1", "kind": "show", "actor": "npc.hub_stranger", "at": "marker.hub_corner", "facing": "east" }, { "id": "step.s2", "kind": "show", "actor": "npc.hub_stranger", "at": "marker.hub_corner", "facing": "east" }""", "the actor 'npc.hub_stranger' is already on the map")]
+    public void AHideOrASecondShowOfAnNpcFailsTheLoad(string steps, string reason)
+    {
+        // D-1006: a hide takes a shown actor alone, and an NPC of the map stays on it.
+        ContentException error = Assert.Throws<ContentException>(() => NpcStory(steps));
+
+        Assert.Contains(reason, error.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -230,10 +307,26 @@ public sealed class StoryFileTests
     private static string SceneOf(string step) =>
         $$"""{ "comment": "c", "id": "scene.test", "steps": [{{step}}] }""";
 
-    private static GameMap MapWith(string triggers)
+    /// <summary>Gives the story content of one story scene with the steps of a test, and the flags and the cast of the tests.</summary>
+    private static StoryContent NpcStory(params string[] steps) =>
+        StoryContent.Load(
+            FlagList.Read(Encoding.UTF8.GetBytes(TestBattles.NoFlagsFile), FlagList.Path),
+            [TestStory.Scene($$"""{ "comment": "c", "id": "scene.test_npc", "steps": [{{string.Join(", ", steps)}}] }""", "npc")],
+            TestBattles.Content);
+
+    /// <summary>Gives the hub of the tests with the keeper, the corner marker, and a talk trigger that starts the story scene of <see cref="NpcStory"/>.</summary>
+    private static GameMap NpcMap()
     {
-        int start = TestStory.MapFile.IndexOf("\"triggers\": [", StringComparison.Ordinal);
-        string text = TestStory.MapFile[..start] + $$"""
+        string trigger = """{ "id": "trigger.test_npc", "kind": "talk", "npc": "npc.hub_keeper", "scene": "scene.test_npc", "condition": { "always": true } }""";
+        string text = HubMaps.Text(npcs: HubMaps.Keeper, things: HubMaps.Marker);
+        return TestMaps.Of("hub-test.json", text.Replace("\"triggers\": []", $"\"triggers\": [{trigger}]", StringComparison.Ordinal));
+    }
+
+    private static GameMap MapWith(string triggers, string npcs = "")
+    {
+        string map = TestStory.MapFile.Replace("\"npcs\": []", $"\"npcs\": [{npcs}]", StringComparison.Ordinal);
+        int start = map.IndexOf("\"triggers\": [", StringComparison.Ordinal);
+        string text = map[..start] + $$"""
             "triggers": [{{triggers}}]
             }
             """;

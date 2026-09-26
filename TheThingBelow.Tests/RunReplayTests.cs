@@ -4,6 +4,7 @@ using TheThingBelow.Core;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
+using TheThingBelow.Core.Saves;
 using Xunit;
 
 namespace TheThingBelow.Tests;
@@ -173,6 +174,91 @@ public sealed class RunReplayTests
         Assert.Equal(run.State.Party.StepTicks, replayed.Party.StepTicks);
         Assert.Equal(run.State.Party.Walked.Rows(), replayed.Party.Walked.Rows());
         Assert.True(replayed.Party.Walked.Count > 1);
+    }
+
+    [Fact]
+    public void AReplayAcrossTwoMapsGivesTheSameStateHash()
+    {
+        // D-1133 and G-5: the go-to-map intent of the record puts the replay on the same map, on
+        // the same tick, and the walk on the second map replays too.
+        const ulong seed = 0x0000000000cafe14;
+        (Simulation run, RunRecorder recorder) = PlayAcrossTwoMaps(seed);
+
+        RunRecord record = RunRecordText.Read(RunRecordText.Write(recorder.Build()));
+        RunState replayed = RunReplay.Play(record, ContentHash, TwoMaps(), TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugAssemblyFile.Handlers());
+
+        Assert.Equal(HubMaps.Inn.Id.Value, replayed.Party.Map.Id.Value);
+        Assert.Equal(run.StateHash(), replayed.StateHash());
+        Assert.True(replayed.Party.Walked.Count > 1, "The party walked no tile on the second map.");
+    }
+
+    [Fact]
+    public void ASaveOnTheSecondMapResumesToTheSameStateHash()
+    {
+        // D-166 and D-1133: the snapshot names the map that the party stands on, so a resume from
+        // the set lands on the second map and runs on as the live run does.
+        const ulong seed = 0x0000000000cafe15;
+        (Simulation run, _) = PlayAcrossTwoMaps(seed);
+        SaveDocument save = new(SaveHeader.ForThisBuild(ContentHash, seed), run.Snapshot());
+
+        SaveDocument read = SaveText.Read(SaveText.Write(save), "the save of the test");
+        Simulation resumed = Simulation.Resume(read.Header.Seed, read.Snapshot, TwoMaps(), TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugAssemblyFile.Handlers());
+
+        Assert.Equal(HubMaps.Inn.Id.Value, resumed.State.Party.Map.Id.Value);
+        Assert.Equal(run.StateHash(), resumed.StateHash());
+
+        // A script starts with the menu closed (D-650).
+        if (run.State.MenuOpen)
+        {
+            run.Step([Intent.OfPlayer(IntentIds.CloseMenu)]);
+            resumed.Step([Intent.OfPlayer(IntentIds.CloseMenu)]);
+        }
+
+        foreach (IReadOnlyList<Intent> intents in RunScripts.Make(seed + 1, 200))
+        {
+            run.Step(intents);
+            resumed.Step(intents);
+        }
+
+        Assert.Equal(run.StateHash(), resumed.StateHash());
+    }
+
+    /// <summary>The room, where the run starts, and the inn of <see cref="HubMaps"/> (D-1133).</summary>
+    private static MapSet TwoMaps() => MapSet.Of([TestMaps.Room, HubMaps.Inn]);
+
+    /// <summary>
+    /// Plays a script on the room, closes the menu if the script left it open, enters the inn
+    /// through the go-to-map intent, and plays a second script there. The recorder takes every tick.
+    /// </summary>
+    private static (Simulation Run, RunRecorder Recorder) PlayAcrossTwoMaps(ulong seed)
+    {
+        Simulation run = Simulation.Start(seed, TwoMaps(), TestMaps.Room.Id, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugAssemblyFile.Handlers());
+        RunRecorder recorder = new(RunHeader.ForThisBuild(ContentHash, seed), run.Snapshot());
+
+        foreach (IReadOnlyList<Intent> intents in RunScripts.Make(seed, 150))
+        {
+            Record(run, recorder, intents);
+        }
+
+        if (run.State.MenuOpen)
+        {
+            Record(run, recorder, [Intent.OfPlayer(IntentIds.CloseMenu)]);
+        }
+
+        Record(run, recorder, [Intent.OfDebugMap(ContentId.Parse("debug.go_to_map", "test", "action"), HubMaps.Inn.Id)]);
+        Assert.Equal(HubMaps.Inn.Id.Value, run.State.Party.Map.Id.Value);
+        foreach (IReadOnlyList<Intent> intents in RunScripts.Make(seed + 2, 300))
+        {
+            Record(run, recorder, intents);
+        }
+
+        return (run, recorder);
+    }
+
+    private static void Record(Simulation run, RunRecorder recorder, IReadOnlyList<Intent> intents)
+    {
+        run.Step(intents);
+        recorder.Step(run.Tick, intents);
     }
 
     private static RunRecord OneTickRecord(Func<RunHeader, RunHeader> change)

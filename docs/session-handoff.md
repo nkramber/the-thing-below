@@ -1,3 +1,163 @@
+## Session 326: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR #84 (PR-14), round 4. Repository: the-thing-below. Branch: `feat/pr-14-hub`. PR: #84. Role: author. Base: `c7e6191`.
+
+### What this session did, and why
+
+- The review of `make codex-review` gives `Ready for owner merge` for the effective head `6c7837f` in `docs/reviews/pr-84.md`, with no open finding.
+- Each check of `6c7837f` passed, and Gitar approved it with no thread. The author answered each claim of the CI analysis of Gitar.
+
+### The state of the build
+
+- The effective head is `6c7837f`, and the review approves it. This entry is a commit of the metadata set, so the approval stands (D-610).
+
+### What is in flight
+
+- The checks of this commit, and the merge confirmation of the owner (D-933, D-942).
+
+### Traps and gotchas
+
+- `make sheet` stops on this Mac at `map-fill-1080`, because the screen gives 1920 by 955. Read the frames of the CI artifact.
+
+### The questions that block progress
+
+None. OQ-249 blocks PR-17.
+
+### The next concrete action
+
+After the merge, write the transitional prompt of step 6 of the `one-pr-one-session` skill.
+
+## Session 325: 2026-09-26, Codex
+
+Author: Codex
+Session: reviewer PR #84 (PR-14). Repository: the-thing-below. Local branch: `review/pr-84`; PR branch: `feat/pr-14-hub`. PR: #84. Role: reviewer. Base: `c7e6191`.
+
+### What this session did, and why
+
+- Reviewed effective head `6c7837f` and wrote `docs/reviews/pr-84.md`.
+- Verified the Gitar CI-analysis answer: RG 3 alone failed because the review record was absent. The author answered the item, and the CI log confirms the cause (D-964).
+- `make verify` passed with 3,803 tests. Inspected the CI screen captures for the hub, Rest, Save, Party, and main-list frames (D-784).
+- Corrected the PR Documents row to name `docs/reviews/pr-84.md`.
+
+### The state of the build
+
+- The effective head is `6c7837f`. The metadata tip is `ba92a31`, and its fresh `review-gate` check passed. All implementation checks passed on the effective head.
+
+### What is in flight
+
+- This entry and the review record are published on `feat/pr-14-hub`. The fresh Gitar pass has no item, and the live `review-gate` passed.
+
+### Traps and gotchas
+
+- `make sheet` stops on this Mac at `map-fill-1080`, because the screen gives 1920 by 955. Read the frames of the CI artifact.
+
+### The questions that block progress
+
+OQ-249 remains open for PR-17.
+
+### The next concrete action
+
+Verify the final metadata push, then end this review session.
+
+## Session 324: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR #84 (PR-14), round 3. Repository: the-thing-below. Branch: `feat/pr-14-hub`. PR: #84. Role: author. Base: `c7e6191`.
+
+### What this session did, and why
+
+- Gitar approved `ac14bc2`. The screen compare of `ac14bc2` matched 134 frames and missed the 4 baselines of `menu-rest` and `menu-save` alone.
+- The author read those 4 frames of the artifact (D-784). The lead faces the keeper under the Rest window, and the lead faces the waystone under the Save window, with no clip. This round commits the 4 baselines (D-733).
+
+### The state of the build
+
+- The head of this push holds every baseline. Each check but `review-gate` waits for this push.
+
+### What is in flight
+
+- The checks and the Gitar pass of this push, then `make codex-review PR=84` (D-926).
+
+### Traps and gotchas
+
+- `make sheet` stops on this Mac at `map-fill-1080`, because the screen gives 1920 by 955. Read the frames of the CI artifact.
+
+### The questions that block progress
+
+None. OQ-249 blocks PR-17.
+
+### The next concrete action
+
+When each check but `review-gate` passes and Gitar completes, run `make codex-review PR=84` in the background.
+
+## Session 323: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR #84 (PR-14), round 2. Repository: the-thing-below. Branch: `feat/pr-14-hub`. PR: #84. Role: author. Base: `c7e6191`.
+
+### What this session did, and why
+
+- Gitar approved `609e122` with no thread. Its CI analysis named one `review-gate` fault, RG 3, the absent review record, and a PR comment answers it.
+- The `screen-captures` artifact of `609e122` differed in 25 frames. The author read the hub frames, the Rest and Save frames, and the menu frames (D-784). The 9 menu frames differ by the same pixel count, which is the Save line of the main list (D-1143).
+- The Rest and Save captures drew their window with the lead at the spawn. `d03a305` walks the lead to face the keeper and the waystone, and it sends a real confirm.
+- This round commits 21 baselines from that artifact: the 3 hub frames and the 18 menu frames (D-733).
+
+### The state of the build
+
+- The head of this push holds the work. The 4 baselines of `menu-rest` and `menu-save` wait for the artifact of this push.
+
+### What is in flight
+
+- The artifact of this push gives the 4 last baselines. Then the Gitar pass, and `make codex-review PR=84`.
+
+### Traps and gotchas
+
+- `make sheet` stops on this Mac at `map-fill-1080`, because the screen gives 1920 by 955. Read the frames of the CI artifact.
+
+### The questions that block progress
+
+None. OQ-249 blocks PR-17.
+
+### The next concrete action
+
+Read the `menu-rest` and `menu-save` frames of the artifact of this push, and commit their 4 baselines.
+
+## Session 322: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR-14, round 1. Repository: the-thing-below. Branch: `feat/pr-14-hub`. PR: the one PR of PR-14, which this push opens. Role: author. Base: `c7e6191`.
+
+### What this session did, and why
+
+- The owner confirmed the scope of PR-14 and answered 18 questions, D-1131 to D-1148. The roadmaps, the design, the glossary, `docs/world/cast.md`, and `docs/runbooks/dev-machine.md` follow them. OQ-249 holds the experience of the reserve on screen, and it blocks PR-17.
+- Core: the map kind, the NPCs and their movement, the solid service point, the services with a condition, the confirm rule, the rest, the save request, the reserve and the swap anywhere outside a fight, the NPC as a story scene actor, the walk home, and the entry to a map with the autosave of a hub.
+- Debug: the `goto <map id>` command (D-1133). Game: the NPCs on the map screen, the service windows, the reserve in the Party window, the save writes, and no save entry in the main list (D-1143).
+- Versions: simulation 31, save format 15, record format 5.
+
+### The state of the build
+
+- The head of this push holds the work. Each local check passes except 7 baseline cases: `hub-1x`, `hub-fill-800`, `hub-fill-1080`, and `menu-rest` and `menu-save` at `-1x` and `-fill-1080`.
+- The main list lost a line, so each capture of a menu window changes, such as `menu-list` and `menu-party`. The CI compare names each one.
+
+### What is in flight
+
+- The `screen-captures` artifact of the CI screen-test job gives each new and changed baseline (D-733). Read each frame, and commit the baselines.
+- Then the Gitar pass, and the review of `make codex-review`.
+
+### Traps and gotchas
+
+- `make sheet` crashes on this Mac at `map-fill-1080`: the screen gives 1920 by 955, not 1920 by 1080. Read the frames of the CI artifact.
+- A `goto` resets the walked tiles and the dead enemies of the map that the party leaves. PR-35 owns the memory of each map.
+- The fixture hub holds no story trigger, because Game sends no `story_step_end` before PR-36.
+
+### The questions that block progress
+
+None. OQ-249 blocks PR-17.
+
+### The next concrete action
+
+Take the baselines from the `screen-captures` artifact, read each frame, and commit them. Then run the Gitar poll of the `gitar-review` skill.
+
 ## Session 321: 2026-09-25, Claude Code
 
 Author: Claude Code
@@ -167,166 +327,3 @@ None for this PR. P3-9, P3-24, P3-25, P3-26, P3-36, and P3-37 stay open in the r
 ### The next concrete action
 
 After the merge, write the transitional prompt of step 6 of the `one-pr-one-session` skill.
-
-## Session 316: 2026-09-25, Codex
-
-Author: Codex
-Session: reviewer PR #82 (PR-105), round 2. Repository: the-thing-below. Local branch: `review/pr-82`; PR branch: `fix/pr-105-save-drift`. PR: #82. Role: reviewer. Base: `640ad98`.
-
-### What this session did, and why
-
-- Re-reviewed the P2-1 correction at effective head `e17c964`.
-- The selected conflict cell now uses the warning color and a 2-pixel cursor outline (D-1119, D-1120). The screen-test artifact shows two conflicts and the line `1 of 2`.
-- The Gitar CI-analysis item has its answer. Its log names only stale RG 4 and RG 5, which this record replaces (D-964).
-
-### The state of the build
-
-- `make verify` passed on macOS arm64: 3401 tests, format, lint, STE, identity, content, atlas, and smoke. CI implementation checks passed at `e17c964`.
-- This metadata commit updates the verdict and this entry. The remote head before the commit is `e17c964`.
-
-### What is in flight
-
-- This record and this handoff entry are committed together and pushed to `fix/pr-105-save-drift`.
-- The record gives `Ready for owner merge` for `e17c964`. The owner can merge when `review-gate` reads the record and passes.
-
-### Traps and gotchas
-
-- The `review-gate` failure at RG 4 and RG 5 reads the old review record. The new metadata commit supplies the updated verdict and effective head.
-
-### The questions that block progress
-
-None for this PR.
-
-### The next concrete action
-
-Read the new `review-gate` result after the metadata push. The owner can merge when it passes.
-
-## Session 315: 2026-09-25, Claude Code
-
-Author: Claude Code
-Session: author PR #82 (PR-105), round 4. Repository: the-thing-below. Branch: `fix/pr-105-save-drift`. PR: #82. Role: author. Base: `640ad98`.
-
-### What this session did, and why
-
-- Gitar approved `af1d924` with no thread. Its CI analysis named `review-gate`, and a PR comment answers it: RG 4 and RG 5 read the record of `0e71601`, which the next review replaces.
-- Each CI check of `af1d924` passed but `screen-test` and `review-gate`. `screen-test` found `settings-conflict-1x` alone, in 2054 pixels, and its two runs matched.
-- The author read the frame of the artifact: four red cells for two conflicts, the cell of back in red with a yellow outline, and the line "1 of 2" (D-1119, D-1120). This round takes the frame as the baseline (D-733).
-
-### The state of the build
-
-- `make verify` passed at `af1d924` on the Mac. This round adds the baseline and this entry.
-
-### What is in flight
-
-- The Gitar pass and the CI of this push, and then `make codex-review PR=82`.
-
-### Traps and gotchas
-
-- The baseline moves the effective head, so it needs its own Gitar pass.
-
-### The questions that block progress
-
-None for this PR.
-
-### The next concrete action
-
-When every check but `review-gate` passes, run `make codex-review PR=82` in the background.
-
-## Session 314: 2026-09-25, Claude Code
-
-Author: Claude Code
-Session: author PR #82 (PR-105), round 3. Repository: the-thing-below. Branch: `fix/pr-105-save-drift`. PR: #82. Role: author. Base: `640ad98`.
-
-### What this session did, and why
-
-- The review of `0e71601` in `docs/reviews/pr-82.md` gave `Changes required` for P2-1: the conflict cell under the cursor kept the cursor color, against D-1119.
-- The owner chose the look (D-1120): the warning color with an outline of 2 pixels in the cursor color. `SettingsMenu.LookOf` and `ShowSlot` apply it, and a test holds the four looks.
-- The conflict capture now makes two conflicts, with the cursor on the cell of back. `docs/reviews/pr-82-response.md` answers the finding.
-
-### The state of the build
-
-- `make verify` passed at this head on the Mac. The effective head moves with this round.
-
-### What is in flight
-
-- The Gitar pass and the CI of this push. The `screen-test` job will flag `settings-conflict-1x`, and the next round takes the new frame as its baseline (D-733).
-
-### Traps and gotchas
-
-- The capture session of this Mac stops at the first 1080 frame, so read the conflict frame in the CI artifact.
-
-### The questions that block progress
-
-None for this PR.
-
-### The next concrete action
-
-Read the new conflict frame of the artifact, take it as the baseline, push, and run `make codex-review PR=82` after green CI.
-
-## Session 313: 2026-09-25, Codex
-
-Author: Codex
-Session: reviewer PR #82 (PR-105), round 1. Repository: the-thing-below. Local branch: `review/pr-82`; PR branch: `fix/pr-105-save-drift`. Role: reviewer. Base: `640ad98`.
-
-### What this session did, and why
-
-- Reviewed effective head `0e71601` and inspected all 74 changed paths.
-- P2-1 finds that the selected remap conflict stays yellow, but D-1119 requires each conflict cell to use the warning color.
-- Verified the Gitar CI-analysis answer against the RG 3 log. The CI failure names the missing review record, which this session supplies.
-- Updated the PR Documents row to name `docs/reviews/pr-82.md`.
-
-### The state of the build
-
-- `make verify` passed on macOS arm64: 3397 tests, format, lint, STE, identity, content, atlas, and smoke.
-- CI passed the implementation checks at effective head `0e71601`. `review-gate` failed RG 3 before this record existed.
-
-### What is in flight
-
-- This review record and this handoff entry are committed together and pushed to `fix/pr-105-save-drift`.
-- The current Gitar dashboard approves the head. Its CI-analysis item has the author answer, and no review thread stays open (D-964).
-- The author must answer P2-1, correct the selected conflict color, and request a repeat review.
-
-### Traps and gotchas
-
-- The CI artifact shows the chosen Back binding in yellow and the conflicting Confirm binding in red. D-1119 requires the warning color on both conflict cells.
-- Saves before format 14 lack a story step id and use the stored index, as D-1112 directs.
-
-### The questions that block progress
-
-None. P2-1 blocks approval. P3-9, P3-24, P3-25, P3-26, P3-36, and P3-37 remain outside PR-105.
-
-### The next concrete action
-
-The author answers P2-1 with the `pr-review` skill, then pushes one correction round for repeat review.
-
-## Session 312: 2026-09-25, Claude Code
-
-Author: Claude Code
-Session: author PR #82 (PR-105), round 2. Repository: the-thing-below. Branch: `fix/pr-105-save-drift`. PR: #82. Role: author. Base: `640ad98`.
-
-### What this session did, and why
-
-- Gitar approved the round 1 head `1cd661d` with no thread. Its CI analysis named the RG 3 fault of `review-gate`, and a PR comment answers it: the review record comes with the review of the other provider.
-- Each CI check of `1cd661d` passed but `screen-test` and `review-gate`. The coverage job checked the SHA-512 of the ReportGenerator package (D-1116).
-- `screen-test` found one changed frame, `settings-conflict-1x`, in 956 pixels. The author read the frame of the artifact: the confirm cell of the gamepad takes the warning color, the chosen cell of back stays yellow, and the line holds no count for one conflict (D-1119). This round takes that frame as the baseline (D-733).
-
-### The state of the build
-
-- The round 1 head is `1cd661d`. This round adds the new baseline and this entry.
-
-### What is in flight
-
-- The Gitar pass of this push, the CI of the new head, and then `make codex-review PR=82`.
-
-### Traps and gotchas
-
-- The baseline is outside the metadata set, so it moves the effective head, and it needs a new Gitar pass.
-
-### The questions that block progress
-
-None for this PR. P3-9, P3-24, P3-25, P3-26, P3-36, and P3-37 stay open in the report.
-
-### The next concrete action
-
-When every check but `review-gate` passes, run `make codex-review PR=82` in the background.
-

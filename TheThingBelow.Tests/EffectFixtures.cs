@@ -55,7 +55,7 @@ internal static class EffectFixtures
 
     /// <summary>The ids of every combatant of <see cref="TestBattles"/>, each one in quotes.</summary>
     public const string EveryCombatant =
-        "\"character.marrek\", \"character.test_second\", \"character.test_third\", \"enemy.fixture_grunt\", \"enemy.fixture_brute\"";
+        "\"character.marrek\", \"character.test_second\", \"character.test_third\", \"character.test_fourth\", \"enemy.fixture_grunt\", \"enemy.fixture_brute\"";
 
     /// <summary>
     /// Gives the effect files of a content set: the battle file, one hit file that serves every

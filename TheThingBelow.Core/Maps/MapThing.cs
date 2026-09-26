@@ -7,7 +7,8 @@ namespace TheThingBelow.Core.Maps;
 /// <remarks>
 /// The map file holds every thing that a rule reads, so one file holds each place for the
 /// author, for the review, and for the content hash (D-528). PR-16 and PR-64 add the rules
-/// that open a door, a lock, and a chest, and that fire a trap.
+/// that open a door, a lock, and a chest, and that fire a trap. A service point holds a service
+/// of a hub (D-1142).
 /// </remarks>
 public enum MapThingKind
 {
@@ -23,7 +24,7 @@ public enum MapThingKind
     /// <summary>A trap, which a Theft drill reveals and disarms (D-386).</summary>
     Trap,
 
-    /// <summary>A save point, where the party saves and swaps the reserve (D-58).</summary>
+    /// <summary>A save point, where the party saves (D-58). The party swap works anywhere outside a fight, so a save point marks no swap place (D-1134).</summary>
     SavePoint,
 
     /// <summary>The tile where the party starts on this map. One map holds one (D-528).</summary>
@@ -31,6 +32,12 @@ public enum MapThingKind
 
     /// <summary>A named tile that a story scene or a later rule points at (D-528).</summary>
     Marker,
+
+    /// <summary>
+    /// A solid thing that holds one service of a hub, such as a bed or a save stone (D-1131,
+    /// D-1142). The lead faces it and never walks onto it.
+    /// </summary>
+    ServicePoint,
 }
 
 /// <summary>One thing on one tile of a map (D-528).</summary>
@@ -56,10 +63,11 @@ public static class MapThingKinds
         MapThingKind.SavePoint,
         MapThingKind.SpawnPoint,
         MapThingKind.Marker,
+        MapThingKind.ServicePoint,
     ];
 
     /// <summary>The names of every kind, for the error of an unknown name (T-2).</summary>
-    public const string EveryName = "door, lock, chest, trap, save_point, spawn_point, marker";
+    public const string EveryName = "door, lock, chest, trap, save_point, spawn_point, marker, service_point";
 
     /// <summary>Gives the kind of one name.</summary>
     /// <param name="name">The name, such as `save_point`.</param>
@@ -96,6 +104,7 @@ public static class MapThingKinds
         MapThingKind.SavePoint => "save_point",
         MapThingKind.SpawnPoint => "spawn_point",
         MapThingKind.Marker => "marker",
+        MapThingKind.ServicePoint => "service_point",
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no map thing kind (D-528)"),
     };
 
@@ -117,6 +126,29 @@ public static class MapThingKinds
         MapThingKind.SavePoint => TileKind.Floor,
         MapThingKind.SpawnPoint => TileKind.Floor,
         MapThingKind.Marker => TileKind.Floor,
+        MapThingKind.ServicePoint => TileKind.Floor,
+        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no map thing kind (D-528)"),
+    };
+
+    /// <summary>Tells whether a thing of this kind blocks each step onto its tile (D-1142).</summary>
+    /// <param name="kind">The kind of the thing.</param>
+    /// <returns>True for a service point alone in this build.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The value names no kind (T-2).</exception>
+    /// <remarks>
+    /// PR-16 makes the chest and the door solid in this same rule (D-1142). A solid thing blocks
+    /// the lead, a patrol, an NPC, and a story scene actor, because each of them reads
+    /// <see cref="MapRules.CanEnter"/>.
+    /// </remarks>
+    public static bool IsSolid(MapThingKind kind) => kind switch
+    {
+        MapThingKind.Door => false,
+        MapThingKind.Lock => false,
+        MapThingKind.Chest => false,
+        MapThingKind.Trap => false,
+        MapThingKind.SavePoint => false,
+        MapThingKind.SpawnPoint => false,
+        MapThingKind.Marker => false,
+        MapThingKind.ServicePoint => true,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no map thing kind (D-528)"),
     };
 }

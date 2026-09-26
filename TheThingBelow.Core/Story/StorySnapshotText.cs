@@ -115,7 +115,10 @@ public static class StorySnapshotText
         foreach (ActorValues actor in scene.Actors)
         {
             writer.WriteStartObject();
-            writer.WriteString("character", actor.Character.Value);
+
+            // A cast member writes the field of save format 9, and a scene-only NPC writes a
+            // field of its own, so a save of an older format never holds an NPC actor (D-1006).
+            writer.WriteString(SceneActor.IsNpcId(actor.Actor) ? "npc" : "character", actor.Actor.Value);
             writer.WriteNumber("x", actor.At.X);
             writer.WriteNumber("y", actor.At.Y);
             writer.WriteString("facing", StepDirections.NameOf(actor.Facing));
@@ -209,6 +212,7 @@ public static class StorySnapshotText
     private static ActorValues ReadActor(ref ContentReader reader)
     {
         ContentId? character = null;
+        ContentId? npc = null;
         int? x = null;
         int? y = null;
         string? facing = null;
@@ -220,6 +224,9 @@ public static class StorySnapshotText
             {
                 case "character":
                     character = reader.ReadContentId(BattleFixture.CharacterKind);
+                    break;
+                case "npc":
+                    npc = reader.ReadContentId(Npc.IdKind);
                     break;
                 case "x":
                     x = reader.ReadInt();
@@ -245,8 +252,13 @@ public static class StorySnapshotText
             }
         }
 
+        if (character is not null && npc is not null)
+        {
+            throw reader.RefuseField(depth, "npc", "the actor holds the fields 'character' and 'npc', and a shown actor is one cast member or one scene-only NPC (D-1006)");
+        }
+
         return new ActorValues(
-            reader.Require(character, depth, "character"),
+            npc ?? reader.Require(character, depth, "character"),
             new TilePoint(reader.RequireInt(x, depth, "x"), reader.RequireInt(y, depth, "y")),
             parsed ?? throw reader.RefuseField(depth, "facing", $"the facing is '{name}', and a facing is one of north, south, east, and west (D-716)"));
     }

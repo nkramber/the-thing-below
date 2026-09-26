@@ -14,12 +14,15 @@ namespace TheThingBelow.Core.Story;
 /// </summary>
 /// <remarks>
 /// The world step reads the triggers in one fixed order: the entry of the map, then a win
-/// against a patrol, then the tile that the party reached. A trigger fires when its event
-/// happens and its condition holds, and the first trigger of the map file that fires wins
-/// (D-1004, G-4). One story scene runs at a time.
+/// against a patrol, then the tile that the party reached, and then the talk of a confirm. A
+/// trigger fires when its event happens and its condition holds, and the first trigger of the map
+/// file that fires wins (D-1004, D-1131, G-4). One story scene runs at a time.
 /// <para>
-/// While a story scene runs, the map holds still: no patrol walks or sees, and the beat of a
-/// mark stops (D-1009). A step that changes the run at once runs in the same tick as the step
+/// While a story scene runs, the map holds still: no patrol walks or sees, the beat of a mark
+/// stops, and each NPC stands still except for a step of the story scene (D-1009, D-1139). A move
+/// step and a face step can name an NPC of the map, which acts where it stands, and a show step
+/// can put a scene-only NPC on a marker (D-1006). An NPC of the map that a move step leaves outside
+/// its home walks home after the story scene (D-1140). A step that changes the run at once runs in the same tick as the step
 /// before it. A step that Game animates waits for the wait intent, a wait step counts its
 /// ticks, and a choose step waits for the pick of the player (D-1000, D-1007, D-1013).
 /// </para>
@@ -45,12 +48,12 @@ public static class StoryRules
         ArgumentNullException.ThrowIfNull(state);
         ArgumentNullException.ThrowIfNull(log);
 
-        if (state.Story.TakeEntry() && TryFire(state, TriggerKind.Entry, null, null, log))
+        if (state.Story.TakeEntry() && TryFire(state, TriggerKind.Entry, null, null, null, log))
         {
             return true;
         }
 
-        return state.Story.TakeWin() is ContentId patrol && TryFire(state, TriggerKind.BattleEnd, null, patrol, log);
+        return state.Story.TakeWin() is ContentId patrol && TryFire(state, TriggerKind.BattleEnd, null, patrol, null, log);
     }
 
     /// <summary>Fires the tile trigger of the tile that the party reached (D-1004).</summary>
@@ -65,7 +68,29 @@ public static class StoryRules
         ArgumentNullException.ThrowIfNull(state);
         ArgumentNullException.ThrowIfNull(log);
 
-        return TryFire(state, TriggerKind.Tile, at, null, log);
+        return TryFire(state, TriggerKind.Tile, at, null, null, log);
+    }
+
+    /// <summary>Fires the talk trigger of one NPC that the lead talks with (D-1005, D-1131).</summary>
+    /// <param name="state">The run, with no story scene and no battle.</param>
+    /// <param name="npc">The id of the NPC, which the map places.</param>
+    /// <param name="log">The log entries of this tick (D-179).</param>
+    /// <returns>True when a story scene started.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="SimulationException">A story scene runs, or a step of the story scene breaks a rule (T-2).</exception>
+    /// <remarks>The confirm rule of the map calls it after the NPC turned to the lead (D-1139).</remarks>
+    public static bool FireTalk(RunState state, ContentId npc, List<LogEntry> log)
+    {
+        ArgumentNullException.ThrowIfNull(state);
+        ArgumentNullException.ThrowIfNull(npc);
+        ArgumentNullException.ThrowIfNull(log);
+
+        if (state.Story.Running)
+        {
+            throw new SimulationException($"a talk with the NPC '{npc.Value}' while a story scene runs. {Describe(state.Story)} (D-1009)", state.Context("story"));
+        }
+
+        return TryFire(state, TriggerKind.Talk, null, null, npc, log);
     }
 
     /// <summary>Runs the story scene for one world tick: the count of a wait step, then each step that is ready (D-540).</summary>
@@ -214,13 +239,14 @@ public static class StoryRules
         state.Story.Next();
     }
 
-    private static bool TryFire(RunState state, TriggerKind kind, TilePoint? at, ContentId? patrol, List<LogEntry> log)
+    private static bool TryFire(RunState state, TriggerKind kind, TilePoint? at, ContentId? patrol, ContentId? npc, List<LogEntry> log)
     {
         foreach (SceneTrigger trigger in state.Party.Map.Triggers)
         {
             if (trigger.Kind != kind
                 || (at is TilePoint tile && trigger.At != tile)
                 || (patrol is ContentId won && string.CompareOrdinal(trigger.Patrol?.Value, won.Value) != 0)
+                || (npc is ContentId talker && string.CompareOrdinal(trigger.Npc?.Value, talker.Value) != 0)
                 || !trigger.Condition.Holds(state.Story.Flags))
             {
                 continue;
@@ -276,18 +302,23 @@ public static class StoryRules
                 story.Next();
                 break;
             case ShowStep show:
+                if (SceneActor.IsNpcId(show.Actor) && state.Party.Map.PlacesNpc(show.Actor))
+                {
+                    throw new SimulationException($"a show of the NPC '{show.Actor.Value}', which the map '{state.Party.Map.Id.Value}' places, and a show puts a scene-only NPC alone on the map (D-1006)", context);
+                }
+
                 TilePoint at = MarkerTile(state, show.Marker, context);
                 RequireFree(state, at, context);
-                story.Show(show.Character, at, show.Facing);
+                story.Show(show.Actor, at, show.Facing);
                 story.Next();
                 break;
             case HideStep hide:
-                if (!story.TryActor(hide.Character, out _))
+                if (!story.TryActor(hide.Actor, out _))
                 {
-                    throw new SimulationException($"a hide of '{hide.Character.Value}', who is not on the map (D-1006)", context);
+                    throw new SimulationException($"a hide of '{hide.Actor.Value}', who is not on the map (D-1006)", context);
                 }
 
-                story.Hide(hide.Character);
+                story.Hide(hide.Actor);
                 story.Next();
                 break;
             case StartBattleStep start:
@@ -299,10 +330,14 @@ public static class StoryRules
         }
     }
 
-    /// <summary>Walks an actor along the path of a move step, one tile at a time (D-1012).</summary>
+    /// <summary>
+    /// Walks an actor along the path of a move step, one tile at a time (D-1012): the lead, a shown
+    /// actor, or an NPC of the map (D-1006). An NPC of the map then settles: outside its home, it
+    /// walks home after the story scene (D-1140).
+    /// </summary>
     private static void Move(RunState state, MoveStep move, RunContext context)
     {
-        if (move.Actor.Character is not ContentId character)
+        if (move.Actor.Id is not ContentId id)
         {
             foreach (StepDirection direction in move.Path)
             {
@@ -313,36 +348,56 @@ public static class StoryRules
             return;
         }
 
-        TilePoint at = ActorOf(state, character, context).At;
-        StepDirection facing = move.Path[0];
+        if (state.Story.TryActor(id, out ActorValues? shown))
+        {
+            TilePoint at = shown!.At;
+            foreach (StepDirection direction in move.Path)
+            {
+                at = at.Step(direction);
+                RequireFree(state, at, context);
+
+                // The tile of each step holds the actor at once, so no second actor can stand on a
+                // tile that this path crossed.
+                state.Story.Place(id, at, direction);
+            }
+
+            return;
+        }
+
+        NpcState npc = NpcOf(state, id, context);
         foreach (StepDirection direction in move.Path)
         {
-            at = at.Step(direction);
-            facing = direction;
-            RequireFree(state, at, context);
-
-            // The tile of each step holds the actor at once, so no second actor can stand on a
-            // tile that this path crossed.
-            state.Story.Place(character, at, facing);
+            TilePoint next = npc.At.Step(direction);
+            RequireFree(state, next, context);
+            npc.MoveInScene(next, direction);
         }
+
+        npc.SettleAfterScene();
     }
 
     private static void Face(RunState state, FaceStep face, RunContext context)
     {
-        if (face.Actor.Character is not ContentId character)
+        if (face.Actor.Id is not ContentId id)
         {
             state.Party.FaceInScene(face.Facing);
             return;
         }
 
-        state.Story.Place(character, ActorOf(state, character, context).At, face.Facing);
+        if (state.Story.TryActor(id, out ActorValues? shown))
+        {
+            state.Story.Place(id, shown!.At, face.Facing);
+            return;
+        }
+
+        NpcOf(state, id, context).Turn(face.Facing);
     }
 
-    private static ActorValues ActorOf(RunState state, ContentId character, RunContext context)
+    /// <summary>Finds the NPC of the map that a step names, when no show step put it on the map (D-1006).</summary>
+    private static NpcState NpcOf(RunState state, ContentId id, RunContext context)
     {
-        return state.Story.TryActor(character, out ActorValues? actor)
-            ? actor!
-            : throw new SimulationException($"a step of '{character.Value}', who is not on the map (D-1006)", context);
+        return SceneActor.IsNpcId(id) && state.Party.Npcs.TryFind(id, out NpcState? npc)
+            ? npc!
+            : throw new SimulationException($"a step of '{id.Value}', who is not on the map (D-1006)", context);
     }
 
     private static TilePoint MarkerTile(RunState state, ContentId marker, RunContext context)
@@ -352,7 +407,10 @@ public static class StoryRules
             : throw new SimulationException($"the marker '{marker.Value}', which the map '{state.Party.Map.Id.Value}' does not hold (D-1006)", context);
     }
 
-    /// <summary>Refuses a tile that an actor cannot stand on: a wall, an enemy, the lead, or a shown cast member (D-1012, T-2).</summary>
+    /// <summary>
+    /// Refuses a tile that an actor cannot stand on: a wall, a solid thing, an enemy, the lead, an
+    /// NPC of the map, or a shown actor (D-1012, D-1139, T-2).
+    /// </summary>
     private static void RequireFree(RunState state, TilePoint at, RunContext context)
     {
         string? blocker = null;
@@ -368,9 +426,13 @@ public static class StoryRules
         {
             blocker = "the lead";
         }
+        else if (state.Party.Npcs.TryNpcAt(at, out NpcState? npc))
+        {
+            blocker = $"the NPC '{npc!.Npc.Id.Value}'";
+        }
         else if (state.Story.ActorStandsAt(at))
         {
-            blocker = "a shown cast member";
+            blocker = "a shown actor";
         }
 
         if (blocker is not null)

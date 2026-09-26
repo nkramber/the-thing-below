@@ -39,7 +39,7 @@ The rules of the aptitudes:
 - A side aptitude never matches the main aptitude of the same character (D-281).
 - The whole cast holds eight characters at most, the replacement included, because each needs a side aptitude of its own (D-281).
 
-Lessons sit in slots on the character and swap at hubs and save points (D-356). An equipped lesson grows for the character who carries it, and that character keeps the growth (D-357, D-361). An aptitude adds a bonus to lessons of its kind, and a side aptitude adds half (D-358, D-360). Lessons come from treasure, shops, and people in the story (D-365). Every character has a basic attack, and any character wears any gear (D-359, D-374).
+Lessons sit in slots on the character, and they swap anywhere outside a fight (D-356, D-1050). The party swaps its reserve the same way (D-1134). An equipped lesson grows for the character who carries it, and that character keeps the growth (D-357, D-361). An aptitude adds a bonus to lessons of its kind, and a side aptitude adds half (D-358, D-360). Lessons come from treasure, shops, and people in the story (D-365). Every character has a basic attack, and any character wears any gear (D-359, D-374).
 
 ## The lead
 

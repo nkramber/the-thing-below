@@ -20,7 +20,7 @@ Game terms from the roadmap interview of 2026-09-12:
 | form | a named ability of a lesson that a point total opens (D-539) | version, tier, rank, when the text means this |
 | owned lesson | a lesson in the pack, or on a character of the party or the reserve (D-1023, D-1024) | party lesson, held lesson |
 | fallback item | the item that a chest gives in place of an owned lesson (D-1024) | substitute, replacement item |
-| swap place | a hub or a save point, where the party swapped lessons from PR-12 to PR-99. A swap now works anywhere outside a fight, and the term names the old rule alone (D-1030, D-1050) | swap point, lesson shrine |
+| swap place | a hub or a save point, where the party swapped lessons from PR-12 to PR-99 and the reserve before PR-14. A swap now works anywhere outside a fight, and the term names the old rule alone (D-1030, D-1050, D-1134) | swap point, lesson shrine |
 | lead | the one character whom story scenes center on (D-267) | hero, protagonist, main character |
 | ability | an action that a lesson gives (D-272, D-278) | skill, technique, move |
 | spell | an ability that costs MP (D-42) | magic, cast |
@@ -28,17 +28,21 @@ Game terms from the roadmap interview of 2026-09-12:
 | reserve | the characters who wait outside the party (D-58) | bench, backup |
 | cast | the story characters who can join the party, eight in the whole game (D-33, D-299) | roster, heroes |
 | hub | a settlement with services, of any shape (D-28) | town, city, base |
+| service | a thing that a hub offers on an NPC or a thing of its map, such as the rest or the save (D-59, D-1131) | facility, amenity |
+| NPC | a person or an animal of a map who does not fight, and whom the lead can talk with (D-112) | villager, townsfolk, extra |
+| wander range | the list of tile rectangles where one NPC walks at random (D-1138) | zone, roam area |
+| chaser | an NPC that steps toward a target NPC inside its own rectangles (D-1138) | follower |
 | dungeon | an authored area with enemies and a goal (D-39) | level, zone, map |
 | region | a slice of the game with hubs and dungeons (D-56) | chapter, act, world |
 | arc | the part of the main story that one region tells (D-56, D-131) | plot, chapter |
 | encounter | one battle against one enemy group | fight, combat, when a noun |
 | patrol | one enemy that a map places, with its routes, its size, and its group (D-740, D-752) | mob, spawn, guard, map enemy |
-| route | the list of tiles that one patrol walks (D-739). `docs/design.md` and D-113 use the same word for a link of the region map | path, waypoint list |
+| route | the list of tiles that one patrol or one NPC walks (D-739, D-1138). `docs/design.md` and D-113 use the same word for a link of the region map | path, waypoint list |
 | area | the rectangle that holds a large enemy, in the place of a route (D-209, D-741) | zone, pen, region, for this rectangle |
 | body | the tiles that one enemy holds: one, two by two, or three by three (D-206, D-737) | footprint, hitbox |
 | timeline | the visible turn order in battle (D-29) | queue, initiative |
 | turn | one action of one combatant on the timeline | move, when the text means one turn, and round |
-| save point | the place in a dungeon that saves and swaps the party (D-36, D-58) | checkpoint, shrine, in documents |
+| save point | the place in a dungeon that saves the party (D-36, D-1134) | checkpoint, shrine, in documents |
 | down | the state of a fallen character (D-36) | dead, KO, unconscious |
 | push | the ticks that one action adds to the next turn of its user (D-376, D-768) | cooldown, recovery |
 | delay | the number of an action in content that a push reads, in ticks at speed 100 (D-757) | cost, speed cost |
@@ -234,7 +238,7 @@ Story terms from the roadmaps PR of 2026-09-16:
 | flag file | the one content file that declares every story flag id with one line of prose, `content/rules/flags.json` (D-1003) | flag registry, flag list |
 | always leaf | the condition that holds for a thing that no flag gates (D-1002) | empty condition, default condition |
 | story scene trigger | an entry of a map file that starts a story scene from a tile, a talk, the entry to the map, or a won battle (D-1004) | event trigger, hook |
-| story scene actor | the lead, or a cast member that a show step put on the map, which a story scene step moves, turns, or hides (D-1006) | actor alone, which names the combatant of a turn, puppet, entity |
+| story scene actor | the lead, an NPC, or a cast member that a show step put on the map, which a story scene step moves, turns, or hides (D-1006) | actor alone, which names the combatant of a turn, puppet, entity |
 | story scene pause | the hold of a story scene that the start button makes, with its own screen (D-1009, D-1010) | freeze, pause alone where the text can mean the pause of a menu (D-162) |
 | quest | one entry of the quest state, a personal task included (D-59, D-538) | mission, task, when the text means the entry |
 | personal task | the quest of one character that unlocks the side aptitude (D-282) | side quest, character quest |

@@ -1,7 +1,10 @@
 {
- "comment": "Each one-line notice that a rule can post, and whether it lands in the notice log of the menu (D-221, D-983). The log field is required, so the writer marks each notice. The line of a notice lives in the string table under the id of the notice (G-7). PR-62 holds two fixture notices, one of each kind, which the debug console posts (D-989). The chest, the door, the task, and the key item of later PRs add their own notices here.",
+ "comment": "Each one-line notice that a rule can post, and whether it lands in the notice log of the menu (D-221, D-983). The log field is required, so the writer marks each notice. The line of a notice lives in the string table under the id of the notice (G-7). PR-62 holds two fixture notices, one of each kind, which the debug console posts (D-989). PR-14 adds the notices of the services of a hub: a closed service, a rest, and a save (D-1131, D-1132). The chest, the door, the task, and the key item of later PRs add their own notices here.",
  "notices": [
   { "id": "notice.fixture_mark", "log": true },
-  { "id": "notice.fixture_drip", "log": false }
+  { "id": "notice.fixture_drip", "log": false },
+  { "id": "notice.service_closed", "log": false },
+  { "id": "notice.rested", "log": false },
+  { "id": "notice.saved", "log": false }
  ]
 }

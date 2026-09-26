@@ -29,10 +29,10 @@ public enum SceneStepKind
     /// <summary>A cast member joins the party (D-563).</summary>
     Join,
 
-    /// <summary>A cast member appears on a marker (D-1006, D-1013).</summary>
+    /// <summary>A cast member or a scene-only NPC appears on a marker (D-1006, D-1013).</summary>
     Show,
 
-    /// <summary>A shown cast member leaves the map (D-1006, D-1013).</summary>
+    /// <summary>A shown actor leaves the map (D-1006, D-1013).</summary>
     Hide,
 
     /// <summary>The view moves to a marker, and Game ends the step (D-1013).</summary>
@@ -152,11 +152,12 @@ public static class SceneStepKinds
 }
 
 /// <summary>
-/// The actor of a step: the party lead, or one cast member (D-1006). PR-14 adds the NPC as an
-/// actor, with the NPCs themselves (D-1005).
+/// The actor of a step: the party lead, one cast member, or one NPC (D-1006). An NPC actor is an
+/// NPC that the map places, which acts where it stands, or a scene-only NPC, which a show step puts
+/// on a marker because the map places no NPC with its id.
 /// </summary>
-/// <param name="Character">The cast member, or no value for the party lead.</param>
-public sealed record SceneActor(ContentId? Character)
+/// <param name="Id">The cast member, of the kind `character`, or the NPC, of the kind `npc`, or no value for the party lead.</param>
+public sealed record SceneActor(ContentId? Id)
 {
     /// <summary>The word that names the party lead in a story scene file (D-1006).</summary>
     public const string LeadName = "lead";
@@ -165,11 +166,19 @@ public sealed record SceneActor(ContentId? Character)
     public static readonly SceneActor Lead = new((ContentId?)null);
 
     /// <summary>True when the actor is the party lead.</summary>
-    public bool IsLead => this.Character is null;
+    public bool IsLead => this.Id is null;
+
+    /// <summary>True when the actor is an NPC, of the kind `npc` (D-1006).</summary>
+    public bool IsNpc => IsNpcId(this.Id);
+
+    /// <summary>Tells whether an actor id names an NPC, of the kind `npc` (D-1006).</summary>
+    /// <param name="id">The id, or no value for the lead.</param>
+    /// <returns>True when the id takes the kind `npc`.</returns>
+    public static bool IsNpcId(ContentId? id) => id is not null && string.CompareOrdinal(id.Kind, Npc.IdKind) == 0;
 
     /// <summary>Gives the actor as one word for an error and a log line (T-2).</summary>
-    /// <returns>`lead`, or the id of the cast member.</returns>
-    public string Describe() => this.Character?.Value ?? LeadName;
+    /// <returns>`lead`, or the id of the cast member or the NPC.</returns>
+    public string Describe() => this.Id?.Value ?? LeadName;
 }
 
 /// <summary>One step of a story scene script (D-173, D-997).</summary>
@@ -212,15 +221,15 @@ public sealed record SetFlagStep(ContentId Flag) : SceneStep(SceneStepKind.SetFl
 /// <param name="Character">The cast member.</param>
 public sealed record JoinStep(ContentId Character) : SceneStep(SceneStepKind.Join);
 
-/// <summary>A cast member appears on a marker of the map (D-1006).</summary>
-/// <param name="Character">The cast member.</param>
+/// <summary>A cast member or a scene-only NPC appears on a marker of the map (D-1006).</summary>
+/// <param name="Actor">The cast member, or an NPC that the map does not place.</param>
 /// <param name="Marker">The marker of the map.</param>
-/// <param name="Facing">The direction that the cast member faces.</param>
-public sealed record ShowStep(ContentId Character, ContentId Marker, StepDirection Facing) : SceneStep(SceneStepKind.Show);
+/// <param name="Facing">The direction that the actor faces.</param>
+public sealed record ShowStep(ContentId Actor, ContentId Marker, StepDirection Facing) : SceneStep(SceneStepKind.Show);
 
-/// <summary>A shown cast member leaves the map (D-1006).</summary>
-/// <param name="Character">The cast member.</param>
-public sealed record HideStep(ContentId Character) : SceneStep(SceneStepKind.Hide);
+/// <summary>A shown actor leaves the map (D-1006).</summary>
+/// <param name="Actor">The cast member or the scene-only NPC that a show step put on the map.</param>
+public sealed record HideStep(ContentId Actor) : SceneStep(SceneStepKind.Hide);
 
 /// <summary>The view moves to a marker of the map (D-1013).</summary>
 /// <param name="Marker">The marker of the map.</param>

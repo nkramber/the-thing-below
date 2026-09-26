@@ -1,0 +1,6 @@
+{
+ "comment": "The decor pieces of the fixture hub (D-844). No rule reads a piece, so this file stays out of the content hash (D-495). The hub draws by day, so no wall torch hangs here, and PR-17 dresses the hubs of the first playable.",
+ "map": "map.fixture_hub",
+ "pieces": [],
+ "shafts": []
+}

@@ -20,8 +20,9 @@ namespace TheThingBelow.Debug.Commands;
 /// </para>
 /// <para>
 /// A battle command that aims takes one argument: the slot of its target, on the side that the
-/// command names. The intent carries the target, so the record holds it (D-764, D-767). No
-/// other command takes an argument.
+/// command names. The intent carries the target, so the record holds it (D-764, D-767). The
+/// go-to-map command takes the id of its map, and the intent carries the map (D-1133). No other
+/// command takes an argument.
 /// </para>
 /// </remarks>
 public sealed class DebugCommand
@@ -34,9 +35,11 @@ public sealed class DebugCommand
         ContentId? action,
         DebugIntentHandler? handler,
         Func<RunState, string>? report,
-        BattleSide? targetSide)
+        BattleSide? targetSide,
+        bool takesMap)
     {
         this.TargetSide = targetSide;
+        this.TakesMap = takesMap;
         this.Name = name;
         this.Summary = summary;
         this.Action = action;
@@ -59,6 +62,9 @@ public sealed class DebugCommand
     /// <summary>The side of the slot that the command takes as its argument, or no value when it takes none (D-767).</summary>
     public BattleSide? TargetSide { get; }
 
+    /// <summary>True when the command takes the id of a map as its argument (D-1133).</summary>
+    public bool TakesMap { get; }
+
     /// <summary>Makes a command that changes the run through a debug intent (D-171).</summary>
     /// <param name="name">The word that the person types, such as `reveal`.</param>
     /// <param name="summary">One line for `help`.</param>
@@ -78,7 +84,7 @@ public sealed class DebugCommand
         ArgumentNullException.ThrowIfNull(action);
         ArgumentNullException.ThrowIfNull(handler);
 
-        return new DebugCommand(name, summary, action, handler, null, null);
+        return new DebugCommand(name, summary, action, handler, null, null, false);
     }
 
     /// <summary>Makes a battle command that takes the slot of its target as its argument (D-767).</summary>
@@ -102,7 +108,29 @@ public sealed class DebugCommand
         ArgumentNullException.ThrowIfNull(action);
         ArgumentNullException.ThrowIfNull(handler);
 
-        return new DebugCommand(name, summary, action, handler, null, targetSide);
+        return new DebugCommand(name, summary, action, handler, null, targetSide, false);
+    }
+
+    /// <summary>Makes a command that takes the id of a map as its argument (D-1133).</summary>
+    /// <param name="name">The word that the person types, such as `goto`.</param>
+    /// <param name="summary">One line for `help`.</param>
+    /// <param name="action">The id of the intent, which <see cref="DebugCommandIds"/> holds.</param>
+    /// <param name="handler">The rule of the command, which the seam of D-260 calls.</param>
+    /// <returns>The command.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="ArgumentException">The name or the summary is empty (T-2).</exception>
+    public static DebugCommand OfMapIntent(
+        string name,
+        string summary,
+        ContentId action,
+        DebugIntentHandler handler)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(name);
+        ArgumentException.ThrowIfNullOrEmpty(summary);
+        ArgumentNullException.ThrowIfNull(action);
+        ArgumentNullException.ThrowIfNull(handler);
+
+        return new DebugCommand(name, summary, action, handler, null, null, true);
     }
 
     /// <summary>Makes a command that reads the run and changes nothing (D-724).</summary>
@@ -118,7 +146,7 @@ public sealed class DebugCommand
         ArgumentException.ThrowIfNullOrEmpty(summary);
         ArgumentNullException.ThrowIfNull(report);
 
-        return new DebugCommand(name, summary, null, null, report, null);
+        return new DebugCommand(name, summary, null, null, report, null, false);
     }
 
     /// <summary>True when the command sends an intent that the run record holds (D-171).</summary>

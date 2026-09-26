@@ -38,7 +38,7 @@ public sealed class RunRecordTextTests
         string header = RunRecordText.Write(SmallRecord()).Split('\n')[0];
 
         Assert.Equal(
-            "{\"format\":4,\"simulation\":" + SimulationVersion.Current +
+            "{\"format\":5,\"simulation\":" + SimulationVersion.Current +
             ",\"content\":\"a-content-hash\",\"seed\":\"0x0000000001352836\",\"game\":\"" +
             GameVersion.Current + "\"}",
             header);
@@ -90,6 +90,32 @@ public sealed class RunRecordTextTests
         string text = RunRecordText.Write(recorder.Build());
 
         Assert.Contains("\"action\":\"debug.step_east\",\"debug\":true", text, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TheMapOfADebugIntentSurvivesTheText()
+    {
+        // D-1133: the go-to-map command names its map, and record format 5 holds it.
+        RunRecord written = MapRecord("map.hub_test");
+
+        string text = RunRecordText.Write(written);
+        RunRecord read = RunRecordText.Read(text);
+
+        Assert.Contains("\"action\":\"debug.go_to_map\",\"debug\":true,\"map\":\"map.hub_test\"", text, StringComparison.Ordinal);
+        Intent intent = Assert.Single(read.Ticks[0].Intents);
+        Assert.Equal("map.hub_test", intent.Map?.Value);
+        Assert.Equal(text, RunRecordText.Write(read));
+    }
+
+    [Fact]
+    public void AMapFieldOfAnotherKindIsAnErrorOfItsLine()
+    {
+        string text = RunRecordText.Write(MapRecord("map.hub_test")).Replace("\"map\":\"map.hub_test\"", "\"map\":\"npc.hub_keeper\"", StringComparison.Ordinal);
+
+        RunRecordException error = Assert.Throws<RunRecordException>(() => RunRecordText.Read(text));
+
+        Assert.Equal(3, error.Line);
+        Assert.Contains("the id 'npc.hub_keeper' carries the kind 'npc'", error.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -159,25 +185,25 @@ public sealed class RunRecordTextTests
     public void ARecordOfAnOlderFormatReportsItsFormatBeforeItsSnapshot()
     {
         // PR-68 and PR-12 gave an intent new fields and left the format at 2, so the format rose
-        // to 3, and PR-105 raised it to 4 for the step id of a story scene (D-1112). A record of
-        // an older format names its format.
+        // to 3, PR-105 raised it to 4 for the step id of a story scene (D-1112), and PR-14 raised
+        // it to 5 for the NPCs (D-1137). A record of an older format names its format.
         string[] lines = RunRecordText.Write(SmallRecord()).TrimEnd('\n').Split('\n');
-        lines[0] = lines[0].Replace("{\"format\":4,", "{\"format\":3,", StringComparison.Ordinal);
+        lines[0] = lines[0].Replace("{\"format\":5,", "{\"format\":4,", StringComparison.Ordinal);
         lines[1] = "{\"tick\":0}";
 
         RunRecordException error = Assert.Throws<RunRecordException>(
             () => RunRecordText.Read(string.Join('\n', lines) + "\n"));
 
         Assert.Equal(1, error.Line);
-        Assert.Contains("format version 3", error.Message, StringComparison.Ordinal);
-        Assert.Equal(4, RunRecordFormat.Current);
+        Assert.Contains("format version 4", error.Message, StringComparison.Ordinal);
+        Assert.Equal(5, RunRecordFormat.Current);
     }
 
     [Fact]
     public void AnAbsentFieldOfTheHeaderIsAnErrorThatNamesTheLineAndTheField()
     {
         string[] lines = RunRecordText.Write(SmallRecord()).TrimEnd('\n').Split('\n');
-        lines[0] = "{\"format\":4,\"simulation\":3,\"content\":\"a\",\"seed\":\"0x0000000000000001\"}";
+        lines[0] = "{\"format\":5,\"simulation\":3,\"content\":\"a\",\"seed\":\"0x0000000000000001\"}";
 
         RunRecordException error = Assert.Throws<RunRecordException>(
             () => RunRecordText.Read(string.Join('\n', lines) + "\n"));
@@ -208,7 +234,7 @@ public sealed class RunRecordTextTests
     public void ASeedOfAnotherFormIsAnError(string seed)
     {
         string[] lines = RunRecordText.Write(SmallRecord()).TrimEnd('\n').Split('\n');
-        lines[0] = "{\"format\":4,\"simulation\":3,\"content\":\"a\",\"seed\":" + seed + ",\"game\":\"0.1.0\"}";
+        lines[0] = "{\"format\":5,\"simulation\":3,\"content\":\"a\",\"seed\":" + seed + ",\"game\":\"0.1.0\"}";
 
         RunRecordException error = Assert.Throws<RunRecordException>(
             () => RunRecordText.Read(string.Join('\n', lines) + "\n"));
@@ -221,9 +247,9 @@ public sealed class RunRecordTextTests
     {
         string[] lines = RunRecordText.Write(SmallRecord()).TrimEnd('\n').Split('\n');
         lines[1] = "{\"tick\":0,\"menu\":false,\"world\":0,\"map\":{\"id\":\"map.test_room\",\"x\":2,\"y\":2,"
-            + "\"facing\":\"south\",\"step_ticks\":0,\"walked\":[\"x\"],\"enemies\":[]},"
+            + "\"facing\":\"south\",\"step_ticks\":0,\"walked\":[\"x\"],\"enemies\":[],\"npcs\":[]},"
             + "\"party\":{\"characters\":[{\"id\":\"character.marrek\",\"health\":60,\"level\":1,\"experience\":0,\"mp\":8,\"row\":\"front\",\"statuses\":[],"
-            + "\"lessons\":{\"slot_count\":2,\"slots\":[],\"points\":[]},\"gear\":[]}],\"pack\":[],\"lesson_pack\":[],\"gold\":0,\"torch_held\":false},\"notices\":[],\"story\":{\"flags\":[],\"paused\":false,\"entry\":true},\"streams\":[]}";
+            + "\"lessons\":{\"slot_count\":2,\"slots\":[],\"points\":[]},\"gear\":[]}],\"reserve\":[],\"pack\":[],\"lesson_pack\":[],\"gold\":0,\"torch_held\":false},\"notices\":[],\"story\":{\"flags\":[],\"paused\":false,\"entry\":true},\"streams\":[]}";
 
         RunRecordException error = Assert.Throws<RunRecordException>(
             () => RunRecordText.Read(string.Join('\n', lines) + "\n"));
@@ -280,7 +306,7 @@ public sealed class RunRecordTextTests
     public void AFieldOfTheHeaderTwoTimesIsAnErrorThatNamesTheLine()
     {
         string[] lines = RunRecordText.Write(SmallRecord()).TrimEnd('\n').Split('\n');
-        lines[0] = lines[0].Replace("{\"format\":4,", "{\"format\":4,\"format\":1,", StringComparison.Ordinal);
+        lines[0] = lines[0].Replace("{\"format\":5,", "{\"format\":5,\"format\":1,", StringComparison.Ordinal);
 
         RunRecordException error = Assert.Throws<RunRecordException>(
             () => RunRecordText.Read(string.Join('\n', lines) + "\n"));
@@ -311,6 +337,15 @@ public sealed class RunRecordTextTests
         // The tick line then reads as the end line, and it holds no `end` field.
         Assert.Equal(3, error.Line);
         Assert.Contains("the end tick alone", error.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>Makes a record of one tick with one go-to-map intent, and no rule runs it (D-1133).</summary>
+    private static RunRecord MapRecord(string map)
+    {
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
+        RunRecorder recorder = new(RunHeader.ForThisBuild(ContentHash, Seed), run.Snapshot());
+        recorder.Step(1, [Intent.OfDebugMap(Core.Content.ContentId.Parse("debug.go_to_map", "test", "action"), Core.Content.ContentId.Parse(map, "test", "map"))]);
+        return recorder.Build();
     }
 
     private static RunRecord SmallRecord()

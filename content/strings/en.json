@@ -378,6 +378,10 @@
    "text": "The old cut"
   },
   {
+   "id": "label.fixture_hub",
+   "text": "The low inn"
+  },
+  {
    "id": "label.lamp",
    "text": "Tin lamp"
   },
@@ -490,6 +494,14 @@
    "text": "Items"
   },
   {
+   "id": "menu.leave",
+   "text": "Leave"
+  },
+  {
+   "id": "menu.leave_help",
+   "text": "Walk away."
+  },
+  {
    "id": "menu.lesson_aptitudes",
    "text": "Main {main}   Side {side}"
   },
@@ -582,6 +594,26 @@
    "text": "Confirm moves to the other row."
   },
   {
+   "id": "menu.party_reserve_help",
+   "text": "Confirm picks the row or a swap."
+  },
+  {
+   "id": "menu.reserve",
+   "text": "Reserve"
+  },
+  {
+   "id": "menu.rest",
+   "text": "Rest"
+  },
+  {
+   "id": "menu.rest_help",
+   "text": "Sleep here. Wounds close."
+  },
+  {
+   "id": "menu.row",
+   "text": "Row"
+  },
+  {
    "id": "menu.row_back",
    "text": "Back row"
   },
@@ -592,6 +624,10 @@
   {
    "id": "menu.save",
    "text": "Save"
+  },
+  {
+   "id": "menu.save_help",
+   "text": "Keep your place here."
   },
   {
    "id": "menu.settings",
@@ -632,6 +668,14 @@
   {
    "id": "menu.status",
    "text": "Status"
+  },
+  {
+   "id": "menu.swap",
+   "text": "Swap"
+  },
+  {
+   "id": "menu.swap_help",
+   "text": "Pick who comes in. The downed stay out."
   },
   {
    "id": "name.fixture_ash_ring",
@@ -736,6 +780,18 @@
   {
    "id": "notice.fixture_mark",
    "text": "Someone cut a mark in the stone. It is fresh."
+  },
+  {
+   "id": "notice.rested",
+   "text": "The party rests. Wounds close."
+  },
+  {
+   "id": "notice.saved",
+   "text": "Saved."
+  },
+  {
+   "id": "notice.service_closed",
+   "text": "Not now."
   },
   {
    "id": "pause.title",

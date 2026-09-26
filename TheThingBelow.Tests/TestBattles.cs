@@ -71,8 +71,8 @@ internal static class TestBattles
     """;
 
     /// <summary>
-    /// The fixture of the tests. It holds three characters, and the party starts with Marrek
-    /// alone. The groups live in <see cref="GroupsFile"/> (D-957).
+    /// The fixture of the tests. It holds four characters, and the party starts with Marrek
+    /// alone. The fourth character fills the reserve of a full party (D-1136). The groups live in <see cref="GroupsFile"/> (D-957).
     /// </summary>
     public static readonly string FixtureFile = $$"""
     {
@@ -80,7 +80,8 @@ internal static class TestBattles
      "characters": [
       { "id": "character.marrek", "row": "front", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.test_marrek_side", "curve": {{MarrekCurve()}} },
       { "id": "character.test_second", "row": "front", "join_level": 1, "main_aptitude": "harm", "side_aptitude": "mend", "side_flag": "flag.test_second_side", "curve": {{StatCurve.FlatText(new StatRow(50, 12, 10, 10, 3, 3, 110))}} },
-      { "id": "character.test_third", "row": "back", "join_level": 1, "main_aptitude": "mend", "side_aptitude": "boon", "side_flag": "flag.test_third_side", "curve": {{StatCurve.FlatText(new StatRow(40, 16, 8, 8, 2, 2, 120))}} }
+      { "id": "character.test_third", "row": "back", "join_level": 1, "main_aptitude": "mend", "side_aptitude": "boon", "side_flag": "flag.test_third_side", "curve": {{StatCurve.FlatText(new StatRow(40, 16, 8, 8, 2, 2, 120))}} },
+      { "id": "character.test_fourth", "row": "front", "join_level": 1, "main_aptitude": "guard", "side_aptitude": "theft", "side_flag": "flag.test_fourth_side", "curve": {{StatCurve.FlatText(new StatRow(45, 6, 11, 11, 4, 2, 105))}} }
      ],
      "start_party": ["character.marrek"],
      "pack": [{ "item": "item.fixture_draught", "count": 3 }],
@@ -365,21 +366,25 @@ internal static class TestBattles
     public const string BrutePath = "rules/enemies/fixture-brute.json";
 
     /// <summary>
-    /// The notice file of the tests: one notice that logs and one that does not (D-983, D-989).
-    /// A content set that holds it needs <see cref="NoticeStrings"/> in its string table (G-7).
+    /// The notice file of the tests: one notice that logs and one that does not (D-983, D-989),
+    /// and the three notices that the services of a hub post (D-1131, D-1132). A content set that
+    /// holds it needs <see cref="NoticeStrings"/> in its string table (G-7).
     /// </summary>
     public const string NoticesFile = """
     {
      "comment": "The notices of the tests.",
      "notices": [
       { "id": "notice.test_kept", "log": true },
-      { "id": "notice.test_plain", "log": false }
+      { "id": "notice.test_plain", "log": false },
+      { "id": "notice.service_closed", "log": false },
+      { "id": "notice.rested", "log": false },
+      { "id": "notice.saved", "log": false }
      ]
     }
     """;
 
-    /// <summary>The string entries of the two notices of <see cref="NoticesFile"/>, for the string table of a test content set (G-7).</summary>
-    public const string NoticeStrings = """{ "id": "notice.test_kept", "text": "A kept line." }, { "id": "notice.test_plain", "text": "A plain line." }""";
+    /// <summary>The string entries of the notices of <see cref="NoticesFile"/>, for the string table of a test content set (G-7).</summary>
+    public const string NoticeStrings = """{ "id": "notice.rested", "text": "Rested." }, { "id": "notice.saved", "text": "Saved." }, { "id": "notice.service_closed", "text": "Closed." }, { "id": "notice.test_kept", "text": "A kept line." }, { "id": "notice.test_plain", "text": "A plain line." }""";
 
     /// <summary>The notice file of the tests, as a run reads it (D-989).</summary>
     public static readonly NoticeList Notices = NoticeList.Read(Encoding.UTF8.GetBytes(NoticesFile), NoticeList.Path);
@@ -397,7 +402,8 @@ internal static class TestBattles
      "flags": [
       { "id": "flag.test_marrek_side", "note": "The side aptitude of Marrek is open." },
       { "id": "flag.test_second_side", "note": "The side aptitude of the second character is open." },
-      { "id": "flag.test_third_side", "note": "The side aptitude of the third character is open." }
+      { "id": "flag.test_third_side", "note": "The side aptitude of the third character is open." },
+      { "id": "flag.test_fourth_side", "note": "The side aptitude of the fourth character is open." }
      ]
     }
     """;

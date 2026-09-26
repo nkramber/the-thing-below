@@ -2,7 +2,7 @@
  "comment": "The place of every frame in the atlas (D-666). The atlas command of Tools writes this file and each page beside it, and no session edits either one by hand (D-107). A page holds one kind of drawing, and a tile page is a strict grid of 32 by 32 cells (D-667). Run the command again after a change to a drawing file.",
  "pages": [
   { "kind": "tiles", "number": 1, "width": 2048, "height": 32 },
-  { "kind": "map_sprites", "number": 1, "width": 288, "height": 32 },
+  { "kind": "map_sprites", "number": 1, "width": 352, "height": 32 },
   { "kind": "battle_sprites", "number": 1, "width": 160, "height": 64 },
   { "kind": "ui", "number": 1, "width": 320, "height": 24 },
   { "kind": "pieces", "number": 1, "width": 192, "height": 64 }
@@ -62,7 +62,8 @@
    "width": 32,
    "height": 32,
    "draws": [
-    { "content": "cast.dagvar", "use": "map_front" }
+    { "content": "cast.dagvar", "use": "map_front" },
+    { "content": "npc.fixture_hub_keeper", "use": "map_front" }
    ],
    "frames": [
     { "x": 32, "y": 0, "ticks": 0 }
@@ -98,10 +99,23 @@
    "width": 32,
    "height": 32,
    "draws": [
-    { "content": "cast.elio", "use": "map_front" }
+    { "content": "cast.elio", "use": "map_front" },
+    { "content": "npc.fixture_hub_child", "use": "map_front" }
    ],
    "frames": [
     { "x": 128, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.fixture_dog_map_front",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "npc.fixture_hub_dog", "use": "map_front" }
+   ],
+   "frames": [
+    { "x": 160, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -115,7 +129,19 @@
     { "content": "patrol.fixture_dungeon_deep", "use": "map_front" }
    ],
    "frames": [
-    { "x": 160, "y": 0, "ticks": 0 }
+    { "x": 192, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.fixture_waystone",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "service_point.fixture_hub_waystone", "use": "map" }
+   ],
+   "frames": [
+    { "x": 224, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -127,7 +153,7 @@
     { "content": "cast.marrek", "use": "map_front" }
    ],
    "frames": [
-    { "x": 192, "y": 0, "ticks": 0 }
+    { "x": 256, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -139,7 +165,7 @@
     { "content": "cast.marrek", "use": "map_torch" }
    ],
    "frames": [
-    { "x": 224, "y": 0, "ticks": 0 }
+    { "x": 288, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -148,10 +174,11 @@
    "width": 32,
    "height": 32,
    "draws": [
-    { "content": "cast.ottild", "use": "map_front" }
+    { "content": "cast.ottild", "use": "map_front" },
+    { "content": "npc.fixture_hub_barmaid", "use": "map_front" }
    ],
    "frames": [
-    { "x": 256, "y": 0, "ticks": 0 }
+    { "x": 320, "y": 0, "ticks": 0 }
    ]
   },
   {

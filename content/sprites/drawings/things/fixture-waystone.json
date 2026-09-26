@@ -1,0 +1,48 @@
+{
+ "id": "drawing.fixture_waystone",
+ "page": "map_sprites",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "service_point.fixture_hub_waystone", "use": "map" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "..............kkkk..............",
+    "............kkhhhhkk............",
+    "...........khhhhhhhHk...........",
+    "..........khhGhhhhhHHk..........",
+    "..........khhhhhhhhhHk..........",
+    "..........khhhhUhhhhHk..........",
+    "..........khhhhuUhhhHk..........",
+    "..........khhhUuuhhhHk..........",
+    "..........khhhhuhhhhHk..........",
+    "..........khhUhuhUhhHk..........",
+    "..........khhhUuUhhhHk..........",
+    "..........khhhhuhhhhHk..........",
+    "..........khhhhuhhhhHk..........",
+    "..........khhhUuUhhhHk..........",
+    "..........khhhhhhhhhHk..........",
+    "..........khhGhhhhhhHk..........",
+    "..........khhhhhhhhHHk..........",
+    "..........khhhhhhhhhHk..........",
+    "..........khhhhhhhhHHk..........",
+    ".........kkhhhhhhhhhHHk.........",
+    "........kQHhhhhhhhhhHHk.........",
+    ".......kQQHHhhhhhhhHHHHk........",
+    "......kQQQHHHHHHHHHHHHQQk.......",
+    "......kQQQQQQQQQQQQQQQQQk.......",
+    ".......kkQQQQQQQQQQQQQkk........",
+    ".........kkkkkkkkkkkkkk.........",
+    "................................"
+   ]
+  }
+ ]
+}

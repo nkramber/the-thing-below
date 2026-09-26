@@ -6,8 +6,9 @@ using TheThingBelow.Core.Story;
 namespace TheThingBelow.Core.Maps;
 
 /// <summary>
-/// One map of the game, as its rule file holds it: the terrain rows, every thing that a rule
-/// reads, every enemy, every story scene trigger, and the time of day (D-528, D-738, D-1004).
+/// One map of the game, as its rule file holds it: the kind, the terrain rows, every thing that
+/// a rule reads, every enemy, every NPC, every service, every story scene trigger, and the time
+/// of day (D-112, D-528, D-738, D-1004, D-1131).
 /// </summary>
 /// <remarks>
 /// One rule file holds each map, so one file holds each place for the author, for the review,
@@ -15,6 +16,10 @@ namespace TheThingBelow.Core.Maps;
 /// and the art of D-519 sit beside it and stay out of the content hash (D-501).
 /// <para>
 /// The author writes each map by hand, and no seed changes it (D-39, D-47).
+/// </para>
+/// <para>
+/// A hub and a dungeon take this one type and one code path (D-112). The kind decides that a
+/// hub holds services and a dungeon holds none (D-1131).
 /// </para>
 /// </remarks>
 public sealed class GameMap
@@ -36,12 +41,19 @@ public sealed class GameMap
     private readonly MapThing[] things;
     private readonly Patrol[] patrols;
     private readonly SceneTrigger[] triggers;
+    private readonly Npc[] npcs;
+    private readonly MapService[] services;
+
+    // True for each tile that holds a solid thing, in the order of the terrain (D-1142). The
+    // step rule reads it on each step, so it holds no walk of the things.
+    private readonly bool[] solid;
 
     private GameMap(
         string file,
         ContentId id,
         ContentId region,
         ContentId label,
+        MapKind kind,
         TimeOfDay time,
         bool dark,
         int width,
@@ -49,6 +61,8 @@ public sealed class GameMap
         TileKind[] tiles,
         MapThing[] things,
         Patrol[] patrols,
+        Npc[] npcs,
+        MapService[] services,
         SceneTrigger[] triggers,
         TilePoint spawn)
     {
@@ -56,6 +70,7 @@ public sealed class GameMap
         this.Id = id;
         this.Region = region;
         this.Label = label;
+        this.Kind = kind;
         this.Time = time;
         this.Dark = dark;
         this.Width = width;
@@ -63,8 +78,18 @@ public sealed class GameMap
         this.tiles = tiles;
         this.things = things;
         this.patrols = patrols;
+        this.npcs = npcs;
+        this.services = services;
         this.triggers = triggers;
         this.Spawn = spawn;
+        this.solid = new bool[tiles.Length];
+        foreach (MapThing thing in things)
+        {
+            if (MapThingKinds.IsSolid(thing.Kind))
+            {
+                this.solid[(thing.At.Y * width) + thing.At.X] = true;
+            }
+        }
     }
 
     /// <summary>The path of the file, under `content/`, for every error (T-2).</summary>
@@ -78,6 +103,9 @@ public sealed class GameMap
 
     /// <summary>The string id of the name that the player reads for this map (G-7).</summary>
     public ContentId Label { get; }
+
+    /// <summary>The kind of the map: a hub or a dungeon (D-112, D-1131).</summary>
+    public MapKind Kind { get; }
 
     /// <summary>The time of day that the file gives (D-442). No rule of this build changes it.</summary>
     public TimeOfDay Time { get; }
@@ -105,6 +133,55 @@ public sealed class GameMap
 
     /// <summary>Every story scene trigger of the map, in the order of the file, which is the order that a tick reads them (D-528, D-1004, G-4).</summary>
     public IReadOnlyList<SceneTrigger> Triggers => this.triggers;
+
+    /// <summary>Every NPC that this map places, in the order of the file (D-1137, G-4).</summary>
+    public IReadOnlyList<Npc> Npcs => this.npcs;
+
+    /// <summary>Every service of the map, in the order of the file. A dungeon holds none (D-1131, G-4).</summary>
+    public IReadOnlyList<MapService> Services => this.services;
+
+    /// <summary>Tells whether this map places one NPC (D-1005, D-1137).</summary>
+    /// <param name="id">The id of the NPC.</param>
+    /// <returns>True when the NPCs of the map hold this id.</returns>
+    /// <exception cref="ArgumentNullException">The id is null (T-2).</exception>
+    public bool PlacesNpc(ContentId id)
+    {
+        ArgumentNullException.ThrowIfNull(id);
+
+        foreach (Npc npc in this.npcs)
+        {
+            if (string.CompareOrdinal(npc.Id.Value, id.Value) == 0)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>Finds the service that one NPC or one service point holds (D-1131, D-1142).</summary>
+    /// <param name="host">The id of the NPC or the thing.</param>
+    /// <returns>The service, or no value when the host holds none. The load proves that a host holds one service at most.</returns>
+    /// <exception cref="ArgumentNullException">The id is null (T-2).</exception>
+    public MapService? ServiceOn(ContentId host)
+    {
+        ArgumentNullException.ThrowIfNull(host);
+
+        foreach (MapService service in this.services)
+        {
+            if (string.CompareOrdinal(service.Host.Value, host.Value) == 0)
+            {
+                return service;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>Tells whether one tile holds a solid thing, which blocks each step onto it (D-1142).</summary>
+    /// <param name="at">The tile, which can lie outside the map.</param>
+    /// <returns>True when the tile lies inside the map and holds a solid thing.</returns>
+    public bool HoldsSolidThing(TilePoint at) => this.Holds(at) && this.solid[(at.Y * this.Width) + at.X];
 
     /// <summary>Tells whether one tile lies inside the map.</summary>
     /// <param name="at">The tile.</param>
@@ -203,12 +280,15 @@ public sealed class GameMap
         ContentId? id = null;
         ContentId? region = null;
         ContentId? label = null;
+        string? kind = null;
         string? time = null;
         bool? dark = null;
         List<string>? terrain = null;
         List<ThingLine>? things = null;
         List<Patrol>? patrols = null;
         List<SceneTrigger>? triggers = null;
+        List<Npc>? npcs = null;
+        List<MapService>? services = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -229,6 +309,9 @@ public sealed class GameMap
                     // kind of that place and never the kind of this record (G-7, D-646).
                     label = reader.ReadContentId();
                     break;
+                case "kind":
+                    kind = reader.ReadString();
+                    break;
                 case "time":
                     time = reader.ReadString();
                     break;
@@ -247,6 +330,12 @@ public sealed class GameMap
                 case "triggers":
                     triggers = SceneTrigger.ReadAll(ref reader);
                     break;
+                case "npcs":
+                    npcs = Npc.ReadAll(ref reader);
+                    break;
+                case "services":
+                    services = MapService.ReadAll(ref reader);
+                    break;
                 default:
                     throw reader.UnknownField(field);
             }
@@ -263,7 +352,10 @@ public sealed class GameMap
             reader.Require(terrain, depth, "terrain"),
             reader.Require(things, depth, "things"),
             reader.Require(patrols, depth, "enemies"),
-            reader.Require(triggers, depth, "triggers"));
+            reader.Require(triggers, depth, "triggers"),
+            reader.Require(kind, depth, "kind"),
+            reader.Require(npcs, depth, "npcs"),
+            reader.Require(services, depth, "services"));
     }
 
     private static List<string> ReadRows(ref ContentReader reader)
@@ -341,7 +433,10 @@ public sealed class GameMap
         List<string> rows,
         List<ThingLine> lines,
         List<Patrol> patrols,
-        List<SceneTrigger> triggers)
+        List<SceneTrigger> triggers,
+        string kind,
+        List<Npc> npcs,
+        List<MapService> services)
     {
         if (!TimesOfDay.TryOf(time, out TimeOfDay parsed))
         {
@@ -349,14 +444,22 @@ public sealed class GameMap
                 $"the time of day is '{time}', and a map takes one of {TimesOfDay.EveryName} (D-442)");
         }
 
+        if (!MapKinds.TryOf(kind, out MapKind parsedKind))
+        {
+            throw reader.Refuse(
+                $"the map takes the kind '{kind}', and a map takes one of {MapKinds.EveryName} (D-112)");
+        }
+
         TileKind[] tiles = ReadTerrain(ref reader, rows, out int width, out int height);
         MapThing[] things = BuildThings(ref reader, lines, tiles, width, height);
         TilePoint spawn = OneSpawn(ref reader, things);
-        var map = new GameMap(reader.File, id, region, label, parsed, dark, width, height, tiles, things, [.. patrols], [.. triggers], spawn);
+        var map = new GameMap(reader.File, id, region, label, parsedKind, parsed, dark, width, height, tiles, things, [.. patrols], [.. npcs], [.. services], [.. triggers], spawn);
 
         // The map is complete here, so each check of a patrol reads the terrain and the
         // spawn point through the map itself and never through a second copy of them (T-1).
         PatrolLayout.Check(ref reader, map);
+        NpcLayout.Check(ref reader, map);
+        CheckServices(ref reader, map);
         CheckTriggers(ref reader, map);
         return map;
     }
@@ -553,9 +656,79 @@ public sealed class GameMap
     }
 
     /// <summary>
+    /// Refuses a service that no player reaches or that a player reaches two ways: a service on a
+    /// dungeon, a repeated id, an absent host, a thing host that is not a service point, a host
+    /// with two services, and a service point with none (D-1131, D-1142, T-2). The content set
+    /// checks the flags of each condition.
+    /// </summary>
+    private static void CheckServices(ref ContentReader reader, GameMap map)
+    {
+        for (int index = 0; index < map.services.Length; index += 1)
+        {
+            MapService service = map.services[index];
+            if (map.Kind != MapKind.Hub)
+            {
+                throw reader.Refuse($"the map is a {MapKinds.NameOf(map.Kind)}, and it holds the service '{service.Id.Value}'. A hub alone holds services (D-1131)");
+            }
+
+            for (int earlier = 0; earlier < index; earlier += 1)
+            {
+                MapService other = map.services[earlier];
+                if (string.CompareOrdinal(other.Id.Value, service.Id.Value) == 0)
+                {
+                    throw reader.Refuse($"two services of this map take the id '{service.Id.Value}', and an id is permanent (D-166)");
+                }
+
+                if (string.CompareOrdinal(other.Host.Value, service.Host.Value) == 0)
+                {
+                    throw reader.Refuse($"the services '{other.Id.Value}' and '{service.Id.Value}' sit on '{service.Host.Value}', and one host holds one service (D-1131)");
+                }
+            }
+
+            if (service.Npc is ContentId npc && !map.PlacesNpc(npc))
+            {
+                throw reader.Refuse($"the service '{service.Id.Value}' sits on the NPC '{npc.Value}', and this map places no such NPC (D-1131)");
+            }
+
+            if (service.Thing is ContentId thing)
+            {
+                RequireServicePoint(ref reader, map, service, thing);
+            }
+        }
+
+        foreach (MapThing thing in map.things)
+        {
+            if (thing.Kind == MapThingKind.ServicePoint && map.ServiceOn(thing.Id) is null)
+            {
+                throw reader.Refuse($"the service point '{thing.Id.Value}' holds no service, and a service point holds one (D-1142)");
+            }
+        }
+    }
+
+    private static void RequireServicePoint(ref ContentReader reader, GameMap map, MapService service, ContentId host)
+    {
+        foreach (MapThing thing in map.things)
+        {
+            if (string.CompareOrdinal(thing.Id.Value, host.Value) != 0)
+            {
+                continue;
+            }
+
+            if (thing.Kind != MapThingKind.ServicePoint)
+            {
+                throw reader.Refuse($"the service '{service.Id.Value}' sits on the thing '{host.Value}', which is a {MapThingKinds.NameOf(thing.Kind)}, and a thing that holds a service is a service point (D-1142)");
+            }
+
+            return;
+        }
+
+        throw reader.Refuse($"the service '{service.Id.Value}' sits on the thing '{host.Value}', and this map holds no such thing (D-1131)");
+    }
+
+    /// <summary>
     /// Refuses a trigger that this map cannot fire: a repeated id, a tile that the party cannot
-    /// stand on, or a patrol that the map does not place (D-1004, D-1011, T-2). The content set
-    /// checks the story scene and the flags of each trigger.
+    /// stand on, an NPC or a patrol that the map does not place (D-1004, D-1005, D-1011, T-2).
+    /// The content set checks the story scene and the flags of each trigger.
     /// </summary>
     private static void CheckTriggers(ref ContentReader reader, GameMap map)
     {
@@ -573,6 +746,11 @@ public sealed class GameMap
             if (trigger.At is TilePoint at && !MapRules.CanEnter(map, at))
             {
                 throw reader.Refuse($"the trigger '{trigger.Id.Value}' sits at {at}, which the party cannot stand on, so it never fires (D-1004)");
+            }
+
+            if (trigger.Npc is ContentId npc && !map.PlacesNpc(npc))
+            {
+                throw reader.Refuse($"the trigger '{trigger.Id.Value}' names the NPC '{npc.Value}', and this map places no such NPC (D-1005)");
             }
 
             if (trigger.Patrol is ContentId patrol && !map.PlacesPatrol(patrol))

@@ -40,6 +40,9 @@ public sealed class DebugConsoleTests
     // PR-12 added the command that marked a swap place of lessons, and PR-99 removed it (D-1030, D-1050).
     private const string SwapId = "debug.swap_place";
 
+    /// <summary>The permanent id of the go-to-map command (D-727, D-1133).</summary>
+    private const string GoToId = "debug.go_to_map";
+
     /// <summary>The seed of the runs of these tests.</summary>
     private const ulong Seed = 20260920;
 
@@ -53,7 +56,9 @@ public sealed class DebugConsoleTests
         // a debug handler (D-260, D-492).
         DebugIntentHandlers handlers = DebugAssemblyFile.Handlers();
 
-        Assert.Equal(2 + BattleIds.Length + NoticeIds.Length, handlers.Count);
+        Assert.Equal(3 + BattleIds.Length + NoticeIds.Length, handlers.Count);
+        Assert.True(handlers.TryFind(Id(GoToId), out DebugIntentHandler? goTo));
+        Assert.NotNull(goTo);
         Assert.True(handlers.TryFind(Id(RevealId), out DebugIntentHandler? found));
         Assert.NotNull(found);
         foreach (string battleId in BattleIds)
@@ -351,6 +356,102 @@ public sealed class DebugConsoleTests
     }
 
     [Fact]
+    public void TheGoToCommandSendsItsMapInOneDebugIntentAndChangesNoStateItself()
+    {
+        // D-1133: the intent carries the map, so the record holds it (D-171, T-7).
+        Simulation run = StartWithInn();
+        List<Intent> queued = [];
+
+        IReadOnlyList<string> answer = DebugAssemblyFile.Run("goto map.hub_test", () => run.State, queued.Add);
+
+        Intent sent = Assert.Single(queued);
+        Assert.Equal(GoToId, sent.Action.Value);
+        Assert.True(sent.IsDebug);
+        Assert.Equal("map.hub_test", sent.Map?.Value);
+        Assert.Equal(TestMaps.Room.Id.Value, run.State.Party.Map.Id.Value);
+        Assert.Contains("map.hub_test", string.Join(" ", answer), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TheGoToIntentPutsThePartyOnTheSpawnPointOfTheMap()
+    {
+        // Exit test 18 of PR-14, the Core part: the command reaches a hub before the travel of PR-35 (D-1133).
+        Simulation run = StartWithInn();
+        run.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
+
+        IReadOnlyList<LogEntry> log = run.Step([Intent.OfDebugMap(Id(GoToId), HubMaps.Inn.Id)]);
+
+        Assert.Equal(HubMaps.Inn.Id.Value, run.State.Party.Map.Id.Value);
+        Assert.Equal(HubMaps.Inn.Spawn, run.State.Party.LeadAt);
+        Assert.Equal([SaveRequestKind.Autosave], run.TakeSaveRequests());
+        Assert.Contains(log, entry => entry.Level == LogLevel.Info && entry.Fields[0].Value == "map.hub_test");
+    }
+
+    [Fact]
+    public void TheGoToIntentWithAnUnknownMapWarnsAndChangesNothing()
+    {
+        // A fault of the person never stops the run, and the warning gives the reason (D-179, T-2).
+        Simulation run = StartWithInn();
+        Simulation twin = StartWithInn();
+
+        IReadOnlyList<LogEntry> log = run.Step([Intent.OfDebugMap(Id(GoToId), Id("map.nowhere"))]);
+        twin.Step([]);
+
+        LogEntry warning = Assert.Single(log, entry => entry.Level == LogLevel.Warning);
+        Assert.Contains("no map 'map.nowhere' among the maps of the run", warning.Message, StringComparison.Ordinal);
+        Assert.Equal(twin.StateHash(), run.StateHash());
+        Assert.Empty(run.TakeSaveRequests());
+    }
+
+    [Fact]
+    public void TheGoToIntentWithTheMenuOpenWarnsAndChangesNothing()
+    {
+        Simulation run = StartWithInn();
+        Simulation twin = StartWithInn();
+        run.Step([Intent.OfPlayer(IntentIds.OpenMenu)]);
+        twin.Step([Intent.OfPlayer(IntentIds.OpenMenu)]);
+
+        IReadOnlyList<LogEntry> log = run.Step([Intent.OfDebugMap(Id(GoToId), HubMaps.Inn.Id)]);
+        twin.Step([]);
+
+        LogEntry warning = Assert.Single(log, entry => entry.Level == LogLevel.Warning);
+        Assert.Contains("the command found an open menu", warning.Message, StringComparison.Ordinal);
+        Assert.Equal(twin.StateHash(), run.StateHash());
+        Assert.Equal(TestMaps.Room.Id.Value, run.State.Party.Map.Id.Value);
+        Assert.Empty(run.TakeSaveRequests());
+    }
+
+    [Fact]
+    public void TheGoToIntentInABattleWarnsAndChangesNothing()
+    {
+        GameMap guarded = BattleRuns.Map("group.one");
+        Simulation run = Simulation.Start(Seed, MapSet.Of([guarded, HubMaps.Inn]), guarded.Id, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugAssemblyFile.Handlers());
+        run.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
+        Assert.NotNull(run.State.Battle);
+
+        IReadOnlyList<LogEntry> log = run.Step([Intent.OfDebugMap(Id(GoToId), HubMaps.Inn.Id)]);
+
+        LogEntry warning = Assert.Single(log, entry => entry.Level == LogLevel.Warning);
+        Assert.Contains("the command found a battle that holds the run", warning.Message, StringComparison.Ordinal);
+        Assert.Equal(guarded.Id.Value, run.State.Party.Map.Id.Value);
+        Assert.NotNull(run.State.Battle);
+    }
+
+    [Theory]
+    [InlineData("goto")]
+    [InlineData("goto hub")]
+    [InlineData("goto npc.hub_keeper")]
+    [InlineData("goto Map.Hub_Test")]
+    public void TheGoToCommandNeedsTheIdOfAMap(string line)
+    {
+        Simulation run = StartWithInn();
+
+        string answer = string.Join(" ", DebugAssemblyFile.Run(line, () => run.State, Refuse));
+
+        Assert.Contains("the command 'goto' takes the id of its map", answer, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void AnEmptyLineGivesNoLineAndSendsNoIntent()
     {
         Simulation run = Start();
@@ -371,12 +472,16 @@ public sealed class DebugConsoleTests
             Assert.True(names.Add(name), $"Two commands take the name '{name}' (T-2).");
         }
 
-        // PR-99 removed the `swap` command (D-1050).
-        Assert.Equal(13, names.Count);
+        // PR-99 removed the `swap` command (D-1050), and PR-14 added the `goto` command (D-1133).
+        Assert.Equal(14, names.Count);
     }
 
     private static Simulation Start() =>
         Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugAssemblyFile.Handlers());
+
+    /// <summary>Starts a run on the room, with the inn of <see cref="HubMaps"/> to enter (D-1133).</summary>
+    private static Simulation StartWithInn() =>
+        Simulation.Start(Seed, MapSet.Of([TestMaps.Room, HubMaps.Inn]), TestMaps.Room.Id, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugAssemblyFile.Handlers());
 
     private static ContentId Id(string value) =>
         ContentId.Parse(value, "TheThingBelow.Tests/DebugConsoleTests.cs", nameof(Id));

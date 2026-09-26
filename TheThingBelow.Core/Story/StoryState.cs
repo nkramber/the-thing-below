@@ -70,11 +70,11 @@ public static class ScenePhases
     }
 }
 
-/// <summary>One cast member that a show step put on the map (D-1006).</summary>
-/// <param name="Character">The cast member.</param>
+/// <summary>One cast member or scene-only NPC that a show step put on the map (D-1006).</summary>
+/// <param name="Actor">The cast member, of the kind `character`, or the NPC that the map does not place, of the kind `npc`.</param>
 /// <param name="At">The tile.</param>
-/// <param name="Facing">The direction that the cast member faces.</param>
-public sealed record ActorValues(ContentId Character, TilePoint At, StepDirection Facing);
+/// <param name="Facing">The direction that the actor faces.</param>
+public sealed record ActorValues(ContentId Actor, TilePoint At, StepDirection Facing);
 
 /// <summary>The stored values of the story scene that runs (D-540, D-166).</summary>
 /// <param name="Scene">The id of the story scene.</param>
@@ -85,7 +85,7 @@ public sealed record ActorValues(ContentId Character, TilePoint At, StepDirectio
 /// </param>
 /// <param name="Phase">Where the step stands.</param>
 /// <param name="TicksLeft">The ticks of a wait step that remain, and zero in every other phase.</param>
-/// <param name="Actors">The shown cast members, in the order of their shows.</param>
+/// <param name="Actors">The shown actors, in the order of their shows.</param>
 public sealed record SceneValues(ContentId Scene, int Step, ContentId? StepId, ScenePhase Phase, int TicksLeft, IReadOnlyList<ActorValues> Actors);
 
 /// <summary>The stored values of the story state (D-540, D-542, D-166).</summary>
@@ -103,8 +103,9 @@ public sealed record StoryValues(IReadOnlyList<ContentId> Flags, SceneValues? Sc
 /// <remarks>
 /// Core holds the step index and every flag, and Game draws each step (D-540). The snapshot
 /// holds every value, so a replay reproduces every flag and every step (G-5). Each shown cast
-/// member leaves at the end of its story scene, so the actors live inside the story scene
-/// that runs (D-1006).
+/// member and each shown scene-only NPC leaves at the end of its story scene, so the actors live
+/// inside the story scene that runs (D-1006). An NPC that the map places acts where it stands, and
+/// the NPCs of the map hold it.
 /// </remarks>
 public sealed class StoryState
 {
@@ -147,7 +148,7 @@ public sealed class StoryState
     /// <summary>True while a story scene runs, a battle of the story scene included (D-1009).</summary>
     public bool Running => this.Scene is not null;
 
-    /// <summary>The shown cast members, in the order of their shows (D-1006). Game draws each one.</summary>
+    /// <summary>The shown cast members and scene-only NPCs, in the order of their shows (D-1006). Game draws each one.</summary>
     public IReadOnlyList<ActorValues> Actors
     {
         get
@@ -155,7 +156,7 @@ public sealed class StoryState
             List<ActorValues> values = [];
             foreach (ShownActor actor in this.actors)
             {
-                values.Add(new ActorValues(actor.Character, actor.At, actor.Facing));
+                values.Add(new ActorValues(actor.Actor, actor.At, actor.Facing));
             }
 
             return values;
@@ -263,7 +264,7 @@ public sealed class StoryState
         hasher.AddInt32(this.actors.Count);
         foreach (ShownActor actor in this.actors)
         {
-            hasher.AddText(actor.Character.Value);
+            hasher.AddText(actor.Actor.Value);
             hasher.AddInt32(actor.At.X);
             hasher.AddInt32(actor.At.Y);
             hasher.AddInt32((int)actor.Facing);
@@ -274,22 +275,22 @@ public sealed class StoryState
         hasher.AddText(this.WonPatrol?.Value ?? string.Empty);
     }
 
-    /// <summary>Finds a shown cast member (D-1006).</summary>
-    /// <param name="character">The cast member.</param>
-    /// <param name="actor">The values, when the cast member is on the map.</param>
-    /// <returns>True when the cast member is on the map.</returns>
-    public bool TryActor(ContentId character, out ActorValues? actor)
+    /// <summary>Finds a shown cast member or scene-only NPC (D-1006).</summary>
+    /// <param name="id">The id of the actor.</param>
+    /// <param name="actor">The values, when a show step put the actor on the map.</param>
+    /// <returns>True when a show step put the actor on the map.</returns>
+    public bool TryActor(ContentId id, out ActorValues? actor)
     {
-        ArgumentNullException.ThrowIfNull(character);
+        ArgumentNullException.ThrowIfNull(id);
 
-        ShownActor? found = this.Find(character);
-        actor = found is null ? null : new ActorValues(found.Character, found.At, found.Facing);
+        ShownActor? found = this.Find(id);
+        actor = found is null ? null : new ActorValues(found.Actor, found.At, found.Facing);
         return found is not null;
     }
 
-    /// <summary>Tells whether a shown cast member stands on one tile (D-1012).</summary>
+    /// <summary>Tells whether a shown actor stands on one tile (D-1012).</summary>
     /// <param name="at">The tile.</param>
-    /// <returns>True when a shown cast member stands there.</returns>
+    /// <returns>True when a shown cast member or scene-only NPC stands there.</returns>
     public bool ActorStandsAt(TilePoint at)
     {
         foreach (ShownActor actor in this.actors)
@@ -312,7 +313,7 @@ public sealed class StoryState
         this.TicksLeft = 0;
     }
 
-    /// <summary>Ends the story scene. Each shown cast member leaves the map (D-1006).</summary>
+    /// <summary>Ends the story scene. Each shown actor leaves the map (D-1006).</summary>
     internal void End()
     {
         this.Scene = null;
@@ -357,6 +358,9 @@ public sealed class StoryState
         return pending;
     }
 
+    /// <summary>Notes the entry to a map, whose entry triggers the next world step reads (D-1004, D-1133).</summary>
+    internal void NoteEntry() => this.EntryPending = true;
+
     /// <summary>Holds a win against a patrol for the battle end triggers of the next world step (D-1011).</summary>
     internal void NoteWin(ContentId patrol) => this.WonPatrol = patrol;
 
@@ -369,16 +373,16 @@ public sealed class StoryState
         return won;
     }
 
-    /// <summary>Puts a cast member on the map (D-1006).</summary>
-    internal void Show(ContentId character, TilePoint at, StepDirection facing) => this.actors.Add(new ShownActor(character, at, facing));
+    /// <summary>Puts a cast member or a scene-only NPC on the map (D-1006).</summary>
+    internal void Show(ContentId id, TilePoint at, StepDirection facing) => this.actors.Add(new ShownActor(id, at, facing));
 
-    /// <summary>Removes a shown cast member from the map (D-1006).</summary>
-    internal void Hide(ContentId character) => this.actors.Remove(this.Find(character)!);
+    /// <summary>Removes a shown actor from the map (D-1006).</summary>
+    internal void Hide(ContentId id) => this.actors.Remove(this.Find(id)!);
 
-    /// <summary>Moves a shown cast member to a tile, with the facing of its last step (D-1012).</summary>
-    internal void Place(ContentId character, TilePoint at, StepDirection facing)
+    /// <summary>Moves a shown actor to a tile, with the facing of its last step (D-1012).</summary>
+    internal void Place(ContentId id, TilePoint at, StepDirection facing)
     {
-        ShownActor actor = this.Find(character)!;
+        ShownActor actor = this.Find(id)!;
         actor.At = at;
         actor.Facing = facing;
     }
@@ -474,11 +478,20 @@ public sealed class StoryState
         foreach (ActorValues actor in values.Actors)
         {
             ArgumentNullException.ThrowIfNull(actor);
-            Refuse(!this.Content.HoldsCast(actor.Character), source, $"it shows '{actor.Character.Value}', which no character of this build holds (D-1006)");
-            Refuse(this.Find(actor.Character) is not null, source, $"it shows '{actor.Character.Value}' two times");
-            Refuse(!MapRules.CanEnter(map, actor.At), source, $"it shows '{actor.Character.Value}' at {actor.At}, which no actor can stand on");
+            string name = actor.Actor.Value;
+            if (SceneActor.IsNpcId(actor.Actor))
+            {
+                Refuse(map.PlacesNpc(actor.Actor), source, $"it shows the NPC '{name}', which the map '{map.Id.Value}' places, and a show puts a scene-only NPC alone on the map (D-1006)");
+            }
+            else
+            {
+                Refuse(!this.Content.HoldsCast(actor.Actor), source, $"it shows '{name}', which no character of this build holds (D-1006)");
+            }
+
+            Refuse(this.Find(actor.Actor) is not null, source, $"it shows '{name}' two times");
+            Refuse(!MapRules.CanEnter(map, actor.At), source, $"it shows '{name}' at {actor.At}, which no actor can stand on");
             Refuse(this.ActorStandsAt(actor.At), source, $"two actors stand at {actor.At}");
-            this.Show(actor.Character, actor.At, actor.Facing);
+            this.Show(actor.Actor, actor.At, actor.Facing);
         }
     }
 
@@ -527,11 +540,11 @@ public sealed class StoryState
         return values.TicksLeft;
     }
 
-    private ShownActor? Find(ContentId character)
+    private ShownActor? Find(ContentId id)
     {
         foreach (ShownActor actor in this.actors)
         {
-            if (string.CompareOrdinal(actor.Character.Value, character.Value) == 0)
+            if (string.CompareOrdinal(actor.Actor.Value, id.Value) == 0)
             {
                 return actor;
             }
@@ -540,9 +553,9 @@ public sealed class StoryState
         return null;
     }
 
-    private sealed class ShownActor(ContentId character, TilePoint at, StepDirection facing)
+    private sealed class ShownActor(ContentId actor, TilePoint at, StepDirection facing)
     {
-        public ContentId Character { get; } = character;
+        public ContentId Actor { get; } = actor;
 
         public TilePoint At { get; set; } = at;
 

@@ -1,5 +1,167 @@
 # Session handoff archive
 
+## Session 316: 2026-09-25, Codex
+
+Author: Codex
+Session: reviewer PR #82 (PR-105), round 2. Repository: the-thing-below. Local branch: `review/pr-82`; PR branch: `fix/pr-105-save-drift`. PR: #82. Role: reviewer. Base: `640ad98`.
+
+### What this session did, and why
+
+- Re-reviewed the P2-1 correction at effective head `e17c964`.
+- The selected conflict cell now uses the warning color and a 2-pixel cursor outline (D-1119, D-1120). The screen-test artifact shows two conflicts and the line `1 of 2`.
+- The Gitar CI-analysis item has its answer. Its log names only stale RG 4 and RG 5, which this record replaces (D-964).
+
+### The state of the build
+
+- `make verify` passed on macOS arm64: 3401 tests, format, lint, STE, identity, content, atlas, and smoke. CI implementation checks passed at `e17c964`.
+- This metadata commit updates the verdict and this entry. The remote head before the commit is `e17c964`.
+
+### What is in flight
+
+- This record and this handoff entry are committed together and pushed to `fix/pr-105-save-drift`.
+- The record gives `Ready for owner merge` for `e17c964`. The owner can merge when `review-gate` reads the record and passes.
+
+### Traps and gotchas
+
+- The `review-gate` failure at RG 4 and RG 5 reads the old review record. The new metadata commit supplies the updated verdict and effective head.
+
+### The questions that block progress
+
+None for this PR.
+
+### The next concrete action
+
+Read the new `review-gate` result after the metadata push. The owner can merge when it passes.
+
+## Session 315: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #82 (PR-105), round 4. Repository: the-thing-below. Branch: `fix/pr-105-save-drift`. PR: #82. Role: author. Base: `640ad98`.
+
+### What this session did, and why
+
+- Gitar approved `af1d924` with no thread. Its CI analysis named `review-gate`, and a PR comment answers it: RG 4 and RG 5 read the record of `0e71601`, which the next review replaces.
+- Each CI check of `af1d924` passed but `screen-test` and `review-gate`. `screen-test` found `settings-conflict-1x` alone, in 2054 pixels, and its two runs matched.
+- The author read the frame of the artifact: four red cells for two conflicts, the cell of back in red with a yellow outline, and the line "1 of 2" (D-1119, D-1120). This round takes the frame as the baseline (D-733).
+
+### The state of the build
+
+- `make verify` passed at `af1d924` on the Mac. This round adds the baseline and this entry.
+
+### What is in flight
+
+- The Gitar pass and the CI of this push, and then `make codex-review PR=82`.
+
+### Traps and gotchas
+
+- The baseline moves the effective head, so it needs its own Gitar pass.
+
+### The questions that block progress
+
+None for this PR.
+
+### The next concrete action
+
+When every check but `review-gate` passes, run `make codex-review PR=82` in the background.
+
+## Session 314: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #82 (PR-105), round 3. Repository: the-thing-below. Branch: `fix/pr-105-save-drift`. PR: #82. Role: author. Base: `640ad98`.
+
+### What this session did, and why
+
+- The review of `0e71601` in `docs/reviews/pr-82.md` gave `Changes required` for P2-1: the conflict cell under the cursor kept the cursor color, against D-1119.
+- The owner chose the look (D-1120): the warning color with an outline of 2 pixels in the cursor color. `SettingsMenu.LookOf` and `ShowSlot` apply it, and a test holds the four looks.
+- The conflict capture now makes two conflicts, with the cursor on the cell of back. `docs/reviews/pr-82-response.md` answers the finding.
+
+### The state of the build
+
+- `make verify` passed at this head on the Mac. The effective head moves with this round.
+
+### What is in flight
+
+- The Gitar pass and the CI of this push. The `screen-test` job will flag `settings-conflict-1x`, and the next round takes the new frame as its baseline (D-733).
+
+### Traps and gotchas
+
+- The capture session of this Mac stops at the first 1080 frame, so read the conflict frame in the CI artifact.
+
+### The questions that block progress
+
+None for this PR.
+
+### The next concrete action
+
+Read the new conflict frame of the artifact, take it as the baseline, push, and run `make codex-review PR=82` after green CI.
+
+## Session 313: 2026-09-25, Codex
+
+Author: Codex
+Session: reviewer PR #82 (PR-105), round 1. Repository: the-thing-below. Local branch: `review/pr-82`; PR branch: `fix/pr-105-save-drift`. Role: reviewer. Base: `640ad98`.
+
+### What this session did, and why
+
+- Reviewed effective head `0e71601` and inspected all 74 changed paths.
+- P2-1 finds that the selected remap conflict stays yellow, but D-1119 requires each conflict cell to use the warning color.
+- Verified the Gitar CI-analysis answer against the RG 3 log. The CI failure names the missing review record, which this session supplies.
+- Updated the PR Documents row to name `docs/reviews/pr-82.md`.
+
+### The state of the build
+
+- `make verify` passed on macOS arm64: 3397 tests, format, lint, STE, identity, content, atlas, and smoke.
+- CI passed the implementation checks at effective head `0e71601`. `review-gate` failed RG 3 before this record existed.
+
+### What is in flight
+
+- This review record and this handoff entry are committed together and pushed to `fix/pr-105-save-drift`.
+- The current Gitar dashboard approves the head. Its CI-analysis item has the author answer, and no review thread stays open (D-964).
+- The author must answer P2-1, correct the selected conflict color, and request a repeat review.
+
+### Traps and gotchas
+
+- The CI artifact shows the chosen Back binding in yellow and the conflicting Confirm binding in red. D-1119 requires the warning color on both conflict cells.
+- Saves before format 14 lack a story step id and use the stored index, as D-1112 directs.
+
+### The questions that block progress
+
+None. P2-1 blocks approval. P3-9, P3-24, P3-25, P3-26, P3-36, and P3-37 remain outside PR-105.
+
+### The next concrete action
+
+The author answers P2-1 with the `pr-review` skill, then pushes one correction round for repeat review.
+
+## Session 312: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #82 (PR-105), round 2. Repository: the-thing-below. Branch: `fix/pr-105-save-drift`. PR: #82. Role: author. Base: `640ad98`.
+
+### What this session did, and why
+
+- Gitar approved the round 1 head `1cd661d` with no thread. Its CI analysis named the RG 3 fault of `review-gate`, and a PR comment answers it: the review record comes with the review of the other provider.
+- Each CI check of `1cd661d` passed but `screen-test` and `review-gate`. The coverage job checked the SHA-512 of the ReportGenerator package (D-1116).
+- `screen-test` found one changed frame, `settings-conflict-1x`, in 956 pixels. The author read the frame of the artifact: the confirm cell of the gamepad takes the warning color, the chosen cell of back stays yellow, and the line holds no count for one conflict (D-1119). This round takes that frame as the baseline (D-733).
+
+### The state of the build
+
+- The round 1 head is `1cd661d`. This round adds the new baseline and this entry.
+
+### What is in flight
+
+- The Gitar pass of this push, the CI of the new head, and then `make codex-review PR=82`.
+
+### Traps and gotchas
+
+- The baseline is outside the metadata set, so it moves the effective head, and it needs a new Gitar pass.
+
+### The questions that block progress
+
+None for this PR. P3-9, P3-24, P3-25, P3-26, P3-36, and P3-37 stay open in the report.
+
+### The next concrete action
+
+When every check but `review-gate` passes, run `make codex-review PR=82` in the background.
+
 ## Session 311: 2026-09-25, Claude Code
 
 Author: Claude Code
@@ -497,7 +659,6 @@ None for this PR. The owner asked for suggestions on P2-2, P2-3, P2-5, P3-7, P3-
 ### The next concrete action
 
 Poll the Gitar check of the round 4 push, and answer each Gitar item. Commit the new screen baseline from the CI artifact, and then run `make codex-review PR=80` when each CI check but `review-gate` passes.
-
 
 ## Session 296: 2026-09-25, Claude Code
 
@@ -2987,7 +3148,6 @@ None. OQ-241 blocks no PR yet.
 ### The next concrete action
 
 The other provider reviews PR #62.
-
 
 ## Session 227: 2026-09-23, Claude Code
 

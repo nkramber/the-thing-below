@@ -30,7 +30,9 @@ namespace TheThingBelow.Debug.Commands;
 /// story flags of PR-68. PR-67 added the level, the experience, and the MP, and no command. PR-12 added
 /// the `swap` command, which marked a swap place of lessons, and PR-99 removed it, because a
 /// swap of lessons needs no place (D-1030, D-1050). PR-13 added the `stock` command,
-/// which fills the pack for a test of the gear window and the item window (D-1038).
+/// which fills the pack for a test of the gear window and the item window (D-1038). PR-14 added
+/// the `goto` command, which takes the id of a map and puts the party on its spawn point, so a
+/// build reaches a hub before the travel of PR-35 (D-1133).
 /// </para>
 /// </remarks>
 public static class DebugCommands
@@ -74,6 +76,9 @@ public static class DebugCommands
     /// <summary>The name of the command that puts one copy of each item and each piece of gear in the pack (D-1038).</summary>
     public const string StockName = "stock";
 
+    /// <summary>The name of the command that puts the party on the spawn point of one map (D-1133).</summary>
+    public const string GoToName = "goto";
+
     // The order of this list is the order of `help`, and it never follows a hash of a name
     // (G-4). The list is short, so a walk of it reads better than a map of one entry (T-1).
     private static readonly IReadOnlyList<DebugCommand> Commands =
@@ -101,6 +106,7 @@ public static class DebugCommands
         DebugCommand.OfIntent(NoticeName, "posts the first notice of the notice file that logs", DebugCommandIds.NoticeLogged, PostLogged),
         DebugCommand.OfIntent(AsideName, "posts the first notice of the notice file that does not log", DebugCommandIds.NoticePlain, PostPlain),
         DebugCommand.OfIntent(StockName, "puts one copy of each item and each piece of gear in the pack, to each stack limit (D-1038)", DebugCommandIds.Stock, Stock),
+        DebugCommand.OfMapIntent(GoToName, "puts the party on the spawn point of the map of one id (D-1133)", DebugCommandIds.GoToMap, GoToMap),
         DebugCommand.OfReport(BattleName, "gives each combatant, the turn, and the strip", BattleOf),
         DebugCommand.OfReport(HashName, "gives the state hash of the run", HashOf),
         DebugCommand.OfReport(WhereName, "gives the tick and the place of the party", PlaceOf),
@@ -111,7 +117,7 @@ public static class DebugCommands
     public static IReadOnlyList<DebugCommand> All => Commands;
 
     /// <summary>
-    /// The handlers that a development build passes to <see cref="Simulation.Start"/> through
+    /// The handlers that a development build passes to the start of a <see cref="Simulation"/> through
     /// the seam of D-260. A release build passes <see cref="DebugIntentHandlers.None"/>.
     /// </summary>
     /// <returns>One handler for each command that sends an intent.</returns>
@@ -220,6 +226,39 @@ public static class DebugCommands
         ActOrWarn(state, new BattleChoice(BattleAction.Flee, null, null), context, log);
 
     /// <summary>
+    /// Puts the party on the spawn point of the map that the intent names, so a build reaches a
+    /// hub before the travel of PR-35 (D-1133). A person can type the command in a battle, in a
+    /// story scene, with the menu open, or with an id that no map of the run takes. That is a fault
+    /// of the person, so the command changes nothing and writes a warning with the reason (D-179,
+    /// T-2). The map that the party leaves keeps no memory, because PR-35 owns the memory of each
+    /// map, and the entry to a hub asks for the autosave (D-224, D-1132).
+    /// </summary>
+    /// <exception cref="SimulationException">The intent names no map, which points at a fault of the record (T-2).</exception>
+    private static void GoToMap(RunState state, Intent intent, RunContext context, List<LogEntry> log)
+    {
+        ArgumentNullException.ThrowIfNull(state);
+        ArgumentNullException.ThrowIfNull(intent);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(log);
+
+        ContentId map = intent.Map ?? throw new SimulationException("a go-to-map intent that names no map (D-1133)", context);
+        string? refusal = state.RefusalOfEnter(map);
+        if (refusal is not null)
+        {
+            Warn(state, refusal, context, log);
+            return;
+        }
+
+        state.EnterMap(map, context);
+        log.Add(new LogEntry(
+            LogLevel.Info,
+            "the command put the party on the spawn point of a map",
+            state.Tick,
+            LogSubsystems.Run,
+            [new LogField("map", map.Value), new LogField("kind", MapKinds.NameOf(state.Party.Map.Kind))]));
+    }
+
+    /// <summary>
     /// Takes the turn of a character with one choice. A person can type a battle command with
     /// no battle, on the turn of an enemy, or at a slot that melee does not reach. That is a fault
     /// of the person and never of the build, so the command changes nothing and writes a warning
@@ -234,17 +273,21 @@ public static class DebugCommands
         string? refusal = BattleTurns.RefusalOf(state, choice);
         if (refusal is not null)
         {
-            log.Add(new LogEntry(
-                LogLevel.Warning,
-                $"the command found {refusal}, and it changed nothing",
-                state.Tick,
-                LogSubsystems.Run,
-                [new LogField("context", context.Describe())]));
+            Warn(state, refusal, context, log);
             return;
         }
 
         BattleTurns.Act(state, choice, context, log);
     }
+
+    /// <summary>Writes the warning of a command that a rule refused, which changed nothing (D-179, T-2).</summary>
+    private static void Warn(RunState state, string refusal, RunContext context, List<LogEntry> log) =>
+        log.Add(new LogEntry(
+            LogLevel.Warning,
+            $"the command found {refusal}, and it changed nothing",
+            state.Tick,
+            LogSubsystems.Run,
+            [new LogField("context", context.Describe())]));
 
     /// <summary>Gives each combatant with its slot, the combatant whose turn it is, and the strip (D-756, D-767).</summary>
     private static string BattleOf(RunState state)

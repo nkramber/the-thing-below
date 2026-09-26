@@ -125,6 +125,25 @@ public static class ScreenCaptures
     /// </summary>
     public const string CrashFixture = "crash";
 
+    /// <summary>
+    /// The running screen on the fixture hub, which the debug command `goto` reaches: the keeper,
+    /// the barmaid, the dog, the child, and the waystone (exit test 18 of PR-14, D-1133).
+    /// </summary>
+    public const string HubFixture = "hub";
+
+    /// <summary>The id of the map that the hub fixture shows (D-1133).</summary>
+    public const string HubMap = "map.fixture_hub";
+
+    /// <summary>The word of the debug command that puts the party on a map, which the Debug assembly holds (D-723, D-1133).</summary>
+    public const string GoToCommand = "goto";
+
+    /// <summary>
+    /// The ticks that the hub fixture runs after the entry to the hub, before its frame. The
+    /// barmaid waits 90 ticks at the bar, so the frame shows her inside her first step, and
+    /// the dog and the child inside their walk (D-203, D-1138).
+    /// </summary>
+    public const int HubTicks = 104;
+
     /// <summary>The end of the name of a frame at 1x, where the body is 32 (D-707).</summary>
     public const string FrameSuffix = "-1x";
 
@@ -166,6 +185,12 @@ public static class ScreenCaptures
 
     /// <summary>The frame of the menu fixture with the item window over the main list: each item with its count and its limit (D-1039).</summary>
     public const string MenuItemsFrame = "items-1x";
+
+    /// <summary>The frame of the menu fixture with the window of the rest service on the fixture hub (D-390, D-1131).</summary>
+    public const string MenuRestFrame = "rest-1x";
+
+    /// <summary>The frame of the menu fixture with the window of the save service on the fixture hub (D-1132).</summary>
+    public const string MenuSaveFrame = "save-1x";
 
     /// <summary>The gear slot that <see cref="MenuGearPackFrame"/> opens: the first accessory slot.</summary>
     public const int GearPackSlot = 4;
@@ -277,6 +302,40 @@ public static class ScreenCaptures
     /// </remarks>
     public static IReadOnlyList<string> WalkSteps { get; } = [InputActions.StepNorth, InputActions.StepSouth];
 
+    /// <summary>
+    /// The steps from the spawn point of the fixture hub at (4, 6) to <see cref="KeeperStand"/>,
+    /// which faces the keeper at (6, 3) behind the bar (D-1131). The rest frame walks them.
+    /// </summary>
+    /// <remarks>The path stays west of column 7, where the barmaid walks her route (D-1138).</remarks>
+    public static IReadOnlyList<string> KeeperRoute { get; } =
+    [
+        InputActions.StepNorth, InputActions.StepEast, InputActions.StepEast, InputActions.StepNorth,
+    ];
+
+    /// <summary>The tile of the lead at the end of <see cref="KeeperRoute"/>, facing north to the keeper.</summary>
+    public static TilePoint KeeperStand { get; } = new(6, 4);
+
+    /// <summary>
+    /// The steps from the spawn point of the fixture hub at (4, 6) to <see cref="WaystoneStand"/>,
+    /// which faces the waystone at (14, 2) from the west (D-1142). The save frame walks them.
+    /// </summary>
+    /// <remarks>
+    /// The lead crosses column 7 on its fourth step, while the barmaid still waits 90 ticks at
+    /// the bar at (7, 2). It goes north on column 10 and east on row 2, outside both rectangles of
+    /// the dog and the child, so no NPC stands in the way (D-1138).
+    /// </remarks>
+    public static IReadOnlyList<string> WaystoneRoute { get; } =
+    [
+        InputActions.StepNorth,
+        InputActions.StepEast, InputActions.StepEast, InputActions.StepEast,
+        InputActions.StepEast, InputActions.StepEast, InputActions.StepEast,
+        InputActions.StepNorth, InputActions.StepNorth, InputActions.StepNorth,
+        InputActions.StepEast, InputActions.StepEast, InputActions.StepEast,
+    ];
+
+    /// <summary>The tile of the lead at the end of <see cref="WaystoneRoute"/>, facing east to the waystone.</summary>
+    public static TilePoint WaystoneStand { get; } = new(13, 2);
+
     /// <summary>The steps from the spawn point to the pit room, in the order that the session walks them (D-852).</summary>
     /// <remarks>The party goes east to the corridor of column 6, then south through both doorways into the room below.</remarks>
     public static IReadOnlyList<string> PitRoute { get; } =
@@ -355,7 +414,7 @@ public static class ScreenCaptures
 
     /// <summary>The name of each fixture, in the order that the session draws it.</summary>
     public static IReadOnlyList<string> Fixtures { get; } =
-        [MapFixture, UiFixture, WalkFixture, PictureFixture, BattleFixture, SettingsFixture, PitFixture, ScrollFixture, StillFixture, TransitionFixture, MenuFixture, NoticeFixture, CrashFixture];
+        [MapFixture, UiFixture, WalkFixture, PictureFixture, BattleFixture, SettingsFixture, PitFixture, ScrollFixture, StillFixture, TransitionFixture, MenuFixture, NoticeFixture, HubFixture, CrashFixture];
 
     /// <summary>Gives the file name of every capture, in the order of <see cref="All"/>.</summary>
     /// <returns>One file name for each capture.</returns>
@@ -529,7 +588,7 @@ public static class ScreenCaptures
 
         // PR-62: the menu stack at 1x, the floor of the Steam Deck, and the main list at 1080 rows,
         // which takes the smaller body (D-707). The notice draws inside its type-out and its hold.
-        foreach (string frame in new[] { MenuListFrame, MenuPartyFrame, MenuStatusFrame, MenuLogFrame, MenuMapFrame, MenuLessonsFrame, MenuLessonsSwapFrame, MenuGearFrame, MenuGearPackFrame, MenuItemsFrame })
+        foreach (string frame in new[] { MenuListFrame, MenuPartyFrame, MenuStatusFrame, MenuLogFrame, MenuMapFrame, MenuLessonsFrame, MenuLessonsSwapFrame, MenuGearFrame, MenuGearPackFrame, MenuItemsFrame, MenuRestFrame, MenuSaveFrame })
         {
             captures.Add(new ScreenCapture(MenuFixture, frame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
         }
@@ -541,7 +600,7 @@ public static class ScreenCaptures
         // G-28: each window of the menu stack, each part of a fight with text, the notice, and the
         // conflict line draw at the body of 24 too, at 1080 rows, where the fit takes that body
         // (D-707, P3-26). Each frame shows the moment of its frame at 1x.
-        foreach (string frame in new[] { MenuPartyFrame, MenuStatusFrame, MenuLogFrame, MenuMapFrame, MenuLessonsFrame, MenuLessonsSwapFrame, MenuGearFrame, MenuGearPackFrame, MenuItemsFrame })
+        foreach (string frame in new[] { MenuPartyFrame, MenuStatusFrame, MenuLogFrame, MenuMapFrame, MenuLessonsFrame, MenuLessonsSwapFrame, MenuGearFrame, MenuGearPackFrame, MenuItemsFrame, MenuRestFrame, MenuSaveFrame })
         {
             captures.Add(new ScreenCapture(MenuFixture, DesktopFrameOf(frame), DesktopWidth, 1080, FitMode.Fill, null));
         }
@@ -553,6 +612,14 @@ public static class ScreenCaptures
 
         captures.Add(new ScreenCapture(NoticeFixture, DesktopFrameOf(NoticeHoldFrame), DesktopWidth, 1080, FitMode.Fill, null));
         captures.Add(new ScreenCapture(SettingsFixture, DesktopFrameOf(SettingsConflictFrame), DesktopWidth, 1080, FitMode.Fill, null));
+
+        // PR-14: the fixture hub at 1x, at the screen of the Steam Deck, the floor of readability
+        // of each NPC and of the waystone, and at 1080 rows (exit test 18 of PR-14, D-568, G-19).
+        // The frame of 1080 rows comes last, so a screen below 1080 rows still writes the first two
+        // with `make sheet FIXTURE=hub` (D-782).
+        captures.Add(new ScreenCapture(HubFixture, "1x", ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
+        captures.Add(new ScreenCapture(HubFixture, DeckFrame, ScreenFit.FrameWidth, DeckHeight, FitMode.Fill, null));
+        captures.Add(new ScreenCapture(HubFixture, "fill-1080", DesktopWidth, 1080, FitMode.Fill, null));
 
         // The screen of the Steam Deck, the floor of readability: the frame at 1x with a bar of
         // 40 rows above and below it (D-92, D-568, G-19, P3-26).

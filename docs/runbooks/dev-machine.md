@@ -47,7 +47,16 @@ The battle screen lands in PR-10. Until then, the console takes the turn of a ch
 4. Type `defend`, `step`, `flee`, or `item 0` for the other actions of the turn (D-755, D-767).
 5. A command on the turn of no character changes nothing, and the log file names the reason (T-2).
 6. After a win or a flee, the map runs again when the log shows every event (D-522).
-7. After a wipe, the run starts again from its start, because no save exists before PR-16 (D-776).
+7. After a wipe, the run starts again from its start, because PR-16 adds the reload of a wipe (D-231, D-776).
+
+## A hub before the region map
+
+The region map lands in PR-35. Until then, the console moves the party to a hub (D-1133).
+
+1. Open the console, and type `goto map.fixture_hub`. The party stands on the spawn point of the hub, and the autosave writes (D-224, D-1132).
+2. Face an NPC or the waystone, and press confirm. The window of its service opens (D-1131).
+3. Pick Rest to restore the party, or Save to write the slot save (D-1132).
+4. Type `goto map.fixture_dungeon` to return to the dungeon. The dungeon forgets its walked tiles and its dead enemies until PR-35.
 
 ## The Steam Deck
 

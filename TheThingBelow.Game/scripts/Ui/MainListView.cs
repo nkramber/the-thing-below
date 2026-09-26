@@ -6,8 +6,7 @@ using TheThingBelow.Core.Content;
 namespace TheThingBelow.Game.Ui;
 
 /// <summary>
-/// The main list on screen: one line for each entry, the cursor, and the dim entries of later
-/// PRs (D-211, D-988, D-992).
+/// The main list on screen: one line for each entry, and the cursor (D-211, D-992, D-1143).
 /// </summary>
 /// <remarks>
 /// The list stands at the left edge of the frame, so the map stays visible to its right, and
@@ -20,7 +19,6 @@ public sealed class MainListView : IMenuView
     private readonly Control layer;
     private readonly List<Label> lines = [];
     private readonly Color chosenColor;
-    private readonly Color dimColor;
 
     /// <summary>Builds the main list over the frame, with the cursor on the first entry.</summary>
     /// <param name="frame">The frame, whose UI layer takes the list.</param>
@@ -36,7 +34,6 @@ public sealed class MainListView : IMenuView
         this.ui = ui;
         this.List = list;
         this.chosenColor = ui.Theme.ColorOf("text_chosen");
-        this.dimColor = ui.Theme.ColorOf("text_dim");
         this.layer = MenuNodes.Layer(frame, ui);
 
         int body = ui.Theme.BodySize;
@@ -69,7 +66,6 @@ public sealed class MainListView : IMenuView
             MenuEntry.Items => "menu.items",
             MenuEntry.Status => "menu.status",
             MenuEntry.Log => "menu.log",
-            MenuEntry.Save => "menu.save",
             MenuEntry.Settings => "menu.settings",
             _ => throw new ArgumentOutOfRangeException(nameof(entry), entry, "The main list holds no such entry (T-2)."),
         },
@@ -92,16 +88,7 @@ public sealed class MainListView : IMenuView
     {
         for (int index = 0; index < this.lines.Count; index += 1)
         {
-            Color? color = null;
-            if (!MainList.IsLive(MainList.Entries[index]))
-            {
-                color = this.dimColor;
-            }
-            else if (index == this.List.Cursor)
-            {
-                color = this.chosenColor;
-            }
-
+            Color? color = index == this.List.Cursor ? this.chosenColor : null;
             MenuNodes.Paint(this.lines[index], color);
         }
     }
@@ -113,10 +100,12 @@ public sealed class MainListView : IMenuView
     {
         if (signal is InputEventMouse mouse)
         {
-            if (MenuNodes.LineUnder(this.lines, mouse, fit) is not int place || !this.List.Point(place))
+            if (MenuNodes.LineUnder(this.lines, mouse, fit) is not int place)
             {
                 return ViewOutcome.Stay;
             }
+
+            this.List.Point(place);
 
             return MenuNodes.IsClick(mouse) ? ViewOutcome.Chose : ViewOutcome.Stay;
         }

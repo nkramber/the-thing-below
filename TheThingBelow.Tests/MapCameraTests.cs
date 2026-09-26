@@ -145,6 +145,24 @@ public sealed class MapCameraTests
     }
 
     [Theory]
+    [InlineData(StepDirection.East, 8, 80, 64)]
+    [InlineData(StepDirection.West, 8, 48, 64)]
+    [InlineData(StepDirection.South, 12, 96, 88)]
+    public void AnNpcSlidesAcrossTheTicksOfItsOwnStep(StepDirection stepping, int stepTicks, int x, int y)
+    {
+        // D-203, D-1138: the barmaid of the test yard steps in 16 ticks, so 8 ticks of her step
+        // move her half a tile, 16 art pixels, and Core keeps her on her tile until the step ends.
+        GameMap map = HubMaps.Of(npcs: HubMaps.Walker(tiles: """{ "x": 1, "y": 2, "wait_ticks": 0 }, { "x": 3, "y": 2, "wait_ticks": 0 }, { "x": 3, "y": 5, "wait_ticks": 0 }"""));
+        Npc record = map.Npcs[0];
+        int target = stepping == StepDirection.West ? 0 : stepping == StepDirection.East ? 1 : 2;
+        TilePoint at = stepping == StepDirection.South ? new TilePoint(3, 2) : new TilePoint(2, 2);
+        NpcState npc = NpcState.Resume(record, map, new NpcValues(record.Id, at.X, at.Y, stepping, stepping, stepTicks, target, stepping != StepDirection.West, 0, false), "the test");
+
+        Assert.Equal(x, Call<int>("NpcX", npc, 0));
+        Assert.Equal(y, Call<int>("NpcY", npc, 0));
+    }
+
+    [Theory]
     [InlineData(16)]
     [InlineData(32)]
     [InlineData(64)]

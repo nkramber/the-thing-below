@@ -9,8 +9,9 @@ using TheThingBelow.Core.Maps;
 namespace TheThingBelow.Game.Ui;
 
 /// <summary>
-/// The map on screen: the tiles of the map, the sprite of the lead, the decor pieces, the
-/// scene light, and the view that follows it (D-106, D-203, D-667, D-843).
+/// The map on screen: the tiles of the map, the sprite of the lead, each enemy, each NPC, each
+/// service point, the decor pieces, the scene light, and the view that follows it (D-106,
+/// D-203, D-667, D-843, D-1137, D-1142).
 /// </summary>
 /// <remarks>
 /// The node draws the state that Core stepped, and it holds no rule of its own (D-100). The
@@ -31,6 +32,12 @@ namespace TheThingBelow.Game.Ui;
 /// party alone, and <see cref="SightFade"/> fades each crossing of its edge (D-1062). The sort
 /// value of each enemy comes from the front row of its body, so the body draws in front of
 /// what it stands before (D-737).
+/// </para>
+/// <para>
+/// Each NPC and each service point draws by the same rule as an enemy: at any distance on a
+/// map that is not dark, and inside the sight of the party with the same fade on a dark map
+/// (D-814, D-1062). Each NPC slides between two tiles across the ticks of its own step (D-203,
+/// D-821). One code path draws a hub and a dungeon (D-112).
 /// </para>
 /// <para>
 /// Every map sprite sits at the south edge of its front row, and its picture draws up from
@@ -63,6 +70,12 @@ public partial class MapScreen : Node2D
     /// <summary>The use of the map drawing of the lead with the torch in its hand (D-1069).</summary>
     public const string TorchUse = "map_torch";
 
+    /// <summary>
+    /// The use of the map drawing of a thing that has one view, such as a service point (D-519,
+    /// D-1142). A decor piece and a tile take the same use.
+    /// </summary>
+    public const string ThingUse = LightContent.MapUse;
+
     /// <summary>The role of the color of the mark of a sight, in the UI style file (D-527).</summary>
     public const string MarkRole = "text_warning";
 
@@ -91,6 +104,9 @@ public partial class MapScreen : Node2D
     private SightFade? fade;
     private int[] shares = [];
     private Sprite2D[] enemies = [];
+    private Sprite2D[] npcs = [];
+    private MapThing[] points = [];
+    private Sprite2D[] pointSprites = [];
     private Node2D mark = null!;
     private PointLight2D carriedGround = null!;
     private PointLight2D carriedFigures = null!;
@@ -105,8 +121,14 @@ public partial class MapScreen : Node2D
     public bool SeekParticles { get; set; }
 
     /// <summary>
-    /// Builds the tiles of one map, the sprite of the lead, one sprite for each enemy, and
-    /// the mark of a sight (D-208, D-738).
+    /// The id of the map that this node draws. The host builds a new node when the map of the
+    /// party changes, such as after the debug command `goto` (D-1133).
+    /// </summary>
+    public ContentId MapId { get; private set; } = null!;
+
+    /// <summary>
+    /// Builds the tiles of one map, the sprite of the lead, one sprite for each enemy, each NPC,
+    /// and each service point, and the mark of a sight (D-208, D-738, D-1137, D-1142).
     /// </summary>
     /// <param name="atlas">The pages of the atlas, as textures (D-666).</param>
     /// <param name="theme">The theme, for the color of the mark (D-527).</param>
@@ -116,14 +138,15 @@ public partial class MapScreen : Node2D
     /// <param name="passes">The passes of the HD-2D look, in the mode that the screen shows, for the mode of the light shafts (D-917).</param>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
     /// <exception cref="ContentException">
-    /// The atlas holds no drawing of a tile, of the lead, of an enemy, or of a decor piece, or
-    /// the map has no light setup for its time of day (T-2).
+    /// The atlas holds no drawing of a tile, of the lead, of an enemy, of an NPC, of a service
+    /// point, or of a decor piece, or the map has no light setup for its time of day (T-2).
     /// </exception>
     /// <exception cref="InvalidOperationException">A call of the engine made no tile (T-2, F-45).</exception>
     /// <remarks>
     /// The enemies of the map never change while the party stands on it, because the time of
     /// day picks each station at the start of the run (D-743). Thus one sprite serves one
-    /// enemy for the whole visit.
+    /// enemy for the whole visit. The NPCs of a map never change during a visit either, because
+    /// a scene-only NPC of a story scene draws with the story scene (D-1006, PR-36).
     /// </remarks>
     public void Build(GameAtlas atlas, UiTheme theme, MapState party, ContentSet content, AmbientEffect? ambient, Hd2dPasses passes)
     {
@@ -136,6 +159,7 @@ public partial class MapScreen : Node2D
         // Godot sorts each canvas item by one Y value, so a character draws in front of what
         // stands behind it (D-206, the external facts of `area-exploration.md`).
         this.YSortEnabled = true;
+        this.MapId = party.Map.Id;
 
         this.ground = BuildGround(atlas, party.Map);
         this.AddChild(this.ground);
@@ -149,7 +173,6 @@ public partial class MapScreen : Node2D
 
         IReadOnlyList<PatrolState> patrols = party.Patrols.All;
         this.enemies = new Sprite2D[patrols.Count];
-        this.shares = new int[patrols.Count];
         this.fade = null;
         for (int index = 0; index < patrols.Count; index += 1)
         {
@@ -158,6 +181,25 @@ public partial class MapScreen : Node2D
             this.AddChild(this.enemies[index]);
         }
 
+        IReadOnlyList<NpcState> people = party.Npcs.All;
+        this.npcs = new Sprite2D[people.Count];
+        for (int index = 0; index < people.Count; index += 1)
+        {
+            this.npcs[index] = BuildSprite(atlas, people[index].Npc.Id);
+            this.npcs[index].AddChild(FeetShadow(this.npcs[index], WorldLights.FigureShadows));
+            this.AddChild(this.npcs[index]);
+        }
+
+        this.points = ServicePointsOf(party.Map);
+        this.pointSprites = new Sprite2D[this.points.Length];
+        for (int index = 0; index < this.points.Length; index += 1)
+        {
+            this.pointSprites[index] = PointSprite(atlas, this.points[index]);
+            this.pointSprites[index].AddChild(FeetShadow(this.pointSprites[index], WorldLights.FigureShadows));
+            this.AddChild(this.pointSprites[index]);
+        }
+
+        this.shares = new int[this.enemies.Length + this.npcs.Length + this.points.Length];
         this.mark = BuildMark(theme);
         this.AddChild(this.mark);
 
@@ -197,6 +239,8 @@ public partial class MapScreen : Node2D
         this.carriedFigures.Position = carriedAt;
         this.carriedFlame.MoveTo(carriedAt);
         this.ShowEnemies(party, tickPart, tick, torchHeld);
+        this.ShowNpcs(party, tickPart, tick);
+        this.ShowPoints(party, tickPart, tick);
 
         CameraPlace view = MapCamera.Of(party, FrameRoot.WorldWidth, FrameRoot.WorldHeight, tickPart);
         this.view = new Vector2(view.X, view.Y);
@@ -233,7 +277,7 @@ public partial class MapScreen : Node2D
     /// <summary>True while the lead draws with the torch in its hand (D-1066, D-1069).</summary>
     public bool LeadHoldsTorch => this.lead.Texture == this.leadTorch;
 
-    /// <summary>True when an enemy draws with a share between none and full, inside a fade of the dark (D-1062).</summary>
+    /// <summary>True when an enemy, an NPC, or a service point draws with a share between none and full, inside a fade of the dark (D-1062).</summary>
     public bool ShowsAFade
     {
         get
@@ -583,17 +627,129 @@ public partial class MapScreen : Node2D
         }
     }
 
-    /// <summary>Tells for each enemy whether a wall stands between it and the lead now (D-718, D-1062).</summary>
+    /// <summary>
+    /// Puts each NPC where Core put it, with the slide of its step (D-203, D-1138). An NPC fades
+    /// on a dark map as an enemy does (D-814, D-1062).
+    /// </summary>
+    /// <remarks>
+    /// The atlas holds one front view of each NPC, so the sprite shows that view for each facing.
+    /// The view mirrors while the NPC faces east, so a drawing that shows a side, such as the dog
+    /// of the fixture hub, faces the way that it walks. The views of D-207, with a side, a back,
+    /// and a walk of two frames, replace it when the art lands, and this method then picks the
+    /// view of the facing.
+    /// </remarks>
+    private void ShowNpcs(MapState party, int tickPart, long tick)
+    {
+        IReadOnlyList<NpcState> people = party.Npcs.All;
+        int leadX = MapCamera.LeadX(party, tickPart);
+        int leadY = MapCamera.LeadY(party, tickPart);
+        for (int index = 0; index < people.Count; index += 1)
+        {
+            NpcState npc = people[index];
+            int x = MapCamera.NpcX(npc, tickPart);
+            int y = MapCamera.NpcY(npc, tickPart);
+            int slot = this.enemies.Length + index;
+            int share = SightFade.Full;
+            if (this.fade is not null)
+            {
+                bool clear = MapSight.Clear(party.Map, party.LeadAt, npc.At);
+                share = this.fade.ShareOf(slot, clear, SightFade.Reach(leadX, leadY, x, y, 1), tick);
+            }
+
+            this.npcs[index].FlipH = npc.Facing == StepDirection.East;
+            this.ShowFigure(this.npcs[index], slot, share, new Vector2(x, FeetOf(y, 1)));
+        }
+    }
+
+    /// <summary>Shows each service point on its tile, with the fade of the dark (D-814, D-1062, D-1142).</summary>
+    private void ShowPoints(MapState party, int tickPart, long tick)
+    {
+        int leadX = MapCamera.LeadX(party, tickPart);
+        int leadY = MapCamera.LeadY(party, tickPart);
+        for (int index = 0; index < this.points.Length; index += 1)
+        {
+            TilePoint at = this.points[index].At;
+            int x = at.X * MapCamera.TilePixels;
+            int y = at.Y * MapCamera.TilePixels;
+            int slot = this.enemies.Length + this.npcs.Length + index;
+            int share = SightFade.Full;
+            if (this.fade is not null)
+            {
+                bool clear = MapSight.Clear(party.Map, party.LeadAt, at);
+                share = this.fade.ShareOf(slot, clear, SightFade.Reach(leadX, leadY, x, y, 1), tick);
+            }
+
+            this.ShowFigure(this.pointSprites[index], slot, share, new Vector2(x, FeetOf(y, 1)));
+        }
+    }
+
+    /// <summary>Draws one NPC or one service point at a share of the fade, from its feet (F-94, D-737).</summary>
+    private void ShowFigure(Sprite2D sprite, int slot, int share, Vector2 feet)
+    {
+        this.shares[slot] = share;
+        sprite.Visible = share > 0;
+        sprite.Modulate = new Color(1, 1, 1, share / (float)SightFade.Full);
+        sprite.Position = feet;
+    }
+
+    /// <summary>
+    /// Tells for each enemy, each NPC, and each service point, in that order, whether a wall
+    /// stands between it and the lead now (D-718, D-1062).
+    /// </summary>
     private static bool[] ClearLines(MapState party)
     {
         IReadOnlyList<PatrolState> patrols = party.Patrols.All;
-        bool[] clear = new bool[patrols.Count];
+        IReadOnlyList<NpcState> people = party.Npcs.All;
+        MapThing[] points = ServicePointsOf(party.Map);
+        bool[] clear = new bool[patrols.Count + people.Count + points.Length];
         for (int index = 0; index < patrols.Count; index += 1)
         {
             clear[index] = MapSight.Clear(party.Map, party.LeadAt, patrols[index].Body.Nearest(party.LeadAt));
         }
 
+        for (int index = 0; index < people.Count; index += 1)
+        {
+            clear[patrols.Count + index] = MapSight.Clear(party.Map, party.LeadAt, people[index].At);
+        }
+
+        for (int index = 0; index < points.Length; index += 1)
+        {
+            clear[patrols.Count + people.Count + index] = MapSight.Clear(party.Map, party.LeadAt, points[index].At);
+        }
+
         return clear;
+    }
+
+    /// <summary>Gives each service point of a map, in the order of the map file (D-1142).</summary>
+    private static MapThing[] ServicePointsOf(GameMap map)
+    {
+        var points = new List<MapThing>();
+        foreach (MapThing thing in map.Things)
+        {
+            if (thing.Kind == MapThingKind.ServicePoint)
+            {
+                points.Add(thing);
+            }
+        }
+
+        return [.. points];
+    }
+
+    /// <summary>
+    /// Builds the sprite of one service point from its drawing (D-519, D-1142). It sorts by its
+    /// feet as a figure does, so a figure north of it draws behind it (F-94, D-737).
+    /// </summary>
+    private static Sprite2D PointSprite(GameAtlas atlas, MapThing point)
+    {
+        AtlasEntry entry = atlas.Index.Entry(point.Id, ThingUse);
+        return new Sprite2D
+        {
+            Name = point.Id.Value,
+            Texture = atlas.Frame(entry.Id, 0),
+            Centered = false,
+            Offset = new Vector2(0, -entry.Height),
+            LightMask = WorldLights.FigureItems,
+        };
     }
 
     /// <summary>Gives the map drawing of the lead with the torch in its hand, which fits the plain drawing (D-1069).</summary>
@@ -716,15 +872,16 @@ public partial class MapScreen : Node2D
     }
 
     /// <summary>
-    /// Reads the sprite of the lead and the sprite of each enemy back, and fails when one of
-    /// them holds no picture (T-2, F-45). A headless session draws nothing, so this check
+    /// Reads the sprite of the lead, each enemy, each NPC, and each service point back, and fails
+    /// when one of them holds no picture (T-2, F-45). A headless session draws nothing, so this check
     /// reads the nodes and never the pixels (F-23).
     /// </summary>
     /// <param name="party">The party and the enemies on the map.</param>
-    /// <returns>The count of sprites, the count that draws, and the mark.</returns>
+    /// <returns>The count of sprites of each kind, the count that draws, and the mark.</returns>
     /// <exception cref="ArgumentNullException">The party is null (T-2).</exception>
     /// <exception cref="InvalidOperationException">
-    /// A sprite holds no picture of 32 pixels or more, or a live enemy draws no sprite (T-2, D-814).
+    /// A sprite holds no picture of 32 pixels or more, a live enemy, an NPC, or a service point
+    /// draws no sprite on a map that is not dark, or the screen draws another map (T-2, D-814).
     /// </exception>
     /// <remarks>
     /// `AtlasTexture` reports an absent page or an empty region in the log alone, so a sprite
@@ -755,8 +912,44 @@ public partial class MapScreen : Node2D
             drawn += this.enemies[index].Visible ? 1 : 0;
         }
 
+        int people = this.CheckOtherFigures(party);
         string mark = this.mark.Visible ? "a mark" : "no mark";
-        return $"the lead at {this.lead.Position}, {this.enemies.Length} enemies with {drawn} drawn, and {mark}";
+        return $"the lead at {this.lead.Position}, {this.enemies.Length} enemies with {drawn} drawn, "
+            + $"{this.npcs.Length} NPCs and {this.points.Length} service points with {people} drawn, and {mark}";
+    }
+
+    /// <summary>
+    /// Reads the sprite of each NPC and each service point back, and fails when one holds no
+    /// picture, or when one hides on a map that is not dark (T-2, D-814, F-45).
+    /// </summary>
+    /// <returns>The count of those sprites that draw.</returns>
+    private int CheckOtherFigures(MapState party)
+    {
+        IReadOnlyList<NpcState> people = party.Npcs.All;
+        Refuse(
+            people.Count != this.npcs.Length,
+            $"the map '{party.Map.Id.Value}' holds {people.Count} NPCs, and the screen built {this.npcs.Length} sprites for the map '{this.MapId.Value}' (D-1133)");
+
+        int drawn = 0;
+        for (int index = 0; index < this.npcs.Length; index += 1)
+        {
+            CheckSprite(this.npcs[index], $"the NPC '{people[index].Npc.Id.Value}'");
+            Refuse(
+                !party.Map.Dark && !this.npcs[index].Visible,
+                $"the NPC '{people[index].Npc.Id.Value}' draws no sprite on a map that is not dark (D-814)");
+            drawn += this.npcs[index].Visible ? 1 : 0;
+        }
+
+        for (int index = 0; index < this.pointSprites.Length; index += 1)
+        {
+            CheckSprite(this.pointSprites[index], $"the service point '{this.points[index].Id.Value}'");
+            Refuse(
+                !party.Map.Dark && !this.pointSprites[index].Visible,
+                $"the service point '{this.points[index].Id.Value}' draws no sprite on a map that is not dark (D-814)");
+            drawn += this.pointSprites[index].Visible ? 1 : 0;
+        }
+
+        return drawn;
     }
 
     /// <summary>

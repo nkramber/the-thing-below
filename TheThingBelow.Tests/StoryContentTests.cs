@@ -105,6 +105,30 @@ public sealed class StoryContentTests
     }
 
     [Fact]
+    public void AServiceConditionThatNamesADeclaredFlagPasses()
+    {
+        TestStory.Content.RequireServicesOf(ServiceMap("flag.test_met"));
+    }
+
+    [Fact]
+    public void AServiceConditionThatNamesAnUndeclaredFlagFailsWithTheMapAndTheService()
+    {
+        // D-543, D-1131: a story flag closes a service through a flag of the flag file alone.
+        ContentException error = Assert.Throws<ContentException>(() => TestStory.Content.RequireServicesOf(ServiceMap("flag.test_lost")));
+
+        Assert.Contains("hub-test.json", error.Message, StringComparison.Ordinal);
+        Assert.Contains("services.service.hub_rest.condition", error.Message, StringComparison.Ordinal);
+        Assert.Contains("flag.test_lost", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ARunRefusesAHubWhoseServiceNamesAnUndeclaredFlag()
+    {
+        Assert.Throws<ContentException>(() => Simulation.Start(
+            1, ServiceMap("flag.test_lost"), TestBattles.Content, TestBattles.Notices, TestStory.Content, DebugIntentHandlers.None));
+    }
+
+    [Fact]
     public void AStorySceneOfATriggerThatNamesAMarkerTheMapLacksFails()
     {
         GameMap map = GameMap.Read(
@@ -173,4 +197,8 @@ public sealed class StoryContentTests
 
         return [.. ids];
     }
+
+    private static GameMap ServiceMap(string flag) => HubMaps.Of(
+        npcs: HubMaps.Keeper,
+        services: $$"""{ "id": "service.hub_rest", "kind": "rest", "npc": "npc.hub_keeper", "condition": { "flag": "{{flag}}" } }""");
 }

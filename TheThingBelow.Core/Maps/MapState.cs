@@ -34,6 +34,10 @@ public sealed class MapState
 {
     private StepDirection? wanted;
 
+    // The confirm of this tick, which the world step reads once (D-1131). It lasts its own tick
+    // alone, as the wanted direction does, so no snapshot and no hash reads it.
+    private bool confirmWanted;
+
     private MapState(
         GameMap map,
         TilePoint leadAt,
@@ -41,7 +45,8 @@ public sealed class MapState
         StepDirection? stepping,
         int stepTicks,
         WalkedTiles walked,
-        MapPatrols patrols)
+        MapPatrols patrols,
+        MapNpcs npcs)
     {
         this.Map = map;
         this.LeadAt = leadAt;
@@ -50,6 +55,7 @@ public sealed class MapState
         this.StepTicks = stepTicks;
         this.Walked = walked;
         this.Patrols = patrols;
+        this.Npcs = npcs;
     }
 
     /// <summary>The map that the party stands on (D-528).</summary>
@@ -76,6 +82,9 @@ public sealed class MapState
     /// <summary>Every enemy of the map, the mark, and the encounter (D-738, D-749).</summary>
     public MapPatrols Patrols { get; }
 
+    /// <summary>Every NPC of the map, which is solid and walks on the NPC stream (D-1137, D-1139).</summary>
+    public MapNpcs Npcs { get; }
+
     /// <summary>Puts the party on a map at its spawn point (D-528).</summary>
     /// <param name="map">The map to enter.</param>
     /// <returns>The state, with the spawn tile walked.</returns>
@@ -86,7 +95,7 @@ public sealed class MapState
 
         var walked = WalkedTiles.Empty(map.Width, map.Height);
         walked.Mark(map.Spawn);
-        return new MapState(map, map.Spawn, StepDirection.South, null, 0, walked, MapPatrols.Enter(map));
+        return new MapState(map, map.Spawn, StepDirection.South, null, 0, walked, MapPatrols.Enter(map), MapNpcs.Enter(map));
     }
 
     /// <summary>Puts the party back on a map from the values of a snapshot (D-166, D-651).</summary>
@@ -107,6 +116,7 @@ public sealed class MapState
     /// <returns>The state.</returns>
     /// <exception cref="ArgumentNullException">The map, the record, or the source is null (T-2).</exception>
     /// <exception cref="ArgumentException">A value describes no state of a party on this map (T-2).</exception>
+    /// <remarks>Each NPC of the map starts on its start tile, as on a snapshot before save format 15 (D-1137).</remarks>
     public static MapState Resume(
         GameMap map,
         TilePoint leadAt,
@@ -118,7 +128,7 @@ public sealed class MapState
         SightMark? mark,
         MapEncounter? encounter,
         string source) =>
-        Resume(map, new LeadValues(leadAt, facing, stepping, stepTicks), walked, enemies, mark, encounter, source, ResumeDrift.Of(SnapshotOrigin.ThisBuild, 0));
+        Resume(map, new LeadValues(leadAt, facing, stepping, stepTicks), walked, enemies, mark, encounter, null, source, ResumeDrift.Of(SnapshotOrigin.ThisBuild, 0));
 
     /// <summary>
     /// Puts the party back on a map from the values of a snapshot that this build or another
@@ -130,6 +140,7 @@ public sealed class MapState
     /// <param name="enemies">The stored values of each enemy, or no value on a snapshot of save format 2 (D-654, D-750).</param>
     /// <param name="mark">The mark of a sight of the snapshot, or no value (D-745).</param>
     /// <param name="encounter">The encounter of the snapshot, or no value (D-749).</param>
+    /// <param name="npcs">The stored values of each NPC, or no value on a snapshot before save format 15, whose NPCs start on their start tiles (D-1137).</param>
     /// <param name="source">What the values came from, such as `the save`, for an error (T-2).</param>
     /// <param name="drift">The build of the snapshot, and the log of each change (D-1111).</param>
     /// <returns>The state.</returns>
@@ -138,8 +149,9 @@ public sealed class MapState
     /// <remarks>
     /// A snapshot of another build can follow an edit of the map (D-1111). The walked tiles
     /// take the size of the map of this build. A lead off the map, on a tile that takes no
-    /// step, or on the body of an enemy moves to the spawn point, and a step into a tile that
-    /// takes no step ends. Each change logs a warning, and the strict checks then run.
+    /// step, on the body of an enemy, or on an NPC moves to the spawn point, and a step into a
+    /// tile that takes no step or that an NPC holds ends. Each change logs a warning, and the
+    /// strict checks then run.
     /// </remarks>
     public static MapState Resume(
         GameMap map,
@@ -148,6 +160,7 @@ public sealed class MapState
         IReadOnlyList<PatrolValues>? enemies,
         SightMark? mark,
         MapEncounter? encounter,
+        IReadOnlyList<NpcValues>? npcs,
         string source,
         ResumeDrift drift)
     {
@@ -160,10 +173,11 @@ public sealed class MapState
         MapPatrols patrols = enemies is null
             ? MapPatrols.Enter(map)
             : MapPatrols.Resume(map, enemies, mark, encounter, source, drift);
+        MapNpcs mapNpcs = MapNpcs.Resume(map, npcs, patrols, source, drift);
         if (drift.Adjusts)
         {
             walked = FitWalked(map, walked, drift);
-            lead = FitLead(map, lead, walked, patrols, drift);
+            lead = FitLead(map, lead, walked, patrols, mapNpcs, drift);
         }
 
         TilePoint leadAt = lead.At;
@@ -175,6 +189,10 @@ public sealed class MapState
             !TileKinds.CanWalk(map.TileAt(leadAt)),
             source,
             $"the lead stands at {leadAt}, which is a {TileKinds.NameOf(map.TileAt(leadAt))} tile");
+        Refuse(
+            map.HoldsSolidThing(leadAt),
+            source,
+            $"the lead stands at {leadAt}, which holds a solid thing (D-1142)");
         Refuse(
             walked.Width != map.Width || walked.Height != map.Height,
             source,
@@ -211,7 +229,17 @@ public sealed class MapState
                 $"the lead stands at {leadAt}, and the enemy '{found!.Patrol.Id.Value}' holds the body {found.Body} there");
         }
 
-        return new MapState(map, leadAt, lead.Facing, stepping, stepTicks, walked, patrols);
+        // An NPC is solid, so no state of a run holds the lead and an NPC on one tile, or a step
+        // of the lead into the tile of an NPC (D-1139, T-2).
+        if (mapNpcs.TryNpcAt(leadAt, out NpcState? person) || (stepping is StepDirection walking && mapNpcs.TryNpcAt(leadAt.Step(walking), out person)))
+        {
+            Refuse(
+                true,
+                source,
+                $"the lead stands at {leadAt} or steps from it, and the NPC '{person!.Npc.Id.Value}' at {person.At} holds that tile (D-1139)");
+        }
+
+        return new MapState(map, leadAt, lead.Facing, stepping, stepTicks, walked, patrols, mapNpcs);
     }
 
     /// <summary>Gives the walked tiles the size of the map of this build, and logs a change (D-1111).</summary>
@@ -233,7 +261,7 @@ public sealed class MapState
     /// Moves a lead that the map of this build no longer holds to the spawn point, and ends a
     /// step into a tile that takes no step. Each change logs a warning (D-1111).
     /// </summary>
-    private static LeadValues FitLead(GameMap map, LeadValues lead, WalkedTiles walked, MapPatrols patrols, ResumeDrift drift)
+    private static LeadValues FitLead(GameMap map, LeadValues lead, WalkedTiles walked, MapPatrols patrols, MapNpcs npcs, ResumeDrift drift)
     {
         string? reason = null;
         if (!map.Holds(lead.At))
@@ -244,9 +272,17 @@ public sealed class MapState
         {
             reason = "the tile of the lead takes no step in the map of this build";
         }
+        else if (map.HoldsSolidThing(lead.At))
+        {
+            reason = "a solid thing of this build holds the tile of the lead";
+        }
         else if (patrols.TryEnemyAt(lead.At, out _))
         {
             reason = "an enemy of this build holds the tile of the lead";
+        }
+        else if (npcs.TryNpcAt(lead.At, out _))
+        {
+            reason = "an NPC of this build holds the tile of the lead";
         }
 
         if (reason is not null)
@@ -259,11 +295,11 @@ public sealed class MapState
             return new LeadValues(map.Spawn, lead.Facing, null, 0);
         }
 
-        if (lead.Stepping is StepDirection direction && !MapRules.CanEnter(map, lead.At.Step(direction)))
+        if (lead.Stepping is StepDirection direction && (!MapRules.CanEnter(map, lead.At.Step(direction)) || npcs.TryNpcAt(lead.At.Step(direction), out _)))
         {
             drift.Note(
                 LogSubsystems.World,
-                "the step of the lead reaches a tile that takes no step in the map of this build, and the step ends",
+                "the step of the lead reaches a tile that takes no step or that an NPC holds in the map of this build, and the step ends",
                 [new LogField("map", map.Id.Value), new LogField("tile", lead.At.ToString()), new LogField("direction", StepDirections.NameOf(direction))]);
             return lead with { Stepping = null, StepTicks = 0 };
         }
@@ -300,6 +336,19 @@ public sealed class MapState
                     direction,
                     "the value names no step direction (D-716)");
         }
+    }
+
+    /// <summary>Reads the confirm intent of this tick, which the world step then applies (D-1131).</summary>
+    /// <remarks>Two confirm intents in one tick leave one confirm, as two move intents leave one step (T-7).</remarks>
+    public void WantConfirm() => this.confirmWanted = true;
+
+    /// <summary>Takes the confirm of this tick, which the world step reads once (D-1131).</summary>
+    /// <returns>True when a confirm intent of this tick waited.</returns>
+    public bool TakeConfirm()
+    {
+        bool wanted = this.confirmWanted;
+        this.confirmWanted = false;
+        return wanted;
     }
 
     /// <summary>Runs the party for one world tick: the step that runs, and then the next one.</summary>
@@ -362,7 +411,9 @@ public sealed class MapState
                     bumped = found.Patrol.Id;
                 }
             }
-            else if (MapRules.CanEnter(this.Map, target))
+            // An NPC is solid, so a step into one turns the lead alone, with no bump and no
+            // encounter (D-1139).
+            else if (MapRules.CanEnter(this.Map, target) && !this.Npcs.TryNpcAt(target, out _))
             {
                 this.Stepping = next;
                 this.StepTicks = 0;
@@ -375,19 +426,24 @@ public sealed class MapState
     }
 
     /// <summary>
-    /// Ends the wanted direction of this tick (D-493). The run calls it at the end of each tick,
-    /// also a tick in which a menu, a battle, or a story scene held the world, so a move intent
-    /// never starts a step on a later tick (T-7).
+    /// Ends the wanted direction and the confirm of this tick (D-493, D-1131). The run calls it at
+    /// the end of each tick, also a tick in which a menu, a battle, or a story scene held the
+    /// world, so a move intent never starts a step and a confirm never acts on a later tick (T-7).
     /// </summary>
     /// <remarks>
     /// The snapshot and the state hash leave the wanted direction out, so a direction that lived
     /// past its tick made a resumed run differ from the live run with equal hashes (G-5).
     /// </remarks>
-    internal void EndTick() => this.wanted = null;
+    internal void EndTick()
+    {
+        this.wanted = null;
+        this.confirmWanted = false;
+    }
 
     /// <summary>
     /// Ends the step that runs and the wanted step, so the lead stands still on its tile while a
-    /// story scene runs (D-1009).
+    /// story scene runs (D-1009). Each NPC ends its step too, and it stands still on its tile
+    /// (D-1139).
     /// </summary>
     /// <remarks>
     /// A tile trigger fires when the lead arrives, and the same tick can start the next step of
@@ -398,6 +454,7 @@ public sealed class MapState
         this.Stepping = null;
         this.StepTicks = 0;
         this.wanted = null;
+        this.Npcs.HoldStill();
     }
 
     /// <summary>Moves the lead one tile in a move step of a story scene, and marks the tile walked (D-567, D-1012).</summary>
@@ -433,6 +490,7 @@ public sealed class MapState
         hasher.AddInt32(this.StepTicks);
         this.Walked.Hash(hasher);
         this.Patrols.Hash(hasher);
+        this.Npcs.Hash(hasher);
     }
 
     private static void Refuse(bool broken, string source, string reason)

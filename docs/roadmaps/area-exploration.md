@@ -31,7 +31,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | # | Finding | Binds |
 |---|---|---|
 | F-6 | D-39 took seeded variation on a replay premise that D-46 removed | Every map: the author places each thing by hand (D-47) |
-| F-7 | A fallen character stays down until a hub, and three fight | PR-16: the reserve and the swap at a save point (D-58) |
+| F-7 | A fallen character stays down until a hub, and three fight | PR-14: the reserve and the swap anywhere outside a fight (D-58, D-1134) |
 | F-23 | `--headless` draws nothing | PR-41 and PR-7: the map scene meets a screen test (D-172) |
 | F-46 | Godot drops a light past 15 on one canvas item with no message | PR-56: a map layer draws 256 tiles as one canvas item |
 | F-51 | Four Godot defaults meet the tile map | PR-7: the tile size, the region size, and the two switches |
@@ -163,7 +163,7 @@ Built by PR-8, PR-9, and PR-60. Phase file: `phase-2-first-playable.md`.
 Built by PR-16. Phase file: `phase-2-first-playable.md`.
 
 - PR-16 builds the treasure, the locked doors, the keys, and the save points (D-41, D-529).
-- A save point saves, swaps the party, and swaps the lessons (D-36, D-58, D-356).
+- A save point saves the party. The party and the lessons swap anywhere outside a fight (D-36, D-1050, D-1134).
 - A save point restores MP once for the place, until a story event reopens it, and it restores no health (D-389, D-555).
 - The exit to the region map and a rest at a hub restore the party. So a run never traps itself (D-555).
 - A Theft drill on one of the three who fight opens a lock that the map marks as pickable. A story lock always needs its key (D-386).
@@ -204,14 +204,16 @@ Built by PR-21. Phase file: `phase-3-story-systems.md`.
 Built by PR-14. Phase file: `phase-2-first-playable.md`.
 
 - A hub is a walkable map with NPC sprites, and one code path draws a hub and a dungeon (D-112).
-- PR-14 builds the hub map, the NPCs, the rest, the save, and the party swap (D-59, D-530).
+- PR-14 builds the hub map, the NPCs and their movement, the rest, the save, and the party swap (D-59, D-530, D-1132, D-1134, D-1137).
+- Each service sits on an NPC or a thing, and confirm while the lead faces it opens the service (D-1131).
 - A rest restores health and MP, and it cures poison, blind, and silence (D-42, D-390).
 - Each hub has a shape of its own, so no hub offers every service (D-28, D-59).
+- An NPC wanders in a list of rectangles, walks a route with waits, or chases another NPC. An NPC is solid, and it walks home after a story scene (D-1138 to D-1140).
 - The hanging cells are a dungeon under a hub, and the same map rules cover it (D-244, D-112).
 - The village is a start area with no shop and no rest (D-369).
 - A story scene can play on a hub map or a dungeon map, and `area-story.md` holds the story scene runner (D-114, D-540). The map file lists each story scene trigger with its condition (D-528, D-543).
 
-> *In plain English:* a hub is a place you walk through, with people to talk to, a bed, and a stone to save at. Every hub has a different shape.
+> *In plain English:* a hub is a place you walk through, with people who walk their rooms, a bed, and a stone to save at. Every hub has a different shape.
 
 ### 7.12 The shop and the gold
 
@@ -252,7 +254,7 @@ Built by PR-35. Phase file: `phase-2-first-playable.md`.
 | PR-106 | The map draws the start of the tick while a menu, a fight, or a story scene holds the world, so a lead in the middle of a step holds still | D-1126 |
 | PR-16 | The treasure, the doors, the keys, and the save points | D-41, D-529 |
 | PR-64 | The traps, the hazards, and the statuses that last on the map | D-390 to D-393, D-529 |
-| PR-14 | The hub map, the NPCs, the rest, the save, and the party swap | D-59, D-112, D-530 |
+| PR-14 | The hub map, the NPCs and their movement, the rest, the save, and the party swap | D-59, D-112, D-530, D-1131 to D-1140 |
 | PR-65 | The shop and the gold economy | D-60, D-530 |
 | PR-35 | The region map, its nodes, and its routes | D-113 |
 | PR-21 | The switches, the blocks, the light and dark, and the secrets | D-41 |

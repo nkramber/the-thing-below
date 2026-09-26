@@ -20,7 +20,9 @@ namespace TheThingBelow.Core.Runs;
 /// pauses the world (D-162).
 /// <para>
 /// The world of this run is the party on a tile map (D-100, D-106). The party walks one tile
-/// at a time, and the record of the walked tiles grows with it (D-567, D-716).
+/// at a time, and the record of the walked tiles grows with it (D-567, D-716). The party stands on
+/// one map of the set of the run, and an entry to another map puts it on the spawn point there
+/// (D-1133).
 /// </para>
 /// </remarks>
 public sealed class RunState
@@ -37,12 +39,19 @@ public sealed class RunState
     // state, so no snapshot and no hash reads them (D-168, D-221).
     private readonly List<NoticeRecord> posted = [];
 
+    // The services that a confirm opened, and the saves that a rule asked for, wait here until
+    // Game takes them. They are output, and not state, so no snapshot and no hash reads them
+    // (D-168, D-1131, D-1132).
+    private readonly List<MapService> opened = [];
+    private readonly List<SaveRequestKind> saves = [];
+
     private RunState(
         ulong seed,
         RandomStream[] streams,
         long tick,
         bool menuOpen,
         long worldTick,
+        MapSet maps,
         MapState map,
         BattleContent battleContent,
         PartyState characters,
@@ -51,6 +60,7 @@ public sealed class RunState
         NoticeLog noticeLog,
         StoryState story)
     {
+        this.Maps = maps;
         this.Story = story;
         this.BattleContent = battleContent;
         this.Notices = notices;
@@ -77,8 +87,14 @@ public sealed class RunState
     /// <summary>The count of ticks in which the world ran (D-650).</summary>
     public long WorldTick { get; private set; }
 
-    /// <summary>The party on its map: the lead, the step that runs, and the walked tiles (D-106, D-567).</summary>
-    public MapState Party { get; }
+    /// <summary>
+    /// The party on its map: the lead, the step that runs, and the walked tiles (D-106, D-567).
+    /// <see cref="EnterMap"/> replaces it with the state of the map that the party enters (D-1133).
+    /// </summary>
+    public MapState Party { get; private set; }
+
+    /// <summary>Every map that the party can enter in this run, and the map that it stands on (D-528, D-1133).</summary>
+    public MapSet Maps { get; }
 
     /// <summary>The battle rules and the fixture of this run (D-757, D-766).</summary>
     public BattleContent BattleContent { get; }
@@ -106,15 +122,38 @@ public sealed class RunState
     /// <param name="story">The story content of this build, which holds every story scene that a trigger of the map starts (D-1004).</param>
     /// <returns>The state, with every stream at its first value, an empty notice log, no flag on, and the entry of the map to read.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
-    /// <exception cref="ContentException">A group or a trigger of the map names content that this build lacks (T-2).</exception>
+    /// <exception cref="ContentException">A group, a trigger, or a service of the map names content that this build lacks (T-2).</exception>
     public static RunState Start(ulong seed, GameMap map, BattleContent battleContent, NoticeList notices, StoryContent story)
     {
         ArgumentNullException.ThrowIfNull(map);
+
+        return Start(seed, MapSet.Of([map]), map.Id, battleContent, notices, story);
+    }
+
+    /// <summary>Starts a new run from a seed, at tick zero, on one map of a set (D-528, D-1133).</summary>
+    /// <param name="seed">The seed of the run (G-3, G-4).</param>
+    /// <param name="maps">Every map that the party can enter in the run.</param>
+    /// <param name="first">The id of the map that the run opens, with the party on its spawn point (D-528).</param>
+    /// <param name="battleContent">The battle rules and the fixture, which hold every group that a map of the set names (D-766).</param>
+    /// <param name="notices">The notice file of this build (D-989).</param>
+    /// <param name="story">The story content of this build, which holds every story scene that a trigger of a map of the set starts (D-1004).</param>
+    /// <returns>The state, with every stream at its first value, an empty notice log, no flag on, and the entry of the map to read.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="ArgumentException">The set holds no map with the first id (T-2).</exception>
+    /// <exception cref="ContentException">A group, a trigger, or a service of a map of the set names content that this build lacks (T-2).</exception>
+    /// <remarks>The start checks every map of the set, so an entry to a map later in the run never meets a missing entry of content (T-2).</remarks>
+    public static RunState Start(ulong seed, MapSet maps, ContentId first, BattleContent battleContent, NoticeList notices, StoryContent story)
+    {
+        ArgumentNullException.ThrowIfNull(maps);
+        ArgumentNullException.ThrowIfNull(first);
         ArgumentNullException.ThrowIfNull(battleContent);
         ArgumentNullException.ThrowIfNull(notices);
         ArgumentNullException.ThrowIfNull(story);
-        battleContent.RequireGroupsOf(map);
-        story.RequireScenesOf(map);
+        RequireContentOf(maps, battleContent, story);
+        if (!maps.TryFind(first, out GameMap? map))
+        {
+            throw new ArgumentException($"The run opens the map '{first.Value}', and the maps of the run are {maps.DescribeIds()} (T-2, D-528).", nameof(first));
+        }
 
         RandomStream[] streams = new RandomStream[RandomStreams.All.Count];
         for (int index = 0; index < streams.Length; index += 1)
@@ -128,7 +167,8 @@ public sealed class RunState
             0,
             false,
             0,
-            MapState.Enter(map),
+            maps,
+            MapState.Enter(map!),
             battleContent,
             PartyState.Start(battleContent),
             null,
@@ -137,19 +177,28 @@ public sealed class RunState
             StoryState.Start(story));
     }
 
-    /// <summary>Starts a run again from a snapshot (D-259, D-651).</summary>
-    /// <param name="seed">The seed of the run, which the record header holds (G-5).</param>
-    /// <param name="snapshot">The snapshot, which the caller checked (T-2).</param>
-    /// <param name="map">
-    /// The map of the snapshot, which the caller read from its content by
-    /// <see cref="RunSnapshot.MapIdOrFirst"/> (D-166).
+    /// <summary>
+    /// Builds the state of a run from a snapshot that this build or another build wrote
+    /// (D-166, D-259, D-1111).
+    /// </summary>
+    /// <param name="seed">The seed of the run, which the record header or the save header holds (G-5).</param>
+    /// <param name="snapshot">The snapshot.</param>
+    /// <param name="maps">
+    /// Every map that the party can enter in the run, from the content of this build. The set
+    /// holds the map that <see cref="RunSnapshot.MapIdOrFirst"/> names (D-166, D-1133).
     /// </param>
-    /// <param name="battleContent">The battle rules and the fixture, which hold every group that the map names (D-766).</param>
+    /// <param name="battleContent">The battle rules and the fixture of this build (D-766).</param>
     /// <param name="notices">The notice file of this build, which each entry of the stored log must name (D-985).</param>
     /// <param name="story">The story content of this build, which each stored flag and story scene must name (D-166).</param>
+    /// <param name="drift">
+    /// The build of the snapshot. A snapshot of another build can follow an edit of a map or a
+    /// story scene, and the drift logs each change (D-1111, D-1112). The party takes no change
+    /// (D-1110).
+    /// </param>
     /// <returns>The state, with every stream at the position of the snapshot.</returns>
-    /// <exception cref="ArgumentNullException">The snapshot or the map is null (T-2).</exception>
-    /// <exception cref="ArgumentException">The snapshot is not a state of a run, or the map is another map (T-2).</exception>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="ArgumentException">The snapshot is not a state of a run, or the set holds no map of its id (T-2).</exception>
+    /// <exception cref="ContentException">A group, a trigger, or a service of a map of the set names content that this build lacks (T-2).</exception>
     /// <remarks>
     /// A snapshot of save format 1 holds no map, because it predates the tile map. Its
     /// migration puts the party on the spawn point of the first map, with that tile walked
@@ -160,41 +209,23 @@ public sealed class RunState
     /// starts with no flag on, no story scene, and no entry to read, because a load is not an
     /// entry to the map (D-1004).
     /// </remarks>
-    public static RunState Resume(ulong seed, RunSnapshot snapshot, GameMap map, BattleContent battleContent, NoticeList notices, StoryContent story)
+    public static RunState Resume(ulong seed, RunSnapshot snapshot, MapSet maps, BattleContent battleContent, NoticeList notices, StoryContent story, ResumeDrift drift)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
-
-        return Resume(seed, snapshot, map, battleContent, notices, story, ResumeDrift.Of(SnapshotOrigin.ThisBuild, snapshot.Tick));
-    }
-
-    /// <summary>
-    /// Builds the state of a run from a snapshot that this build or another build wrote
-    /// (D-166, D-259, D-1111).
-    /// </summary>
-    /// <param name="seed">The seed of the run.</param>
-    /// <param name="snapshot">The snapshot.</param>
-    /// <param name="map">The map of the snapshot, from the content of this build.</param>
-    /// <param name="battleContent">The battle rules and the fixture of this build (D-766).</param>
-    /// <param name="notices">The notice file of this build (D-985).</param>
-    /// <param name="story">The story content of this build (D-166).</param>
-    /// <param name="drift">
-    /// The build of the snapshot. A snapshot of another build can follow an edit of a map or a
-    /// story scene, and the drift logs each change (D-1111, D-1112). The party takes no change
-    /// (D-1110).
-    /// </param>
-    /// <returns>The state, with every stream at the position of the snapshot.</returns>
-    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
-    /// <exception cref="ArgumentException">The snapshot is not a state of a run, or the map is another map (T-2).</exception>
-    public static RunState Resume(ulong seed, RunSnapshot snapshot, GameMap map, BattleContent battleContent, NoticeList notices, StoryContent story, ResumeDrift drift)
-    {
-        ArgumentNullException.ThrowIfNull(snapshot);
-        ArgumentNullException.ThrowIfNull(map);
+        ArgumentNullException.ThrowIfNull(maps);
         ArgumentNullException.ThrowIfNull(battleContent);
         ArgumentNullException.ThrowIfNull(notices);
         ArgumentNullException.ThrowIfNull(story);
         ArgumentNullException.ThrowIfNull(drift);
-        battleContent.RequireGroupsOf(map);
-        story.RequireScenesOf(map);
+        RequireContentOf(maps, battleContent, story);
+        if (!maps.TryFind(snapshot.MapIdOrFirst, out GameMap? found))
+        {
+            throw new ArgumentException(
+                $"The snapshot names the map '{snapshot.MapIdOrFirst.Value}', and the maps of the run are {maps.DescribeIds()} (T-2, D-166).",
+                nameof(maps));
+        }
+
+        GameMap map = found!;
         snapshot.Check("this run");
 
         RandomStream[] streams = new RandomStream[snapshot.Streams.Count];
@@ -224,6 +255,7 @@ public sealed class RunState
             snapshot.Tick,
             snapshot.MenuOpen,
             snapshot.WorldTick,
+            maps,
             party,
             battleContent,
             characters,
@@ -233,15 +265,22 @@ public sealed class RunState
             storyState);
     }
 
+    /// <summary>
+    /// Checks the groups, the story scenes, and the services of every map of the set against the
+    /// content of this build (D-766, D-1004, D-1131).
+    /// </summary>
+    private static void RequireContentOf(MapSet maps, BattleContent battleContent, StoryContent story)
+    {
+        foreach (GameMap map in maps.All)
+        {
+            battleContent.RequireGroupsOf(map);
+            story.RequireScenesOf(map);
+            story.RequireServicesOf(map);
+        }
+    }
+
     private static MapState ResumeMap(RunSnapshot snapshot, GameMap map, ResumeDrift drift)
     {
-        if (string.CompareOrdinal(snapshot.MapIdOrFirst.Value, map.Id.Value) != 0)
-        {
-            throw new ArgumentException(
-                $"The snapshot names the map '{snapshot.MapIdOrFirst.Value}', and the caller gave the map '{map.Id.Value}' (T-2, D-166).",
-                nameof(map));
-        }
-
         if (snapshot.Map is null)
         {
             return MapState.Enter(map);
@@ -250,7 +289,9 @@ public sealed class RunState
         MapSnapshot party = snapshot.Map;
 
         // A snapshot of save format 2 predates the enemies, so its enemy list is absent and
-        // each enemy of the map starts on the start tile of its station (D-654, D-750).
+        // each enemy of the map starts on the start tile of its station (D-654, D-750). A
+        // snapshot before save format 15 predates the NPCs, and each NPC starts on its start
+        // tile (D-1137).
         return MapState.Resume(
             map,
             new LeadValues(new TilePoint(party.LeadX, party.LeadY), party.Facing, party.Stepping, party.StepTicks),
@@ -258,6 +299,7 @@ public sealed class RunState
             party.Enemies,
             party.Mark,
             party.Encounter,
+            party.Npcs,
             "this run",
             drift);
     }
@@ -273,7 +315,7 @@ public sealed class RunState
             return PartyState.Start(battleContent);
         }
 
-        return PartyState.Resume(battleContent, stored.Characters, stored.Pack, stored.LessonPack, stored.Gold, stored.TorchHeld, "this run");
+        return PartyState.Resume(battleContent, stored.Characters, stored.Reserve, stored.Pack, stored.LessonPack, stored.Gold, stored.TorchHeld, "this run");
     }
 
     /// <summary>
@@ -379,8 +421,9 @@ public sealed class RunState
                 this.Party.Walked.Rows(),
                 this.Party.Patrols.Values(),
                 this.Party.Patrols.Mark,
-                this.Party.Patrols.Encounter),
-            new PartySnapshot(this.Characters.CharacterValues(), this.Characters.PackValues(), this.Characters.LessonPackValues(), this.Characters.Gold, this.Characters.TorchHeld),
+                this.Party.Patrols.Encounter,
+                this.Party.Npcs.Values()),
+            new PartySnapshot(this.Characters.CharacterValues(), this.Characters.PackValues(), this.Characters.LessonPackValues(), this.Characters.Gold, this.Characters.TorchHeld, this.Characters.ReserveValues()),
             this.Battle?.Values(),
             this.NoticeLog.Values(),
             this.Story.Values(),
@@ -463,6 +506,51 @@ public sealed class RunState
         this.Party.Want(direction);
     }
 
+    /// <summary>Reads a confirm intent of this tick, which the world step then applies (D-1131).</summary>
+    /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
+    /// <exception cref="ArgumentNullException">The context is null (T-2).</exception>
+    /// <exception cref="SimulationException">A menu is open or a battle holds the run (T-2).</exception>
+    /// <remarks>
+    /// A menu and a battle each take every input of the player on their own screen, so a confirm
+    /// of the map from one points at a fault in the screen that made it (D-162, T-2). The world
+    /// step applies the confirm only while the lead stands, and a confirm that no world step
+    /// reads ends with the tick and a log line (D-1131).
+    /// </remarks>
+    public void WantConfirm(RunContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+
+        if (this.MenuOpen)
+        {
+            throw new SimulationException("a confirm of the map while the menu is open, and a menu pauses the world (D-162, D-1131)", context);
+        }
+
+        if (this.Battle is not null)
+        {
+            throw new SimulationException("a confirm of the map while a battle holds the run, and the battle screen takes the confirm there (D-1131)", context);
+        }
+
+        this.Party.WantConfirm();
+    }
+
+    /// <summary>Takes every service that a confirm opened since the last take, in the order of the opens (D-1131).</summary>
+    /// <returns>The services, which the run no longer holds. Game opens the window of each one.</returns>
+    public IReadOnlyList<MapService> TakeOpenedServices()
+    {
+        MapService[] taken = [.. this.opened];
+        this.opened.Clear();
+        return taken;
+    }
+
+    /// <summary>Takes every save that a rule asked for since the last take, in the order of the asks (D-1132).</summary>
+    /// <returns>The kinds of the saves, which the run no longer holds. Game writes each one through `GameRun.Save`.</returns>
+    public IReadOnlyList<SaveRequestKind> TakeSaveRequests()
+    {
+        SaveRequestKind[] taken = [.. this.saves];
+        this.saves.Clear();
+        return taken;
+    }
+
     /// <summary>Takes every battle event since the last take, in the order of the rules (D-532).</summary>
     /// <returns>The events, which the run no longer holds.</returns>
     public IReadOnlyList<BattleEvent> TakeEvents()
@@ -518,6 +606,129 @@ public sealed class RunState
         member.Row = BattleSides.Other(member.Row);
     }
 
+    /// <summary>
+    /// Swaps one character of the party with one character of the reserve, from the Party window
+    /// of a menu, anywhere outside a fight (D-1134, D-1136). The map stays as it is: the lead
+    /// walks the map in the party or in the reserve (D-292, D-306).
+    /// </summary>
+    /// <param name="slot">The party slot of the character who goes to the reserve.</param>
+    /// <param name="reserve">The reserve index of the character who comes in.</param>
+    /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
+    /// <exception cref="ArgumentNullException">The context is null (T-2).</exception>
+    /// <exception cref="SimulationException">
+    /// No menu is open, a battle holds the run, an encounter leads into a battle, or the party
+    /// rules refuse the swap, such as a downed reserve character (D-1134, D-1135, T-2).
+    /// </exception>
+    public void SwapReserve(int slot, int reserve, RunContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+
+        if (!this.MenuOpen)
+        {
+            throw new SimulationException("a party swap while no menu is open, and the Party window of a menu makes it (D-1134)", context);
+        }
+
+        if (this.Battle is not null)
+        {
+            throw new SimulationException("a party swap while a battle holds the run, and no swap happens inside a battle (D-1134)", context);
+        }
+
+        if (this.Party.Patrols.Encounter is not null)
+        {
+            throw new SimulationException("a party swap while an encounter leads into a battle, and no swap happens inside a battle (D-1134)", context);
+        }
+
+        this.Characters.SwapReserve(slot, reserve, context);
+    }
+
+    /// <summary>Gives the reason that the party cannot enter a map now, or no value when it can (D-1133).</summary>
+    /// <param name="id">The id of the map to enter.</param>
+    /// <returns>
+    /// The reason, as a phrase that follows "found", such as "an open menu", or null. A battle, an
+    /// encounter, a story scene, an open menu, a win that waits for the battle end triggers of this
+    /// map, and an id that no map of the run takes each refuse the entry.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">The id is null (T-2).</exception>
+    /// <remarks>
+    /// The go-to-map command of the debug console reads the reason and warns, because a command
+    /// that a person types at the wrong time is a fault of the person and never of the build
+    /// (D-179, D-1133).
+    /// </remarks>
+    public string? RefusalOfEnter(ContentId id)
+    {
+        ArgumentNullException.ThrowIfNull(id);
+
+        if (this.Battle is not null)
+        {
+            return "a battle that holds the run";
+        }
+
+        if (this.Party.Patrols.Encounter is not null)
+        {
+            return "an encounter that leads into a battle";
+        }
+
+        if (this.Story.Running)
+        {
+            return "a story scene that runs, and a story scene holds the map (D-1009)";
+        }
+
+        if (this.MenuOpen)
+        {
+            return "an open menu, and a menu pauses the world (D-162)";
+        }
+
+        // The win names a patrol of the map that the party stands on, and the battle end
+        // triggers of this map read it at the next world step (D-1011).
+        if (this.Story.WonPatrol is ContentId won)
+        {
+            return $"a win against '{won.Value}' that waits for the battle end triggers of this map (D-1011)";
+        }
+
+        if (!this.Maps.TryFind(id, out _))
+        {
+            return $"no map '{id.Value}' among the maps of the run, which are {this.Maps.DescribeIds()}";
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Puts the party on the spawn point of a map of the run, and notes the entry for the entry
+    /// triggers of that map (D-528, D-1004, D-1133). The entry to a hub asks for the autosave
+    /// (D-224, D-1132).
+    /// </summary>
+    /// <param name="id">The id of the map to enter, which can be the map that the party stands on.</param>
+    /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="SimulationException"><see cref="RefusalOfEnter"/> gives a reason (T-2).</exception>
+    /// <remarks>
+    /// The map that the party leaves keeps no memory: an entry again finds each tile unwalked, each
+    /// enemy alive on the start tile of its station, and each NPC on its start tile. PR-35 owns the
+    /// memory of each map (D-113). A step or a confirm that an intent of the same tick asked for
+    /// ends with the map that the party leaves, as a menu ends it (T-7). The save request is output
+    /// and not state, so Game writes the autosave after the tick (D-168, D-1132).
+    /// </remarks>
+    public void EnterMap(ContentId id, RunContext context)
+    {
+        ArgumentNullException.ThrowIfNull(id);
+        ArgumentNullException.ThrowIfNull(context);
+
+        if (this.RefusalOfEnter(id) is string refusal)
+        {
+            throw new SimulationException($"an entry to the map '{id.Value}' found {refusal} (D-1133)", context);
+        }
+
+        this.Maps.TryFind(id, out GameMap? map);
+        GameMap entered = map!;
+        this.Party = MapState.Enter(entered);
+        this.Story.NoteEntry();
+        if (entered.Kind == MapKind.Hub)
+        {
+            this.RequestSave(SaveRequestKind.Autosave);
+        }
+    }
+
     /// <summary>Holds one posted notice for Game, and adds it to the log when content marks it (D-221, D-983).</summary>
     internal void AddNotice(NoticeRecord notice)
     {
@@ -527,6 +738,12 @@ public sealed class RunState
             this.NoticeLog.Add(notice.Id);
         }
     }
+
+    /// <summary>Holds one service that a confirm opened, for Game (D-1131).</summary>
+    internal void AddOpenedService(MapService service) => this.opened.Add(service);
+
+    /// <summary>Holds one save that a rule asked for, for Game (D-1132).</summary>
+    internal void RequestSave(SaveRequestKind kind) => this.saves.Add(kind);
 
     /// <summary>Sets the battle, or ends it with null (D-531).</summary>
     internal void SetBattle(Battle? battle) => this.Battle = battle;

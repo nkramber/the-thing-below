@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TheThingBelow.Game.Ui;
 
-/// <summary>The kind of one window of the menu stack (D-211, D-986, D-987).</summary>
+/// <summary>The kind of one window of the menu stack (D-211, D-986, D-987, D-1132).</summary>
 public enum MenuWindowKind
 {
     /// <summary>The main list, which opens one window for each task (D-211, D-992).</summary>
@@ -32,6 +32,12 @@ public enum MenuWindowKind
 
     /// <summary>The item window, which uses an item outside a fight (D-1046, D-1049).</summary>
     Items,
+
+    /// <summary>The rest window of the rest service of a hub, which a confirm on its host opens (D-390, D-1131).</summary>
+    Rest,
+
+    /// <summary>The save window of the save service of a hub, which a confirm on its host opens (D-1132).</summary>
+    Save,
 }
 
 /// <summary>
@@ -41,7 +47,9 @@ public enum MenuWindowKind
 /// <remarks>
 /// The main list and the dungeon map screen each open a menu from the walk. A task window
 /// opens over the main list alone, and the dungeon map screen opens alone, because the map
-/// action works on the walk (D-986). Any other order points at a fault in the host (T-2).
+/// action works on the walk (D-986). The rest window and the save window open alone too, because
+/// a confirm on the host of a service opens them from the walk (D-1131, D-1132). Any other order
+/// points at a fault in the host (T-2).
 /// <para>
 /// This type holds no Godot value, so a test reads it with no engine (D-614).
 /// </para>
@@ -67,11 +75,11 @@ public sealed class MenuPath
     /// <exception cref="InvalidOperationException">The window cannot open in this place of the stack (T-2).</exception>
     public void Open(MenuWindowKind kind)
     {
-        bool first = kind is MenuWindowKind.MainList or MenuWindowKind.DungeonMap;
+        bool first = kind is MenuWindowKind.MainList or MenuWindowKind.DungeonMap or MenuWindowKind.Rest or MenuWindowKind.Save;
         if (first && this.windows.Count > 0)
         {
             throw new InvalidOperationException(
-                $"The window '{kind}' opens a menu from the walk, and the stack already holds {Describe(this.windows)} (D-211, D-986, T-2).");
+                $"The window '{kind}' opens a menu from the walk, and the stack already holds {Describe(this.windows)} (D-211, D-986, D-1131, T-2).");
         }
 
         if (!first && (this.windows.Count == 0 || this.Top != MenuWindowKind.MainList))
