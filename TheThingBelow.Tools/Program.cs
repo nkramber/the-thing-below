@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using TheThingBelow.Tools.Atlas;
+using TheThingBelow.Tools.Bots;
 using TheThingBelow.Tools.ChangedPaths;
 using TheThingBelow.Tools.CodexReview;
 using TheThingBelow.Tools.Content;
@@ -116,6 +117,11 @@ public static class Program
             return ScreenplayCommand.Run(args[1..], output, errors);
         }
 
+        if (command == BotsCommand.Name)
+        {
+            return BotsCommand.Run(args[1..], output, errors);
+        }
+
         if (PlannedCommands.TryGetValue(command, out string? pullRequest))
         {
             errors.WriteLine(
@@ -143,6 +149,7 @@ public static class Program
         errors.WriteLine($"  {CodexReviewCommand.Name}: ready");
         errors.WriteLine($"  {EvaluatorCostCommand.Name}: ready");
         errors.WriteLine($"  {ScreenplayCommand.Name}: ready");
+        errors.WriteLine($"  {BotsCommand.Name}: ready");
         errors.WriteLine("The planned commands, with the PR that adds each one:");
         foreach (KeyValuePair<string, string> entry in PlannedCommands)
         {

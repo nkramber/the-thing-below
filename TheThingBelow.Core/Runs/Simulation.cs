@@ -298,6 +298,10 @@ public sealed class Simulation
     /// <returns>The kinds of the saves, in the order of the asks. Game writes each one through `GameRun.Save`.</returns>
     public IReadOnlyList<SaveRequestKind> TakeSaveRequests() => this.State.TakeSaveRequests();
 
+    /// <summary>Lists the intents of the player that the state accepts on the next tick (D-1179).</summary>
+    /// <returns>The intents, in the forms that the screens of Game make. The query changes no state.</returns>
+    public IReadOnlyList<Intent> Accepted() => AcceptedIntents.Of(this.State);
+
     /// <summary>Stores the whole state of the run (F-10, D-651).</summary>
     /// <returns>The snapshot.</returns>
     public RunSnapshot Snapshot() => this.State.Snapshot();

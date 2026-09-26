@@ -4,6 +4,7 @@ using System.Text;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Notices;
+using TheThingBelow.Core.Runs;
 using TheThingBelow.Core.Shops;
 using TheThingBelow.Core.Story;
 
@@ -433,6 +434,16 @@ internal static class TestBattles
     public static readonly ContentId PlainNotice = ContentId.Parse("notice.test_plain", "test", "notice");
 
     /// <summary>The flag file of a test content set with no story scene: it declares no flag (D-1003).</summary>
+    /// <summary>The bot rules of the tests (D-1181). The load checks the goal flag, and the runner checks the start map (D-1185).</summary>
+    public const string BotsFile = """
+    {
+     "comment": "The bot rules of the tests.",
+     "start_maps": ["map.test"],
+     "goal_flag": "flag.test_marrek_side",
+     "tick_budget": 600
+    }
+    """;
+
     public const string NoFlagsFile = """
     {
      "comment": "The flags of the tests. It declares the flags of the side aptitudes alone.",
@@ -446,7 +457,7 @@ internal static class TestBattles
     """;
 
     /// <summary>Gives the battle files of a content set, with the text of the tests (D-757, D-766, D-785, D-786).</summary>
-    /// <returns>The rules file, the fixture file, the ability file, the two enemy records, the group file, the profile, the notice file (D-989), the flag file with no flag (D-1003), the shop file (D-1149), and the effect files that serve those combatants (D-879).</returns>
+    /// <returns>The rules file, the fixture file, the ability file, the two enemy records, the group file, the profile, the notice file (D-989), the flag file with no flag (D-1003), the bot rules (D-1181), the shop file (D-1149), and the effect files that serve those combatants (D-879).</returns>
     public static IReadOnlyList<ContentFile> Files() =>
     [
         new ContentFile(BattleRules.Path, Encoding.UTF8.GetBytes(RulesFile)),
@@ -463,6 +474,7 @@ internal static class TestBattles
         new ContentFile(AttackerProfilePath, Encoding.UTF8.GetBytes(AttackerProfileFile)),
         new ContentFile(NoticeList.Path, Encoding.UTF8.GetBytes(NoticesFile)),
         new ContentFile(FlagList.Path, Encoding.UTF8.GetBytes(NoFlagsFile)),
+        new ContentFile(BotRules.Path, Encoding.UTF8.GetBytes(BotsFile)),
         .. EffectFixtures.Files(),
     ];
 
