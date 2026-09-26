@@ -26,6 +26,9 @@ public static class MenuLayout
     /// <summary>The frame pixels between two windows of the stack.</summary>
     public const int WindowGap = 8;
 
+    /// <summary>The width of the window of a hub service, in frame pixels. A line of help holds 37 characters at a body of 32.</summary>
+    public const int ServiceWidth = 640;
+
     /// <summary>The width of the notice box, in frame pixels.</summary>
     public const int NoticeWidth = 960;
 
@@ -54,6 +57,17 @@ public static class MenuLayout
     /// <returns>The box at the top left of the frame.</returns>
     public static FrameBox MainListBox(int body) =>
         new(UiMetrics.EdgePixels, UiMetrics.EdgePixels, MainListWidth, (Pad * 2) + (LineOf(body) * MainList.Entries.Count));
+
+    /// <summary>Gives the place of the window of a hub service: one line for each choice, and the line of help (D-1131, D-1132).</summary>
+    /// <param name="body">The body size, in frame pixels.</param>
+    /// <returns>The box at the top left of the frame, where the main list stands when it is open.</returns>
+    public static FrameBox ServiceBox(int body) =>
+        new(UiMetrics.EdgePixels, UiMetrics.EdgePixels, ServiceWidth, (Pad * 2) + (LineOf(body) * (ServiceChoice.Options.Count + 1)));
+
+    /// <summary>Gives the count of characters that one line of the window of a hub service holds at a body size.</summary>
+    /// <param name="body">The body size, in frame pixels.</param>
+    /// <returns>The count of whole characters.</returns>
+    public static int ServiceLineCharacters(int body) => UiMetrics.CharactersAcross(body, ServiceWidth - (Pad * 2));
 
     /// <summary>Gives the place of a task window, to the right of the main list, from the top edge to the bottom edge.</summary>
     /// <returns>The box.</returns>

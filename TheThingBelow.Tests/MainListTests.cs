@@ -6,38 +6,24 @@ using Xunit;
 namespace TheThingBelow.Tests;
 
 /// <summary>
-/// The entries and the cursor of the main list: the order of D-992, the dim entries of D-988, and
-/// one cursor for the keyboard, the gamepad, and the mouse (D-219, D-872). The tests read the built
-/// Game assembly (D-614).
+/// The entries and the cursor of the main list: the order of D-992 with no save entry (D-1143),
+/// and one cursor for the keyboard, the gamepad, and the mouse (D-219, D-872). The tests read the
+/// built Game assembly (D-614).
 /// </summary>
 public sealed class MainListTests
 {
     [Fact]
-    public void TheListTakesTheOrderOfD992()
+    public void TheListTakesTheOrderOfD992WithNoSaveEntry()
     {
-        Assert.Equal(["Party", "Lessons", "Gear", "Items", "Status", "Log", "Save", "Settings"], Entries());
+        // D-1143: a save opens only from the save service of a hub and from a save point.
+        Assert.Equal(["Party", "Lessons", "Gear", "Items", "Status", "Log", "Settings"], Entries());
+        Assert.False(Enum.IsDefined(GameAssemblyFile.Type(GameValue.Ui + "MenuEntry"), "Save"));
     }
 
     [Fact]
-    public void TheEntriesOfLaterPrsAreDimAndTheOthersAreLive()
+    public void TheCursorVisitsEachEntryAndWrapsAtEachEnd()
     {
-        // D-988: PR-12, PR-13, PR-14, and PR-16 make the four dim entries live.
-        List<string> live = [];
-        foreach (string entry in Entries())
-        {
-            if ((bool)GameValue.Static("MainList", "IsLive", GameValue.Enum("MenuEntry", entry))!)
-            {
-                live.Add(entry);
-            }
-        }
-
-        // PR-12 built the lesson window, and PR-13 the gear window and the item window (D-988).
-        Assert.Equal(["Party", "Lessons", "Gear", "Items", "Status", "Log", "Settings"], live);
-    }
-
-    [Fact]
-    public void TheCursorSkipsEachDimEntryAndWrapsAtEachEnd()
-    {
+        // D-988, D-1143: no entry is dim any more, so the cursor skips none.
         GameValue list = GameValue.New("MainList");
         Assert.Equal("Party", list.Name("Current"));
 
@@ -48,7 +34,6 @@ public sealed class MainListTests
             visited.Add(list.Name("Current"));
         }
 
-        // The save entry of PR-16 stays dim, so the cursor skips it after the log.
         Assert.Equal(["Lessons", "Gear", "Items", "Status", "Log", "Settings", "Party"], visited);
         list.Call("Move", -1);
         Assert.Equal("Settings", list.Name("Current"));
@@ -60,20 +45,20 @@ public sealed class MainListTests
         // Exit test 4 of PR-62: a point of the mouse moves the cursor that a key moves next (D-872).
         GameValue list = GameValue.New("MainList");
 
-        Assert.True((bool)list.Call("Point", 5)!);
+        list.Call("Point", 5);
         Assert.Equal("Log", list.Name("Current"));
         list.Call("Move", 1);
         Assert.Equal("Settings", list.Name("Current"));
     }
 
     [Fact]
-    public void APointOnADimEntryLeavesTheCursor()
+    public void APointOutsideTheListIsAnErrorAndLeavesTheCursor()
     {
         GameValue list = GameValue.New("MainList");
 
-        Assert.False((bool)list.Call("Point", 6)!);
+        Assert.Throws<ArgumentOutOfRangeException>(() => list.Call("Point", 7));
+        Assert.Throws<ArgumentOutOfRangeException>(() => list.Call("Point", -1));
         Assert.Equal(0, list.Read<int>("Cursor"));
-        Assert.Throws<ArgumentOutOfRangeException>(() => list.Call("Point", 8));
     }
 
     [Theory]
@@ -84,7 +69,7 @@ public sealed class MainListTests
     [InlineData("Status", "Status")]
     [InlineData("Log", "Log")]
     [InlineData("Settings", "Settings")]
-    public void EachLiveEntryOpensItsWindow(string entry, string window)
+    public void EachEntryOpensItsWindow(string entry, string window)
     {
         object opened = GameValue.Static("MainList", "WindowOf", GameValue.Enum("MenuEntry", entry))!;
 
@@ -92,9 +77,11 @@ public sealed class MainListTests
     }
 
     [Fact]
-    public void ADimEntryOpensNoWindow()
+    public void AValueOutsideTheEntriesOpensNoWindow()
     {
-        Assert.Throws<ArgumentOutOfRangeException>(() => GameValue.Static("MainList", "WindowOf", GameValue.Enum("MenuEntry", "Save")));
+        object outside = Enum.ToObject(GameAssemblyFile.Type(GameValue.Ui + "MenuEntry"), 99);
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => GameValue.Static("MainList", "WindowOf", outside));
     }
 
     [Fact]

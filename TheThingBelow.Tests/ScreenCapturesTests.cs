@@ -109,6 +109,8 @@ public sealed class ScreenCapturesTests
         "menu-gear-1x.png",
         "menu-gear-pack-1x.png",
         "menu-items-1x.png",
+        "menu-rest-1x.png",
+        "menu-save-1x.png",
         "menu-list-fill-1080.png",
         "notice-type-1x.png",
         "notice-hold-1x.png",
@@ -145,6 +147,8 @@ public sealed class ScreenCapturesTests
         "menu-gear-fill-1080.png",
         "menu-gear-pack-fill-1080.png",
         "menu-items-fill-1080.png",
+        "menu-rest-fill-1080.png",
+        "menu-save-fill-1080.png",
         "battle-target-fill-1080.png",
         "battle-lessons-fill-1080.png",
         "battle-forms-fill-1080.png",
@@ -205,7 +209,8 @@ public sealed class ScreenCapturesTests
         // PR-106 adds each window and each part of a fight at the body of 24, the screen of the
         // Steam Deck, and the message of a crash (G-19, G-28, P3-26).
         // PR-14 adds the fixture hub at 1x, at the screen of the Steam Deck, and at 1080 rows
-        // (exit test 18 of PR-14).
+        // (exit test 18 of PR-14), and the window of the rest service and of the save service at
+        // both body sizes to the menu names (D-1131, D-1132).
         Assert.Equal(10 + 34 + 1 + 19 + 3 + 14 + 2 + 11 + 1 + MenuNames.Length + SmallBodyNames.Length + HubNames.Length + DeckAndCrashNames.Length, FileNames().Count);
     }
 

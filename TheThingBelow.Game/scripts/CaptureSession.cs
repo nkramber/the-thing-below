@@ -7,6 +7,7 @@ using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Effects;
 using TheThingBelow.Core.Light;
 using TheThingBelow.Core.Logging;
+using TheThingBelow.Core.Maps;
 using TheThingBelow.Game.Ui;
 using TheThingBelow.Storage;
 
@@ -646,6 +647,13 @@ public sealed partial class CaptureSession : Node
             }
         }
 
+        // The window of a hub service stands over the fixture hub, where the services live (D-1131).
+        bool service = string.CompareOrdinal(frame, ScreenCaptures.MenuRestFrame) == 0 || string.CompareOrdinal(frame, ScreenCaptures.MenuSaveFrame) == 0;
+        if (service)
+        {
+            GoToHub(open);
+        }
+
         // The map stays visible beside the main list, so each particle takes the tick of the run and
         // never the clock of the engine, and two sessions draw the same pixels (D-172, T-7).
         MapScreen drawn = MapFixture.Build(built, @base, open, this.content, seekParticles: true);
@@ -654,6 +662,13 @@ public sealed partial class CaptureSession : Node
         if (string.CompareOrdinal(frame, ScreenCaptures.MenuMapFrame) == 0)
         {
             _ = new DungeonMapView(built, @base, open.Party);
+            return;
+        }
+
+        if (service)
+        {
+            ServiceKind kind = string.CompareOrdinal(frame, ScreenCaptures.MenuRestFrame) == 0 ? ServiceKind.Rest : ServiceKind.Save;
+            _ = new ServiceView(built, @base, new ServiceChoice(kind));
             return;
         }
 
@@ -676,7 +691,7 @@ public sealed partial class CaptureSession : Node
         _ = new MainListView(built, @base, list);
         if (string.CompareOrdinal(frame, ScreenCaptures.MenuPartyFrame) == 0)
         {
-            _ = new PartyView(built, @base, open.State, new PartyList(open.State.Characters.Members.Count));
+            _ = new PartyView(built, @base, new PartyList(open.State));
         }
         else if (string.CompareOrdinal(frame, ScreenCaptures.MenuStatusFrame) == 0)
         {

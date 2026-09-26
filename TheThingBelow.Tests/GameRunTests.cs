@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using TheThingBelow.Core;
@@ -32,6 +34,9 @@ public sealed class GameRunTests
 
     private static readonly Lazy<ContentSet> Content =
         new(() => ContentSet.Load(ContentFolder.Read(RepositoryRoot.Find())));
+
+    /// <summary>The id of the fixture hub, which the debug command `goto` enters (D-1133).</summary>
+    private static readonly ContentId HubId = ContentId.Parse("map.fixture_hub", "test", "map");
 
     [Fact]
     public void AQueuedOpenMenuPausesTheWorldForTheNextTick()
@@ -67,11 +72,11 @@ public sealed class GameRunTests
         // Exit test 3 of PR-62 (D-493): the cursor moves make no intent, and the record holds the
         // open, the row change, and the close of the menu alone.
         Run run = Run.Start();
-        GameValue list = GameValue.New("PartyList", 1);
+        GameValue list = GameValue.New("PartyList", run.State);
         run.Queue(Intent.OfPlayer(IntentIds.OpenMenu));
         list.Call("Move", 1);
         list.Call("Move", -1);
-        run.Queue((Intent)list.Call("Choose")!);
+        run.Queue((Intent)list.Call("Confirm")!);
         run.Queue(Intent.OfPlayer(IntentIds.CloseMenu));
 
         run.Advance(OneTick);
@@ -398,6 +403,213 @@ public sealed class GameRunTests
         Assert.Equal(party.Map.Spawn, run.State.Party.LeadAt);
     }
 
+    [Fact]
+    public void TheGroupSwapsOnTheDungeonGoesToTheHubAndSavesAtTheWaystone()
+    {
+        // Exit test 2 of PR-14 (D-1132, D-1134): the group of four swaps the reserve on the dungeon,
+        // enters the hub, confirms the waystone, and saves. The run collects one slot save.
+        Run run = GroupRun();
+
+        // The party window picks Marrek, the swap, and the one reserve character (D-1134).
+        GameValue list = GameValue.New("PartyList", run.State);
+        list.Call("Confirm");
+        list.Call("Point", 1);
+        list.Call("Confirm");
+        run.Queue(Intent.OfPlayer(IntentIds.OpenMenu));
+        run.Queue((Intent)list.Call("Confirm")!);
+        run.Queue(Intent.OfPlayer(IntentIds.CloseMenu));
+        run.Advance(OneTick);
+
+        Assert.Equal(ReserveContent.Added[2], run.State.Characters.Members[0].Record.Id.Value);
+        Assert.Equal("character.marrek", run.State.Characters.Reserve[0].Record.Id.Value);
+
+        GoToHub(run);
+        Assert.Equal([SaveKind.Autosave], Kinds(run.TakeSaves()));
+        FaceTheWaystone(run);
+        SaveDocument slot = SaveAtTheWaystone(run);
+
+        Assert.Equal(run.Tick, slot.Snapshot.Tick);
+        Assert.Equal(ReserveContent.Added[2], slot.Snapshot.Characters!.Characters[0].Character.Value);
+        Assert.Equal(HubId.Value, slot.Snapshot.Map!.Map.Value);
+        Assert.False(run.MenuOpen);
+    }
+
+    [Fact]
+    public void TheSlotSaveOfTheWaystoneWritesReloadsAndGivesTheSameStateHash()
+    {
+        // Exit test 3 of PR-14 (D-224, D-1132): the save goes to a store of its own, and the reload
+        // of that file reaches the state that the run holds.
+        Run run = GroupRun();
+        GoToHub(run);
+        _ = run.TakeSaves();
+        FaceTheWaystone(run);
+        SaveDocument slot = SaveAtTheWaystone(run);
+        string folder = Directory.CreateTempSubdirectory("the-thing-below-hub-save-").FullName;
+        try
+        {
+            var store = new SaveStore(folder);
+            store.Write(SaveKind.Slot, slot);
+
+            Run reloaded = Run.Reload(ReserveContent.Content, store.Read(SaveKind.Slot), null, Seed, DebugAssemblyFile.Handlers(), []);
+
+            Assert.Equal(run.Tick, reloaded.Tick);
+            Assert.Equal(run.StateHash(), reloaded.StateHash());
+            Assert.Single(reloaded.State.Characters.Reserve);
+        }
+        finally
+        {
+            Directory.Delete(folder, true);
+        }
+    }
+
+    [Fact]
+    public void TheEntryToAHubAndEachSaveOfAHubTakeTheSaveOfTheRunAndDropTheIntentsBeforeIt()
+    {
+        // Exit test 17 of PR-14 (D-224, D-1115, D-1132): the entry to a hub takes the autosave, and
+        // each save calls `GameRun.Save`, so the record drops the intents before it.
+        Run run = GroupRun();
+        Intent step = run.IntentOf("step_east");
+        for (int tick = 0; tick < 30; tick += 1)
+        {
+            run.Advance(OneTick, () => step);
+        }
+
+        Assert.Equal(30, run.RecordedLines);
+        GoToHub(run);
+
+        (SaveKind kind, SaveDocument autosave) = Assert.Single(run.TakeSaves());
+        Assert.Equal(SaveKind.Autosave, kind);
+        Assert.Equal(HubId.Value, autosave.Snapshot.Map!.Map.Value);
+        Assert.Equal(run.Tick, autosave.Snapshot.Tick);
+        Assert.Equal(0, run.RecordedLines);
+        Assert.Equal(run.Tick, run.Record().Snapshot.Tick);
+        Assert.Empty(run.TakeSaves());
+
+        FaceTheWaystone(run);
+        Assert.True(run.RecordedLines > 0);
+        SaveDocument slot = SaveAtTheWaystone(run);
+
+        Assert.Equal(0, run.RecordedLines);
+        Assert.Equal(slot.Snapshot.Tick, run.Record().Snapshot.Tick);
+    }
+
+    [Fact]
+    public void AConfirmOnTheKeeperOpensTheRestServiceAndTheRestClosesTheMenu()
+    {
+        // D-390, D-1131: the confirm opens the service in the rules, and the window of Game sends the
+        // rest intent and then the close. A rest writes no save.
+        Run run = Run.Start(DebugAssemblyFile.Handlers());
+        GoToHub(run);
+        _ = run.TakeSaves();
+
+        // The keeper stands at (6, 3) behind the bar, so the lead faces him from (6, 4).
+        StepTiles(run, "step_north", 1);
+        StepTiles(run, "step_east", 2);
+        StepTiles(run, "step_north", 1);
+        Assert.Equal(new TilePoint(6, 4), run.State.Party.LeadAt);
+        run.Queue(run.IntentOf("confirm"));
+        run.Advance(OneTick);
+
+        MapService opened = Assert.Single(run.TakeOpenedServices());
+        Assert.Equal(ServiceKind.Rest, opened.Kind);
+        Assert.True(run.MenuOpen);
+        GameValue choice = GameValue.New("ServiceChoice", opened.Kind);
+        run.Queue((Intent)choice.Call("Confirm")!);
+        run.Queue(Intent.OfPlayer(IntentIds.CloseMenu));
+        run.Advance(OneTick);
+
+        Assert.False(run.MenuOpen);
+        Assert.Empty(run.TakeSaves());
+        Assert.Empty(run.TakeOpenedServices());
+    }
+
+    /// <summary>Starts the run of the group of four: three in the party and one in the reserve, on the first map (exit test 1 of PR-14, D-1144).</summary>
+    private static Run GroupRun()
+    {
+        Run start = Run.Start(ReserveContent.Content, DebugAssemblyFile.Handlers());
+        SaveDocument first = start.Save();
+        SaveDocument grouped = first with { Snapshot = ReserveContent.WithReserve(first.Snapshot, 1) };
+        Run run = Run.Reload(ReserveContent.Content, grouped, null, Seed, DebugAssemblyFile.Handlers(), []);
+        Assert.Equal(3, run.State.Characters.Members.Count);
+        Assert.Single(run.State.Characters.Reserve);
+        return run;
+    }
+
+    /// <summary>Types the debug command `goto` with the fixture hub, and runs its tick (D-1133).</summary>
+    private static void GoToHub(Run run)
+    {
+        _ = DebugAssemblyFile.Run($"goto {HubId.Value}", () => run.State, run.Queue);
+        run.Advance(OneTick);
+        Assert.Equal(HubId.Value, run.State.Party.Map.Id.Value);
+    }
+
+    /// <summary>
+    /// Walks the lead from the spawn point of the hub to the tile under the waystone at (14, 2),
+    /// facing north: one tile north, ten east through the doorway, and two north.
+    /// </summary>
+    private static void FaceTheWaystone(Run run)
+    {
+        StepTiles(run, "step_north", 1);
+        StepTiles(run, "step_east", 10);
+        StepTiles(run, "step_north", 2);
+        Assert.Equal(new TilePoint(14, 3), run.State.Party.LeadAt);
+        Assert.Equal(StepDirection.North, run.State.Party.Facing);
+    }
+
+    /// <summary>
+    /// Confirms the waystone, and chooses the save in its window as the menu host does: the save
+    /// intent, then the close (D-1132). The run collects one slot save.
+    /// </summary>
+    private static SaveDocument SaveAtTheWaystone(Run run)
+    {
+        run.Queue(run.IntentOf("confirm"));
+        run.Advance(OneTick);
+        MapService opened = Assert.Single(run.TakeOpenedServices());
+        Assert.Equal(ServiceKind.Save, opened.Kind);
+        Assert.True(run.MenuOpen);
+
+        GameValue choice = GameValue.New("ServiceChoice", opened.Kind);
+        run.Queue((Intent)choice.Call("Confirm")!);
+        run.Queue(Intent.OfPlayer(IntentIds.CloseMenu));
+        run.Advance(OneTick);
+
+        (SaveKind kind, SaveDocument slot) = Assert.Single(run.TakeSaves());
+        Assert.Equal(SaveKind.Slot, kind);
+        return slot;
+    }
+
+    /// <summary>
+    /// Steps the lead a count of tiles in one direction, one step intent at a time. An NPC in the
+    /// way turns the lead with no step, so the next tick tries again (D-1139).
+    /// </summary>
+    private static void StepTiles(Run run, string action, int tiles)
+    {
+        Intent step = run.IntentOf(action);
+        for (int tile = 0; tile < tiles; tile += 1)
+        {
+            TilePoint from = run.State.Party.LeadAt;
+            int tick = 0;
+            while (run.State.Party.LeadAt == from || run.State.Party.Stepping is not null)
+            {
+                Assert.True(tick < 600, $"The lead stood at {from} for 600 ticks on the action '{action}' (T-2).");
+                bool standing = run.State.Party.Stepping is null && run.State.Party.LeadAt == from;
+                run.Advance(OneTick, standing ? () => step : null);
+                tick += 1;
+            }
+        }
+    }
+
+    private static List<SaveKind> Kinds(List<(SaveKind Kind, SaveDocument Document)> saves)
+    {
+        List<SaveKind> kinds = [];
+        foreach ((SaveKind kind, SaveDocument _) in saves)
+        {
+            kinds.Add(kind);
+        }
+
+        return kinds;
+    }
+
     private sealed class Run
     {
         private readonly object instance;
@@ -455,14 +667,19 @@ public sealed class GameRunTests
 
         public static Run Start() => Start(DebugIntentHandlers.None);
 
-        public static Run Reload(SaveDocument? slot, SaveDocument? autosave, ulong seed, List<LogEntry> log)
+        public static Run Start(DebugIntentHandlers handlers) => Start(Content.Value, handlers);
+
+        public static Run Reload(SaveDocument? slot, SaveDocument? autosave, ulong seed, List<LogEntry> log) =>
+            Reload(Content.Value, slot, autosave, seed, DebugIntentHandlers.None, log);
+
+        public static Run Reload(ContentSet content, SaveDocument? slot, SaveDocument? autosave, ulong seed, DebugIntentHandlers handlers, List<LogEntry> log)
         {
             Type type = GameAssemblyFile.Type(RunTypeName);
             MethodInfo reload = type.GetMethod(
                 "Reload",
                 [typeof(ContentSet), typeof(SaveDocument), typeof(SaveDocument), typeof(ulong), typeof(DebugIntentHandlers), typeof(MessageSpeed), typeof(List<LogEntry>)])
                 ?? throw new InvalidOperationException("The run holds no 'Reload' method (T-2).");
-            object instance = reload.Invoke(null, [Content.Value, slot, autosave, seed, DebugIntentHandlers.None, MessageSpeed.Normal, log])
+            object instance = reload.Invoke(null, [content, slot, autosave, seed, handlers, MessageSpeed.Normal, log])
                 ?? throw new InvalidOperationException("The 'Reload' method gave no run (T-2).");
             return new Run(type, instance);
         }
@@ -471,7 +688,7 @@ public sealed class GameRunTests
             (SaveDocument)(this.instance.GetType().GetMethod("Save", Type.EmptyTypes)!.Invoke(this.instance, Type.EmptyTypes)
                 ?? throw new InvalidOperationException("The 'Save' method gave nothing (T-2)."));
 
-        public static Run Start(DebugIntentHandlers handlers)
+        public static Run Start(ContentSet content, DebugIntentHandlers handlers)
         {
             Type type = GameAssemblyFile.Type(RunTypeName);
             MethodInfo start = type.GetMethod(
@@ -481,12 +698,32 @@ public sealed class GameRunTests
 
             // A test run passes no debug handler, as a release build does. The tests of the
             // console pass the handlers of the debug assembly (D-260, D-492).
-            object instance = start.Invoke(null, [Content.Value, Seed, handlers, MessageSpeed.Normal])
+            object instance = start.Invoke(null, [content, Seed, handlers, MessageSpeed.Normal])
                 ?? throw new InvalidOperationException("The 'Start' method gave no run (T-2).");
             return new Run(type, instance);
         }
 
         public void Queue(Intent intent) => this.queue.Invoke(this.instance, [intent]);
+
+        public ulong StateHash() => (ulong)(this.instance.GetType().GetMethod("StateHash", Type.EmptyTypes)!.Invoke(this.instance, Type.EmptyTypes)
+            ?? throw new InvalidOperationException("The 'StateHash' method gave nothing (T-2)."));
+
+        public IReadOnlyList<MapService> TakeOpenedServices() =>
+            (IReadOnlyList<MapService>)(this.instance.GetType().GetMethod("TakeOpenedServices", Type.EmptyTypes)!.Invoke(this.instance, Type.EmptyTypes)
+                ?? throw new InvalidOperationException("The 'TakeOpenedServices' method gave nothing (T-2)."));
+
+        public List<(SaveKind Kind, SaveDocument Document)> TakeSaves()
+        {
+            var taken = (IEnumerable)(this.instance.GetType().GetMethod("TakeSaves", Type.EmptyTypes)!.Invoke(this.instance, Type.EmptyTypes)
+                ?? throw new InvalidOperationException("The 'TakeSaves' method gave nothing (T-2)."));
+            List<(SaveKind, SaveDocument)> saves = [];
+            foreach (object write in taken)
+            {
+                saves.Add(((SaveKind)write.GetType().GetProperty("Kind")!.GetValue(write)!, (SaveDocument)write.GetType().GetProperty("Document")!.GetValue(write)!));
+            }
+
+            return saves;
+        }
 
         public IReadOnlyList<LogEntry> Advance(double seconds, Func<Intent?>? heldStep = null) =>
             (IReadOnlyList<LogEntry>)(this.advance.Invoke(this.instance, [seconds, heldStep])

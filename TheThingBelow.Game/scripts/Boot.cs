@@ -161,6 +161,8 @@ public partial class Boot : Node
                 this.WriteLog(this.run.Advance(delta, this.HeldStepIntent));
             }
 
+            this.WriteSaves(this.run);
+            this.OpenServices(this.run);
             if (this.run.WipeReady)
             {
                 this.ReloadAfterWipe();
@@ -181,6 +183,52 @@ public partial class Boot : Node
         catch (Exception fault)
         {
             this.ReportCrash(fault);
+        }
+    }
+
+    /// <summary>
+    /// Writes each save that a rule asked for in the ticks of this frame: the slot save of a hub
+    /// service and the autosave of the entry to a hub (D-224, D-1132). The run took each document
+    /// through `GameRun.Save`, so the record dropped the intents before it (D-1115).
+    /// </summary>
+    /// <param name="open">The run.</param>
+    /// <exception cref="StorageException">The system refused the folder or the write, and the crash path reports it (T-2).</exception>
+    private void WriteSaves(GameRun open)
+    {
+        IReadOnlyList<SaveWrite> writes = open.TakeSaves();
+        if (writes.Count == 0)
+        {
+            return;
+        }
+
+        SaveStore store = SaveStore.OfThisSystem();
+        foreach (SaveWrite write in writes)
+        {
+            store.Write(write.Kind, write.Document);
+            this.WriteLog([new LogEntry(
+                LogLevel.Info,
+                "the session wrote a save",
+                open.Tick,
+                LogSubsystems.Game,
+                [new LogField("save", SaveStore.FileNameOf(write.Kind)), LogField.OfNumber("save_tick", write.Document.Snapshot.Tick), new LogField("path", store.PathOf(write.Kind))])]);
+        }
+    }
+
+    /// <summary>
+    /// Opens the window of each hub service that a confirm opened in the ticks of this frame
+    /// (D-1131, D-1132). The rules opened the menu with the service, so the host sends no open
+    /// intent, and the held steps end, as they end when the menu opens (T-2).
+    /// </summary>
+    /// <param name="open">The run.</param>
+    /// <exception cref="InvalidOperationException">The session built no menu host, or a window is already open (T-2).</exception>
+    private void OpenServices(GameRun open)
+    {
+        foreach (MapService service in open.TakeOpenedServices())
+        {
+            MenuHost host = this.menus ?? throw new InvalidOperationException(
+                $"The service '{service.Id.Value}' opened at tick {open.Tick}, and the session built no menu host (T-2).");
+            this.held.Clear();
+            host.OpenService(service.Kind);
         }
     }
 
@@ -1082,6 +1130,7 @@ public partial class Boot : Node
             bool menu = string.CompareOrdinal(action, InputActions.Menu) == 0;
             bool map = string.CompareOrdinal(action, InputActions.Map) == 0;
             bool torch = string.CompareOrdinal(action, InputActions.Torch) == 0;
+            bool confirm = string.CompareOrdinal(action, InputActions.Confirm) == 0;
             if (torch)
             {
                 // The torch works on the walk alone, with the torch in the pack, and the rules
@@ -1113,14 +1162,21 @@ public partial class Boot : Node
                     LogSubsystems.Game,
                     [new LogField("action", action)])]);
             }
+            else if (confirm && run.MenuWorks)
+            {
+                // The confirm acts on the faced tile: it talks with an NPC or opens a service of a
+                // hub, and the rules refuse it under a menu, in a fight, and in a story scene, as
+                // they refuse the menu (D-1131, T-2). An opened service comes back after the tick.
+                run.Queue(made);
+            }
             else
             {
-                // No rule of this build reads the choice intents. PR-16 gives them the
-                // door, the chest, and the save point of a map, and the session logs each
-                // one until then (D-493, G-16).
+                // No rule of this build reads the cancel intent, and the rules refuse the confirm
+                // off the walk. PR-16 gives the confirm the door, the chest, and the save point of a
+                // map, and the session logs each intent that no rule reads (D-493, D-1131, G-16).
                 this.WriteLog([new LogEntry(
                     LogLevel.Debug,
-                    "the player made an intent that no rule of this build reads",
+                    "the player made an intent that no rule reads now",
                     run.Tick,
                     LogSubsystems.Game,
                     [new LogField("action", action), new LogField("intent", made.Action.Value)])]);
@@ -2116,9 +2172,10 @@ public partial class Boot : Node
         new() { Axis = axis, Device = device, AxisValue = value };
 
     /// <summary>
-    /// Opens each window of the menu stack with the `ui_*` actions, as a player does, and the
-    /// dungeon map screen, and shows one notice in the notice box (D-211, D-221, D-986). Each window
-    /// reads its strings, so a string id that the table lacks fails every CI leg (T-2).
+    /// Opens each window of the menu stack with the `ui_*` actions, as a player does, the dungeon
+    /// map screen, and the window of each hub service, and shows one notice in the notice box (D-211,
+    /// D-221, D-986, D-1131). Each window reads its strings, so a string id that the table lacks
+    /// fails every CI leg (T-2).
     /// </summary>
     /// <param name="loaded">The content set of this build.</param>
     /// <returns>The count of windows that opened, the row of the lead after the party window, and the notice.</returns>
@@ -2158,6 +2215,19 @@ public partial class Boot : Node
         host.Read(new InputEventAction { Action = "ui_cancel", Pressed = true });
         opened += 1;
         this.WriteLog(session.Advance(1.0 / FixedStepLoop.TicksPerSecond));
+
+        // The window of each service opens under the menu that the rules opened, and leave closes it
+        // with no service, because the lead faces no host on the dungeon (D-1131, D-1141).
+        foreach (ServiceKind kind in ServiceKinds.All)
+        {
+            session.Queue(Intent.OfPlayer(IntentIds.OpenMenu));
+            this.WriteLog(session.Advance(1.0 / FixedStepLoop.TicksPerSecond));
+            host.OpenService(kind);
+            host.Read(new InputEventAction { Action = "ui_down", Pressed = true });
+            host.Read(new InputEventAction { Action = "ui_accept", Pressed = true });
+            opened += 1;
+            this.WriteLog(session.Advance(1.0 / FixedStepLoop.TicksPerSecond));
+        }
 
         Core.Notices.NoticeRecord notice = loaded.Notices.FirstThatLogs(true);
         var noticeBox = new NoticeBox(built, shownBase);

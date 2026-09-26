@@ -8,7 +8,7 @@ namespace TheThingBelow.Storage;
 /// <summary>The three saves of the game (D-62, D-258, D-656).</summary>
 public enum SaveKind
 {
-    /// <summary>The one slot save, which a save point writes by the choice of the player (D-62).</summary>
+    /// <summary>The one slot save, which the save service of a hub and a save point write by the choice of the player (D-62, D-1132).</summary>
     Slot,
 
     /// <summary>The autosave, which a hub and a node of the region map write (D-224).</summary>
@@ -27,7 +27,8 @@ public enum SaveKind
 /// whole. Every read gives the header and the snapshot of the save, and a load resumes the
 /// run from that snapshot alone (D-259).
 /// <para>
-/// The moment of each save is the work of Game, and PR-16 sets it (D-224, D-651).
+/// The moment of each save is the work of Game. PR-14 writes the slot save of a hub service and
+/// the autosave of the entry to a hub, and PR-16 adds the save points (D-224, D-651, D-1132).
 /// </para>
 /// </remarks>
 public sealed class SaveStore
