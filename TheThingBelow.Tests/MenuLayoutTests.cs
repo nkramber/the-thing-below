@@ -59,9 +59,9 @@ public sealed class MenuLayoutTests
     [InlineData(32)]
     public void EachLineOfTheShopWindowTheGoldAndThePricedRestFits(int body)
     {
-        // D-1156, D-1158 to D-1160, D-1164: the shop menu and the gold panel stand as wide as the main
-        // list, and each line of the list window fits the task line with the largest numbers of a
-        // region: a price of 9999, a count of 10, and a gold of 999999.
+        // D-1156, D-1158, D-1160, D-1165, D-1167: the shop menu, the gold panel, and the stats panel
+        // stand as wide as the main list. Each column of the list window and each line of the popup
+        // fit with the largest numbers of a region: a price of 9999, a count of 10, and a gold of 999999.
         int list = UiCharacters(body, (int)GameValue.Constant(Layout, "MainListWidth") - (Pad() * 2));
         foreach (object mode in (IEnumerable)GameValue.StaticProperty("ShopCursor", "Modes")!)
         {
@@ -70,22 +70,22 @@ public sealed class MenuLayoutTests
         }
 
         Assert.True(Fill("menu.gold", "gold", "999999").Length <= list, $"The gold line passes the {list} characters of its panel at a body of {body}.");
+        Assert.True(Fill("menu.stat", "stat", "ATK", "value", "-99").Length <= list, $"A stat line passes the {list} characters of the stats panel at a body of {body}.");
         Assert.True(Fill("menu.rest_priced", "price", "999").Length <= 16, "The priced rest passes 16 characters.");
 
         int task = (int)GameValue.Static(Layout, "TaskLineCharacters", body)!;
-        int right = task - (task * 45 / 100);
-        string[] rights =
-        [
-            Fill("menu.shop_entry_left", "price", "9999", "count", "10", "limit", "10", "left", "10"),
-            Fill("menu.shop_sale", "each", "9999", "count", "10"),
-            Fill("menu.shop_unwanted", "count", "10"),
-        ];
-        foreach (string text in rights)
+        int column = task * 25 / 100;
+        foreach (string text in new[] { Fill("menu.shop_price", "price", "9999"), Text(Id("menu.shop_unwanted")) })
         {
-            Assert.True(text.Length <= right, $"The entry '{text}' passes the {right} characters of the right column at a body of {body}.");
+            Assert.True(text.Length < column, $"The price '{text}' passes the {column} characters of its column at a body of {body}.");
         }
 
-        foreach (string id in new[] { "menu.shop_buy_help", "menu.shop_sell_help", "menu.shop_no_room", "menu.shop_no_gold", "menu.shop_not_bought", "menu.shop_empty", "menu.rest_short" })
+        foreach (string text in new[] { Fill("menu.shop_left", "left", "10"), Fill("menu.shop_held", "count", "10") })
+        {
+            Assert.True(text.Length <= task - (task * 70 / 100), $"The amount '{text}' passes its column at a body of {body}.");
+        }
+
+        foreach (string id in new[] { "menu.shop_buy_help", "menu.shop_sell_help", "menu.shop_not_bought", "menu.shop_empty", "menu.rest_short", "menu.shop_equip_ask", "menu.shop_equip_who", "menu.shop_replace", "menu.yes", "menu.no" })
         {
             Assert.True(Text(Id(id)).Length <= task, $"The line of '{id}' passes the {task} characters of the window at a body of {body}.");
         }

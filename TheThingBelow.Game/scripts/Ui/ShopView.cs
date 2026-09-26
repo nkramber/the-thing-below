@@ -10,41 +10,50 @@ using TheThingBelow.Core.Shops;
 namespace TheThingBelow.Game.Ui;
 
 /// <summary>
-/// The shop window: the shop menu with the gold under it, and the list window to its right with
-/// the change of each fighter for a piece of gear, the list, the count, and the line of help
-/// (D-1149 to D-1160, D-1164).
+/// The shop window: the shop menu with the gold under it, the list window to its right, the stats
+/// of a piece of gear at the bottom left, and the popup of the equip step after a buy of gear
+/// (D-1149 to D-1160, D-1164 to D-1167).
 /// </summary>
 /// <remarks>
 /// The shop menu stands where the main list stands, and the list window stands where a task window
-/// stands, so the shop reads as the menu of the walk (D-211, D-1164). The list window shows after
-/// a choice of buy or sell. The window makes one intent for each count that the player confirms,
-/// and never changes the run itself. The change lands on the next tick, and the window shows it on
-/// the frame after (D-493, T-7). Every label takes its text from the string table through the text
-/// helper (G-7, D-499).
+/// stands, so the shop reads as the menu of the walk (D-211, D-1164). The list window shows after a
+/// choice of buy or sell. Its list starts right under the title, and each value stands in a column
+/// of its own (D-1165). The window makes one intent for each whole choice and never changes the run
+/// itself. The change lands on the next tick, and the window shows it on the frame after (D-493,
+/// T-7). Every label takes its text from the string table through the text helper (G-7, D-499).
 /// </remarks>
 public sealed class ShopView : IMenuView
 {
-    /// <summary>The lines above the list: the names of the stats, and one line for each of the three fighters (D-1159).</summary>
-    private const int HeadLines = 4;
+    /// <summary>The share of the inner width of the list window that the name column takes, in hundredths.</summary>
+    private const int NameShare = 45;
 
-    /// <summary>The share of the inner width of the list window that the left column of the list takes, in hundredths.</summary>
-    private const int LeftShare = 45;
+    /// <summary>The share of the inner width of the list window that the price column takes, in hundredths.</summary>
+    private const int PriceShare = 25;
+
+    /// <summary>The most lines of the popup under its title: two rows for each character of a full party (D-31, D-1167).</summary>
+    private const int PopupRows = BattleFixture.MostCharacters * 2;
 
     /// <summary>The string id of the name of each stat that gear changes, in the order of the cells (D-1052, D-1056).</summary>
     private static readonly string[] StatNames = ["battle.stat_atk", "battle.stat_mag", "battle.stat_def", "battle.stat_res", "battle.stat_spd"];
 
     private readonly UiBase ui;
+    private readonly StringTable strings;
     private readonly RunState state;
     private readonly Control layer;
     private readonly Control listWindow;
+    private readonly Control statsPanel;
+    private readonly Control popup;
     private readonly List<Label> modeLines = [];
     private readonly GoldPanel gold;
     private readonly Label title;
-    private readonly List<Label> statNames = [];
-    private readonly List<Label> fighterNames = [];
-    private readonly List<List<Label>> fighterCells = [];
-    private readonly List<Label> lefts = [];
-    private readonly List<Label> rights = [];
+    private readonly List<Label> names = [];
+    private readonly List<Label> prices = [];
+    private readonly List<Label> amounts = [];
+    private readonly List<Label> statLines = [];
+    private readonly Label popupTitle;
+    private readonly List<Label> popupStatNames = [];
+    private readonly List<Label> popupNames = [];
+    private readonly List<List<Label>> popupCells = [];
     private readonly Label countLine;
     private readonly Label help;
     private readonly Color chosenColor;
@@ -58,17 +67,20 @@ public sealed class ShopView : IMenuView
     /// <summary>Builds the shop window, with the cursor on the buy of the shop menu.</summary>
     /// <param name="frame">The frame, whose UI layer takes the window.</param>
     /// <param name="ui">The atlas, the theme, and the text helper.</param>
+    /// <param name="strings">The string table, which gives the name of each stat (D-1056).</param>
     /// <param name="state">The state of the run, which the window reads on each frame and never changes.</param>
     /// <param name="cursor">The cursor, which the window keeps when the screen builds again.</param>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
-    public ShopView(FrameRoot frame, UiBase ui, RunState state, ShopCursor cursor)
+    public ShopView(FrameRoot frame, UiBase ui, StringTable strings, RunState state, ShopCursor cursor)
     {
         ArgumentNullException.ThrowIfNull(frame);
         ArgumentNullException.ThrowIfNull(ui);
+        ArgumentNullException.ThrowIfNull(strings);
         ArgumentNullException.ThrowIfNull(state);
         ArgumentNullException.ThrowIfNull(cursor);
 
         this.ui = ui;
+        this.strings = strings;
         this.state = state;
         this.Cursor = cursor;
         this.chosenColor = ui.Theme.ColorOf("text_chosen");
@@ -91,73 +103,80 @@ public sealed class ShopView : IMenuView
 
         this.gold = new GoldPanel(this.layer, ui, state, menu);
 
-        // The list window hangs on a layer of its own, which shows after a choice of buy or sell.
-        this.listWindow = new Control
-        {
-            Position = Vector2.Zero,
-            Size = new Vector2(ScreenFit.FrameWidth, ScreenFit.FrameHeight),
-            MouseFilter = Control.MouseFilterEnum.Ignore,
-        };
-        this.layer.AddChild(this.listWindow);
-        FrameBox box = MenuLayout.TaskBox();
-        MenuNodes.Panel(this.listWindow, box);
-        this.title = new Label
-        {
-            Position = new Vector2(box.X + MenuLayout.Pad, box.Y + MenuLayout.Pad),
-            ThemeTypeVariation = UiTheme.TitleVariation,
-        };
-        this.listWindow.AddChild(this.title);
-
-        int left = box.X + MenuLayout.Pad;
-        int inner = box.Width - (MenuLayout.Pad * 2);
-        int first = MenuLayout.FirstLineTop(body, ui.Theme.TitleSize);
-        int cell = CellWidth();
-        int nameWidth = inner - (cell * StatNames.Length);
+        // The stats of a piece stand in a panel of their own at the bottom left (D-1165).
+        this.statsPanel = SubLayer(this.layer);
+        FrameBox stats = MenuLayout.StatsBox(body, StatNames.Length);
+        MenuNodes.Panel(this.statsPanel, stats);
         for (int stat = 0; stat < StatNames.Length; stat += 1)
         {
-            Label name = MenuNodes.Line(this.listWindow, left + nameWidth + (cell * stat), first, cell, line);
-            ui.Text.Put(name, Id(StatNames[stat]));
-            MenuNodes.Paint(name, this.dimColor);
-            this.statNames.Add(name);
+            this.statLines.Add(MenuNodes.Line(this.statsPanel, stats.X + MenuLayout.Pad, stats.Y + MenuLayout.Pad + (stat * line), stats.Width - (MenuLayout.Pad * 2), line));
         }
 
-        for (int fighter = 0; fighter < BattleFixture.MostCharacters; fighter += 1)
-        {
-            int row = first + (line * (fighter + 1));
-            this.fighterNames.Add(MenuNodes.Line(this.listWindow, left, row, nameWidth, line));
-            List<Label> cells = [];
-            for (int stat = 0; stat < StatNames.Length; stat += 1)
-            {
-                cells.Add(MenuNodes.Line(this.listWindow, left + nameWidth + (cell * stat), row, cell, line));
-            }
+        // The list window shows after a choice of buy or sell.
+        this.listWindow = SubLayer(this.layer);
+        FrameBox box = MenuLayout.TaskBox();
+        MenuNodes.Panel(this.listWindow, box);
+        this.title = TitleLine(this.listWindow, box);
+        int left = box.X + MenuLayout.Pad;
+        int inner = box.Width - (MenuLayout.Pad * 2);
+        int nameWidth = inner * NameShare / 100;
+        int priceWidth = inner * PriceShare / 100;
+        int first = MenuLayout.FirstLineTop(body, ui.Theme.TitleSize);
 
-            this.fighterCells.Add(cells);
-        }
-
-        // The list takes each line between the fighters and the count line above the line of help.
-        int leftWidth = inner * LeftShare / 100;
-        int listLines = MenuLayout.LogLines(body, ui.Theme.TitleSize) - HeadLines - 2;
+        // The list takes each line between the title and the count line above the line of help.
+        int listLines = MenuLayout.LogLines(body, ui.Theme.TitleSize) - 2;
         for (int index = 0; index < listLines; index += 1)
         {
-            int row = first + (line * (HeadLines + index));
-            this.lefts.Add(MenuNodes.Line(this.listWindow, left, row, leftWidth, line));
-            this.rights.Add(MenuNodes.Line(this.listWindow, left + leftWidth, row, inner - leftWidth, line));
+            int row = first + (line * index);
+            this.names.Add(MenuNodes.Line(this.listWindow, left, row, nameWidth, line));
+            this.prices.Add(MenuNodes.Line(this.listWindow, left + nameWidth, row, priceWidth, line));
+            this.amounts.Add(MenuNodes.Line(this.listWindow, left + nameWidth + priceWidth, row, inner - nameWidth - priceWidth, line));
         }
 
         int bottom = box.Y + box.Height - MenuLayout.Pad - line;
         this.countLine = MenuNodes.Line(this.listWindow, left, bottom - line, inner, line);
         MenuNodes.Paint(this.countLine, this.chosenColor);
         this.help = MenuNodes.Line(this.listWindow, left, bottom, inner, line);
+
+        // The popup of the equip step stands over the middle of the list window (D-1167).
+        this.popup = SubLayer(this.layer);
+        FrameBox pop = PopupBox(body, ui.Theme.TitleSize);
+        MenuNodes.Panel(this.popup, pop);
+        int popLeft = pop.X + MenuLayout.Pad;
+        int cell = PopupCellWidth();
+        int popName = pop.Width - (MenuLayout.Pad * 2) - (cell * StatNames.Length);
+        this.popupTitle = MenuNodes.Line(this.popup, popLeft, pop.Y + MenuLayout.Pad, pop.Width - (MenuLayout.Pad * 2), line);
+        for (int stat = 0; stat < StatNames.Length; stat += 1)
+        {
+            Label name = MenuNodes.Line(this.popup, popLeft + popName + (cell * stat), pop.Y + MenuLayout.Pad + line, cell, line);
+            ui.Text.Put(name, Id(StatNames[stat]));
+            MenuNodes.Paint(name, this.dimColor);
+            this.popupStatNames.Add(name);
+        }
+
+        for (int row = 0; row < PopupRows; row += 1)
+        {
+            int y = pop.Y + MenuLayout.Pad + (line * (row + 2));
+            this.popupNames.Add(MenuNodes.Line(this.popup, popLeft, y, popName, line));
+            List<Label> cells = [];
+            for (int stat = 0; stat < StatNames.Length; stat += 1)
+            {
+                cells.Add(MenuNodes.Line(this.popup, popLeft + popName + (cell * stat), y, cell, line));
+            }
+
+            this.popupCells.Add(cells);
+        }
+
         this.Show();
     }
 
     /// <summary>The cursor of the window.</summary>
     public ShopCursor Cursor { get; }
 
-    /// <summary>Gives the count of characters that one cell of a line of stats holds at a body size (D-1159).</summary>
+    /// <summary>Gives the count of characters that one stat cell of the popup holds at a body size (D-1167).</summary>
     /// <param name="body">The body size, in frame pixels (D-707).</param>
     /// <returns>The count of whole characters.</returns>
-    public static int StatCellCharacters(int body) => UiMetrics.CharactersAcross(body, CellWidth());
+    public static int StatCellCharacters(int body) => UiMetrics.CharactersAcross(body, PopupCellWidth());
 
     /// <summary>Gives the string id of the label of one choice of the shop menu (G-7).</summary>
     /// <param name="mode">The choice.</param>
@@ -184,7 +203,7 @@ public sealed class ShopView : IMenuView
     });
 
     /// <summary>Takes the intent of the last whole choice, once.</summary>
-    /// <returns>The buy intent or the sale intent, or no value when the last read made none.</returns>
+    /// <returns>The buy intent, the sale intent, or the wear intent, or no value when the last read made none.</returns>
     public Intent? TakeIntent()
     {
         Intent? taken = this.made;
@@ -214,24 +233,62 @@ public sealed class ShopView : IMenuView
 
         this.gold.Show();
         this.listWindow.Visible = cursor.Stage != ShopStage.Mode;
+        this.popup.Visible = cursor.Stage is ShopStage.EquipAsk or ShopStage.EquipWho or ShopStage.EquipSlot;
+        this.ShowStats();
         if (cursor.Stage == ShopStage.Mode)
         {
             return;
         }
 
         this.ui.Text.Put(this.title, ModeIdOf(cursor.Mode));
-        this.ShowFighters();
         this.ShowList();
         this.ShowCount();
         ContentId? refusal = cursor.Refusal();
-        this.ui.Text.Put(this.help, refusal ?? cursor.Thing ?? ModeHelpOf(cursor.Mode));
+        this.ui.Text.Put(this.help, refusal ?? cursor.EquipPiece ?? cursor.Thing ?? ModeHelpOf(cursor.Mode));
         MenuNodes.Paint(this.help, refusal is null ? this.dimColor : this.warningColor);
+        if (this.popup.Visible)
+        {
+            this.ShowPopup();
+        }
     }
 
     /// <inheritdoc/>
     public void Free() => this.layer.QueueFree();
 
-    private static int CellWidth() => (MenuLayout.TaskBox().Width - (MenuLayout.Pad * 2)) / (StatNames.Length + 1);
+    private static Control SubLayer(Control parent)
+    {
+        var sub = new Control
+        {
+            Position = Vector2.Zero,
+            Size = new Vector2(ScreenFit.FrameWidth, ScreenFit.FrameHeight),
+            MouseFilter = Control.MouseFilterEnum.Ignore,
+        };
+        parent.AddChild(sub);
+        return sub;
+    }
+
+    private static Label TitleLine(Control parent, FrameBox box)
+    {
+        var label = new Label
+        {
+            Position = new Vector2(box.X + MenuLayout.Pad, box.Y + MenuLayout.Pad),
+            ThemeTypeVariation = UiTheme.TitleVariation,
+        };
+        parent.AddChild(label);
+        return label;
+    }
+
+    /// <summary>Gives the place of the popup: as wide as the list window, with one line of title, one of the stat names, and <see cref="PopupRows"/> rows. Its top stands in the gap above the third line of the list, so it cuts no line of text.</summary>
+    private static FrameBox PopupBox(int body, int titleSize)
+    {
+        FrameBox box = MenuLayout.TaskBox();
+        int height = (MenuLayout.Pad * 2) + (MenuLayout.LineOf(body) * (PopupRows + 2));
+        int line = MenuLayout.LineOf(body);
+        int top = MenuLayout.FirstLineTop(body, titleSize) + (line * 2) - MenuLayout.LineGap;
+        return new FrameBox(box.X, top, box.Width, height);
+    }
+
+    private static int PopupCellWidth() => (MenuLayout.TaskBox().Width - (MenuLayout.Pad * 2)) / (StatNames.Length + 1);
 
     private static ContentId Id(string value) => ContentId.Parse(value, StringTable.Path, nameof(ShopView));
 
@@ -250,56 +307,37 @@ public sealed class ShopView : IMenuView
         return values;
     }
 
-    /// <summary>
-    /// Shows the change of each fighter for the piece of gear under the cursor of the buy list: the
-    /// whole stat, green with the gain and red with the loss (D-1159). Another thing shows no line.
-    /// </summary>
-    private void ShowFighters()
+    /// <summary>Gives the piece of gear under the cursor of the list, or the piece of the equip step, or no value.</summary>
+    private GearRecord? ShownPiece()
     {
-        GearRecord? piece = this.Cursor.Mode == ShopMode.Buy && this.Cursor.Thing is ContentId thing && this.state.BattleContent.Gear.Holds(thing)
-            ? this.state.BattleContent.Gear.Piece(thing)
-            : null;
-        foreach (Label name in this.statNames)
+        GearList gear = this.state.BattleContent.Gear;
+        ContentId? thing = this.Cursor.EquipPiece ?? (this.Cursor.Stage == ShopStage.Mode ? null : this.Cursor.Thing);
+        return thing is ContentId id && gear.Holds(id) ? gear.Piece(id) : null;
+    }
+
+    /// <summary>Shows the stats of the piece of gear under the cursor, and of no character (D-1165).</summary>
+    private void ShowStats()
+    {
+        GearRecord? piece = this.ShownPiece();
+        this.statsPanel.Visible = piece is not null;
+        if (piece is null)
         {
-            name.Visible = piece is not null;
+            return;
         }
 
-        IReadOnlyList<PartyMember> members = this.state.Characters.Members;
-        for (int fighter = 0; fighter < this.fighterNames.Count; fighter += 1)
+        int[] values = [piece.Attack, piece.Magic, piece.Defense, piece.Resistance, piece.Speed];
+        for (int stat = 0; stat < StatNames.Length; stat += 1)
         {
-            bool shown = piece is not null && fighter < members.Count;
-            this.fighterNames[fighter].Visible = shown;
-            foreach (Label cell in this.fighterCells[fighter])
-            {
-                cell.Visible = shown;
-            }
-
-            if (!shown)
-            {
-                continue;
-            }
-
-            PartyMember member = members[fighter];
-            this.ui.Text.Put(this.fighterNames[fighter], BattleMessages.NameIdOf(member.Record.Id));
-            int[] worn = ValuesOf(member.StatsWith(this.state.BattleContent.Gear));
-            int[] trial = ValuesOf(this.Cursor.TrialOf(member, piece!));
-            for (int stat = 0; stat < StatNames.Length; stat += 1)
-            {
-                Label cell = this.fighterCells[fighter][stat];
-                IReadOnlyDictionary<string, string> values = trial[stat] == worn[stat]
-                    ? Values(("value", Number(trial[stat])))
-                    : Values(("change", Number(Math.Abs(trial[stat] - worn[stat]))), ("value", Number(trial[stat])));
-                this.ui.Text.Put(cell, GearView.TrialIdOf(worn[stat], trial[stat]), values);
-                MenuNodes.Paint(cell, trial[stat] > worn[stat] ? this.gainColor : trial[stat] < worn[stat] ? this.lossColor : this.dimColor);
-            }
+            this.ui.Text.Put(this.statLines[stat], Id("menu.stat"), Values(("stat", this.strings.Text(Id(StatNames[stat]))), ("value", Number(values[stat]))));
+            MenuNodes.Paint(this.statLines[stat], values[stat] == 0 ? this.dimColor : null);
         }
     }
 
-    /// <summary>Shows the lines of the list of the mode, from the line at the top of the scroll.</summary>
+    /// <summary>Shows the lines of the list of the mode, from the line at the top of the scroll. Each value stands in its own column (D-1165).</summary>
     private void ShowList()
     {
         List<Entry> entries = this.Entries();
-        int shown = this.lefts.Count;
+        int shown = this.names.Count;
         int cursor = Math.Min(this.Cursor.Cursor, Math.Max(0, entries.Count - 1));
         this.top = Math.Clamp(this.top, Math.Max(0, cursor - shown + 1), cursor);
         for (int index = 0; index < shown; index += 1)
@@ -307,12 +345,13 @@ public sealed class ShopView : IMenuView
             int at = this.top + index;
             bool empty = entries.Count == 0 && index == 0;
             bool filled = at < entries.Count;
-            this.lefts[index].Visible = filled || empty;
-            this.rights[index].Visible = filled;
+            this.names[index].Visible = filled || empty;
+            this.prices[index].Visible = filled && entries[at].Price is not null;
+            this.amounts[index].Visible = filled && entries[at].Amount is not null;
             if (empty)
             {
-                this.ui.Text.Put(this.lefts[index], Id("menu.shop_empty"));
-                MenuNodes.Paint(this.lefts[index], this.dimColor);
+                this.ui.Text.Put(this.names[index], Id("menu.shop_empty"));
+                MenuNodes.Paint(this.names[index], this.dimColor);
                 continue;
             }
 
@@ -322,15 +361,25 @@ public sealed class ShopView : IMenuView
             }
 
             Entry entry = entries[at];
-            this.ui.Text.Put(this.lefts[index], BattleMessages.NameIdOf(entry.Thing));
-            this.ui.Text.Put(this.rights[index], entry.Right, entry.RightValues);
+            this.ui.Text.Put(this.names[index], BattleMessages.NameIdOf(entry.Thing));
+            if (entry.Price is (ContentId price, IReadOnlyDictionary<string, string> priceValues))
+            {
+                this.ui.Text.Put(this.prices[index], price, priceValues);
+            }
+
+            if (entry.Amount is (ContentId amount, IReadOnlyDictionary<string, string> amountValues))
+            {
+                this.ui.Text.Put(this.amounts[index], amount, amountValues);
+            }
+
             Color? color = at == cursor ? this.chosenColor : entry.Allowed ? null : this.dimColor;
-            MenuNodes.Paint(this.lefts[index], color);
-            MenuNodes.Paint(this.rights[index], color);
+            MenuNodes.Paint(this.names[index], color);
+            MenuNodes.Paint(this.prices[index], color);
+            MenuNodes.Paint(this.amounts[index], color);
         }
     }
 
-    /// <summary>Shows the count and its total in the count stage, and no line in the list stage (D-1158).</summary>
+    /// <summary>Shows the count and its total in the count stage, and no line in the other stages (D-1158).</summary>
     private void ShowCount()
     {
         ShopCursor cursor = this.Cursor;
@@ -346,7 +395,114 @@ public sealed class ShopView : IMenuView
         this.ui.Text.Put(this.countLine, Id("menu.shop_count"), Values(("count", Number(cursor.Count)), ("total", Number(checked(each * cursor.Count)))));
     }
 
-    /// <summary>Gives the entries of the list of the mode, with the right column of each.</summary>
+    /// <summary>
+    /// Shows the popup of the equip step: the question, the list of the characters with the change
+    /// of each slot that the piece can take, or the two full accessory slots with the change of the
+    /// slot under the cursor alone (D-1167).
+    /// </summary>
+    private void ShowPopup()
+    {
+        ShopCursor cursor = this.Cursor;
+        foreach (Label name in this.popupStatNames)
+        {
+            name.Visible = cursor.Stage != ShopStage.EquipAsk;
+        }
+
+        int row = 0;
+        switch (cursor.Stage)
+        {
+            case ShopStage.EquipAsk:
+                this.ui.Text.Put(this.popupTitle, Id("menu.shop_equip_ask"));
+                this.PutChoice(row++, Id("menu.yes"), cursor.AskCursor == ShopCursor.Yes);
+                this.PutChoice(row++, Id("menu.no"), cursor.AskCursor == ShopCursor.No);
+                break;
+            case ShopStage.EquipWho:
+                this.ui.Text.Put(this.popupTitle, Id("menu.shop_equip_who"));
+                IReadOnlyList<PartyMember> members = this.state.Characters.Members;
+                for (int who = 0; who < members.Count; who += 1)
+                {
+                    IReadOnlyList<int> slots = cursor.SlotsFor(members[who]);
+                    for (int place = 0; place < slots.Count; place += 1)
+                    {
+                        ContentId? name = place == 0 ? BattleMessages.NameIdOf(members[who].Record.Id) : null;
+                        this.PutTrial(row++, name, members[who], slots[place], who == cursor.WhoCursor);
+                    }
+                }
+
+                break;
+            default:
+                this.ui.Text.Put(this.popupTitle, Id("menu.shop_replace"));
+                PartyMember wearer = this.state.Characters.Members[cursor.WhoCursor];
+                IReadOnlyList<int> full = cursor.SlotsFor(wearer);
+                for (int place = 0; place < full.Count; place += 1)
+                {
+                    ContentId worn = wearer.Gear[full[place]] ?? throw new InvalidOperationException($"The accessory slot {full[place]} of '{wearer.Record.Id.Value}' holds no piece, and the window asks which piece to replace (T-2).");
+                    bool chosen = place == cursor.SlotCursor;
+                    if (chosen)
+                    {
+                        this.PutTrial(row++, BattleMessages.NameIdOf(worn), wearer, full[place], true);
+                    }
+                    else
+                    {
+                        this.PutChoice(row++, BattleMessages.NameIdOf(worn), false);
+                    }
+                }
+
+                break;
+        }
+
+        for (; row < PopupRows; row += 1)
+        {
+            this.popupNames[row].Visible = false;
+            this.SetCells(row, false);
+        }
+    }
+
+    /// <summary>Puts one row of the popup with a name alone.</summary>
+    private void PutChoice(int row, ContentId name, bool chosen)
+    {
+        this.popupNames[row].Visible = true;
+        this.ui.Text.Put(this.popupNames[row], name);
+        MenuNodes.Paint(this.popupNames[row], chosen ? this.chosenColor : null);
+        this.SetCells(row, false);
+    }
+
+    /// <summary>
+    /// Puts one row of the popup: a name or none, and the stats of the character with the piece in
+    /// one slot, green with the gain and red with the loss, as the gear window shows them (D-1060).
+    /// </summary>
+    private void PutTrial(int row, ContentId? name, PartyMember member, int slot, bool chosen)
+    {
+        this.popupNames[row].Visible = name is not null;
+        if (name is ContentId shown)
+        {
+            this.ui.Text.Put(this.popupNames[row], shown);
+            MenuNodes.Paint(this.popupNames[row], chosen ? this.chosenColor : null);
+        }
+
+        this.SetCells(row, true);
+        int[] worn = ValuesOf(member.StatsWith(this.state.BattleContent.Gear));
+        int[] trial = ValuesOf(this.Cursor.TrialOf(member, slot));
+        for (int stat = 0; stat < StatNames.Length; stat += 1)
+        {
+            Label cell = this.popupCells[row][stat];
+            IReadOnlyDictionary<string, string> values = trial[stat] == worn[stat]
+                ? Values(("value", Number(trial[stat])))
+                : Values(("change", Number(Math.Abs(trial[stat] - worn[stat]))), ("value", Number(trial[stat])));
+            this.ui.Text.Put(cell, GearView.TrialIdOf(worn[stat], trial[stat]), values);
+            MenuNodes.Paint(cell, trial[stat] > worn[stat] ? this.gainColor : trial[stat] < worn[stat] ? this.lossColor : this.dimColor);
+        }
+    }
+
+    private void SetCells(int row, bool visible)
+    {
+        foreach (Label cell in this.popupCells[row])
+        {
+            cell.Visible = visible;
+        }
+    }
+
+    /// <summary>Gives the entries of the list of the mode, with the price column and the amount column of each (D-1165).</summary>
     private List<Entry> Entries()
     {
         List<Entry> entries = [];
@@ -355,10 +511,10 @@ public sealed class ShopView : IMenuView
             foreach (ContentId thing in this.Cursor.SellEntries)
             {
                 int each = ShopRules.SaleOf(this.state, this.Cursor.Shop, thing);
-                string held = Number(this.state.Characters.CountOf(thing));
-                entries.Add(each > 0
-                    ? new Entry(thing, Id("menu.shop_sale"), Values(("each", Number(each)), ("count", held)), true)
-                    : new Entry(thing, Id("menu.shop_unwanted"), Values(("count", held)), false));
+                (ContentId, IReadOnlyDictionary<string, string>) price = each > 0
+                    ? (Id("menu.shop_price"), Values(("price", Number(each))))
+                    : (Id("menu.shop_unwanted"), Values());
+                entries.Add(new Entry(thing, price, (Id("menu.shop_held"), Values(("count", Number(this.state.Characters.CountOf(thing))))), each > 0));
             }
 
             return entries;
@@ -366,19 +522,10 @@ public sealed class ShopView : IMenuView
 
         foreach (StockEntry stock in this.Cursor.BuyEntries)
         {
-            bool allowed = ShopRules.LimitOf(this.state, this.Cursor.Shop, stock).Refusal == BuyRefusal.None;
-            string price = Number(stock.Price);
-            if (stock.Kind == StockKind.Lesson)
-            {
-                entries.Add(new Entry(stock.Thing, Id("menu.shop_lesson"), Values(("price", price)), allowed));
-                continue;
-            }
-
-            string count = Number(this.state.Characters.OwnedCount(stock.Thing));
-            string limit = Number(this.state.BattleContent.LimitOf(stock.Thing));
-            entries.Add(this.state.Shops.LeftOf(this.Cursor.Shop, stock) is int left
-                ? new Entry(stock.Thing, Id("menu.shop_entry_left"), Values(("price", price), ("count", count), ("limit", limit), ("left", Number(left))), allowed)
-                : new Entry(stock.Thing, Id("menu.shop_entry"), Values(("price", price), ("count", count), ("limit", limit)), allowed));
+            (ContentId, IReadOnlyDictionary<string, string>)? left = this.state.Shops.LeftOf(this.Cursor.Shop, stock) is int count
+                ? (Id("menu.shop_left"), Values(("left", Number(count))))
+                : null;
+            entries.Add(new Entry(stock.Thing, (Id("menu.shop_price"), Values(("price", Number(stock.Price)))), left, true));
         }
 
         return entries;
@@ -419,7 +566,7 @@ public sealed class ShopView : IMenuView
         return ViewOutcome.Stay;
     }
 
-    /// <summary>Points the cursor of the stage at the line under the mouse, and confirms it on a click (D-872). The count stage takes no point.</summary>
+    /// <summary>Points the cursor of the shop menu or of the list at the line under the mouse, and confirms it on a click (D-872). The count and the popup take a click alone.</summary>
     private ViewOutcome ReadMouse(InputEventMouse mouse, ScreenFit fit)
     {
         if (this.Cursor.Stage == ShopStage.Mode)
@@ -433,12 +580,12 @@ public sealed class ShopView : IMenuView
             return MenuNodes.IsClick(mouse) ? this.Confirm() : ViewOutcome.Stay;
         }
 
-        if (this.Cursor.Stage == ShopStage.Count)
+        if (this.Cursor.Stage != ShopStage.List)
         {
             return MenuNodes.IsClick(mouse) ? this.Confirm() : ViewOutcome.Stay;
         }
 
-        if ((MenuNodes.LineUnder(this.lefts, mouse, fit) ?? MenuNodes.LineUnder(this.rights, mouse, fit)) is not int line
+        if ((MenuNodes.LineUnder(this.names, mouse, fit) ?? MenuNodes.LineUnder(this.prices, mouse, fit) ?? MenuNodes.LineUnder(this.amounts, mouse, fit)) is not int line
             || this.top + line >= this.Cursor.ListCount)
         {
             return ViewOutcome.Stay;
@@ -448,7 +595,7 @@ public sealed class ShopView : IMenuView
         return MenuNodes.IsClick(mouse) ? this.Confirm() : ViewOutcome.Stay;
     }
 
-    /// <summary>Confirms the line under the cursor: leave closes the window, and a count makes its intent.</summary>
+    /// <summary>Confirms the line under the cursor: leave closes the window, and a whole choice makes its intent.</summary>
     private ViewOutcome Confirm()
     {
         if (this.Cursor.LeaveChosen)
@@ -460,6 +607,10 @@ public sealed class ShopView : IMenuView
         return this.made is null ? ViewOutcome.Stay : ViewOutcome.Chose;
     }
 
-    /// <summary>One line of the list: the thing, the right text with its values, and whether the party can take it now.</summary>
-    private sealed record Entry(ContentId Thing, ContentId Right, IReadOnlyDictionary<string, string> RightValues, bool Allowed);
+    /// <summary>One line of the list: the thing, the price column, the amount column, and whether the party can take it.</summary>
+    private sealed record Entry(
+        ContentId Thing,
+        (ContentId Id, IReadOnlyDictionary<string, string> Values)? Price,
+        (ContentId Id, IReadOnlyDictionary<string, string> Values)? Amount,
+        bool Allowed);
 }

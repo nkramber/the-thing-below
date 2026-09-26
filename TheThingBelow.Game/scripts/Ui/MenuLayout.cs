@@ -70,6 +70,16 @@ public static class MenuLayout
     public static FrameBox ShopMenuBox(int body) =>
         new(UiMetrics.EdgePixels, UiMetrics.EdgePixels, MainListWidth, (Pad * 2) + (LineOf(body) * ShopCursor.Modes.Count));
 
+    /// <summary>Gives the place of the stats panel of the shop at the bottom left: one line for each stat that gear changes (D-1165).</summary>
+    /// <param name="body">The body size, in frame pixels.</param>
+    /// <param name="lines">The count of lines of the panel.</param>
+    /// <returns>The box at the bottom left of the frame, as wide as the main list.</returns>
+    public static FrameBox StatsBox(int body, int lines)
+    {
+        int height = (Pad * 2) + (LineOf(body) * lines);
+        return new(UiMetrics.EdgePixels, ScreenFit.FrameHeight - UiMetrics.EdgePixels - height, MainListWidth, height);
+    }
+
     /// <summary>Gives the place of the gold panel, one line under a window of the left column (D-1160).</summary>
     /// <param name="above">The window above the panel: the main list, the shop menu, or the rest window.</param>
     /// <param name="body">The body size, in frame pixels.</param>

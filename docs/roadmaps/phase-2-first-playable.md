@@ -1959,7 +1959,8 @@ Area file: `area-exploration.md` section 7.12.
 - The gold economy: gold from enemies, which buys gear, items, lessons, and rest (D-60). PR-16 adds the gold of a chest (D-1161).
 - The gold range of each enemy, which the battle stream rolls at a win, and its message line after the summary of PR-67 (D-835, D-975, D-1157).
 - The shop service of a hub, on an NPC or a service point, with its condition (D-543, D-1131).
-- The shop screen in the window stack of PR-62: the buy, the sale, the count, and the gear stats of each fighter (D-1158, D-1159).
+- The shop screen in the window stack of PR-62: the buy, the sale, the count, and the stats of a piece (D-1158, D-1165).
+- The equip step after a buy of gear (D-1167).
 - The stock of each shop in content: a price on each entry, and a count or `unlimited` (D-1149, D-1152).
 - The shop types in content, with a rate for each category (D-1151).
 - The value on each item and gear record, and the sale rules (D-1150, D-1154, D-1155).
@@ -1981,7 +1982,7 @@ Area file: `area-exploration.md` section 7.12.
 2. A sale pays the value times the rate of the shop type, rounded down, and at least 1 gold (D-1150, D-1155).
 3. A shop type with a rate of 0 refuses the sale of that category (D-1151).
 4. Worn gear, a key item, and a lesson never sell (D-1154).
-5. A buy with no room in the pack fails, and the screen says why (D-385, D-1158).
+5. An entry at its stack limit leaves the list, and the rule refuses a buy past the limit (D-385, D-1166).
 6. A buy of a counted entry lowers its count, and an entry at 0 leaves the list (D-1152).
 7. A story flag closes a shop, and the shop refuses the party (D-319).
 8. The snapshot and the save hold the gold and each count that remains (D-1152).
@@ -1989,6 +1990,7 @@ Area file: `area-exploration.md` section 7.12.
 10. A win adds the rolled gold of each fallen enemy, and a replay gives the same gold (D-1157, T-7).
 11. A fled fight gives no gold (D-60, D-1157).
 12. A rest takes its price, and the rest window refuses a rest past the gold and says why (D-1156).
+13. Yes after a buy of gear equips the copy, and the replaced piece goes to the pack (D-1167).
 
 **Review focus.**
 

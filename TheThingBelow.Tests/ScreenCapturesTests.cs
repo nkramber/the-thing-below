@@ -114,6 +114,8 @@ public sealed class ScreenCapturesTests
         "menu-shop-buy-1x.png",
         "menu-shop-count-1x.png",
         "menu-shop-sell-1x.png",
+        "menu-shop-equip-1x.png",
+        "menu-shop-who-1x.png",
         "menu-list-fill-1080.png",
         "notice-type-1x.png",
         "notice-hold-1x.png",
@@ -155,6 +157,8 @@ public sealed class ScreenCapturesTests
         "menu-shop-buy-fill-1080.png",
         "menu-shop-count-fill-1080.png",
         "menu-shop-sell-fill-1080.png",
+        "menu-shop-equip-fill-1080.png",
+        "menu-shop-who-fill-1080.png",
         "battle-target-fill-1080.png",
         "battle-lessons-fill-1080.png",
         "battle-forms-fill-1080.png",
@@ -217,8 +221,8 @@ public sealed class ScreenCapturesTests
         // PR-14 adds the fixture hub at 1x, at the screen of the Steam Deck, and at 1080 rows
         // (exit test 18 of PR-14), and the window of the rest service and of the save service at
         // both body sizes to the menu names (D-1131, D-1132).
-        // PR-65 adds the buy list, the count, and the sale list of the shop window at both body sizes
-        // to the menu names (D-1158, D-1159, D-1164).
+        // PR-65 adds the buy list, the count, the sale list, and the equip step of the shop window at both body sizes
+        // to the menu names (D-1158, D-1165, D-1167).
         Assert.Equal(10 + 34 + 1 + 19 + 3 + 14 + 2 + 11 + 1 + MenuNames.Length + SmallBodyNames.Length + HubNames.Length + DeckAndCrashNames.Length, FileNames().Count);
     }
 

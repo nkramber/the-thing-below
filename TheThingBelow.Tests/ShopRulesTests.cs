@@ -117,9 +117,10 @@ public sealed class ShopRulesTests
     }
 
     [Fact]
-    public void ABuyWithNoRoomInThePackGivesItsReasonAndTheRuleRefusesIt()
+    public void AnEntryAtItsStackLimitLeavesTheListAndTheRuleRefusesABuy()
     {
-        // Exit test 5 (D-385, D-1158): 3 draughts of a limit of 5 leave room for 2.
+        // Exit test 5 (D-385, D-1166): 3 draughts of a limit of 5 leave room for 2, and a full
+        // stack leaves the list.
         Simulation run = OpenStore(1000);
         ShopRecord store = StoreOf(run);
         StockEntry draught = Entry(store, Draught);
@@ -128,8 +129,9 @@ public sealed class ShopRulesTests
         Buy(run, Draught, 2);
 
         Assert.Equal(new BuyLimit(0, BuyRefusal.NoRoom), ShopRules.LimitOf(run.State, store, draught));
+        Assert.DoesNotContain(Draught.Value, Things(ShopRules.Shown(run.State, store)));
         SimulationException error = Assert.Throws<SimulationException>(() => run.Step([Intent.OfShopBuy(Draught, 1)]));
-        Assert.Contains("and the most is 0 (D-1158, T-2)", error.Message, StringComparison.Ordinal);
+        Assert.Contains("shows no such entry", error.Message, StringComparison.Ordinal);
         Assert.Contains($"seed {Seed}", error.Message, StringComparison.Ordinal);
     }
 

@@ -53,8 +53,9 @@ public static class ShopRules
     }
 
     /// <summary>
-    /// Gives the entries that a shop shows, in the order of its stock. An entry at a count of 0
-    /// and a lesson that the party owns stay off the list (D-1024, D-1152, D-1153).
+    /// Gives the entries that a shop shows, in the order of its stock. An entry at a count of 0,
+    /// a lesson that the party owns, and an entry at its stack limit stay off the list (D-1024,
+    /// D-1152, D-1153, D-1166).
     /// </summary>
     /// <param name="state">The run.</param>
     /// <param name="shop">The shop.</param>
@@ -69,7 +70,8 @@ public static class ShopRules
         {
             bool soldOut = state.Shops.LeftOf(shop, entry) == 0;
             bool owned = entry.Kind == StockKind.Lesson && state.Characters.Owns(entry.Thing);
-            if (!soldOut && !owned)
+            bool full = entry.Kind != StockKind.Lesson && LimitOf(state, shop, entry).Refusal == BuyRefusal.NoRoom;
+            if (!soldOut && !owned && !full)
             {
                 shown.Add(entry);
             }

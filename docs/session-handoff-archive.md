@@ -1,5 +1,44 @@
 # Session handoff archive
 
+## Session 318: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR-106, round 1. Repository: the-thing-below. Branch: `fix/pr-106-gate-trust`. PR: the one PR of PR-106. Role: author. Base: `d875322`.
+
+### What this session did, and why
+
+- The owner put the six open findings of the repository review of 2026-09-24 in one PR (D-1121). G-8 stands for every other PR.
+- P3-9: both tools list the commits of the first parent, a merge lists its paths, and a record names the full hash (D-1125). A settings file of `.claude/` after an approval needs a new review (D-1122). `Gitar` joins the required checks (D-1123), and no stamp goes into a record (D-1124).
+- P3-37: the map draws the start of the tick while the world holds (D-1126).
+- P3-24: the remap screen names the key of the layout through a string id (D-1128).
+- P3-25: the screen compare names each step of one level, and the job pins the loader and Xvfb and logs its CPU (D-1127).
+- P3-26: both sessions run a planted crash, and 19 new captures add body 24 and 1280 by 800 (D-1130).
+- P3-36: the budgets count the flicker and the spell burst, and each light texture builds one time (D-1129). The simulation version rises to 30.
+
+### The state of the build
+
+- On the Mac, build, format, lint, identity, content, atlas, and smoke pass. `make test` fails 19 cases of `TheBaselineHoldsThisCapture`, one for each new capture with no baseline.
+- The remote head is the push of this round.
+
+### What is in flight
+
+- The baselines of the 19 new captures come from the `screen-captures` artifact of the first CI run. The author reads each frame before the commit (D-784).
+- The owner sets the `Gitar` context in the live protection of `main` (D-1123).
+
+### Traps and gotchas
+
+- The live `review-gate` check of this PR runs the workflow of `main`, so it reads the old commit list (F-37).
+- A worktree of an agent under `.claude/worktrees/` is a git repository. The local exclude file of this checkout lists the folder.
+- The headless display writes an error line on a read of the keyboard layout, so the remap screen reads the physical key there.
+
+### The questions that block progress
+
+None. OQ-246 holds the cause of the screen flake.
+
+### The next concrete action
+
+Take the 19 baselines from the artifact, read each frame, commit them, and push. Then run the Gitar pass and `make codex-review`.
+
 ## Session 317: 2026-09-25, Claude Code
 
 Author: Claude Code

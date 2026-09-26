@@ -377,7 +377,7 @@ public sealed class MenuHost
         MenuWindowKind.DungeonMap => new DungeonMapView(this.frame, this.ui, this.run.Party),
         MenuWindowKind.Rest or MenuWindowKind.Save => new ServiceView(this.frame, this.ui, this.run.State, this.serviceChoice ?? throw new InvalidOperationException(
             $"The window '{kind}' builds at tick {this.run.Tick}, and the host made no cursor for it (T-2).")),
-        MenuWindowKind.Shop => new ShopView(this.frame, this.ui, this.run.State, this.shopCursor ?? throw new InvalidOperationException(
+        MenuWindowKind.Shop => new ShopView(this.frame, this.ui, this.content.Strings, this.run.State, this.shopCursor ?? throw new InvalidOperationException(
             $"The shop window builds at tick {this.run.Tick}, and the host made no cursor for it (T-2).")),
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "The menu builds no such window (T-2)."),
     };

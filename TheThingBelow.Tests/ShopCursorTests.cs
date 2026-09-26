@@ -19,6 +19,7 @@ public sealed class ShopCursorTests
     private static readonly ContentId Salts = Id("item.test_salts");
     private static readonly ContentId Helm = Id("gear.test_helm");
     private static readonly ContentId Charm = Id("gear.test_weak_charm");
+    private static readonly ContentId Blade = Id("gear.test_blade");
 
     [Fact]
     public void TheMenuOffersBuySellAndLeaveAndLeaveClosesTheWindow()
@@ -62,13 +63,13 @@ public sealed class ShopCursorTests
     }
 
     [Fact]
-    public void AnEntryThatThePartyCannotBuyGivesItsReasonAndOpensNoCount()
+    public void AnEntryThatTheGoldCannotPayGivesNoReasonAndOpensNoCount()
     {
-        // D-385, D-1158: 10 gold pays for no draught at 20, and the line of help says why.
+        // D-1166: 10 gold pays for no draught at 20, and the confirm does nothing, with no line of help.
         GameValue cursor = Cursor(ShopRulesTests.OpenStore(10));
         cursor.Call("Confirm");
 
-        Assert.Equal("menu.shop_no_gold", ((ContentId?)cursor.Call("Refusal"))?.Value);
+        Assert.Null(cursor.Call("Refusal"));
         Assert.Null(cursor.Call("Confirm"));
         Assert.Equal("List", cursor.Name("Stage"));
     }
@@ -126,19 +127,107 @@ public sealed class ShopCursorTests
     }
 
     [Fact]
-    public void TheTrialOfAFighterPutsThePieceInTheFirstEmptySlotOfItsKind()
+    public void ABuyOfGearAsksToEquipEachCopyAndNoLeavesEachInThePack()
     {
-        // D-1159: Marrek wears no gear, so the helm adds its defense and the charm fills the first accessory slot.
-        Simulation run = ShopRulesTests.OpenStore(0);
+        // D-1167: two blades take two questions, and no or back leaves each copy in the pack.
+        Simulation run = ShopRulesTests.OpenStore(1000);
         GameValue cursor = Cursor(run);
+        run.Step([BuyThrough(cursor, Blade, 2)]);
+        Assert.Equal(("EquipAsk", Blade.Value), (cursor.Name("Stage"), cursor.Read<ContentId>("EquipPiece").Value));
+
+        cursor.Call("Move", 1);
+        Assert.Null(cursor.Call("Confirm"));
+        Assert.Equal(("EquipAsk", 0), (cursor.Name("Stage"), cursor.Read<int>("AskCursor")));
+        Assert.False((bool)cursor.Call("Cancel")!);
+
+        Assert.Equal("List", cursor.Name("Stage"));
+        Assert.Null(cursor.Read<object?>("EquipPiece"));
+        Assert.Equal(2, run.State.Characters.CountOf(Blade));
+    }
+
+    [Fact]
+    public void YesEquipsTheCopyOnTheChosenCharacterAndTheChangeReadsItsSlot()
+    {
+        // D-1167: Marrek wears no helm, so the helm goes in the head slot and adds its defense.
+        Simulation run = ShopRulesTests.OpenStore(1000);
+        GameValue cursor = Cursor(run);
+        run.Step([BuyThrough(cursor, Helm, 1)]);
+        Assert.Null(cursor.Call("Confirm"));
+        Assert.Equal("EquipWho", cursor.Name("Stage"));
+
         PartyMember marrek = run.State.Characters.Members[0];
-        StatRow worn = marrek.StatsWith(run.State.BattleContent.Gear);
+        int head = Assert.Single((System.Collections.Generic.IReadOnlyList<int>)cursor.Call("SlotsFor", marrek)!);
+        StatRow trial = (StatRow)cursor.Call("TrialOf", marrek, head)!;
+        Assert.Equal(marrek.StatsWith(run.State.BattleContent.Gear).Defense + 1, trial.Defense);
+        Intent worn = (Intent?)cursor.Call("Confirm") ?? throw new InvalidOperationException("The equip step sent no intent.");
 
-        StatRow helm = (StatRow)cursor.Call("TrialOf", marrek, run.State.BattleContent.Gear.Piece(Helm))!;
-        StatRow charm = (StatRow)cursor.Call("TrialOf", marrek, run.State.BattleContent.Gear.Piece(Charm))!;
+        Assert.Equal((IntentIds.GearWear.Value, 0, head, Helm.Value), (worn.Action.Value, worn.Actor, worn.Option, worn.Item?.Value));
+        Assert.Equal("List", cursor.Name("Stage"));
+        run.Step([worn]);
+        Assert.Equal(Helm.Value, run.State.Characters.Members[0].Gear[head]?.Value);
+        Assert.Equal(0, run.State.Characters.CountOf(Helm));
+    }
 
-        Assert.Equal(worn.Defense + 1, helm.Defense);
-        Assert.Equal((worn.Magic + 2, worn.Speed + 2, worn.Resistance - 1), (charm.Magic, charm.Speed, charm.Resistance));
+    [Fact]
+    public void BothFullAccessorySlotsAskWhichOneToReplaceAndAnEmptyOneTakesThePiece()
+    {
+        // D-1167: with both accessory slots full, a confirm on the character asks for the slot, and
+        // the replaced ring goes to the pack. With one slot empty, the piece goes there.
+        ContentId resist = Id("gear.test_resist_ring");
+        ContentId absorb = Id("gear.test_absorb_ring");
+        Simulation full = CharmRun([resist, absorb]);
+        GameValue cursor = Cursor(full);
+        full.Step([BuyThrough(cursor, Charm, 1)]);
+        cursor.Call("Confirm");
+        Assert.Equal([4, 5], (System.Collections.Generic.IReadOnlyList<int>)cursor.Call("SlotsFor", full.State.Characters.Members[0])!);
+
+        Assert.Null(cursor.Call("Confirm"));
+        Assert.Equal("EquipSlot", cursor.Name("Stage"));
+        cursor.Call("Move", 1);
+        Intent worn = (Intent?)cursor.Call("Confirm") ?? throw new InvalidOperationException("The equip step sent no intent.");
+        Assert.Equal((5, Charm.Value), (worn.Option, worn.Item?.Value));
+        full.Step([worn]);
+        Assert.Equal(1, full.State.Characters.CountOf(absorb));
+
+        Simulation half = CharmRun([resist, null]);
+        GameValue other = Cursor(half);
+        half.Step([BuyThrough(other, Charm, 1)]);
+        Assert.Equal([5], (System.Collections.Generic.IReadOnlyList<int>)other.Call("SlotsFor", half.State.Characters.Members[0])!);
+    }
+
+    /// <summary>Opens the buy list, picks a thing, sets a count, and gives the buy intent of the count.</summary>
+    private static Intent BuyThrough(GameValue cursor, ContentId thing, int count)
+    {
+        cursor.Call("Confirm");
+        System.Collections.IList entries = (System.Collections.IList)cursor.Read<object>("BuyEntries");
+        for (int place = 0; place < entries.Count; place += 1)
+        {
+            if (string.Equals(((StockEntry)entries[place]!).Thing.Value, thing.Value, StringComparison.Ordinal))
+            {
+                cursor.Call("Point", place);
+            }
+        }
+
+        cursor.Call("Confirm");
+        for (int step = 1; step < count; step += 1)
+        {
+            cursor.Call("Step", 1);
+        }
+
+        return (Intent?)cursor.Call("Confirm") ?? throw new InvalidOperationException($"The count of '{thing.Value}' sent no buy intent.");
+    }
+
+    /// <summary>Opens a store that sells the charm, with Marrek wearing two accessories or one.</summary>
+    private static Simulation CharmRun(ContentId?[] accessories)
+    {
+        string shops = TestBattles.ShopsFile.Replace(
+            "{ \"gear\": \"gear.test_blade\", \"price\": 80, \"count\": 3 },",
+            "{ \"gear\": \"gear.test_blade\", \"price\": 80, \"count\": 3 },\n        { \"gear\": \"gear.test_weak_charm\", \"price\": 40, \"count\": 1 },",
+            StringComparison.Ordinal);
+        var gear = new ContentId?[GearRules.SlotCount];
+        gear[4] = accessories[0];
+        gear[5] = accessories[1];
+        return ShopRulesTests.OpenStore(1000, party => party with { Characters = [party.Characters[0] with { Gear = gear }] }, TestBattles.WithShops(shops));
     }
 
     private static GameValue Cursor(Simulation run) =>

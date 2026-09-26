@@ -479,7 +479,7 @@
   },
   {
    "id": "menu.gold",
-   "text": "Gold {gold}"
+   "text": "{gold} gold"
   },
   {
    "id": "menu.item_count",
@@ -594,6 +594,10 @@
    "text": "Next -"
   },
   {
+   "id": "menu.no",
+   "text": "No"
+  },
+  {
    "id": "menu.party",
    "text": "Party"
   },
@@ -666,32 +670,32 @@
    "text": "Nothing here."
   },
   {
-   "id": "menu.shop_entry",
-   "text": "{price} gold  {count}/{limit}"
+   "id": "menu.shop_equip_ask",
+   "text": "Equip it now?"
   },
   {
-   "id": "menu.shop_entry_left",
-   "text": "{price} gold  {count}/{limit}  {left} left"
+   "id": "menu.shop_equip_who",
+   "text": "Who wears it?"
   },
   {
-   "id": "menu.shop_lesson",
-   "text": "{price} gold"
+   "id": "menu.shop_held",
+   "text": "x{count}"
   },
   {
-   "id": "menu.shop_no_gold",
-   "text": "Not enough gold."
-  },
-  {
-   "id": "menu.shop_no_room",
-   "text": "No room for more."
+   "id": "menu.shop_left",
+   "text": "{left} left"
   },
   {
    "id": "menu.shop_not_bought",
    "text": "They do not buy that."
   },
   {
-   "id": "menu.shop_sale",
-   "text": "{each} gold  x{count}"
+   "id": "menu.shop_price",
+   "text": "{price} gold"
+  },
+  {
+   "id": "menu.shop_replace",
+   "text": "Replace which one?"
   },
   {
    "id": "menu.shop_sell",
@@ -703,7 +707,7 @@
   },
   {
    "id": "menu.shop_unwanted",
-   "text": "Not wanted  x{count}"
+   "text": "Not wanted"
   },
   {
    "id": "menu.slot_accessory",
@@ -748,6 +752,10 @@
   {
    "id": "menu.swap_help",
    "text": "Pick who comes in. The downed stay out."
+  },
+  {
+   "id": "menu.yes",
+   "text": "Yes"
   },
   {
    "id": "name.fixture_ash_ring",

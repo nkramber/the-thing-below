@@ -457,31 +457,51 @@ public sealed partial class CaptureSession : Node
 
     /// <summary>
     /// Puts the cursor of the shop window on the moment of one shop frame, as a player's presses do:
-    /// the buy list on the hood, a count of 2 draughts, or the sale list (D-1158, D-1159).
+    /// the buy list on the hood, a count of 2 draughts, the sale list, or the equip step after a buy
+    /// of the bone charm, whose buy runs one tick (D-1158, D-1165, D-1167).
     /// </summary>
-    /// <exception cref="InvalidOperationException">The window on top is no shop window, or the list lacks the thing of the frame (T-2).</exception>
-    private static void StageShop(MenuHost host, string frame)
+    /// <exception cref="InvalidOperationException">The window on top is no shop window, the list lacks the thing of the frame, or a stage did not open (T-2).</exception>
+    private void StageShop(MenuHost host, GameRun run, string frame)
     {
         ShopView view = host.Top as ShopView ?? throw new InvalidOperationException($"The frame '{frame}' opened a window that is no shop window (T-2).");
         ShopCursor cursor = view.Cursor;
-        if (string.CompareOrdinal(frame, ScreenCaptures.MenuShopSellFrame) == 0)
+        bool sell = string.CompareOrdinal(frame, ScreenCaptures.MenuShopSellFrame) == 0;
+        if (sell)
         {
             cursor.Move(1);
         }
 
         _ = cursor.Confirm();
-        if (string.CompareOrdinal(frame, ScreenCaptures.MenuShopSellFrame) != 0)
+        if (sell)
         {
-            string thing = string.CompareOrdinal(frame, ScreenCaptures.MenuShopBuyFrame) == 0 ? "gear.fixture_hood" : "item.fixture_draught";
-            cursor.Point(PlaceOf(cursor, thing, frame));
+            view.Show();
+            return;
         }
 
-        if (string.CompareOrdinal(frame, ScreenCaptures.MenuShopCountFrame) == 0 && (cursor.Confirm() is not null || cursor.Stage != ShopStage.Count))
+        string thing = frame switch
         {
-            throw new InvalidOperationException($"The frame '{frame}' confirmed the draught, and the window did not open the count (D-1158, T-2).");
+            ScreenCaptures.MenuShopBuyFrame => "gear.fixture_hood",
+            ScreenCaptures.MenuShopCountFrame => "item.fixture_draught",
+            _ => "gear.fixture_charm",
+        };
+        cursor.Point(PlaceOf(cursor, thing, frame));
+        if (string.CompareOrdinal(frame, ScreenCaptures.MenuShopBuyFrame) != 0 && (cursor.Confirm() is not null || cursor.Stage != ShopStage.Count))
+        {
+            throw new InvalidOperationException($"The frame '{frame}' confirmed '{thing}', and the window did not open the count (D-1158, T-2).");
         }
 
         cursor.Step(1);
+        if (string.CompareOrdinal(frame, ScreenCaptures.MenuShopEquipFrame) == 0 || string.CompareOrdinal(frame, ScreenCaptures.MenuShopWhoFrame) == 0)
+        {
+            Core.Runs.Intent bought = cursor.Confirm() ?? throw new InvalidOperationException($"The frame '{frame}' confirmed the count, and the window made no buy intent (T-2).");
+            run.Queue(bought);
+            this.RunTicks(run, 1);
+            if (string.CompareOrdinal(frame, ScreenCaptures.MenuShopWhoFrame) == 0 && (cursor.Confirm() is not null || cursor.Stage != ShopStage.EquipWho))
+            {
+                throw new InvalidOperationException($"The frame '{frame}' confirmed yes, and the window did not list the characters (D-1167, T-2).");
+            }
+        }
+
         view.Show();
     }
 
@@ -776,7 +796,7 @@ public sealed partial class CaptureSession : Node
         {
             ScreenCaptures.MenuRestFrame => ServiceKind.Rest,
             ScreenCaptures.MenuSaveFrame => ServiceKind.Save,
-            ScreenCaptures.MenuShopBuyFrame or ScreenCaptures.MenuShopCountFrame or ScreenCaptures.MenuShopSellFrame => ServiceKind.Shop,
+            ScreenCaptures.MenuShopBuyFrame or ScreenCaptures.MenuShopCountFrame or ScreenCaptures.MenuShopSellFrame or ScreenCaptures.MenuShopEquipFrame or ScreenCaptures.MenuShopWhoFrame => ServiceKind.Shop,
             _ => null,
         };
         if (serviceKind is ServiceKind kind)
@@ -800,7 +820,7 @@ public sealed partial class CaptureSession : Node
             MenuHost host = OpenService(built, @base, open, this.content);
             if (opened == ServiceKind.Shop)
             {
-                StageShop(host, frame);
+                this.StageShop(host, open, frame);
             }
 
             return;

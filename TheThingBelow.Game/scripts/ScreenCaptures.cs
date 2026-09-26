@@ -204,6 +204,12 @@ public static class ScreenCaptures
     /// <summary>The frame of the menu fixture with the sale list of the pack at the trader, and the gold that each thing pays (D-1150, D-1151).</summary>
     public const string MenuShopSellFrame = "shop-sell-1x";
 
+    /// <summary>The frame of the menu fixture with the question of the equip step after a buy of the bone charm (D-1167).</summary>
+    public const string MenuShopEquipFrame = "shop-equip-1x";
+
+    /// <summary>The frame of the menu fixture with the characters of the equip step and the change of each one for the bone charm (D-1167).</summary>
+    public const string MenuShopWhoFrame = "shop-who-1x";
+
     /// <summary>The gold that the `gold` command gives the party before each frame of the menu fixture that shows the gold (D-1160, D-1162).</summary>
     public const int MenuGold = 250;
 
@@ -626,7 +632,7 @@ public static class ScreenCaptures
 
         // PR-62: the menu stack at 1x, the floor of the Steam Deck, and the main list at 1080 rows,
         // which takes the smaller body (D-707). The notice draws inside its type-out and its hold.
-        foreach (string frame in new[] { MenuListFrame, MenuPartyFrame, MenuStatusFrame, MenuLogFrame, MenuMapFrame, MenuLessonsFrame, MenuLessonsSwapFrame, MenuGearFrame, MenuGearPackFrame, MenuItemsFrame, MenuRestFrame, MenuSaveFrame, MenuShopBuyFrame, MenuShopCountFrame, MenuShopSellFrame })
+        foreach (string frame in new[] { MenuListFrame, MenuPartyFrame, MenuStatusFrame, MenuLogFrame, MenuMapFrame, MenuLessonsFrame, MenuLessonsSwapFrame, MenuGearFrame, MenuGearPackFrame, MenuItemsFrame, MenuRestFrame, MenuSaveFrame, MenuShopBuyFrame, MenuShopCountFrame, MenuShopSellFrame, MenuShopEquipFrame, MenuShopWhoFrame })
         {
             captures.Add(new ScreenCapture(MenuFixture, frame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
         }
@@ -638,7 +644,7 @@ public static class ScreenCaptures
         // G-28: each window of the menu stack, each part of a fight with text, the notice, and the
         // conflict line draw at the body of 24 too, at 1080 rows, where the fit takes that body
         // (D-707, P3-26). Each frame shows the moment of its frame at 1x.
-        foreach (string frame in new[] { MenuPartyFrame, MenuStatusFrame, MenuLogFrame, MenuMapFrame, MenuLessonsFrame, MenuLessonsSwapFrame, MenuGearFrame, MenuGearPackFrame, MenuItemsFrame, MenuRestFrame, MenuSaveFrame, MenuShopBuyFrame, MenuShopCountFrame, MenuShopSellFrame })
+        foreach (string frame in new[] { MenuPartyFrame, MenuStatusFrame, MenuLogFrame, MenuMapFrame, MenuLessonsFrame, MenuLessonsSwapFrame, MenuGearFrame, MenuGearPackFrame, MenuItemsFrame, MenuRestFrame, MenuSaveFrame, MenuShopBuyFrame, MenuShopCountFrame, MenuShopSellFrame, MenuShopEquipFrame, MenuShopWhoFrame })
         {
             captures.Add(new ScreenCapture(MenuFixture, DesktopFrameOf(frame), DesktopWidth, 1080, FitMode.Fill, null));
         }
