@@ -1,3 +1,36 @@
+# Session handoff archive
+## Session 352: 2026-09-27, Codex
+
+Author: Codex
+Session: repeat review PR #89 (PR-108). Repository: the-thing-below. Branch: `review/pr-89`, which tracks `origin/feat/pr-108-night-recovery`. Role: reviewer. Base: `a8ba710`.
+
+### What this session did, and why
+
+- Verified that P1-1 is fixed in `4779565`: the promotion wait resets its 15-minute limit when the open-run set changes (D-1202, T-2).
+- Found P2-1: the wait reads one page of 50 runs and can miss an older open run. The review records the new finding and keeps the prior verdict in history.
+- Verified all three Gitar code findings are closed. The author answered the current CI-analysis item, and the focused workflow tests pass (D-964).
+
+### The state of the build
+
+- `NightWorkflowTests` passes 17/17. CI run `36298048312` passes build, test, and format on each leg, bots, smoke, replay identity, screen test, det-lint, and STE. Night-gate run `36298047521` passes.
+- Review-gate run `36298047516` reports RG 4 and RG 5 from the prior review record. The remote head before metadata commit `7193214` was `548969b`. GitHub confirmed `7193214` as the remote head after its push.
+
+### What is in flight
+
+- The author must correct P2-1 and request another review.
+
+### Traps and gotchas
+
+- The workflow API query reads only 50 runs. A completed newer page can hide an older open run.
+- The newest Gitar dashboard is current on effective head `4779565`. Its three code findings are closed.
+
+### The questions that block progress
+
+None for PR-108. OQ-251 blocks PR-35, and OQ-252 blocks PR-107.
+
+### The next concrete action
+
+Read P2-1, add a pagination regression test, and request a repeat review of PR #89.
 ## Session 351: 2026-09-27, Claude Code
 
 Author: Claude Code
