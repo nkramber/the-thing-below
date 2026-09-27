@@ -1,3 +1,42 @@
+## Session 346: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-108. Repository: the-thing-below. Branch: `feat/pr-108-night-recovery`. PR: the one PR of PR-108. Role: author. Base: `a8ba710`.
+
+### What this session did, and why
+
+- The owner answers of 2026-09-27 are D-1200 to D-1209. OQ-253 is filed and resolved by D-1204. PR-107 now follows PR-108 (D-1200).
+- The alert: a job of the night workflow sends one Pushover message for a failed leg (D-1201). The `notify` workflow sends the other messages (D-1207).
+- The gate fix: the walk of D-1204, and the `night-promote` workflow of D-1202 and D-1203. The action `night-facts` reads the facts for the gate and the promotion.
+- The watcher: the `night-watch` command, its launchd job, and the `night-fix` skill (D-1205 to D-1208).
+- The form line: `battle.form_help` reads `{mp}MP - {text}` (D-1209).
+- `docs/design.md` M-3 keeps the numbers of night 1, run 36290389944.
+
+### The state of the build
+
+- `make test` passed 4,151 tests. Build, format, lint, and STE are clean.
+- The remote head before this push is `a8ba710`, the base.
+
+### What is in flight
+
+- The baselines `battle-forms-1x` and `battle-forms-fill-1080` come from the CI capture of this PR (D-733). Read each frame before the commit (D-784).
+- The Gitar pass, then `make codex-review`.
+- After the merge: `make night-watch-install` on the Mac, and one test message through `notify.yml`.
+
+### Traps and gotchas
+
+- `notify.yml`, `night-promote.yml`, and the facts action first run from `main`, after the merge (F-37). The tests read their text.
+- `CLAUDE.md` sits near its 16 KB limit. The skill list now points to the folder.
+- The watcher needs a desktop session of the owner, because launchd starts the agents there alone.
+
+### The questions that block progress
+
+None for PR-108. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Push, open the PR, run the Gitar poll, and commit the two baselines from the CI capture.
+
 ## Session 345: 2026-09-27, Codex
 
 Author: Codex
@@ -304,36 +343,3 @@ None. OQ-250 blocks no PR yet.
 ### The next concrete action
 
 The owner reads the review record and confirms the merge.
-
-## Session 336: 2026-09-26, Claude Code
-
-Author: Claude Code
-Session: author PR #86 (PR-36), round 2. Repository: the-thing-below. Branch: `feat/pr-36-dialogue`. PR: #86. Role: author. Base: `6f02d3d`.
-
-### What this session did, and why
-
-- The review of `cd1d452` gave `Changes required` for P2-1: the box drew the speaker again on a new line id alone, so a second speaker of the same line kept the first portrait (D-223, D-997).
-- Full merit. `DialogueChange` now decides each redraw with no engine type: the line on each new say step, and the speaker on each change. `ScenePlay.LineStep` names the say step of the line.
-- `ScenePlayTests.ASecondSpeakerOfTheSameLineDrawsItsPortraitAndItsNameAgain` failed on the old rule and passes now. `docs/reviews/pr-86-response.md` records the answer.
-- Gitar approved `e9ff621` and `cd1d452` with no thread. Its CI analysis made four claims, and two PR comments answer them: the baselines, RG 3 two times, and the coverage job.
-
-### The state of the build
-
-- The full suite passes: 3,938 tests. `dotnet format` and det-lint report no finding. CI run `36271984962` passed every job of `cd1d452` but `review-gate`. The remote head is the push of this round.
-
-### What is in flight
-
-- The Gitar pass and CI of this round, then `make codex-review PR=86`.
-
-### Traps and gotchas
-
-- The correction draws no capture differently, so each baseline stands.
-- `DialogueChange` resets when the box hides, so the next line draws in full.
-
-### The questions that block progress
-
-None. OQ-250 blocks no PR yet.
-
-### The next concrete action
-
-When CI is green but `review-gate` and Gitar completes, run `make codex-review PR=86` in the background.

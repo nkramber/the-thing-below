@@ -1,4 +1,36 @@
 # Session handoff archive
+## Session 336: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR #86 (PR-36), round 2. Repository: the-thing-below. Branch: `feat/pr-36-dialogue`. PR: #86. Role: author. Base: `6f02d3d`.
+
+### What this session did, and why
+
+- The review of `cd1d452` gave `Changes required` for P2-1: the box drew the speaker again on a new line id alone, so a second speaker of the same line kept the first portrait (D-223, D-997).
+- Full merit. `DialogueChange` now decides each redraw with no engine type: the line on each new say step, and the speaker on each change. `ScenePlay.LineStep` names the say step of the line.
+- `ScenePlayTests.ASecondSpeakerOfTheSameLineDrawsItsPortraitAndItsNameAgain` failed on the old rule and passes now. `docs/reviews/pr-86-response.md` records the answer.
+- Gitar approved `e9ff621` and `cd1d452` with no thread. Its CI analysis made four claims, and two PR comments answer them: the baselines, RG 3 two times, and the coverage job.
+
+### The state of the build
+
+- The full suite passes: 3,938 tests. `dotnet format` and det-lint report no finding. CI run `36271984962` passed every job of `cd1d452` but `review-gate`. The remote head is the push of this round.
+
+### What is in flight
+
+- The Gitar pass and CI of this round, then `make codex-review PR=86`.
+
+### Traps and gotchas
+
+- The correction draws no capture differently, so each baseline stands.
+- `DialogueChange` resets when the box hides, so the next line draws in full.
+
+### The questions that block progress
+
+None. OQ-250 blocks no PR yet.
+
+### The next concrete action
+
+When CI is green but `review-gate` and Gitar completes, run `make codex-review PR=86` in the background.
 ## Session 335: 2026-09-26, Codex
 
 Author: Codex
