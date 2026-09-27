@@ -1,3 +1,37 @@
+## Session 373: 2026-09-27, Codex
+
+Author: Codex
+Session: repeat review PR #92 (PR-64). Repository: the-thing-below. Branch: `review/pr-92`, tracking `origin/feat/pr-64-traps-hazards`. Role: reviewer. Base: `b7eb8bc`.
+
+### What this session did, and why
+
+- Re-reviewed the fix for P2-1 at effective head `fe1c5ec77e990e82d4f74510e51e07ed0e343926`.
+- The damage trap posts the down notice when one fighter falls and another stands. The wipe case posts no extra down notice (D-392, D-397, D-1241).
+- Updated `docs/reviews/pr-92.md` to close P2-1 and approve the effective head. The new down-notice test fails on `869cc599`.
+- Read the Gitar CI claim. The author answered both review-gate faults, and the log confirms them (D-964).
+
+### The state of the build
+
+- `TrapRulesTests` passed 19/19 on `fe1c5ec7`. The CI implementation checks passed on all three systems.
+- The remote implementation head is `fe1c5ec77e990e82d4f74510e51e07ed0e343926`. The review-gate check waits for this metadata commit.
+
+### What is in flight
+
+- Commit the review record and this handoff entry as one metadata commit. Push to `feat/pr-64-traps-hazards`, then verify the remote head and review-gate result.
+
+### Traps and gotchas
+
+- The full `make sheet` fails in the join, because the sheet passes 65535 rows. `make sheet FIXTURE=pit` joins one fixture.
+- The detached base test at `869cc599` used the two new tests. The down-notice test failed there, as required.
+
+### The questions that block progress
+
+None for PR-64. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Run `make where` and `make ste-check`. Commit the review record and handoff, push with `git push origin HEAD:feat/pr-64-traps-hazards`, then fetch and verify the PR head.
+
 ## Session 372: 2026-09-27, Claude Code
 
 Author: Claude Code
@@ -290,39 +324,3 @@ None for PR-16. OQ-251 blocks PR-35.
 ### The next concrete action
 
 Wait for the Gitar poll and the checks of the baseline commit, then run `make codex-review PR=91` in the background.
-
-## Session 363: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-16, round 1. Repository: the-thing-below. Branch: `feat/pr-16-dungeon-parts`. PR: PR-16, the GitHub number follows the push. Role: author. Base: `78b0d24`.
-
-### What this session did, and why
-
-- The owner answered the design of the dungeon parts: D-1216 to D-1225. The save point and the hub waystone merge into one kind that saves alone (D-1221). PR-19 takes the free rest (D-1218).
-- Core: solid doors, chests, and save points; the door and lock rule with the kept key and the Theft drill; the chest with the fallback and the kept rest; the exit; the memory of each map; the reopen flags; notices with values. Save format 18, and the simulation version 35.
-- Game: the art of the doors, the chests, and the exit; the save window of a save point; the Keyring in the Items window; the exit mark beside a walked tile.
-- The bots take doors, chests, save points, and the exit last. The owner approved one space between the AP cost and AP in the form line, with no record.
-
-### The state of the build
-
-- Local: `make build`, all 4,200 tests, `make format`, `make lint`, the STE check, `make bots`, and `make smoke` pass. The content hash and the identity file are rewritten.
-- The remote head before this push is `78b0d24`, the base.
-
-### What is in flight
-
-- The first push of PR-16, then the Gitar pass and the CI legs. The screen baselines change in CI: the menu items, the map screen, the hub, and the save window.
-
-### Traps and gotchas
-
-- The hall door moved from (11, 4) to (27, 6), so the battle walk and its captures keep their ticks.
-- A patrol sees a lead that touches it, diagonal tiles too, so a test map keeps each patrol off the paths.
-- `make sheet` writes no frame of 1080 rows on a screen smaller than that. The 1x frames are read.
-- Core refuses a list literal with elements, because it pulls in `System.Runtime.InteropServices`.
-
-### The questions that block progress
-
-None for PR-16. OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Open the PR, run the Gitar poll, take the CI screen baselines, and answer each Gitar item before `make codex-review`.
