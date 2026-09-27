@@ -2171,6 +2171,7 @@ Area file: `area-exploration.md` section 7.8.
 - The chest that keeps what the party cannot carry (D-385).
 - The notice of each copy that a chest gives or keeps, and of its gold (D-1224).
 - The dungeon exit, which enters the map that it names, and its mark on the dungeon map screen of PR-62 (D-567, D-993, D-1216). The exit restores nothing (D-1217).
+- The mark of a door, a save point, and an exit beside a walked tile. A shut door and a save point are solid (D-1225).
 - The killed enemy that stays dead until a story event reopens the place (D-555).
 - The chest, the door, and the save point on the confirm rule of PR-14 (D-1131).
 - The fixture drawings of the doors, the chests, and the exit (D-1223).

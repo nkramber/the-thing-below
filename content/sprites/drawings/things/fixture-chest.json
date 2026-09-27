@@ -1,0 +1,49 @@
+{
+ "id": "drawing.fixture_chest",
+ "page": "map_sprites",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "chest.fixture_dungeon_store", "use": "map" },
+  { "content": "chest.fixture_dungeon_cache", "use": "map" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "........kkkkkkkkkkkkkkkk........",
+    "......ktttggttttttttggtttk......",
+    "......kBBBggBBBBBBBBggBBBk......",
+    "......kBBBggBBBBBBBBggBBBk......",
+    "......kBBBggBBBBBBBBggBBBk......",
+    "......kBBBggBkkkkkkBggBBBk......",
+    "......kBBBggBkyyyykBggBBBk......",
+    "......kBBBggBkOOOOkBggBBBk......",
+    ".....kkkkkkkkkOkkOkkkkkkkkk.....",
+    ".....kbbBbggbkOkOOkbggbBbbk.....",
+    ".....kbbBbggbkOOOOkbggbBbbk.....",
+    ".....kbbBbggbkkkkkkbggbBbbk.....",
+    ".....kbbBbggbBbbbbBbggbBbbk.....",
+    ".....kbbBbggbBbbbbBbggbBbbk.....",
+    ".....kbbBbggbBbbbbBbggbBbbk.....",
+    ".....kbbBbggbBbbbbBbggbBbbk.....",
+    ".....kbbBbggbBbbbbBbggbBbbk.....",
+    ".....kbbBbggbBbbbbBbggbBbbk.....",
+    ".....kbbBbggbBbbbbBbggbBbbk.....",
+    ".....kbbbbggbbbbbbbbggbbbbk.....",
+    ".....kkkkkkkkkkkkkkkkkkkkkk.....",
+    "................................"
+   ]
+  }
+ ]
+}

@@ -558,6 +558,22 @@
    "text": "Items"
   },
   {
+   "id": "menu.key_items",
+   "text": "Key items"
+  },
+  {
+   "id": "menu.key_items_help",
+   "text": "Things that stay with you."
+  },
+  {
+   "id": "menu.keyring",
+   "text": "Keyring"
+  },
+  {
+   "id": "menu.keyring_help",
+   "text": "Each key you carry."
+  },
+  {
    "id": "menu.leave",
    "text": "Leave"
   },

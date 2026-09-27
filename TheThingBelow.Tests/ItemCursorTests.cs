@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Runs;
@@ -17,6 +18,8 @@ public sealed class ItemCursorTests
 
     private static readonly ContentId Draught = ContentId.Parse("item.fixture_draught", "test", "item");
     private static readonly ContentId Blade = ContentId.Parse("gear.test_blade", "test", "gear");
+    private static readonly ContentId Torch = ContentId.Parse("item.torch", "test", "item");
+    private static readonly ContentId Key = ContentId.Parse("item.test_key", "test", "item");
 
     [Fact]
     public void AnItemThatChangesNothingShowsDimAndMakesNoIntent()
@@ -81,6 +84,66 @@ public sealed class ItemCursorTests
         cursor.Call("Move", 1);
         Assert.Equal(0, cursor.Read<int>("Cursor"));
         Assert.Null(cursor.Call("Confirm"));
+    }
+
+    [Fact]
+    public void TheKeyItemsSitInTheirOwnListAndEachKeyOnTheKeyring()
+    {
+        // D-1219: the pack list ends with the entry of the key items, which holds the torch and the
+        // Keyring, and the Keyring holds the key. A key item takes no use.
+        Simulation run = InMenu(marrek => marrek);
+        BattleContent content = run.State.BattleContent;
+        Assert.Equal(0, run.State.Characters.Pick(Torch, 1, content));
+        Assert.Equal(0, run.State.Characters.Pick(Key, 1, content));
+        GameValue cursor = GameValue.New("ItemCursor", run.State);
+
+        Assert.Equal([Draught.Value, "KeyItems"], LineNames(cursor));
+        cursor.Call("Point", 1);
+        Assert.True((bool)cursor.Call("AllowsItem", 1)!);
+        Assert.Null(cursor.Call("Confirm"));
+        Assert.Equal("KeyItems", cursor.Name("Stage"));
+        Assert.Equal([Torch.Value, "Keyring"], LineNames(cursor));
+        Assert.False((bool)cursor.Call("AllowsItem", 0)!);
+
+        cursor.Call("Point", 1);
+        Assert.Null(cursor.Call("Confirm"));
+        Assert.Equal("Keyring", cursor.Name("Stage"));
+        Assert.Equal([Key.Value], LineNames(cursor));
+        Assert.Null(cursor.Call("Confirm"));
+        Assert.Equal("Keyring", cursor.Name("Stage"));
+
+        Assert.False((bool)cursor.Call("Cancel")!);
+        Assert.Equal(("KeyItems", 1), (cursor.Name("Stage"), cursor.Read<int>("Cursor")));
+        Assert.False((bool)cursor.Call("Cancel")!);
+        Assert.Equal(("Item", 1), (cursor.Name("Stage"), cursor.Read<int>("Cursor")));
+        Assert.True((bool)cursor.Call("Cancel")!);
+    }
+
+    [Fact]
+    public void APackWithNoKeyItemShowsNoEntryOfTheKeyItems()
+    {
+        // D-1219: the entry shows once the pack holds a key item, and a key alone shows the Keyring alone.
+        Simulation run = InMenu(marrek => marrek);
+        GameValue cursor = GameValue.New("ItemCursor", run.State);
+        Assert.Equal([Draught.Value], LineNames(cursor));
+
+        Assert.Equal(0, run.State.Characters.Pick(Key, 1, run.State.BattleContent));
+        cursor.Call("Point", 1);
+        Assert.Null(cursor.Call("Confirm"));
+
+        Assert.Equal(["Keyring"], LineNames(cursor));
+    }
+
+    private static List<string> LineNames(GameValue cursor)
+    {
+        List<string> names = [];
+        foreach (object? line in (IEnumerable)cursor.Read<object>("Lines"))
+        {
+            GameValue value = GameValue.Of(line!);
+            names.Add(value.Read<object?>("Entry") is PackValues entry ? entry.Id.Value : value.Name("Kind"));
+        }
+
+        return names;
     }
 
     private static Simulation InMenu(Func<CharacterValues, CharacterValues> change)
