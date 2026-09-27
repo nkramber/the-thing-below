@@ -1,3 +1,34 @@
+## Session 366: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-16, round 3. Repository: the-thing-below. Branch: `feat/pr-16-dungeon-parts`. PR: #91. Role: author. Base: `78b0d24`.
+
+### What this session did, and why
+
+- Gitar approved `6a9eb1ae` with no thread. Its CI claim, RG 3, has its answer in a PR comment (D-964).
+- The cross-provider review of `6a9eb1ae` gave `Changes required` with P2-1: a resume of another build could revive an enemy that the memory of the map holds dead. The finding has full merit. `MapPatrols.Resume` now reads the memory, and a snapshot of this build with such an enemy alive refuses the load (D-555, D-1111). The answer is `docs/reviews/pr-91-response.md`.
+
+### The state of the build
+
+- `make verify` passed at the correction: 4,196 tests, format, lint, STE, identity, bots, content, atlas, and smoke.
+- The remote head before this push is `dce3ed8`, the review record.
+
+### What is in flight
+
+- The Gitar pass and the CI legs of the correction, then `make codex-review PR=91` again.
+
+### Traps and gotchas
+
+- The map memory is the source of a dead enemy on each resume. The stored enemy values still give its place.
+
+### The questions that block progress
+
+None for PR-16. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Wait for the Gitar poll and the checks of the correction, then run `make codex-review PR=91` in the background.
+
 ## Session 365: 2026-09-27, Codex
 
 Author: Codex
@@ -299,36 +330,3 @@ None for PR-107. OQ-251 blocks PR-35.
 ### The next concrete action
 
 Push, open the PR, run the Gitar poll, and then take the screen baselines from the capture artifact of CI.
-
-## Session 356: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-108, round 8. Repository: the-thing-below. Branch: `feat/pr-108-night-recovery`. PR: #89. Role: author. Base: `a8ba710`.
-
-### What this session did, and why
-
-- Review round 3 approved the effective head `132942b`: `Ready for owner merge`, with P1-1 and P2-1 fixed (T-4, D-17).
-- Gitar approved `2bb095b` with its four findings closed, and each Gitar item has its answer (D-964).
-- The Gitar pass had four findings with merit, answered in `1521218`, `9944c29`, `4779565`, and `132942b`. The review had two, answered in `cdc3ed7` and `8179c98`.
-
-### The state of the build
-
-- CI on `2bb095b` passed each check except `review-gate`, which waited for the record of round 3.
-- The remote head before this push is `0ac3061`, the review record of round 3.
-
-### What is in flight
-
-- The checks of this metadata commit, then the merge question to the owner (D-933, D-942).
-- After the merge: `make night-watch-install` on the Mac, one test message through `notify.yml`, and the transitional prompt.
-
-### Traps and gotchas
-
-- `notify.yml`, `night-promote.yml`, and the facts action first run from `main`, after the merge (F-37).
-
-### The questions that block progress
-
-None for PR-108. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Ask the owner to confirm the merge with the summary of D-942, then turn on the auto-merge (D-930).

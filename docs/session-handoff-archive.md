@@ -1,4 +1,37 @@
 # Session handoff archive
+## Session 356: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-108, round 8. Repository: the-thing-below. Branch: `feat/pr-108-night-recovery`. PR: #89. Role: author. Base: `a8ba710`.
+
+### What this session did, and why
+
+- Review round 3 approved the effective head `132942b`: `Ready for owner merge`, with P1-1 and P2-1 fixed (T-4, D-17).
+- Gitar approved `2bb095b` with its four findings closed, and each Gitar item has its answer (D-964).
+- The Gitar pass had four findings with merit, answered in `1521218`, `9944c29`, `4779565`, and `132942b`. The review had two, answered in `cdc3ed7` and `8179c98`.
+
+### The state of the build
+
+- CI on `2bb095b` passed each check except `review-gate`, which waited for the record of round 3.
+- The remote head before this push is `0ac3061`, the review record of round 3.
+
+### What is in flight
+
+- The checks of this metadata commit, then the merge question to the owner (D-933, D-942).
+- After the merge: `make night-watch-install` on the Mac, one test message through `notify.yml`, and the transitional prompt.
+
+### Traps and gotchas
+
+- `notify.yml`, `night-promote.yml`, and the facts action first run from `main`, after the merge (F-37).
+
+### The questions that block progress
+
+None for PR-108. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Ask the owner to confirm the merge with the summary of D-942, then turn on the auto-merge (D-930).
+
 ## Session 355: 2026-09-27, Codex
 
 Author: Codex

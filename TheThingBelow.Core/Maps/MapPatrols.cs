@@ -107,7 +107,7 @@ public sealed class MapPatrols
 
     /// <summary>
     /// Puts every enemy back from the values of a snapshot that this build or another build
-    /// wrote (D-166, D-750, D-1111).
+    /// wrote, with a map that the run never changed (D-166, D-750, D-1111).
     /// </summary>
     /// <param name="map">The map of the snapshot, from the content of this build.</param>
     /// <param name="values">The stored values, one for each enemy that the map placed.</param>
@@ -118,16 +118,6 @@ public sealed class MapPatrols
     /// <returns>The enemies.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
     /// <exception cref="ArgumentException">The values describe no state of this map (T-2).</exception>
-    /// <remarks>
-    /// A snapshot of this build holds one value for each enemy that the time of day of the map
-    /// places, in the order of the map file, and a list of another shape fails with the map and
-    /// the count (T-2). A snapshot of another build matches each enemy by its id instead
-    /// (D-1111). An enemy that the save lacks starts on its station. An enemy that the map no
-    /// longer places leaves, and so does its mark. An enemy whose stored place its station no
-    /// longer takes starts on its station again, and a dead enemy stays dead. An encounter
-    /// with an enemy that the map no longer places refuses the save, because its fight has no
-    /// enemy to end.
-    /// </remarks>
     public static MapPatrols Resume(
         GameMap map,
         IReadOnlyList<PatrolValues> values,
@@ -137,7 +127,51 @@ public sealed class MapPatrols
         ResumeDrift drift)
     {
         ArgumentNullException.ThrowIfNull(map);
+
+        return Resume(map, values, mark, encounter, new PlaceState(map.Id), source, drift);
+    }
+
+    /// <summary>
+    /// Puts every enemy back from the values of a snapshot that this build or another build
+    /// wrote (D-166, D-750, D-1111).
+    /// </summary>
+    /// <param name="map">The map of the snapshot, from the content of this build.</param>
+    /// <param name="values">The stored values, one for each enemy that the map placed.</param>
+    /// <param name="mark">The mark of the snapshot, or no value.</param>
+    /// <param name="encounter">The encounter of the snapshot, or no value.</param>
+    /// <param name="place">The memory of the map, which holds each killed enemy (D-555).</param>
+    /// <param name="source">What the values came from, such as `the save`, for an error (T-2).</param>
+    /// <param name="drift">The build of the snapshot, and the log of each change (D-1111).</param>
+    /// <returns>The enemies.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="ArgumentException">The values describe no state of this map, or a snapshot of this build holds alive an enemy that the memory holds dead (T-2).</exception>
+    /// <remarks>
+    /// An enemy that the memory of the map holds dead stays dead, so a killed enemy never fights
+    /// again before a reopen (D-555). A snapshot of another build that places such an enemy alive
+    /// puts it dead, with a log line (D-1111).
+    /// <para>
+    /// A snapshot of this build holds one value for each enemy that the time of day of the map
+    /// places, in the order of the map file, and a list of another shape fails with the map and
+    /// the count (T-2). A snapshot of another build matches each enemy by its id instead
+    /// (D-1111). An enemy that the save lacks starts on its station. An enemy that the map no
+    /// longer places leaves, and so does its mark. An enemy whose stored place its station no
+    /// longer takes starts on its station again, and a dead enemy stays dead. An encounter
+    /// with an enemy that the map no longer places refuses the save, because its fight has no
+    /// enemy to end.
+    /// </para>
+    /// </remarks>
+    public static MapPatrols Resume(
+        GameMap map,
+        IReadOnlyList<PatrolValues> values,
+        SightMark? mark,
+        MapEncounter? encounter,
+        PlaceState place,
+        string source,
+        ResumeDrift drift)
+    {
+        ArgumentNullException.ThrowIfNull(map);
         ArgumentNullException.ThrowIfNull(values);
+        ArgumentNullException.ThrowIfNull(place);
         ArgumentException.ThrowIfNullOrEmpty(source);
         ArgumentNullException.ThrowIfNull(drift);
 
@@ -156,8 +190,35 @@ public sealed class MapPatrols
         MapPatrols built = drift.Adjusts
             ? ResumeById(map, placed, stations, values, mark, encounter, source, drift)
             : ResumeInOrder(map, placed, stations, values, mark, encounter, source);
+        built.KeepDead(map, place, source, drift);
         built.CheckMarkAndEncounter(source);
         return built;
+    }
+
+    /// <summary>
+    /// Puts each enemy that the memory of the map holds dead dead (D-555). A snapshot of this
+    /// build never holds such an enemy alive, so one refuses the save. A snapshot of another build
+    /// can place an enemy anew, and the enemy dies with a log line, and so does its mark (D-1111).
+    /// </summary>
+    private void KeepDead(GameMap map, PlaceState place, string source, ResumeDrift drift)
+    {
+        foreach (PatrolState patrol in this.patrols)
+        {
+            ContentId id = patrol.Patrol.Id;
+            if (patrol.Dead || !place.IsDead(id))
+            {
+                continue;
+            }
+
+            Refuse(!drift.Adjusts, source, $"it holds the enemy '{id.Value}' alive, and the memory of the map '{map.Id.Value}' holds it dead (D-555)");
+            drift.Note(LogSubsystems.World, "the memory of the map holds an enemy dead that the save places alive, and the enemy stays dead", [new LogField("enemy", id.Value), new LogField("map", map.Id.Value)]);
+            patrol.Defeat();
+            if (this.Mark is SightMark seen && string.CompareOrdinal(seen.Enemy.Value, id.Value) == 0)
+            {
+                drift.Note(LogSubsystems.World, "the enemy of the mark stays dead, and the mark ends", [new LogField("enemy", id.Value), new LogField("map", map.Id.Value)]);
+                this.Mark = null;
+            }
+        }
     }
 
     /// <summary>

@@ -231,7 +231,7 @@ public sealed class MapState
 
         MapPatrols patrols = enemies is null
             ? MapPatrols.Enter(map, place)
-            : MapPatrols.Resume(map, enemies, mark, encounter, source, drift);
+            : MapPatrols.Resume(map, enemies, mark, encounter, place, source, drift);
         MapNpcs mapNpcs = MapNpcs.Resume(map, npcs, patrols, source, drift);
         if (drift.Adjusts)
         {

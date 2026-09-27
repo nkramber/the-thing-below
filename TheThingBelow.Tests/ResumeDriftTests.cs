@@ -134,6 +134,39 @@ public sealed class ResumeDriftTests
     }
 
     [Fact]
+    public void AnotherBuildKeepsANewlyPlacedEnemyDeadThatTheMemoryOfTheMapHoldsDead()
+    {
+        // P2-1 of the review of PR #91 (D-555, D-1111): the save lacks values for patrol.two, which
+        // the edited map now places, and the memory of the map holds it dead. It stays dead until
+        // a reopen, and a reopen and an entry bring it back.
+        GameMap before = PatrolMaps.Of(PatrolMaps.Enemy(stations: Route));
+        GameMap after = PatrolMaps.Of($"{PatrolMaps.Enemy(stations: Route)},\n{PatrolMaps.Enemy(id: "patrol.two", stations: EastPost)}");
+        var place = new PlaceState(after.Id);
+        place.MarkDead(Id("patrol.two"));
+        ResumeDrift drift = Other();
+
+        MapState party = ResumeWith(after, MapPatrols.Enter(before).Values(), place, drift);
+
+        Assert.True(party.Patrols.All[1].Dead);
+        Assert.Contains(drift.Entries, entry => entry.Message.Contains("stays dead", StringComparison.Ordinal));
+        place.Reopen();
+        Assert.False(MapState.Enter(after, place).Patrols.All[1].Dead);
+    }
+
+    [Fact]
+    public void ASnapshotOfThisBuildThatHoldsAliveAnEnemyThatTheMemoryHoldsDeadFails()
+    {
+        // P2-1 of the review of PR #91 (D-555, T-2): no rule of this build makes such a state.
+        GameMap map = PatrolMaps.Of(PatrolMaps.Enemy(stations: Route));
+        var place = new PlaceState(map.Id);
+        place.MarkDead(Id("patrol.one"));
+
+        ArgumentException error = Assert.Throws<ArgumentException>(() => ResumeWith(map, MapPatrols.Enter(map).Values(), place, This()));
+
+        Assert.Contains("holds it dead", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void AnotherBuildStartsAnEnemyAgainWhenItsEditedRouteTakesNoStoredPlaceAndKeepsItDead()
     {
         GameMap after = PatrolMaps.Of(PatrolMaps.Enemy(stations: SouthRoute));
@@ -406,6 +439,13 @@ public sealed class ResumeDriftTests
         {
             text.Append('\n').Append(id.Value).Append(' ').Append(battle.LimitOf(id).ToString(CultureInfo.InvariantCulture));
         }
+    }
+
+    private static MapState ResumeWith(GameMap map, IReadOnlyList<PatrolValues> enemies, PlaceState place, ResumeDrift drift)
+    {
+        var walked = WalkedTiles.Empty(map.Width, map.Height);
+        walked.Mark(map.Spawn);
+        return MapState.Resume(map, new LeadValues(map.Spawn, StepDirection.South, null, 0), walked, enemies, null, null, null, place, "the test", drift);
     }
 
     private static MapState Resume(GameMap map, TilePoint lead, IReadOnlyList<PatrolValues> enemies, SightMark? mark, MapEncounter? encounter, ResumeDrift drift)
