@@ -285,6 +285,7 @@ Built by PR-49. Phase file: `phase-2-first-playable.md`.
 - It passes when every leg of the night of `main` succeeded inside 48 hours of the run of the gate (G-22, D-1188). An absent, stale, or failed record fails the gate with the case, the commit, and the time (T-2).
 - It never checks out the head of the PR, so a PR cannot carry its own record (D-509).
 - A success record of a night on the exact head commit of a PR passes that PR alone (D-510). A failed night on the head fails the PR, even with a green night on `main`.
+- A green head night older than 48 hours proves nothing now. The gate then reads the night of `main` (G-22).
 - A docs-only PR passes the gate. The job reads the changed paths of the PR through the GitHub API, with the old path of each rename (D-513, F-109).
 - The token of the job reads Actions and pull requests, and it writes nothing (D-509).
 - The result of the last push stands until the merge, and no workflow runs the gate again after a night (D-1188). After a night by hand on the head of a PR, a session runs the job again. `docs/runbooks/night.md` gives the commands.

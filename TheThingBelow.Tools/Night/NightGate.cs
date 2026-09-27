@@ -94,19 +94,31 @@ public static class NightGate
         List<string> lines = [$"The PR changes the path '{code}', so the night gate binds it (G-22, D-513)."];
 
         // A failed night on the head commit fails the PR, even when `main` has a green night,
-        // because that night played the code of this PR (D-510, T-2).
+        // because that night played the code of this PR (D-510, T-2). A green head night that is
+        // only older than 48 hours proves nothing now, so the gate reads the night of `main` (G-22).
         if (headNight is not null)
         {
-            List<string> headProblems = ProblemsOf(headNight, pullRequest.Head, null, now);
-            if (headProblems.Count == 0)
+            List<string> headFaults = FaultsOf(headNight, pullRequest.Head, null, now);
+            string? headStale = StaleOf(headNight.Run, now);
+            if (headFaults.Count == 0 && headStale is null)
             {
                 lines.Add($"The night run {headNight.Run.Id} on the head commit {pullRequest.Head} succeeded on each leg, and it passes this PR alone (D-510).");
                 return new NightVerdict(true, lines);
             }
 
-            lines.Add($"The night run {headNight.Run.Id} on the head commit {pullRequest.Head} does not pass:");
-            lines.AddRange(headProblems);
-            return new NightVerdict(false, lines);
+            if (headFaults.Count > 0)
+            {
+                lines.Add($"The night run {headNight.Run.Id} on the head commit {pullRequest.Head} does not pass:");
+                lines.AddRange(headFaults);
+                if (headStale is not null)
+                {
+                    lines.Add(headStale);
+                }
+
+                return new NightVerdict(false, lines);
+            }
+
+            lines.Add($"The night run {headNight.Run.Id} on the head commit {pullRequest.Head} succeeded, and it is older than 48 hours, so the gate reads the night of `{MainBranch}` (G-22).");
         }
 
         if (mainNight is null)
@@ -137,6 +149,25 @@ public static class NightGate
     {
         ArgumentNullException.ThrowIfNull(night);
 
+        List<string> problems = FaultsOf(night, commit, branch, now);
+        if (StaleOf(night.Run, now) is string stale)
+        {
+            problems.Add(stale);
+        }
+
+        return problems;
+    }
+
+    /// <summary>Gives each reason why a night does not pass, except its age: a wrong branch, commit, or time, a failed run, and an absent or a failed record.</summary>
+    /// <param name="night">The night.</param>
+    /// <param name="commit">The commit that the night must play, or null for any commit.</param>
+    /// <param name="branch">The branch that the night must run on, or null for any branch.</param>
+    /// <param name="now">The time of the run of the gate, in UTC.</param>
+    /// <returns>One line for each reason, with the case, the commit, and the time (T-2).</returns>
+    public static List<string> FaultsOf(NightEvidence night, string? commit, string? branch, DateTimeOffset now)
+    {
+        ArgumentNullException.ThrowIfNull(night);
+
         NightRun run = night.Run;
         string name = $"the night run {run.Id} on the commit {run.Commit}, started at {NightJson.TextOf(run.Started)},";
         List<string> problems = [];
@@ -155,15 +186,9 @@ public static class NightGate
             problems.Add($"failed: {name} ended as '{run.Conclusion}'.");
         }
 
-        TimeSpan age = now - run.Started;
-        if (age < TimeSpan.Zero)
+        if (now < run.Started)
         {
             problems.Add($"wrong time: {name} starts after the run of the gate at {NightJson.TextOf(now)}.");
-        }
-        else if (age > Limit)
-        {
-            long hours = age.Ticks / TimeSpan.TicksPerHour;
-            problems.Add($"stale: {name} is {hours.ToString(CultureInfo.InvariantCulture)} hours old at the run of the gate at {NightJson.TextOf(now)}, and the limit is 48 hours (G-22, D-1188).");
         }
 
         foreach (string leg in night.AbsentLegs)
@@ -173,6 +198,24 @@ public static class NightGate
 
         problems.AddRange(RecordProblemsOf(night, name));
         return problems;
+    }
+
+    /// <summary>Gives the line of a night older than 48 hours at the run of the gate, or no value (G-22, D-1188).</summary>
+    /// <param name="run">The facts of the night run.</param>
+    /// <param name="now">The time of the run of the gate, in UTC.</param>
+    /// <returns>The line, or no value for a night inside the limit.</returns>
+    public static string? StaleOf(NightRun run, DateTimeOffset now)
+    {
+        ArgumentNullException.ThrowIfNull(run);
+
+        TimeSpan age = now - run.Started;
+        if (age <= Limit)
+        {
+            return null;
+        }
+
+        long hours = age.Ticks / TimeSpan.TicksPerHour;
+        return $"stale: the night run {run.Id} on the commit {run.Commit}, started at {NightJson.TextOf(run.Started)}, is {hours.ToString(CultureInfo.InvariantCulture)} hours old at the run of the gate at {NightJson.TextOf(now)}, and the limit is 48 hours (G-22, D-1188).";
     }
 
     private static List<string> RecordProblemsOf(NightEvidence night, string name)

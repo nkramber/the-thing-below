@@ -165,6 +165,38 @@ public sealed class NightGateCommandTests
         Assert.Contains("failed: the random runs of the leg ubuntu-24.04", errors, StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// The regression test of the finding of the Gitar pass on PR #88: a green head night older
+    /// than 48 hours failed the PR as stale, even with a green night on `main` inside the limit (G-22).
+    /// </summary>
+    [Fact]
+    public void AStaleGreenHeadNightFallsBackToAGreenNightOfMain()
+    {
+        using NightGateFixture fixture = NightGateFixture.Create(CodePath);
+        NightGateFixture.WriteGreenNight(fixture.MainNight, NightGateFixture.MainCommit, NightGate.MainBranch, NightGateFixture.LastNight);
+        NightGateFixture.WriteGreenNight(fixture.HeadNight, NightGateFixture.Head, "fix/pr-99-night", NightGateFixture.Now - TimeSpan.FromDays(3));
+
+        int exitCode = fixture.Run(out string output, out string errors);
+
+        Assert.True(exitCode == 0, errors);
+        Assert.Contains("succeeded, and it is older than 48 hours, so the gate reads the night of `main` (G-22).", output, StringComparison.Ordinal);
+        Assert.Contains("of `main` started at 2026-09-28T04:17:43Z and succeeded on each leg", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AStaleGreenHeadNightWithAStaleNightOfMainFails()
+    {
+        using NightGateFixture fixture = NightGateFixture.Create(CodePath);
+        NightGateFixture.WriteGreenNight(fixture.MainNight, NightGateFixture.MainCommit, NightGate.MainBranch, NightGateFixture.Now - TimeSpan.FromDays(4));
+        NightGateFixture.WriteGreenNight(fixture.HeadNight, NightGateFixture.Head, "fix/pr-99-night", NightGateFixture.Now - TimeSpan.FromDays(3));
+
+        int exitCode = fixture.Run(out _, out string errors);
+
+        Assert.Equal(Program.FaultExitCode, exitCode);
+        Assert.Contains("The newest night on `main` does not pass:", errors, StringComparison.Ordinal);
+        Assert.Contains("stale:", errors, StringComparison.Ordinal);
+    }
+
     /// <summary>A night that played another commit does not pass as the night of the head (D-510).</summary>
     [Fact]
     public void AHeadNightOfAnotherCommitFails()
