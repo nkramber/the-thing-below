@@ -26,7 +26,14 @@ public enum NoticePhase
 /// <param name="Hidden">The part of the notice box above the top edge, in thousandths: 1000 at the start of the slide, and 0 after it.</param>
 /// <param name="Characters">The count of characters of the line that show.</param>
 /// <param name="Opacity">The opacity, in thousandths: 1000 until the fade, and less inside it.</param>
-public sealed record NoticeFrame(ContentId Notice, NoticePhase Phase, int Hidden, int Characters, int Opacity);
+public sealed record NoticeFrame(ContentId Notice, NoticePhase Phase, int Hidden, int Characters, int Opacity)
+{
+    /// <summary>The value of each place of the line, such as the singular of a thing of a chest (D-1224). Empty for a line with no place.</summary>
+    public IReadOnlyDictionary<string, string> Values { get; init; } = NoticeQueue.NoValues;
+
+    /// <summary>The count of notices that the queue took before this one, so two notices with one id and other values differ (D-1224).</summary>
+    public long Serial { get; init; }
+}
 
 /// <summary>
 /// The notices that wait for the notice box, and the phase of the one on screen (D-221, D-994).
@@ -47,9 +54,13 @@ public sealed class NoticeQueue
     private const int TicksPerSecond = 60;
 
     private readonly NoticeTiming timing;
-    private readonly Queue<(ContentId Notice, int Length)> waiting = new();
-    private (ContentId Notice, int Length)? current;
+    private readonly Queue<QueuedNotice> waiting = new();
+    private QueuedNotice? current;
     private long start;
+    private long added;
+
+    /// <summary>The values of a line with no place (D-989).</summary>
+    public static IReadOnlyDictionary<string, string> NoValues { get; } = new Dictionary<string, string>(StringComparer.Ordinal);
 
     /// <summary>Makes an empty queue.</summary>
     /// <param name="timing">The time of each phase, from the UI style file (D-994).</param>
@@ -70,22 +81,34 @@ public sealed class NoticeQueue
     /// <param name="worldTick">The tick of the world now.</param>
     /// <exception cref="ArgumentNullException">The id is null (T-2).</exception>
     /// <exception cref="ArgumentOutOfRangeException">The line holds no character (T-2).</exception>
-    public void Add(ContentId notice, int length, long worldTick)
+    public void Add(ContentId notice, int length, long worldTick) => this.AddFilled(notice, NoValues, length, worldTick);
+
+    /// <summary>Adds one notice with the values of the places of its line (D-1224). It shows at once when no notice is on screen.</summary>
+    /// <param name="notice">The id of the notice.</param>
+    /// <param name="values">The value of each place of the line.</param>
+    /// <param name="length">The count of characters of the filled line, which the type-out reads.</param>
+    /// <param name="worldTick">The tick of the world now.</param>
+    /// <exception cref="ArgumentNullException">The id or the values are null (T-2).</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The line holds no character (T-2).</exception>
+    public void AddFilled(ContentId notice, IReadOnlyDictionary<string, string> values, int length, long worldTick)
     {
         ArgumentNullException.ThrowIfNull(notice);
+        ArgumentNullException.ThrowIfNull(values);
         if (length < 1)
         {
             throw new ArgumentOutOfRangeException(nameof(length), length, $"The line of the notice '{notice.Value}' holds no character (T-2).");
         }
 
+        var queued = new QueuedNotice(notice, values, length, this.added);
+        this.added += 1;
         if (this.current is null)
         {
-            this.current = (notice, length);
+            this.current = queued;
             this.start = worldTick;
             return;
         }
 
-        this.waiting.Enqueue((notice, length));
+        this.waiting.Enqueue(queued);
     }
 
     /// <summary>Gives what the notice box shows at one tick of the world, and starts each next notice whose turn came.</summary>
@@ -100,8 +123,10 @@ public sealed class NoticeQueue
             throw new ArgumentOutOfRangeException(nameof(charactersPerSecond), charactersPerSecond, "A text speed is above zero (D-864, T-2).");
         }
 
-        while (this.current is (ContentId notice, int length))
+        while (this.current is QueuedNotice queued)
         {
+            ContentId notice = queued.Notice;
+            int length = queued.Length;
             if (worldTick < this.start)
             {
                 throw new ArgumentOutOfRangeException(
@@ -113,7 +138,7 @@ public sealed class NoticeQueue
             long total = this.timing.SlideTicks + typeTicks + this.timing.HoldTicks + this.timing.FadeTicks;
             if (elapsed < total)
             {
-                return this.FrameOf(notice, length, elapsed, typeTicks, charactersPerSecond);
+                return this.FrameOf(notice, length, elapsed, typeTicks, charactersPerSecond) with { Values = queued.Values, Serial = queued.Serial };
             }
 
             // The next notice starts on the tick where this one ended, so a long menu visit
@@ -154,4 +179,7 @@ public sealed class NoticeQueue
         int opacity = (int)(1000 - (faded * 1000 / this.timing.FadeTicks));
         return new NoticeFrame(notice, NoticePhase.Fade, 0, length, opacity);
     }
+
+    /// <summary>One notice that waits or shows, with its values and its place in the order of the adds.</summary>
+    private sealed record QueuedNotice(ContentId Notice, IReadOnlyDictionary<string, string> Values, int Length, long Serial);
 }

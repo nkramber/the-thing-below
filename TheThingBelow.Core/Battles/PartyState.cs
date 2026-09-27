@@ -824,19 +824,6 @@ public sealed class PartyState
     }
 
     /// <summary>
-    /// The restore of a save point: each character of the party and of the reserve gets full AP,
-    /// and no health (D-389, D-967). PR-16 calls it once for each place, until a story event
-    /// reopens the place (D-555, D-970).
-    /// </summary>
-    public void RestoreAtSavePoint()
-    {
-        foreach (PartyMember member in this.Everyone())
-        {
-            member.Ap = member.Stats.Ap;
-        }
-    }
-
-    /// <summary>
     /// The rest at a hub: each character of the party and of the reserve gets full health and
     /// full AP, a down character stands again, and poison, blind, and silence end (D-36, D-390,
     /// D-967, D-1135). PR-14 calls it (D-970).

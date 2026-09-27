@@ -87,7 +87,7 @@ public sealed class GameMapTests
     {
         ContentException error = Assert.Throws<ContentException>(
             () => TestMaps.Of("no-spawn.json", Map(things: """
-             { "id": "chest.bad_store", "kind": "chest", "x": 1, "y": 1 }
+             { "id": "marker.bad_store", "kind": "marker", "x": 1, "y": 1 }
             """)));
 
         Assert.Contains("0 spawn points", error.Message, StringComparison.Ordinal);
@@ -111,7 +111,7 @@ public sealed class GameMapTests
         ContentException error = Assert.Throws<ContentException>(
             () => TestMaps.Of("crowded.json", Map(things: """
              { "id": "spawn_point.bad_start", "kind": "spawn_point", "x": 1, "y": 1 },
-             { "id": "chest.bad_store", "kind": "chest", "x": 1, "y": 1 }
+             { "id": "marker.bad_store", "kind": "marker", "x": 1, "y": 1 }
             """)));
 
         Assert.Contains("(1, 1)", error.Message, StringComparison.Ordinal);
@@ -124,7 +124,7 @@ public sealed class GameMapTests
         ContentException error = Assert.Throws<ContentException>(
             () => TestMaps.Of("lone-lock.json", Map(things: """
              { "id": "spawn_point.bad_start", "kind": "spawn_point", "x": 1, "y": 1 },
-             { "id": "lock.bad_gate", "kind": "lock", "x": 5, "y": 1, "pickable": true }
+             { "id": "lock.bad_gate", "kind": "lock", "x": 5, "y": 1, "pickable": true, "key": "none" }
             """)));
 
         Assert.Contains("sits on no door", error.Message, StringComparison.Ordinal);
@@ -342,14 +342,15 @@ public sealed class GameMapTests
     }
 
     [Fact]
-    public void AServicePointSitsOnFloorAndIsTheOneSolidThing()
+    public void AServicePointADoorAChestAndASavePointAreTheSolidThings()
     {
-        // D-1142: PR-16 adds the chest and the door to the solid things.
+        // D-1142, D-1222: PR-16 adds the door, the chest, and the save point to the solid things.
         Assert.Equal(TileKind.Floor, MapThingKinds.TileOf(MapThingKind.ServicePoint));
         Assert.Equal("service_point", MapThingKinds.NameOf(MapThingKind.ServicePoint));
         foreach (MapThingKind kind in MapThingKinds.All)
         {
-            Assert.Equal(kind == MapThingKind.ServicePoint, MapThingKinds.IsSolid(kind));
+            bool solid = kind is MapThingKind.ServicePoint or MapThingKind.Door or MapThingKind.Chest or MapThingKind.SavePoint;
+            Assert.Equal(solid, MapThingKinds.IsSolid(kind));
         }
     }
 
@@ -390,7 +391,7 @@ public sealed class GameMapTests
          "label": "label.bad",
          "time": "{{time}}",
          "dark": false,
-         "kind": "dungeon", "npcs": [], "services": [],
+         "kind": "dungeon", "npcs": [], "services": [], "reopen": [],
          "terrain": [
         {{terrain}}
          ],

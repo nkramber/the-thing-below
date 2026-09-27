@@ -348,7 +348,7 @@ public sealed class ShopRulesTests
     private static List<ContentId> NoticeIds(Simulation run)
     {
         List<ContentId> ids = [];
-        foreach (Core.Notices.NoticeRecord notice in run.TakeNotices())
+        foreach (Core.Notices.PostedNotice notice in run.TakeNotices())
         {
             ids.Add(notice.Id);
         }

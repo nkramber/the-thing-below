@@ -30,10 +30,15 @@ internal static partial class SnapshotLines
     /// <returns>The line in the shape of save format 12.</returns>
     public static string AsFormatTwelve(string line) => PartyTorch().Replace(AsFormatFourteen(line), string.Empty);
 
-    /// <summary>Names the pool of each character `mp`, as each format before save format 17 does (D-1197).</summary>
+    /// <summary>Drops the empty memory of the maps, which save format 18 added (D-555).</summary>
+    /// <param name="line">A snapshot line of this build, whose memory of the maps is empty. No older format holds one.</param>
+    /// <returns>The line in the shape of save format 17.</returns>
+    public static string AsFormatSeventeen(string line) => EmptyPlaces().Replace(line, string.Empty);
+
+    /// <summary>Drops the empty memory of the maps of save format 18, and names the pool of each character `mp`, as each format before save format 17 does (D-1197).</summary>
     /// <param name="line">A snapshot line of this build.</param>
     /// <returns>The line in the shape of save format 16.</returns>
-    public static string AsFormatSixteen(string line) => CharacterAp().Replace(line, "\"mp\":$1");
+    public static string AsFormatSixteen(string line) => CharacterAp().Replace(AsFormatSeventeen(line), "\"mp\":$1");
 
     /// <summary>Drops the empty stock, which save format 16 added (D-1152), and names the pool `mp`.</summary>
     /// <param name="line">A snapshot line of this build, whose stock is empty. No older format holds a stock.</param>
@@ -73,6 +78,9 @@ internal static partial class SnapshotLines
 
     [GeneratedRegex(""","stock":\[\]""")]
     private static partial Regex EmptyStock();
+
+    [GeneratedRegex(""","places":\[\]""")]
+    private static partial Regex EmptyPlaces();
 
     [GeneratedRegex("\"ap\":(\\d+)")]
     private static partial Regex CharacterAp();

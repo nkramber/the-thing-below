@@ -7,7 +7,7 @@ using TheThingBelow.Core.Notices;
 
 namespace TheThingBelow.Core.Runs;
 
-/// <summary>The rules of the services of a hub: the open of a service, the rest, and the save (D-1131, D-1132).</summary>
+/// <summary>The rules of the services of a hub: the open of a service and the rest (D-1131). A save point holds the save (D-1221).</summary>
 /// <remarks>
 /// A confirm while the lead faces the host of a service opens it when its condition holds, and a
 /// closed service posts a notice and stays closed (D-543, D-1131). An open service opens the
@@ -15,7 +15,7 @@ namespace TheThingBelow.Core.Runs;
 /// <para>
 /// Core holds no open service in its state. The open service is the service of the host that the
 /// lead faces while the menu is open, because the world holds and no body moves then. The rest
-/// and the save intents read it there, and each one refuses a request with no open service of its
+/// and the shop intents read it there, and each one refuses a request with no open service of its
 /// kind (D-1141, T-2).
 /// </para>
 /// </remarks>
@@ -30,11 +30,8 @@ public static class ServiceRules
     /// <summary>The notice of a rest at a hub (D-390).</summary>
     public static readonly ContentId RestedNotice = ContentId.Parse("notice.rested", Source, nameof(RestedNotice));
 
-    /// <summary>The notice of a save at a hub (D-1132).</summary>
-    public static readonly ContentId SavedNotice = ContentId.Parse("notice.saved", Source, nameof(SavedNotice));
-
     /// <summary>Every notice that these rules post, which the notice file of a build must hold (D-989, T-2).</summary>
-    public static readonly IReadOnlyList<ContentId> Notices = [ClosedNotice, RestedNotice, SavedNotice];
+    public static readonly IReadOnlyList<ContentId> Notices = [ClosedNotice, RestedNotice];
 
     /// <summary>Gives the service of the NPC or the service point that the lead faces (D-1131, D-1142).</summary>
     /// <param name="state">The run.</param>
@@ -97,25 +94,6 @@ public static class ServiceRules
         state.Characters.RestAtHub();
         log.Add(Entry(state, "the party rested at a hub", service));
         NoticeRules.Post(state, RestedNotice, context, log);
-    }
-
-    /// <summary>Asks Game for the slot save at the open save service (D-1132).</summary>
-    /// <param name="state">The run.</param>
-    /// <param name="context">The seed, the tick, and the intent, for an error (T-2).</param>
-    /// <param name="log">The log entries of this tick (D-179).</param>
-    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
-    /// <exception cref="SimulationException">No save service is open (T-2).</exception>
-    /// <remarks>Core does no file work, so the rule emits a save request, which Game writes after the tick (G-1, D-1132).</remarks>
-    public static void Save(RunState state, RunContext context, List<LogEntry> log)
-    {
-        ArgumentNullException.ThrowIfNull(state);
-        ArgumentNullException.ThrowIfNull(context);
-        ArgumentNullException.ThrowIfNull(log);
-
-        MapService service = RequireOpen(state, ServiceKind.Save, context);
-        state.RequestSave(SaveRequestKind.Slot);
-        log.Add(Entry(state, "the party asked for the slot save at a hub", service));
-        NoticeRules.Post(state, SavedNotice, context, log);
     }
 
     /// <summary>

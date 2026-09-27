@@ -176,6 +176,20 @@ public sealed class StoryContent
         }
     }
 
+    /// <summary>Checks that each flag of the reopen list of a map is a flag of the flag file (D-555, T-2).</summary>
+    /// <param name="map">The map.</param>
+    /// <exception cref="ArgumentNullException">The map is null (T-2).</exception>
+    /// <exception cref="ContentException">A flag of the list is absent from the flag file. The error names the map file and the flag.</exception>
+    public void RequireReopenFlagsOf(GameMap map)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+
+        foreach (ContentId flag in map.ReopenFlags)
+        {
+            this.Flags.RequireDeclared(flag, map.File, "reopen");
+        }
+    }
+
     /// <summary>Fails when a step names a string id that the table lacks (G-7, T-2).</summary>
     /// <param name="strings">The string table.</param>
     /// <exception cref="ArgumentNullException">The table is null (T-2).</exception>

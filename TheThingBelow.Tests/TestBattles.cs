@@ -209,8 +209,9 @@ internal static class TestBattles
       { "id": "item.test_tonic", "kind": "restore", "limit": 4, "delay": 100, "value": 10, "amount": 10 },
       { "id": "item.test_salts", "kind": "cure", "limit": 5, "delay": 90, "value": 10, "statuses": ["poison", "silence"] },
       { "id": "item.test_root", "kind": "revive", "limit": 3, "delay": 120, "value": 10, "amount": 25 },
-      { "id": "item.test_token", "kind": "key", "limit": 1 },
-      { "id": "item.torch", "kind": "key", "limit": 1 }
+      { "id": "item.test_token", "kind": "key", "limit": 1, "ring": false },
+      { "id": "item.test_key", "kind": "key", "limit": 1, "ring": true },
+      { "id": "item.torch", "kind": "key", "limit": 1, "ring": false }
      ]
     }
     """;
@@ -379,7 +380,7 @@ internal static class TestBattles
     public const string ItemStrings =
         """{ "id": "item.fixture_draught", "text": "fixture_draught text." }, { "id": "name.fixture_draught", "text": "fixture_draught" }, { "id": "item.test_tonic", "text": "test_tonic text." }, { "id": "name.test_tonic", "text": "test_tonic" }""" + ", " +
         """{ "id": "item.test_salts", "text": "test_salts text." }, { "id": "name.test_salts", "text": "test_salts" }, { "id": "item.test_root", "text": "test_root text." }, { "id": "name.test_root", "text": "test_root" }""" + ", " +
-        """{ "id": "item.test_token", "text": "test_token text." }, { "id": "name.test_token", "text": "test_token" }, { "id": "item.torch", "text": "torch text." }, { "id": "name.torch", "text": "torch" }, { "id": "gear.test_blade", "text": "test_blade text." }, { "id": "name.test_blade", "text": "test_blade" }""" + ", " +
+        """{ "id": "item.test_token", "text": "test_token text." }, { "id": "name.test_token", "text": "test_token" }, { "id": "item.test_key", "text": "test_key text." }, { "id": "name.test_key", "text": "test_key" }, { "id": "item.torch", "text": "torch text." }, { "id": "name.torch", "text": "torch" }, { "id": "gear.test_blade", "text": "test_blade text." }, { "id": "name.test_blade", "text": "test_blade" }""" + ", " +
         """{ "id": "gear.test_shield", "text": "test_shield text." }, { "id": "name.test_shield", "text": "test_shield" }, { "id": "gear.test_helm", "text": "test_helm text." }, { "id": "name.test_helm", "text": "test_helm" }""" + ", " +
         """{ "id": "gear.test_mail", "text": "test_mail text." }, { "id": "name.test_mail", "text": "test_mail" }, { "id": "gear.test_resist_ring", "text": "test_resist_ring text." }, { "id": "name.test_resist_ring", "text": "test_resist_ring" }""" + ", " +
         """{ "id": "gear.test_absorb_ring", "text": "test_absorb_ring text." }, { "id": "name.test_absorb_ring", "text": "test_absorb_ring" }, { "id": "gear.test_weak_charm", "text": "test_weak_charm text." }, { "id": "name.test_weak_charm", "text": "test_weak_charm" }""";
@@ -418,13 +419,20 @@ internal static class TestBattles
       { "id": "notice.test_plain", "log": false },
       { "id": "notice.service_closed", "log": false },
       { "id": "notice.rested", "log": false },
-      { "id": "notice.saved", "log": false }
+      { "id": "notice.saved", "log": false },
+      { "id": "notice.door_locked", "log": false },
+      { "id": "notice.door_key", "log": false },
+      { "id": "notice.door_picked", "log": false },
+      { "id": "notice.chest_found", "log": false },
+      { "id": "notice.chest_gold", "log": false },
+      { "id": "notice.chest_left", "log": false },
+      { "id": "notice.chest_empty", "log": false }
      ]
     }
     """;
 
     /// <summary>The string entries of the notices of <see cref="NoticesFile"/>, for the string table of a test content set (G-7).</summary>
-    public const string NoticeStrings = """{ "id": "notice.rested", "text": "Rested." }, { "id": "notice.saved", "text": "Saved." }, { "id": "notice.service_closed", "text": "Closed." }, { "id": "notice.test_kept", "text": "A kept line." }, { "id": "notice.test_plain", "text": "A plain line." }""";
+    public const string NoticeStrings = """{ "id": "notice.chest_empty", "text": "Empty." }, { "id": "notice.chest_found", "text": "Found {thing}." }, { "id": "notice.chest_gold", "text": "Found {count} gold." }, { "id": "notice.chest_left", "text": "No room for {thing}." }, { "id": "notice.door_key", "text": "The key turns." }, { "id": "notice.door_locked", "text": "Locked." }, { "id": "notice.door_picked", "text": "The lock gives." }, { "id": "notice.rested", "text": "Rested." }, { "id": "notice.saved", "text": "Saved." }, { "id": "notice.service_closed", "text": "Closed." }, { "id": "notice.test_kept", "text": "A kept line." }, { "id": "notice.test_plain", "text": "A plain line." }""";
 
     /// <summary>The notice file of the tests, as a run reads it (D-989).</summary>
     public static readonly NoticeList Notices = NoticeList.Read(Encoding.UTF8.GetBytes(NoticesFile), NoticeList.Path);

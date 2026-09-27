@@ -238,6 +238,14 @@ public partial class Boot : Node
             this.held.Clear();
             host.OpenService(service);
         }
+
+        foreach (ContentId point in open.TakeOpenedSavePoints())
+        {
+            MenuHost host = this.menus ?? throw new InvalidOperationException(
+                $"The save point '{point.Value}' opened the save window at tick {open.Tick}, and the session built no menu host (T-2).");
+            this.held.Clear();
+            host.OpenSavePoint(point);
+        }
     }
 
     /// <summary>

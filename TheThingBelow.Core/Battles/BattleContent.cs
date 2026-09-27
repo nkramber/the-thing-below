@@ -286,6 +286,41 @@ public sealed class BattleContent
         }
     }
 
+    /// <summary>
+    /// Checks that each chest of a map names items, gear, and lessons of this content, and that
+    /// each lock names a key that sits on the Keyring (T-2, D-1219, D-1220).
+    /// </summary>
+    /// <param name="map">The map.</param>
+    /// <exception cref="ArgumentNullException">The map is null (T-2).</exception>
+    /// <exception cref="ContentException">An entry, a fallback, or a key names absent content, or a key is not a key of the Keyring. The error names the map file and the thing.</exception>
+    public void RequireThingsOf(GameMap map)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+
+        foreach (MapThing thing in map.Things)
+        {
+            if (thing.Contents is ChestContents contents)
+            {
+                foreach (ChestEntry entry in contents.Entries)
+                {
+                    this.RequireChestThing(map, thing, entry.Thing);
+                    if (entry.Fallback is ContentId fallback)
+                    {
+                        this.RequireChestThing(map, thing, fallback);
+                    }
+                }
+            }
+
+            if (thing.Key is ContentId key && (!this.Items.Holds(key) || this.Items.Item(key) is not KeyItem { OnRing: true }))
+            {
+                throw ContentException.ForField(
+                    map.File,
+                    $"{thing.Id.Value}.key",
+                    $"the lock names the key '{key.Value}', and '{ItemList.Path}' holds no key item with the field 'ring' true (D-1219)");
+            }
+        }
+    }
+
     /// <summary>Checks that each shop service of a map names a shop of the shop file (T-2, D-1149).</summary>
     /// <param name="map">The map.</param>
     /// <exception cref="ArgumentNullException">The map is null (T-2).</exception>
@@ -303,6 +338,24 @@ public sealed class BattleContent
                     service.Id.Value,
                     $"the service names the shop '{shop.Value}', and '{ShopList.Path}' holds no such shop (T-2, D-1149)");
             }
+        }
+    }
+
+    private void RequireChestThing(GameMap map, MapThing chest, ContentId id)
+    {
+        bool held = id.Kind switch
+        {
+            ItemList.Kind => this.Items.Holds(id),
+            GearList.Kind => this.Gear.Holds(id),
+            LessonList.Kind => this.Lessons.Holds(id),
+            _ => false,
+        };
+        if (!held)
+        {
+            throw ContentException.ForField(
+                map.File,
+                chest.Id.Value,
+                $"the chest names '{id.Value}', and the item file, the gear file, and the lesson file hold no such id (D-1220)");
         }
     }
 

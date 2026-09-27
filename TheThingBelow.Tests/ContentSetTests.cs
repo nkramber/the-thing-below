@@ -51,7 +51,7 @@ public sealed class ContentSetTests
         ContentSet set = ContentSet.Load(Files(Rule("rules/a.json", "fixture.lamp", "label.lamp")));
 
         Assert.Single(set.Palette.Colors);
-        Assert.Equal(52, set.Strings.Count);
+        Assert.Equal(61, set.Strings.Count);
         Assert.Equal(64, set.Hash.Length);
         RuleFixtureEntry entry = Assert.Single(set.RuleEntries);
         Assert.Equal("fixture.lamp", entry.Id.Value);
@@ -627,15 +627,15 @@ public sealed class ContentSetTests
         Assert.Equal(hub.Npcs[2].Id.Value, hub.Npcs[3].Target?.Value);
 
         MapService rest = Assert.Single(hub.Services, service => service.Kind == ServiceKind.Rest);
-        MapService save = Assert.Single(hub.Services, service => service.Kind == ServiceKind.Save);
         Assert.Equal(hub.Npcs[0].Id.Value, rest.Npc?.Value);
         Assert.Equal(10, rest.Price);
         MapService shop = Assert.Single(hub.Services, service => service.Kind == ServiceKind.Shop);
         Assert.Equal(hub.Npcs[4].Id.Value, shop.Npc?.Value);
         Assert.Equal("shop.fixture_hub_trader", shop.Shop?.Value);
         Assert.Single(hub.Npcs[4].Route);
-        MapThing point = Assert.Single(hub.Things, thing => thing.Kind == MapThingKind.ServicePoint);
-        Assert.Equal(point.Id.Value, save.Thing?.Value);
+        // The waystone of the yard is a save point, and no service holds the save (D-1221).
+        Assert.Equal("save_point.fixture_hub_waystone", Assert.Single(hub.Things, thing => thing.Kind == MapThingKind.SavePoint).Id.Value);
+        Assert.DoesNotContain(hub.Things, thing => thing.Kind == MapThingKind.ServicePoint);
         Assert.Equal(hub.Time, set.Light.SetupOf(hub.Id, hub.Time).Time);
     }
 
@@ -696,7 +696,7 @@ public sealed class ContentSetTests
              "label": "{{label}}",
              "time": "day",
              "dark": false,
-             "kind": "dungeon", "npcs": [], "services": [],
+             "kind": "dungeon", "npcs": [], "services": [], "reopen": [],
              "terrain": [ "###", "#.#", "###" ],
              "things": [
               { "id": "spawn_point.one_start", "kind": "spawn_point", "x": 1, "y": 1 }

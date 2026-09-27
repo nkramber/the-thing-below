@@ -579,7 +579,7 @@ public sealed class SaveFixtureTests
         Assert.Equal(1000 - 30 - 160, run.State.Characters.Gold);
         Assert.Equal(1, run.State.Shops.LeftOf(store, store.Stock[1]));
         Assert.Equal(1, run.State.Shops.LeftOf(store, store.Stock[3]));
-        Assert.Equal(RunSnapshotText.Write(save.Snapshot), RunSnapshotText.Write(run.Snapshot()));
+        Assert.Equal(RunSnapshotText.Write(AsThisFormat(save.Snapshot)), RunSnapshotText.Write(run.Snapshot()));
     }
 
     [Fact]
@@ -596,7 +596,35 @@ public sealed class SaveFixtureTests
         Assert.DoesNotContain("\"mp\"", text, StringComparison.Ordinal);
         Assert.Equal(8, Assert.Single(run.State.Characters.Members).Ap);
         Assert.Equal(1000 - 30 - 160, run.State.Characters.Gold);
+        Assert.Equal(RunSnapshotText.Write(AsThisFormat(save.Snapshot)), RunSnapshotText.Write(run.Snapshot()));
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatEighteenHoldsTheMemoryOfTheVault()
+    {
+        // PR-16 wrote format 18 from the vault of the dungeon parts: the guard is dead, the plain
+        // door is open, and the chest keeps two draughts (D-385, D-555).
+        SaveDocument save = ReadFormat(18);
+        Simulation run = Simulation.Resume(save.Header.Seed, save.Snapshot, PartsMaps.VaultAndRoom, TestBattles.Content, TestBattles.Notices, TestStory.Content, DebugIntentHandlers.None);
+
+        Assert.Equal(35, save.Header.SimulationVersion);
+        PlaceValues place = Assert.Single(save.Snapshot.Places!);
+        Assert.Equal(("map.test_vault", "patrol.test_vault_guard", "door.test_vault_plain"), (place.Map.Value, Assert.Single(place.Dead).Value, Assert.Single(place.Doors).Value));
+        ChestLeft left = Assert.Single(Assert.Single(place.Chests).Left);
+        Assert.Equal(("item.fixture_draught", 2), (left.Thing.Value, left.Count));
+        Assert.True(Assert.Single(run.State.Party.Patrols.All).Dead);
         Assert.Equal(RunSnapshotText.Write(save.Snapshot), RunSnapshotText.Write(run.Snapshot()));
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatSeventeenStartsTheMemoryWithNoPlace()
+    {
+        // D-555: format 17 holds no memory of a map, and the hub of its run holds no dead enemy.
+        SaveDocument save = ReadFormat(17);
+        Simulation run = Simulation.Resume(save.Header.Seed, save.Snapshot, HubMaps.Store, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
+
+        Assert.Null(save.Snapshot.Places);
+        Assert.Empty(run.Snapshot().Places!);
     }
 
     [Fact]
@@ -835,13 +863,30 @@ public sealed class SaveFixtureTests
     /// <summary>
     /// Gives a snapshot of an older format as the migration of this format gives it: the NPCs of
     /// its map, which places none, so the list is empty (D-1137), an empty reserve (D-1136), and
-    /// each stock at the count of its shop file, so no stock value (D-1152).
+    /// each stock at the count of its shop file, so no stock value (D-1152). The memory of the maps
+    /// holds the dead enemies of the map of the snapshot alone (D-555).
     /// </summary>
     private static RunSnapshot AsThisFormat(RunSnapshot snapshot)
     {
         RunSnapshot withNpcs = snapshot.Map is null ? snapshot : snapshot with { Map = snapshot.Map with { Npcs = snapshot.Map.Npcs ?? [] } };
-        RunSnapshot withStock = withNpcs with { Stock = withNpcs.Stock ?? [] };
+        RunSnapshot withStock = withNpcs with { Stock = withNpcs.Stock ?? [], Places = withNpcs.Places ?? PlacesOf(withNpcs.Map) };
         return withStock.Characters is null ? withStock : withStock with { Characters = withStock.Characters with { Reserve = withStock.Characters.Reserve ?? [] } };
+    }
+
+    /// <summary>Gives the memory that a resume before format 18 starts: the dead enemies of the map of the snapshot (D-555).</summary>
+    private static IReadOnlyList<PlaceValues> PlacesOf(MapSnapshot? map)
+    {
+        List<ContentId> dead = [];
+        foreach (PatrolValues enemy in map?.Enemies ?? [])
+        {
+            if (enemy.Dead)
+            {
+                dead.Add(enemy.Enemy);
+            }
+        }
+
+        dead.Sort((one, other) => string.CompareOrdinal(one.Value, other.Value));
+        return dead.Count == 0 ? [] : [new PlaceValues(map!.Map, dead, [], [])];
     }
 
     /// <summary>Gives the story values that a resume of a snapshot before format 14 writes: the step id of the index (D-1112).</summary>

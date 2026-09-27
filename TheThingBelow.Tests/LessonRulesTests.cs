@@ -420,7 +420,7 @@ public sealed class LessonRulesTests
         RunSnapshot dropped = RunSnapshotText.ReadFormatEleven(ref eleven, Seed);
         PartySnapshot party = dropped.Characters ?? throw new InvalidOperationException("The snapshot holds no party (T-2).");
         Assert.Null(party.TorchHeld);
-        Assert.Equal(line, RunSnapshotText.Write(dropped with { Characters = party with { TorchHeld = false, Reserve = [] }, Map = dropped.Map! with { Npcs = [] }, Stock = [] }));
+        Assert.Equal(line, RunSnapshotText.Write(dropped with { Characters = party with { TorchHeld = false, Reserve = [] }, Map = dropped.Map! with { Npcs = [] }, Stock = [], Places = [] }));
 
         ContentException absent = Assert.Throws<ContentException>(() =>
         {

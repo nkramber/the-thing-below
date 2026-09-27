@@ -40,6 +40,7 @@ public sealed class GameRun
     private readonly List<Intent> queued = [];
     private readonly List<SaveWrite> saves = [];
     private readonly List<MapService> openedServices = [];
+    private readonly List<ContentId> openedSavePoints = [];
     private readonly BattleEventQueue events = new();
     private readonly Simulation simulation;
     private readonly RunRecorder recorder;
@@ -444,6 +445,41 @@ public sealed class GameRun
         return taken;
     }
 
+    /// <summary>Takes every save point whose save window a confirm opened since the last take (D-1221).</summary>
+    /// <returns>The ids of the save points, in the order of the opens. The host opens the save window of each one.</returns>
+    /// <remarks>The rules opened the menu with each save point, so the host sends no open intent (D-162).</remarks>
+    public IReadOnlyList<ContentId> TakeOpenedSavePoints()
+    {
+        ContentId[] taken = [.. this.openedSavePoints];
+        this.openedSavePoints.Clear();
+        return taken;
+    }
+
+    /// <summary>
+    /// Gives the value of each place of the line of a posted notice: the singular of its thing in
+    /// `{thing}`, and its count in `{count}` (D-1224).
+    /// </summary>
+    private IReadOnlyDictionary<string, string> NoticeValuesOf(PostedNotice posted)
+    {
+        if (posted.Thing is null && posted.Count is null)
+        {
+            return NoticeQueue.NoValues;
+        }
+
+        var values = new Dictionary<string, string>(StringComparer.Ordinal);
+        if (posted.Thing is ContentId thing)
+        {
+            values.Add("thing", this.strings.Text(PostedNotice.SingleIdOf(thing)));
+        }
+
+        if (posted.Count is int count)
+        {
+            values.Add("count", count.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        }
+
+        return values;
+    }
+
     /// <summary>Takes every hub service that a confirm opened since the last take (D-1131).</summary>
     /// <returns>The services, in the order of the opens. The host opens the window of each one.</returns>
     /// <remarks>The rules opened the menu with each service, so the host sends no open intent (D-162).</remarks>
@@ -529,10 +565,13 @@ public sealed class GameRun
 
             // A posted notice joins the queue of the notice box on its own tick, so the notice box starts it
             // at the tick of the world where the rule posted it (D-221, D-994).
-            foreach (NoticeRecord posted in this.simulation.TakeNotices())
+            foreach (PostedNotice posted in this.simulation.TakeNotices())
             {
-                this.notices.Add(posted.Id, this.strings.Text(posted.Id).Length, this.simulation.State.WorldTick);
+                IReadOnlyDictionary<string, string> values = this.NoticeValuesOf(posted);
+                this.notices.AddFilled(posted.Id, values, TextHelper.Fill(this.strings.Text(posted.Id), posted.Id, values).Length, this.simulation.State.WorldTick);
             }
+
+            this.openedSavePoints.AddRange(this.simulation.TakeOpenedSavePoints());
 
             // A save takes the snapshot at the end of the tick that asked for it, so the record drops
             // the intents of that tick too (D-1115, D-1132). The host writes each one after the frame.

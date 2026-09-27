@@ -242,20 +242,6 @@ public sealed class ExperienceTests
     }
 
     [Fact]
-    public void ASavePointFillsTheApAndNoHealth()
-    {
-        // Exit test 3 of PR-67 (D-389, D-967, D-970).
-        PartyState party = HurtParty();
-
-        party.RestoreAtSavePoint();
-
-        PartyMember marrek = party.Members[0];
-        Assert.Equal(TestBattles.MarrekAt(2).Ap, marrek.Ap);
-        Assert.Equal(10, marrek.Health);
-        Assert.Equal([StatusKind.Poison], marrek.Statuses);
-    }
-
-    [Fact]
     public void ARestAtAHubFillsTheHealthAndTheApAndEndsTheLastingStatuses()
     {
         // Exit test 3 of PR-67 (D-36, D-390, D-967, D-970).

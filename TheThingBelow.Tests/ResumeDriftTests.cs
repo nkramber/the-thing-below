@@ -52,8 +52,10 @@ public sealed class ResumeDriftTests
     /// <summary>
     /// The digest of every party rule number that a save depends on. A change of one refuses
     /// each save of the older content, so the patch that makes it ships a migration (D-1110).
+    /// PR-16 added the iron key, a new item with the limit 1. No older save holds it, so no save
+    /// of the older content breaks, and the digest took the new list with no migration.
     /// </summary>
-    private const string PartyRuleDigest = "465906ad26b50e7b1f35ad3dd515a0a27644183965b2a66a8debd0450c59f03a";
+    private const string PartyRuleDigest = "03b379b40a817def71d761c2986ab1561c9a935f2fe032258ea10ac45890ef01";
 
     [Fact]
     public void AnotherBuildPlacesANewEnemyOnItsStationAndLogsIt()
@@ -424,7 +426,7 @@ public sealed class ResumeDriftTests
          "label": "label.patrol_test",
          "time": "day",
          "dark": false,
-         "kind": "dungeon", "npcs": [], "services": [],
+         "kind": "dungeon", "npcs": [], "services": [], "reopen": [],
          "terrain": [
           "######",
           "#....#",

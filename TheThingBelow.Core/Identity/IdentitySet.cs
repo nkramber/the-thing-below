@@ -84,7 +84,7 @@ public static partial class IdentitySet
      "label": "label.identity_run",
      "time": "day",
      "dark": false,
-     "kind": "dungeon", "npcs": [], "services": [],
+     "kind": "dungeon", "npcs": [], "services": [], "reopen": [],
      "terrain": [
       "#########",
       "#.......#",
@@ -143,7 +143,7 @@ public static partial class IdentitySet
      "label": "label.identity_battle",
      "time": "day",
      "dark": false,
-     "kind": "dungeon", "npcs": [], "services": [],
+     "kind": "dungeon", "npcs": [], "services": [], "reopen": [],
      "terrain": [
       "#########",
       "#.......#",
@@ -183,7 +183,7 @@ public static partial class IdentitySet
      "label": "label.identity_torch",
      "time": "night",
      "dark": true,
-     "kind": "dungeon", "npcs": [], "services": [],
+     "kind": "dungeon", "npcs": [], "services": [], "reopen": [],
      "terrain": [
       "################",
       "#..............#",
@@ -223,7 +223,7 @@ public static partial class IdentitySet
      "label": "label.identity_record",
      "time": "day",
      "dark": false,
-     "kind": "dungeon", "npcs": [], "services": [],
+     "kind": "dungeon", "npcs": [], "services": [], "reopen": [],
      "terrain": [
       "#########",
       "#.......#",
@@ -263,7 +263,7 @@ public static partial class IdentitySet
      "label": "label.identity_status",
      "time": "day",
      "dark": false,
-     "kind": "dungeon", "npcs": [], "services": [],
+     "kind": "dungeon", "npcs": [], "services": [], "reopen": [],
      "terrain": [
       "#########",
       "#.......#",
@@ -303,7 +303,7 @@ public static partial class IdentitySet
      "label": "label.identity_evaluator",
      "time": "day",
      "dark": false,
-     "kind": "dungeon", "npcs": [], "services": [],
+     "kind": "dungeon", "npcs": [], "services": [], "reopen": [],
      "terrain": [
       "#########",
       "#.......#",
@@ -480,7 +480,7 @@ public static partial class IdentitySet
      "comment": "The item file of the identity set. PR-13 added it, and PR-91 added the torch.",
      "items": [
       { "id": "item.identity_draught", "kind": "heal", "limit": 10, "delay": 100, "value": 10, "amount": 30 },
-      { "id": "item.torch", "kind": "key", "limit": 1 }
+      { "id": "item.torch", "kind": "key", "limit": 1, "ring": false }
      ]
     }
     """;

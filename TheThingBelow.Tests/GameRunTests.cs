@@ -494,9 +494,9 @@ public sealed class GameRunTests
     }
 
     [Theory]
-    [InlineData("KeeperRoute", "KeeperStand", StepDirection.North, ServiceKind.Rest, 69)]
-    [InlineData("WaystoneRoute", "WaystoneStand", StepDirection.East, ServiceKind.Save, 222)]
-    public void EachRouteOfTheServiceCapturesReachesItsHostAndTheConfirmOpensTheService(string route, string stand, StepDirection facing, ServiceKind kind, long arrival)
+    [InlineData("KeeperRoute", "KeeperStand", StepDirection.North, "rest", 69)]
+    [InlineData("WaystoneRoute", "WaystoneStand", StepDirection.East, "save", 222)]
+    public void EachRouteOfTheServiceCapturesReachesItsHostAndTheConfirmOpensTheService(string route, string stand, StepDirection facing, string window, long arrival)
     {
         // The rest and save captures walk these steps after `goto`, one step intent at a time, and
         // no NPC stands in the way at those ticks (D-1131, D-1138, D-1139). The fixed tick count of the
@@ -523,7 +523,16 @@ public sealed class GameRunTests
         Assert.Equal(arrival, run.Tick);
         run.Queue(run.IntentOf("confirm"));
         run.Advance(OneTick);
-        Assert.Equal(kind, Assert.Single(run.TakeOpenedServices()).Kind);
+
+        // The waystone of the hub is a save point, which opens the save window (D-1221).
+        if (window == "save")
+        {
+            Assert.Equal("save_point.fixture_hub_waystone", Assert.Single(run.TakeOpenedSavePoints()).Value);
+            Assert.Empty(run.TakeOpenedServices());
+            return;
+        }
+
+        Assert.Equal(ServiceKind.Rest, Assert.Single(run.TakeOpenedServices()).Kind);
     }
 
     [Fact]
@@ -549,7 +558,7 @@ public sealed class GameRunTests
         MapService opened = Assert.Single(run.TakeOpenedServices());
         Assert.Equal(ServiceKind.Rest, opened.Kind);
         Assert.True(run.MenuOpen);
-        GameValue choice = GameValue.New("ServiceChoice", opened.Kind, opened.Price);
+        GameValue choice = GameValue.New("ServiceChoice", GameValue.Enum("MenuWindowKind", "Rest"), opened.Price);
         run.Queue((Intent)choice.Call("Confirm")!);
         run.Queue(Intent.OfPlayer(IntentIds.CloseMenu));
         run.Advance(OneTick);
@@ -601,11 +610,10 @@ public sealed class GameRunTests
     {
         run.Queue(run.IntentOf("confirm"));
         run.Advance(OneTick);
-        MapService opened = Assert.Single(run.TakeOpenedServices());
-        Assert.Equal(ServiceKind.Save, opened.Kind);
+        Assert.Equal("save_point.fixture_hub_waystone", Assert.Single(run.TakeOpenedSavePoints()).Value);
         Assert.True(run.MenuOpen);
 
-        GameValue choice = GameValue.New("ServiceChoice", opened.Kind, opened.Price);
+        GameValue choice = GameValue.New("ServiceChoice", GameValue.Enum("MenuWindowKind", "Save"), null);
         run.Queue((Intent)choice.Call("Confirm")!);
         run.Queue(Intent.OfPlayer(IntentIds.CloseMenu));
         run.Advance(OneTick);
@@ -748,6 +756,10 @@ public sealed class GameRunTests
         public IReadOnlyList<MapService> TakeOpenedServices() =>
             (IReadOnlyList<MapService>)(this.instance.GetType().GetMethod("TakeOpenedServices", Type.EmptyTypes)!.Invoke(this.instance, Type.EmptyTypes)
                 ?? throw new InvalidOperationException("The 'TakeOpenedServices' method gave nothing (T-2)."));
+
+        public IReadOnlyList<ContentId> TakeOpenedSavePoints() =>
+            (IReadOnlyList<ContentId>)(this.instance.GetType().GetMethod("TakeOpenedSavePoints", Type.EmptyTypes)!.Invoke(this.instance, Type.EmptyTypes)
+                ?? throw new InvalidOperationException("The 'TakeOpenedSavePoints' method gave nothing (T-2)."));
 
         public List<(SaveKind Kind, SaveDocument Document)> TakeSaves()
         {

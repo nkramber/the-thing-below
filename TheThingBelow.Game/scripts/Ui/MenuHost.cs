@@ -128,7 +128,6 @@ public sealed class MenuHost
         MenuWindowKind window = kind switch
         {
             ServiceKind.Rest => MenuWindowKind.Rest,
-            ServiceKind.Save => MenuWindowKind.Save,
             ServiceKind.Shop => MenuWindowKind.Shop,
             _ => throw new ArgumentOutOfRangeException(nameof(service), kind, "The menu opens no window for such a service (T-2)."),
         };
@@ -140,12 +139,35 @@ public sealed class MenuHost
         }
         else
         {
-            this.serviceChoice = new ServiceChoice(kind, kind == ServiceKind.Rest ? service.Price : null);
+            this.serviceChoice = new ServiceChoice(window, service.Price);
         }
 
         this.path.Open(window);
         this.views.Add(this.Build(window, null));
         this.writeLog([new LogEntry(LogLevel.Info, "the menu opened the window of a service", this.run.Tick, LogSubsystems.Game, [WindowField(window)])]);
+    }
+
+    /// <summary>
+    /// Opens the save window of a save point that a confirm opened in the rules (D-1132, D-1221).
+    /// The rules opened the menu with the save point, so the host sends no open intent, and the
+    /// close of the window sends the close intent (D-162).
+    /// </summary>
+    /// <param name="point">The id of the save point, for the log.</param>
+    /// <exception cref="InvalidOperationException">A window is already open, or the run holds no open menu (T-2).</exception>
+    public void OpenSavePoint(ContentId point)
+    {
+        ArgumentNullException.ThrowIfNull(point);
+
+        if (!this.run.MenuOpen)
+        {
+            throw new InvalidOperationException(
+                $"The save window of '{point.Value}' opens at tick {this.run.Tick}, and the run holds no open menu, which the confirm on the save point opens (D-1221, T-2).");
+        }
+
+        this.serviceChoice = new ServiceChoice(MenuWindowKind.Save, null);
+        this.path.Open(MenuWindowKind.Save);
+        this.views.Add(this.Build(MenuWindowKind.Save, null));
+        this.writeLog([new LogEntry(LogLevel.Info, "the menu opened the save window of a save point", this.run.Tick, LogSubsystems.Game, [WindowField(MenuWindowKind.Save), new LogField("save-point", point.Value)])]);
     }
 
     /// <summary>Gives one input event to the menu.</summary>

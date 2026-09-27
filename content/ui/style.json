@@ -25,6 +25,7 @@
   { "role": "map_floor", "key": "D" },
   { "role": "map_door", "key": "O" },
   { "role": "map_save", "key": "u" },
+  { "role": "map_exit", "key": "L" },
   { "role": "map_party", "key": "y" }
  ],
  "frames": [

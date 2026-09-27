@@ -42,11 +42,19 @@ public sealed class MapRulesTests
     }
 
     [Fact]
-    public void ThePartyEntersOpenGroundAndADoorwayAndNoWall()
+    public void ThePartyEntersOpenGroundAndAnOpenDoorAndNoWallAndNoShutDoor()
     {
+        // D-41, D-1142: the door of the room at (11, 4) is shut, and the lead enters it once open.
+        var door = new TilePoint(11, 4);
+        var place = new PlaceState(TestMaps.Room.Id);
         Assert.True(MapRules.CanEnter(TestMaps.Room, new TilePoint(2, 2)));
-        Assert.True(MapRules.CanEnter(TestMaps.Room, new TilePoint(11, 4)));
         Assert.False(MapRules.CanEnter(TestMaps.Room, new TilePoint(5, 3)));
+        Assert.False(MapRules.CanEnter(TestMaps.Room, place, door));
+
+        place.Open(TestMaps.Room.DoorAt(door)!.Id);
+
+        Assert.True(MapRules.CanEnter(TestMaps.Room, place, door));
+        Assert.False(MapRules.CanEnter(TestMaps.Room, door));
     }
 
     [Fact]

@@ -67,7 +67,7 @@ public sealed class ServiceView : IMenuView
             }
             else
             {
-                ui.Text.Put(label, LabelOf(choice.Kind, option));
+                ui.Text.Put(label, LabelOf(choice.Window, option));
             }
 
             this.lines.Add(label);
@@ -75,7 +75,7 @@ public sealed class ServiceView : IMenuView
 
         this.help = MenuNodes.Line(this.layer, left, box.Y + MenuLayout.Pad + (MenuLayout.ServiceHelpRow * line), inner, line);
         MenuNodes.Paint(this.help, this.dimColor);
-        this.gold = choice.Kind == ServiceKind.Rest ? new GoldPanel(this.layer, ui, state, box) : null;
+        this.gold = choice.Window == MenuWindowKind.Rest ? new GoldPanel(this.layer, ui, state, box) : null;
         this.Show();
     }
 
@@ -83,25 +83,25 @@ public sealed class ServiceView : IMenuView
     public ServiceChoice Choice { get; }
 
     /// <summary>Gives the string id of the label of one choice of a service (G-7).</summary>
-    /// <param name="kind">The kind of the service.</param>
+    /// <param name="window">The rest window or the save window.</param>
     /// <param name="option">The choice.</param>
     /// <returns>The id, such as `menu.rest`.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">A value names no kind or no choice (T-2).</exception>
-    public static ContentId LabelOf(ServiceKind kind, ServiceOption option) => Id(option switch
+    /// <exception cref="ArgumentOutOfRangeException">A value names no such window or no choice (T-2).</exception>
+    public static ContentId LabelOf(MenuWindowKind window, ServiceOption option) => Id(option switch
     {
-        ServiceOption.Use => UseIdOf(kind),
+        ServiceOption.Use => UseIdOf(window),
         ServiceOption.Leave => "menu.leave",
         _ => throw new ArgumentOutOfRangeException(nameof(option), option, "The window of a service holds no such choice (T-2)."),
     });
 
     /// <summary>Gives the string id of the line of help of one choice of a service (G-7).</summary>
-    /// <param name="kind">The kind of the service.</param>
+    /// <param name="window">The rest window or the save window.</param>
     /// <param name="option">The choice.</param>
     /// <returns>The id, such as `menu.rest_help`.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">A value names no kind or no choice (T-2).</exception>
-    public static ContentId HelpOf(ServiceKind kind, ServiceOption option) => Id(option switch
+    /// <exception cref="ArgumentOutOfRangeException">A value names no such window or no choice (T-2).</exception>
+    public static ContentId HelpOf(MenuWindowKind window, ServiceOption option) => Id(option switch
     {
-        ServiceOption.Use => $"{UseIdOf(kind)}_help",
+        ServiceOption.Use => $"{UseIdOf(window)}_help",
         ServiceOption.Leave => "menu.leave_help",
         _ => throw new ArgumentOutOfRangeException(nameof(option), option, "The window of a service holds no such choice (T-2)."),
     });
@@ -135,7 +135,7 @@ public sealed class ServiceView : IMenuView
             MenuNodes.Paint(this.lines[index], index == this.Choice.Cursor ? this.chosenColor : null);
         }
 
-        this.ui.Text.Put(this.help, refused ? Id("menu.rest_short") : HelpOf(this.Choice.Kind, this.Choice.Current));
+        this.ui.Text.Put(this.help, refused ? Id("menu.rest_short") : HelpOf(this.Choice.Window, this.Choice.Current));
         MenuNodes.Paint(this.help, refused ? this.ui.Theme.ColorOf("text_warning") : this.dimColor);
         this.gold?.Show();
     }
@@ -143,11 +143,11 @@ public sealed class ServiceView : IMenuView
     /// <inheritdoc/>
     public void Free() => this.layer.QueueFree();
 
-    private static string UseIdOf(ServiceKind kind) => kind switch
+    private static string UseIdOf(MenuWindowKind window) => window switch
     {
-        ServiceKind.Rest => "menu.rest",
-        ServiceKind.Save => "menu.save",
-        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "The window opens for a rest service or a save service (D-1131, T-2)."),
+        MenuWindowKind.Rest => "menu.rest",
+        MenuWindowKind.Save => "menu.save",
+        _ => throw new ArgumentOutOfRangeException(nameof(window), window, "The choice serves the rest window and the save window (D-1131, D-1221, T-2)."),
     };
 
     private static ContentId Id(string value) => ContentId.Parse(value, StringTable.Path, nameof(ServiceView));

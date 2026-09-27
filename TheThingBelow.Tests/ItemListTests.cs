@@ -40,6 +40,16 @@ public sealed class ItemListTests
         Assert.Equal(1, token.Limit);
     }
 
+    [Fact]
+    public void AKeyItemNamesWhetherItSitsOnTheKeyring()
+    {
+        // D-1219: a key that opens a lock sits on the Keyring, and the torch does not.
+        ItemList items = Read(TestBattles.ItemsFile);
+
+        Assert.True(Assert.IsType<KeyItem>(items.Item(Id("item.test_key"))).OnRing);
+        Assert.False(Assert.IsType<KeyItem>(items.Item(Id("item.torch"))).OnRing);
+    }
+
     [Theory]
     [InlineData("\"limit\": 5, \"delay\": 100, \"value\": 12, \"amount\": 30", "\"limit\": 2, \"delay\": 100, \"value\": 12, \"amount\": 30", "limit", "outside 3 to 10")]
     [InlineData("\"limit\": 5, \"delay\": 100, \"value\": 12, \"amount\": 30", "\"limit\": 11, \"delay\": 100, \"value\": 12, \"amount\": 30", "limit", "outside 3 to 10")]
@@ -52,6 +62,8 @@ public sealed class ItemListTests
     [InlineData("\"delay\": 100, \"value\": 12, \"amount\": 30", "\"delay\": 100, \"amount\": 30", "value", "absent")]
     [InlineData("\"value\": 12, \"amount\": 30", "\"value\": 0, \"amount\": 30", "value", "outside 1 to")]
     [InlineData("\"kind\": \"key\", \"limit\": 1", "\"kind\": \"key\", \"limit\": 1, \"value\": 5", "value", "takes no field")]
+    [InlineData("\"kind\": \"key\", \"limit\": 1, \"ring\": false", "\"kind\": \"key\", \"limit\": 1", "ring", "absent")]
+    [InlineData("\"amount\": 30 }", "\"amount\": 30, \"ring\": true }", "ring", "takes no field")]
     [InlineData("\"amount\": 30 }", "\"amount\": 0 }", "amount", "outside 1 to")]
     [InlineData("\"id\": \"item.test_tonic\"", "\"id\": \"item.fixture_draught\"", "item.fixture_draught", "two times")]
     [InlineData("\"id\": \"item.test_tonic\"", "\"id\": \"gear.test_tonic\"", "id", "item")]

@@ -203,6 +203,11 @@ public static class AcceptedIntents
         {
             AddService(state, service, accepted);
         }
+
+        if (SavePointRules.FacedSavePoint(state) is not null)
+        {
+            accepted.Add(Intent.OfPlayer(IntentIds.Save));
+        }
     }
 
     /// <summary>Adds the row change of each character and each swap with the reserve that the rules take (D-558, D-1134).</summary>
@@ -337,7 +342,7 @@ public static class AcceptedIntents
         }
     }
 
-    /// <summary>Adds the rest, the save, or each buy and sale of the shop of the faced service (D-1141, D-1149, D-1156, D-1158).</summary>
+    /// <summary>Adds the rest, or each buy and sale of the shop of the faced service (D-1141, D-1149, D-1156, D-1158).</summary>
     private static void AddService(RunState state, MapService service, List<Intent> accepted)
     {
         switch (service.Kind)
@@ -348,9 +353,6 @@ public static class AcceptedIntents
                     accepted.Add(Intent.OfPlayer(IntentIds.HubRest));
                 }
 
-                return;
-            case ServiceKind.Save:
-                accepted.Add(Intent.OfPlayer(IntentIds.HubSave));
                 return;
             case ServiceKind.Shop:
                 AddShop(state, service, accepted);

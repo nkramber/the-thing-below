@@ -43,6 +43,7 @@ public sealed class GameMap
     private readonly SceneTrigger[] triggers;
     private readonly Npc[] npcs;
     private readonly MapService[] services;
+    private readonly ContentId[] reopenFlags;
 
     // True for each tile that holds a solid thing, in the order of the terrain (D-1142). The
     // step rule reads it on each step, so it holds no walk of the things.
@@ -64,6 +65,7 @@ public sealed class GameMap
         Npc[] npcs,
         MapService[] services,
         SceneTrigger[] triggers,
+        ContentId[] reopenFlags,
         TilePoint spawn)
     {
         this.File = file;
@@ -81,6 +83,7 @@ public sealed class GameMap
         this.npcs = npcs;
         this.services = services;
         this.triggers = triggers;
+        this.reopenFlags = reopenFlags;
         this.Spawn = spawn;
         this.solid = new bool[tiles.Length];
         foreach (MapThing thing in things)
@@ -139,6 +142,66 @@ public sealed class GameMap
 
     /// <summary>Every service of the map, in the order of the file. A dungeon holds none (D-1131, G-4).</summary>
     public IReadOnlyList<MapService> Services => this.services;
+
+    /// <summary>
+    /// The flags whose story event reopens this place, in the order of the file (D-555). When one
+    /// of them turns on, each killed enemy of the map comes back at the next entry.
+    /// </summary>
+    public IReadOnlyList<ContentId> ReopenFlags => this.reopenFlags;
+
+    /// <summary>Finds the door on one tile (D-41).</summary>
+    /// <param name="at">The tile, which can lie outside the map.</param>
+    /// <returns>The door, or no value when the tile holds none.</returns>
+    public MapThing? DoorAt(TilePoint at) => this.ThingOfKindAt(at, MapThingKind.Door);
+
+    /// <summary>Finds the lock on one tile, which shares the tile of its door (D-386).</summary>
+    /// <param name="at">The tile, which can lie outside the map.</param>
+    /// <returns>The lock, or no value when the tile holds none.</returns>
+    public MapThing? LockAt(TilePoint at) => this.ThingOfKindAt(at, MapThingKind.Lock);
+
+    /// <summary>Finds the exit on one tile (D-1216).</summary>
+    /// <param name="at">The tile, which can lie outside the map.</param>
+    /// <returns>The exit, or no value when the tile holds none.</returns>
+    public MapThing? ExitAt(TilePoint at) => this.ThingOfKindAt(at, MapThingKind.Exit);
+
+    /// <summary>Tells whether this map holds one thing of one kind (D-528).</summary>
+    /// <param name="id">The id of the thing.</param>
+    /// <param name="kind">The kind that the thing must take.</param>
+    /// <returns>True when a thing of the map takes the id and the kind.</returns>
+    /// <exception cref="ArgumentNullException">The id is null (T-2).</exception>
+    public bool HoldsThing(ContentId id, MapThingKind kind)
+    {
+        ArgumentNullException.ThrowIfNull(id);
+
+        foreach (MapThing thing in this.things)
+        {
+            if (thing.Kind == kind && string.CompareOrdinal(thing.Id.Value, id.Value) == 0)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>Tells whether this map places one enemy (D-738).</summary>
+    /// <param name="id">The id of the enemy.</param>
+    /// <returns>True when the enemies of the map hold this id.</returns>
+    /// <exception cref="ArgumentNullException">The id is null (T-2).</exception>
+    public bool PlacesPatrol(ContentId id)
+    {
+        ArgumentNullException.ThrowIfNull(id);
+
+        foreach (Patrol patrol in this.patrols)
+        {
+            if (string.CompareOrdinal(patrol.Id.Value, id.Value) == 0)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     /// <summary>Tells whether this map places one NPC (D-1005, D-1137).</summary>
     /// <param name="id">The id of the NPC.</param>
@@ -289,6 +352,7 @@ public sealed class GameMap
         List<SceneTrigger>? triggers = null;
         List<Npc>? npcs = null;
         List<MapService>? services = null;
+        List<ContentId>? reopen = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -336,6 +400,9 @@ public sealed class GameMap
                 case "services":
                     services = MapService.ReadAll(ref reader);
                     break;
+                case "reopen":
+                    reopen = ReadReopenFlags(ref reader);
+                    break;
                 default:
                     throw reader.UnknownField(field);
             }
@@ -355,7 +422,29 @@ public sealed class GameMap
             reader.Require(triggers, depth, "triggers"),
             reader.Require(kind, depth, "kind"),
             reader.Require(npcs, depth, "npcs"),
-            reader.Require(services, depth, "services"));
+            reader.Require(services, depth, "services"),
+            reader.Require(reopen, depth, "reopen"));
+    }
+
+    private static List<ContentId> ReadReopenFlags(ref ContentReader reader)
+    {
+        var flags = new List<ContentId>();
+        int depth = reader.ReadArrayStart();
+        while (reader.ReadNextElement(depth, flags.Count))
+        {
+            ContentId flag = reader.ReadContentId(Story.FlagList.Kind);
+            foreach (ContentId earlier in flags)
+            {
+                if (string.CompareOrdinal(earlier.Value, flag.Value) == 0)
+                {
+                    throw reader.Refuse($"the reopen list names the flag '{flag.Value}' two times (D-555)");
+                }
+            }
+
+            flags.Add(flag);
+        }
+
+        return flags;
     }
 
     private static List<string> ReadRows(ref ContentReader reader)
@@ -389,6 +478,10 @@ public sealed class GameMap
         int? x = null;
         int? y = null;
         bool? pickable = null;
+        string? key = null;
+        ContentId? to = null;
+        List<ChestEntry>? contents = null;
+        int? gold = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -410,6 +503,18 @@ public sealed class GameMap
                 case "pickable":
                     pickable = reader.ReadBoolean();
                     break;
+                case "key":
+                    key = reader.ReadString();
+                    break;
+                case "to":
+                    to = reader.ReadContentId(IdKind);
+                    break;
+                case ChestContents.EntriesField:
+                    contents = ChestContents.ReadEntries(ref reader);
+                    break;
+                case ChestContents.GoldField:
+                    gold = reader.ReadInt();
+                    break;
                 default:
                     throw reader.UnknownField(field);
             }
@@ -420,7 +525,11 @@ public sealed class GameMap
             reader.Require(kind, depth, "kind"),
             reader.RequireInt(x, depth, "x"),
             reader.RequireInt(y, depth, "y"),
-            pickable);
+            pickable,
+            key,
+            to,
+            contents,
+            gold);
     }
 
     private static GameMap Build(
@@ -436,7 +545,8 @@ public sealed class GameMap
         List<SceneTrigger> triggers,
         string kind,
         List<Npc> npcs,
-        List<MapService> services)
+        List<MapService> services,
+        List<ContentId> reopen)
     {
         if (!TimesOfDay.TryOf(time, out TimeOfDay parsed))
         {
@@ -453,7 +563,7 @@ public sealed class GameMap
         TileKind[] tiles = ReadTerrain(ref reader, rows, out int width, out int height);
         MapThing[] things = BuildThings(ref reader, lines, tiles, width, height);
         TilePoint spawn = OneSpawn(ref reader, things);
-        var map = new GameMap(reader.File, id, region, label, parsedKind, parsed, dark, width, height, tiles, things, [.. patrols], [.. npcs], [.. services], [.. triggers], spawn);
+        var map = new GameMap(reader.File, id, region, label, parsedKind, parsed, dark, width, height, tiles, things, [.. patrols], [.. npcs], [.. services], [.. triggers], [.. reopen], spawn);
 
         // The map is complete here, so each check of a patrol reads the terrain and the
         // spawn point through the map itself and never through a second copy of them (T-1).
@@ -561,12 +671,96 @@ public sealed class GameMap
                     $"the lock '{line.Id.Value}' holds no field 'pickable', and the layout marks every lock (D-386)");
             }
 
-            things[index] = new MapThing(line.Id, kind, at, line.Pickable ?? false);
+            ContentId? key = LockKeyOf(ref reader, line, kind);
+            things[index] = new MapThing(line.Id, kind, at, line.Pickable ?? false, key, ExitTargetOf(ref reader, line, kind), ChestOf(ref reader, line, kind));
         }
 
         RefuseRepeatedId(ref reader, things);
         RefuseCrowdedTile(ref reader, things);
         return things;
+    }
+
+    /// <summary>The word of a lock that names no key, which a pickable lock alone takes (D-386, D-1219).</summary>
+    public const string NoKey = "none";
+
+    /// <summary>
+    /// Reads the key of a lock: an item id, or the word `none` for a pickable lock that no key
+    /// opens. A story lock names a key, and a thing of another kind takes no key field (D-386,
+    /// D-1219, T-2).
+    /// </summary>
+    private static ContentId? LockKeyOf(ref ContentReader reader, ThingLine line, MapThingKind kind)
+    {
+        if (kind != MapThingKind.Lock)
+        {
+            if (line.Key is not null)
+            {
+                throw reader.Refuse($"the thing '{line.Id.Value}' is a {MapThingKinds.NameOf(kind)} and it holds the field 'key', which a lock alone holds (D-1219)");
+            }
+
+            return null;
+        }
+
+        string text = line.Key
+            ?? throw reader.Refuse($"the lock '{line.Id.Value}' holds no field 'key', and each lock names its key or the word '{NoKey}' (D-1219)");
+        if (string.CompareOrdinal(text, NoKey) == 0)
+        {
+            if (line.Pickable == false)
+            {
+                throw reader.Refuse($"the lock '{line.Id.Value}' is a story lock with the key '{NoKey}', and a story lock always needs its key (D-386)");
+            }
+
+            return null;
+        }
+
+        ContentId key = ContentId.Parse(text, reader.File, $"{line.Id.Value}.key");
+        if (string.CompareOrdinal(key.Kind, Battles.ItemList.Kind) != 0)
+        {
+            throw reader.Refuse($"the lock '{line.Id.Value}' names the key '{key.Value}', and a key is an item (D-1219)");
+        }
+
+        return key;
+    }
+
+    /// <summary>Reads the map that an exit enters. An exit names one, and no other thing does (D-1216, T-2).</summary>
+    private static ContentId? ExitTargetOf(ref ContentReader reader, ThingLine line, MapThingKind kind)
+    {
+        if (kind == MapThingKind.Exit)
+        {
+            return line.To ?? throw reader.Refuse($"the exit '{line.Id.Value}' holds no field 'to', and an exit names the map that it enters (D-1216)");
+        }
+
+        if (line.To is not null)
+        {
+            throw reader.Refuse($"the thing '{line.Id.Value}' is a {MapThingKinds.NameOf(kind)} and it holds the field 'to', which an exit alone holds (D-1216)");
+        }
+
+        return null;
+    }
+
+    /// <summary>Reads the entries and the gold of a chest. A chest holds both fields, and no other thing does (D-1220, T-2).</summary>
+    private static ChestContents? ChestOf(ref ContentReader reader, ThingLine line, MapThingKind kind)
+    {
+        if (kind != MapThingKind.Chest)
+        {
+            if (line.Contents is not null || line.Gold is not null)
+            {
+                throw reader.Refuse($"the thing '{line.Id.Value}' is a {MapThingKinds.NameOf(kind)} and it holds the field '{ChestContents.EntriesField}' or '{ChestContents.GoldField}', which a chest alone holds (D-1220)");
+            }
+
+            return null;
+        }
+
+        List<ChestEntry> entries = line.Contents
+            ?? throw reader.Refuse($"the chest '{line.Id.Value}' holds no field '{ChestContents.EntriesField}' (D-1220)");
+        int gold = line.Gold
+            ?? throw reader.Refuse($"the chest '{line.Id.Value}' holds no field '{ChestContents.GoldField}' (D-1161)");
+        var contents = new ChestContents(entries, gold);
+        if (contents.FaultOf(line.Id) is string fault)
+        {
+            throw reader.Refuse(fault);
+        }
+
+        return contents;
     }
 
     private static void RefuseRepeatedId(ref ContentReader reader, MapThing[] things)
@@ -760,18 +954,18 @@ public sealed class GameMap
         }
     }
 
-    private bool PlacesPatrol(ContentId id)
+    private MapThing? ThingOfKindAt(TilePoint at, MapThingKind kind)
     {
-        foreach (Patrol patrol in this.patrols)
+        foreach (MapThing thing in this.things)
         {
-            if (string.CompareOrdinal(patrol.Id.Value, id.Value) == 0)
+            if (thing.Kind == kind && thing.At == at)
             {
-                return true;
+                return thing;
             }
         }
 
-        return false;
+        return null;
     }
 
-    private sealed record ThingLine(ContentId Id, string Kind, int X, int Y, bool? Pickable);
+    private sealed record ThingLine(ContentId Id, string Kind, int X, int Y, bool? Pickable, string? Key, ContentId? To, List<ChestEntry>? Contents, int? Gold);
 }

@@ -49,13 +49,26 @@ public sealed class MapPatrols
     /// <summary>The encounter that runs now, or no value (D-531, D-749).</summary>
     public MapEncounter? Encounter { get; private set; }
 
-    /// <summary>Puts every enemy of one map on its station at the start of a run (D-743).</summary>
-    /// <param name="map">The map that the run opens.</param>
+    /// <summary>Puts every enemy of one map on its station, with each enemy alive (D-743).</summary>
+    /// <param name="map">The map that the party enters.</param>
     /// <returns>The enemies, with no mark and no encounter.</returns>
     /// <exception cref="ArgumentNullException">The map is null (T-2).</exception>
     public static MapPatrols Enter(GameMap map)
     {
         ArgumentNullException.ThrowIfNull(map);
+
+        return Enter(map, new PlaceState(map.Id));
+    }
+
+    /// <summary>Puts every enemy of one map on its station, and leaves each enemy that the memory holds as dead dead (D-555, D-743).</summary>
+    /// <param name="map">The map that the party enters.</param>
+    /// <param name="place">The memory of the map.</param>
+    /// <returns>The enemies, with no mark and no encounter.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    public static MapPatrols Enter(GameMap map, PlaceState place)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+        ArgumentNullException.ThrowIfNull(place);
 
         List<PatrolState> placed = [];
         foreach (Patrol patrol in map.Patrols)
@@ -63,7 +76,7 @@ public sealed class MapPatrols
             PatrolStation? station = patrol.StationOf(map.Time);
             if (station is not null)
             {
-                placed.Add(PatrolState.Enter(patrol, station));
+                placed.Add(PatrolState.EnterAgain(patrol, station, place.IsDead(patrol.Id)));
             }
         }
 
@@ -382,8 +395,9 @@ public sealed class MapPatrols
     }
 
     /// <summary>Ends the encounter as a win, and marks its enemy dead (D-531, D-555).</summary>
+    /// <returns>The id of the killed enemy, which the memory of the map then holds.</returns>
     /// <exception cref="InvalidOperationException">No encounter runs (T-2).</exception>
-    public void Defeat()
+    public ContentId Defeat()
     {
         if (this.Encounter is not MapEncounter running)
         {
@@ -391,8 +405,10 @@ public sealed class MapPatrols
                 "The map holds no encounter, and a win ends one (D-531, T-2).");
         }
 
-        this.Find(running.Enemy).Defeat();
+        PatrolState patrol = this.Find(running.Enemy);
+        patrol.Defeat();
         this.Encounter = null;
+        return patrol.Patrol.Id;
     }
 
     /// <summary>Gives the stored values of every enemy, in the order of the map file (D-750).</summary>

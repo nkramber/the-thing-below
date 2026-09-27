@@ -42,7 +42,7 @@ public sealed class AcceptedIntentsTests
         IntentIds.HoldTorch,
         IntentIds.PutTorchAway,
         IntentIds.HubRest,
-        IntentIds.HubSave,
+        IntentIds.Save,
     ];
 
     [Fact]

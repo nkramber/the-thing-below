@@ -23,19 +23,35 @@ public sealed class DungeonMapLayoutTests
     }
 
     [Fact]
-    public void TheScreenShowsEachWalkedTileWithItsDoorAndItsSavePoint()
+    public void TheScreenShowsEachWalkedTileWithItsDoorItsSavePointAndItsExit()
     {
-        // Exit test 6 of PR-62 (D-567, D-993): the save point at (9, 6) and the door at (11, 4).
+        // Exit test 6 of PR-62 and D-1225: the solid save point at (9, 6) and the shut door at
+        // (27, 6) show beside a walked tile, and the exit at (16, 2) shows on its own walked tile.
         MapState party = MapState.Enter(TestMaps.FixtureDungeon);
-        party.Walked.Mark(new TilePoint(9, 6));
-        party.Walked.Mark(new TilePoint(11, 4));
+        party.Walked.Mark(new TilePoint(8, 6));
+        party.Walked.Mark(new TilePoint(26, 6));
+        party.Walked.Mark(new TilePoint(16, 2));
         party.Walked.Mark(new TilePoint(5, 4));
         GameValue layout = Layout(party);
 
         Assert.Equal("Party", MarkAt(layout, party.LeadAt));
         Assert.Equal("SavePoint", MarkAt(layout, new TilePoint(9, 6)));
-        Assert.Equal("Door", MarkAt(layout, new TilePoint(11, 4)));
+        Assert.Equal("Door", MarkAt(layout, new TilePoint(27, 6)));
+        Assert.Equal("Exit", MarkAt(layout, new TilePoint(16, 2)));
         Assert.Equal("Floor", MarkAt(layout, new TilePoint(5, 4)));
+        Assert.Equal("None", MarkAt(layout, new TilePoint(10, 6)));
+    }
+
+    [Fact]
+    public void AThingTwoTilesFromAWalkedTileStaysOffTheMap()
+    {
+        // D-1225: a thing shows beside a walked tile, to the north, the south, the east, or the west alone.
+        MapState party = MapState.Enter(TestMaps.FixtureDungeon);
+        party.Walked.Mark(new TilePoint(7, 6));
+        party.Walked.Mark(new TilePoint(8, 5));
+        GameValue layout = Layout(party);
+
+        Assert.Equal("None", MarkAt(layout, new TilePoint(9, 6)));
     }
 
     [Fact]

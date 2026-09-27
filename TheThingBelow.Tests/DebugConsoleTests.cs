@@ -106,7 +106,7 @@ public sealed class DebugConsoleTests
 
         run.Step([Intent.OfDebugConsole(Id(NoticeIds[0])), Intent.OfDebugConsole(Id(NoticeIds[1]))]);
 
-        IReadOnlyList<NoticeRecord> shown = run.TakeNotices();
+        IReadOnlyList<PostedNotice> shown = run.TakeNotices();
         Assert.Equal([TestBattles.KeptNotice.Value, TestBattles.PlainNotice.Value], [shown[0].Id.Value, shown[1].Id.Value]);
         ContentId kept = Assert.Single(run.State.NoticeLog.Entries);
         Assert.Equal(TestBattles.KeptNotice.Value, kept.Value);

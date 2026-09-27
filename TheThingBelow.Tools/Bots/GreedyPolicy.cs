@@ -93,7 +93,7 @@ public sealed class GreedyPolicy : IBotPolicy
         if (!this.served)
         {
             this.served = true;
-            if ((FirstOf(accepted, IntentIds.HubSave) ?? FirstOf(accepted, IntentIds.HubRest)) is Intent service)
+            if ((FirstOf(accepted, IntentIds.Save) ?? FirstOf(accepted, IntentIds.HubRest)) is Intent service)
             {
                 return service;
             }

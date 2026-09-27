@@ -73,7 +73,7 @@ public sealed class ConfirmRulesTests
         // Exit test 8 of PR-14 (D-543, D-1142): a service point takes the condition as an NPC does.
         GameMap map = HubMaps.Of(
             things: HubMaps.Bed,
-            services: $$"""{ "id": "service.hub_save", "kind": "save", "thing": "service_point.hub_bed", "condition": { "not": { "flag": "{{ClosingFlag.Value}}" } } }""");
+            services: $$"""{ "id": "service.hub_bed_rest", "kind": "rest", "price": 0, "thing": "service_point.hub_bed", "condition": { "not": { "flag": "{{ClosingFlag.Value}}" } } }""");
         Simulation run = WithFlag(map);
         HubWalks.Walk(run, StepDirection.East, 6);
         HubWalks.Face(run, StepDirection.East);
@@ -175,34 +175,6 @@ public sealed class ConfirmRulesTests
         HubWalks.Confirm(run);
 
         AssertHeldThenMoves(run, porter, 25);
-    }
-
-    [Theory]
-    [InlineData("chest")]
-    [InlineData("save_point")]
-    [InlineData("door")]
-    [InlineData("lock")]
-    public void AConfirmAtAThingOfPr16LogsThePlaceOfItsRule(string kind)
-    {
-        // D-1131: PR-16 adds the chest, the door, the lock, and the save point to the confirm rule.
-        // A door and a lock stand in a doorway, so the faced tile becomes one for them (D-528).
-        // A lock holds a door shut, and the confirm reads the first thing of the tile (D-386).
-        string thing = kind == "lock"
-            ? """{ "id": "lock.hub_south", "kind": "lock", "pickable": false, "x": 1, "y": 2 }, { "id": "door.hub_south", "kind": "door", "x": 1, "y": 2 }"""
-            : $$"""{ "id": "{{kind}}.hub_south", "kind": "{{kind}}", "x": 1, "y": 2 }""";
-        string text = HubMaps.Text(things: thing);
-        if (kind is "door" or "lock")
-        {
-            text = text.Replace("\"#........#\",\n  \"#...##...#\"", "\"#+.......#\",\n  \"#...##...#\"", StringComparison.Ordinal);
-        }
-
-        Simulation run = Start(TestMaps.Of("hub-test.json", text));
-
-        IReadOnlyList<LogEntry> log = HubWalks.Confirm(run);
-
-        Assert.False(run.State.MenuOpen);
-        Assert.Empty(run.TakeNotices());
-        Assert.Contains($"the lead confirmed at a {kind}, and PR-16 adds its rule", HubWalks.Messages(log));
     }
 
     [Fact]

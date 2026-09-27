@@ -27,7 +27,7 @@ public sealed class MapStateTests
         // D-1142: the lead faces the service point and never walks onto it.
         GameMap inn = HubMaps.Of(
             npcs: HubMaps.Keeper,
-            services: $"{HubMaps.RestOnKeeper}, {HubMaps.SaveOnBed}",
+            services: $"{HubMaps.RestOnKeeper}, {HubMaps.RestOnBed}",
             things: HubMaps.Bed.Replace("\"x\": 8, \"y\": 1", "\"x\": 2, \"y\": 1", StringComparison.Ordinal));
         MapState party = MapState.Enter(inn);
 

@@ -105,6 +105,10 @@ public sealed record PartySnapshot(IReadOnlyList<CharacterValues> Characters, IR
 /// <param name="Story">The flags, the story scene that runs, and the events that fire a trigger, or no value on a snapshot before save format 9 (D-540, D-542).</param>
 /// <param name="Streams">The position of every stream, in the order of `RandomStreams.All`.</param>
 /// <param name="Stock">The count that remains of each counted entry of a stock that a buy changed, or no value on a snapshot before save format 16 (D-1152).</param>
+/// <param name="Places">
+/// The memory of each map that holds a dead enemy, an open door, or an opened chest, or no value
+/// on a snapshot before save format 18 (D-385, D-555).
+/// </param>
 public sealed record RunSnapshot(
     long Tick,
     bool MenuOpen,
@@ -115,7 +119,8 @@ public sealed record RunSnapshot(
     IReadOnlyList<ContentId>? Notices,
     StoryValues? Story,
     IReadOnlyList<StreamPosition> Streams,
-    IReadOnlyList<StockValues>? Stock)
+    IReadOnlyList<StockValues>? Stock,
+    IReadOnlyList<PlaceValues>? Places)
 {
     /// <summary>
     /// The id of the map to load for this snapshot (D-166). A snapshot of save format 1

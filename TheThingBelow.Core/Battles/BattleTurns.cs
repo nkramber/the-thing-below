@@ -305,7 +305,8 @@ public static class BattleTurns
         MapPatrols patrols = state.Party.Patrols;
         if (battle.Outcome == BattleOutcome.Won)
         {
-            patrols.Defeat();
+            // The memory of the map keeps the enemy dead past the exit (D-555).
+            state.Party.Place.MarkDead(patrols.Defeat());
 
             // The next world step reads the battle end triggers of this patrol (D-1011).
             state.Story.NoteWin(battle.Enemy);

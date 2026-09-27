@@ -370,6 +370,8 @@ public sealed class ContentSet
         {
             battle.RequireGroupsOf(map);
             battle.RequireShopsOf(map);
+            battle.RequireThingsOf(map);
+            RequireExitsOf(map, maps);
         }
 
         // Each trigger of a map names a story scene, its flags, and its markers (D-1004), and
@@ -381,6 +383,7 @@ public sealed class ContentSet
         {
             story.RequireScenesOf(map);
             story.RequireServicesOf(map);
+            story.RequireReopenFlagsOf(map);
         }
 
         LightContent light = LightContent.Load(lightFiles, maps, readPalette, readAtlas);
@@ -633,6 +636,21 @@ public sealed class ContentSet
         }
 
         return strikes;
+    }
+
+    /// <summary>Checks that each exit of a map names a map of the content (D-1216, T-2).</summary>
+    private static void RequireExitsOf(GameMap map, SortedDictionary<string, GameMap> maps)
+    {
+        foreach (MapThing thing in map.Things)
+        {
+            if (thing.To is ContentId to && !maps.ContainsKey(to.Value))
+            {
+                throw ContentException.ForField(
+                    map.File,
+                    $"{thing.Id.Value}.to",
+                    $"the exit names the map '{to.Value}', and no file of '{GameMap.Folder}' holds it (D-1216)");
+            }
+        }
     }
 
     private static ContentException AbsentFile(string path) =>
@@ -979,6 +997,19 @@ public sealed class ContentSet
                     map.File,
                     $"{map.Id.Value}.label",
                     $"the string table holds no id '{map.Label.Value}' (G-7)");
+            }
+
+            // A notice of a chest names each thing in the singular, from its own string (D-1224).
+            foreach (MapThing thing in map.Things)
+            {
+                foreach (ChestEntry entry in thing.Contents?.Entries ?? [])
+                {
+                    this.RequireString(map.File, $"{thing.Id.Value}.{entry.Thing.Value}", PostedNotice.SingleIdOf(entry.Thing));
+                    if (entry.Fallback is ContentId fallback)
+                    {
+                        this.RequireString(map.File, $"{thing.Id.Value}.{fallback.Value}", PostedNotice.SingleIdOf(fallback));
+                    }
+                }
             }
         }
 

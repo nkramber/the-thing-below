@@ -255,18 +255,6 @@ public sealed class PartyReserveTests
     }
 
     [Fact]
-    public void ASavePointFillsTheApOfTheReserve()
-    {
-        // D-389, D-967: a save point fills the AP of each character and no health.
-        Simulation run = TestParty.StartFour(Seed, TestMaps.Room, TestParty.FourContent, (place, stored) => place == 3 ? stored with { Health = 5, Growth = stored.Growth! with { Ap = 1 } } : stored);
-
-        run.State.Characters.RestoreAtSavePoint();
-
-        PartyMember waiting = Assert.Single(run.State.Characters.Reserve);
-        Assert.Equal((5, waiting.Stats.Ap), (waiting.Health, waiting.Ap));
-    }
-
-    [Fact]
     public void TheOwnedLessonsReadTheReserve()
     {
         // D-1023, D-1024: Marrek keeps his lessons in the reserve, so the player still owns them.

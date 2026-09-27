@@ -16,9 +16,9 @@ namespace TheThingBelow.Core.Runs;
 /// adds the hub lines that the dialogue box shows.
 /// <para>
 /// With no NPC there, the first thing of the tile that a confirm reads decides: a service point
-/// opens its service (D-1142). PR-16 adds the door, the lock, the chest, and the save point to
-/// this rule, and until then a confirm of one logs that (D-1131). A trap, a spawn point, and a
-/// marker take no confirm.
+/// opens its service (D-1142), a save point opens the save window (D-1221), a chest gives what it
+/// holds (D-1220), and a door or its lock opens when the rules of the lock let it (D-386, D-1219).
+/// A trap, a spawn point, a marker, and an exit take no confirm.
 /// </para>
 /// <para>
 /// The world step calls this rule once in a tick, only while the lead stands and no battle, no
@@ -30,7 +30,7 @@ public static class ConfirmRules
     /// <summary>Applies the confirm of this tick to the faced tile (D-1131).</summary>
     /// <param name="state">The run, with the lead standing on the map.</param>
     /// <param name="log">The log entries of this tick (D-179).</param>
-    /// <returns>True when a story scene started or a service opened, which holds the world from this tick.</returns>
+    /// <returns>True when a story scene started, a service opened, or a save window opened, which holds the world from this tick.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
     /// <exception cref="SimulationException">The lead steps, or a step of the story scene breaks a rule (T-2).</exception>
     public static bool Confirm(RunState state, List<LogEntry> log)
@@ -60,14 +60,19 @@ public static class ConfirmRules
                     return ServiceRules.Open(state, service, log);
                 case MapThingKind.Door:
                 case MapThingKind.Lock:
-                case MapThingKind.Chest:
-                case MapThingKind.SavePoint:
-                    // PR-16 adds the confirm of each of these kinds here (D-1131).
-                    log.Add(Entry(state, LogLevel.Debug, $"the lead confirmed at a {MapThingKinds.NameOf(thing.Kind)}, and PR-16 adds its rule", [new LogField("thing", thing.Id.Value)]));
+                    // A lock shares the tile of its door, so either line of the file answers the
+                    // confirm of the door and its lock together (D-386).
+                    DoorRules.Confirm(state, faced, log);
                     return false;
+                case MapThingKind.Chest:
+                    ChestRules.Open(state, thing, log);
+                    return false;
+                case MapThingKind.SavePoint:
+                    return SavePointRules.Open(state, thing, log);
                 case MapThingKind.Trap:
                 case MapThingKind.SpawnPoint:
                 case MapThingKind.Marker:
+                case MapThingKind.Exit:
                     break;
                 default:
                     throw new SimulationException($"the thing '{thing.Id.Value}' takes the kind {thing.Kind}, which the confirm rule does not read (D-1131)", state.Context("confirm"));

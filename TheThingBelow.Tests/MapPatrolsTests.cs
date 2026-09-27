@@ -931,7 +931,7 @@ public sealed class MapPatrolsTests
          "label": "label.two_rooms",
          "time": "day",
          "dark": false,
-         "kind": "dungeon", "npcs": [], "services": [],
+         "kind": "dungeon", "npcs": [], "services": [], "reopen": [],
          "terrain": [
           "############",
           "#....#.....#",
