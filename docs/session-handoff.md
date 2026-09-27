@@ -1,3 +1,34 @@
+## Session 368: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-16, round 4. Repository: the-thing-below. Branch: `feat/pr-16-dungeon-parts`. PR: #91. Role: author. Base: `78b0d24`.
+
+### What this session did, and why
+
+- The repeat review approved the effective head `9ad7f4b0`: `Ready for owner merge`, with no open finding (T-4, D-17). The record is `docs/reviews/pr-91.md`, in `3df2092`.
+- Gitar approved `9ad7f4b0` and the review commit with no thread. Each CI claim on RG 3 to RG 5 has its answer in a PR comment (D-964).
+
+### The state of the build
+
+- CI run 36340357804 on `9ad7f4b0` passed each leg. The `review-gate` run 36341304057 passed on `3df2092`.
+- The remote head before this push is `3df2092`, the review record.
+
+### What is in flight
+
+- The checks of this metadata commit, then the merge question to the owner (D-933, D-942). The PR then waits for the auto-merge (D-930).
+
+### Traps and gotchas
+
+- The review commit adds a handoff entry of its own, so the author reads the top number again before each entry.
+
+### The questions that block progress
+
+None for PR-16. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Ask the owner to confirm the merge with the summary of D-942, then turn on the auto-merge (D-930).
+
 ## Session 367: 2026-09-27, Codex
 
 Author: Codex
@@ -293,35 +324,3 @@ None for PR-107. OQ-251 blocks PR-35.
 ### The next concrete action
 
 Take the gear baselines from the capture artifact of CI, push them, run the Gitar poll, and then start the cross-provider review.
-
-## Session 358: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-107, round 2. Repository: the-thing-below. Branch: `feat/pr-107-ability-power`. PR: #90. Role: author. Base: `48ed83b`.
-
-### What this session did, and why
-
-- Gitar approved `5a107ae` with one finding: a regain rate of 0 still gave 1 AP through the floor. `818c593` makes the rules file refuse a rate of 0, with regression rows in `BattleFixtureTests`. Gitar offered an early return in `Regain`. The load refusal is better, because a 0 that loads and does nothing is a silent fault (T-2).
-- The Gitar CI claim on `review-gate` is RG 3 alone: no review record yet. It needs no fix.
-- The screen-test job of CI run 36302235212 named 31 captures. Each one shows AP in place of MP. `battle-lessons-1x` and `battle-lessons-fill-1080` also show "2AP - A hard cut at the front row.", because Hew now costs AP. This round commits the 31 files as the new baseline (D-733).
-
-### The state of the build
-
-- CI on `5a107ae` passed each check except `screen-test`, for the frames above, and `review-gate`, for RG 3.
-- The remote head before this push is `5a107ae`.
-
-### What is in flight
-
-- The Gitar pass of this push, then `make codex-review PR=90` when every check but `review-gate` is green.
-
-### Traps and gotchas
-
-- `make sheet` captures each frame, then fails to join the sheet: the joined image passes 65,535 rows. PR-107 changes no capture, so the fault was on `main` before it.
-
-### The questions that block progress
-
-None for PR-107. OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Answer the Gitar thread with `818c593`, run the Gitar poll, and then start the cross-provider review.
