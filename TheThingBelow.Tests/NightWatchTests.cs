@@ -56,6 +56,17 @@ public sealed class NightWatchTests : IDisposable
     }
 
     [Fact]
+    public void ARemovedMarkLetsTheNextCheckStartTheNightAgain()
+    {
+        // Finding of the Gitar pass on PR #89: a fault before the session kept the mark, and no
+        // later check retried the night.
+        NightWatch.MarkHandled(this.state, Failed, Guid.NewGuid(), NightGateFixture.Now);
+        NightWatch.RemoveMark(this.state, Failed);
+
+        Assert.Equal(Failed, NightWatch.Decide(Failed, NightWatch.ReadHandled(this.state), NightOrder.None).Night);
+    }
+
+    [Fact]
     public void ANightThatANewerPromotionCoversStartsNoSession()
     {
         WatchStep step = NightWatch.Decide(Failed, [], NightOrder.Ahead);

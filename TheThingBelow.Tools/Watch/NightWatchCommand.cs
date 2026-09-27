@@ -99,33 +99,68 @@ public static class NightWatchCommand
     {
         Guid sessionId = Guid.NewGuid();
         string id = night.Id.ToString(CultureInfo.InvariantCulture);
-        string worktree = Path.Combine(state, NightWatch.WorktreeFolder, $"night-{id}");
+
+        // Each start takes its own worktree, so a start that failed before the session leaves no
+        // folder in the way of the next check.
+        string worktree = Path.Combine(state, NightWatch.WorktreeFolder, $"night-{id}-{sessionId.ToString("N")[..8]}");
         string log = Path.Combine(state, NightWatch.LogFolder, $"night-{id}.log");
         Directory.CreateDirectory(Path.GetDirectoryName(log)!);
 
         // The mark comes first, so a session that stops or fails never gets a second start.
         NightWatch.MarkHandled(state, night, sessionId, DateTimeOffset.UtcNow);
-        ExternalProgram.RunChecked("git", ["-C", repository, "fetch", "--no-tags", "origin", NightGate.MainBranch], repository);
-        ExternalProgram.RunChecked("git", ["-C", repository, "worktree", "add", "--detach", worktree, $"origin/{NightGate.MainBranch}"], repository);
-        Notify(repo, repository, "The Thing Below: fix session started", $"Night run {id} failed. Session {sessionId:D} runs in {worktree}.", night.Link);
-        Log(state, $"The session {sessionId:D} starts in '{worktree}', and its log is '{log}'.", output);
-
-        ProgramResult result = ExternalProgram.Run(
-            claude,
-            ["-p", NightWatch.PromptOf(night, sessionId, worktree), "--permission-mode", PermissionMode, "--session-id", sessionId.ToString("D")],
-            worktree,
-            log,
-            SessionLimit);
-        if (result.ExitCode == 0)
+        bool started = false;
+        try
         {
-            Log(state, $"The session {sessionId:D} ended with the exit code 0.", output);
-            return 0;
-        }
+            ExternalProgram.RunChecked("git", ["-C", repository, "fetch", "--no-tags", "origin", NightGate.MainBranch], repository);
+            ExternalProgram.RunChecked("git", ["-C", repository, "worktree", "add", "--detach", worktree, $"origin/{NightGate.MainBranch}"], repository);
+            Notify(repo, repository, "The Thing Below: fix session started", $"Night run {id} failed. Session {sessionId:D} runs in {worktree}.", night.Link);
+            Log(state, $"The session {sessionId:D} starts in '{worktree}', and its log is '{log}'.", output);
 
-        string message = $"The session {sessionId:D} of night run {id} ended with the exit code {result.ExitCode.ToString(CultureInfo.InvariantCulture)}. Log: {log}. {result.Error.Trim()}";
+            started = true;
+            ProgramResult result = ExternalProgram.Run(
+                claude,
+                ["-p", NightWatch.PromptOf(night, sessionId, worktree), "--permission-mode", PermissionMode, "--session-id", sessionId.ToString("D")],
+                worktree,
+                log,
+                SessionLimit);
+            if (result.ExitCode == 0)
+            {
+                Log(state, $"The session {sessionId:D} ended with the exit code 0.", output);
+                return 0;
+            }
+
+            Stop(repo, repository, state, night, $"The session {sessionId:D} of night run {id} ended with the exit code {result.ExitCode.ToString(CultureInfo.InvariantCulture)}. Log: {log}. {result.Error.Trim()}", output);
+            return Program.FaultExitCode;
+        }
+        catch (Exception fault) when (fault is IOException or UnauthorizedAccessException or InvalidOperationException)
+        {
+            // A fault before the session keeps no mark, so the next check starts it again. A fault
+            // of the session itself, such as the limit of 24 hours, keeps the mark (D-1205, T-2).
+            if (!started)
+            {
+                NightWatch.RemoveMark(state, night);
+            }
+
+            string retry = started ? "The night keeps its mark." : "The next check starts the night again.";
+            Stop(repo, repository, state, night, $"The session {sessionId:D} of night run {id} stopped: {fault.Message} {retry}", output);
+            return Program.FaultExitCode;
+        }
+    }
+
+    /// <summary>Logs a stop of a fix session, and sends the stop Pushover when the notify workflow works.</summary>
+    private static void Stop(string repo, string repository, string state, WatchedNight night, string message, TextWriter output)
+    {
         Log(state, message, output);
-        Notify(repo, repository, "The Thing Below: fix session stopped", Clip(message), night.Link);
-        return Program.FaultExitCode;
+        try
+        {
+            Notify(repo, repository, "The Thing Below: fix session stopped", Clip(message), night.Link);
+        }
+        catch (InvalidOperationException fault)
+        {
+            // The stop is already a fault of the command, and the log holds both lines. The exit
+            // code of the command still reports the stop to launchd (T-2).
+            Log(state, $"The stop Pushover failed too: {fault.Message}", output);
+        }
     }
 
     private static WatchedNight? NewestNight(string repo, string repository)

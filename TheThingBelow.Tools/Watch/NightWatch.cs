@@ -136,6 +136,16 @@ public static class NightWatch
         File.WriteAllText(Path.Combine(folder, Text(night.Id)), $"{NightJson.TextOf(now)} session {sessionId:D} {night.Link}\n");
     }
 
+    /// <summary>Removes the mark of a night, so the next check starts its session again. The watcher calls it after a fault before the session starts.</summary>
+    /// <param name="state">The folder of the watcher.</param>
+    /// <param name="night">The night.</param>
+    public static void RemoveMark(string state, WatchedNight night)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(state);
+        ArgumentNullException.ThrowIfNull(night);
+        File.Delete(Path.Combine(state, HandledFolder, Text(night.Id)));
+    }
+
     private static string Short(string commit) => commit.Length > 12 ? commit[..12] : commit;
 
     private static string Text(long value) => value.ToString(CultureInfo.InvariantCulture);

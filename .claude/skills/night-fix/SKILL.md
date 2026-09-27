@@ -87,4 +87,4 @@ D-1206 holds the owner definition, verbatim: "'Absolutely critical owner-only qu
 - A night takes about 55 minutes. Run each watch in the background, and never poll in the foreground.
 - The branch night needs the first seed of the failed night, or no promotion follows the merge (D-1203).
 - The promotion turns `main` green at the merge (D-1202). An open PR then needs a new run of its gate.
-- The session can run for many hours. The watcher stops it after 24 hours, and it sends a Pushover.
+- The session can run for many hours. The watcher stops it after 24 hours, and it tries to send a Pushover. The log of the watcher holds each stop.
