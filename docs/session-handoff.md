@@ -1,3 +1,37 @@
+## Session 361: 2026-09-27, Codex
+
+Author: Codex
+Session: review PR #90 (PR-107). Repository: the-thing-below. Branch: `review/pr-90`, tracking `origin/feat/pr-107-ability-power`. Role: reviewer. Base: `48ed83b`.
+
+### What this session did, and why
+
+- Reviewed effective head `b9258bc` and traced AP combat regains, save migration, UI updates, and the gear line (D-1197 to D-1215).
+- Verified the Gitar finding fixed in `818c593`, its regression test, and the answered RG 3 claim (D-964).
+- Wrote `docs/reviews/pr-90.md` with `Ready for owner merge` for the effective head.
+
+### The state of the build
+
+- Local `make verify` passed, including 4,175 tests.
+- CI passed all jobs except `review-gate`, which reports RG 3 because the review record is not yet published.
+- The remote head before this metadata commit is `b9258bc`.
+
+### What is in flight
+
+- Push the review record and this handoff to `feat/pr-107-ability-power`, then verify the remote head and review-gate result.
+
+### Traps and gotchas
+
+- The review branch is `review/pr-90`; push with `git push origin HEAD:feat/pr-107-ability-power`.
+- The session moves session 351 to the archive to keep 10 entries in the handoff (D-18, D-607).
+
+### The questions that block progress
+
+None for PR-107. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Run `make where`, commit the review record and handoff together, push to the PR branch, fetch, and verify the remote head with `gh pr view`.
+
 ## Session 360: 2026-09-27, Claude Code
 
 Author: Claude Code
@@ -300,37 +334,3 @@ None for PR-108. OQ-251 blocks PR-35, and OQ-252 blocks PR-107.
 ### The next concrete action
 
 Read P2-1, add a pagination regression test, and request a repeat review of PR #89.
-
-## Session 351: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-108, round 5. Repository: the-thing-below. Branch: `feat/pr-108-night-recovery`. PR: #89. Role: author. Base: `a8ba710`.
-
-### What this session did, and why
-
-- Gitar approved `f5a46c4` with one suggestion: the limit of 15 minutes of the promotion wait counted from the start, so a long queue could stop a run that moved.
-- `4779565` starts the limit again each time the set of open earlier runs changes. The limit stops a stalled queue alone, and the job timeout of 40 minutes stays the hard limit (D-1202, T-2).
-- The review gate faults on RG 4 and RG 5, because the record of round 1 names `e8a8cd9` with `Changes required`. The next Codex round writes the new record.
-
-### The state of the build
-
-- Local build, format, and STE are clean. The workflow tests pass.
-- The remote head before this push is `f5a46c4`.
-
-### What is in flight
-
-- The Gitar pass of this push, then `make codex-review PR=89`, round 2 of the review.
-- After the merge: `make night-watch-install` on the Mac, and one test message through `notify.yml`.
-
-### Traps and gotchas
-
-- `notify.yml`, `night-promote.yml`, and the facts action first run from `main`, after the merge (F-37).
-- P1-1 counts one round. A third open round of one finding stops the loop (D-929).
-
-### The questions that block progress
-
-None for PR-108. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Run the Gitar poll. When every check except `review-gate` is green, run `make codex-review PR=89` in the background.
