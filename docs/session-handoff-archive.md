@@ -1,4 +1,40 @@
 # Session handoff archive
+## Session 334: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR-36, round 1. Repository: the-thing-below. Branch: `feat/pr-36-dialogue`. PR: #86. Role: author. Base: `6f02d3d`.
+
+### What this session did, and why
+
+- The owner answered OQ-150 and OQ-151, folded the playtest fixes of PR-65 into PR-36, and set the text batch and the scope (D-1172 to D-1178). OQ-250 is new.
+- Core: a choice holds two to four options, and the simulation version rises to 33 (D-1175, G-17).
+- Game: `ScenePlay` follows each step from the ticks and sends one wait intent at its end. `DialogueBox` draws the line, the portrait, the name plate, and the choices. The map walks each actor, and the story pause dims the frame (D-1009, D-1013).
+- A set fight takes its transition with no encounter: the boss flag, then the largest body of the group (D-788, D-937).
+- Fixes: WASD and Backspace in menus, the "Quantity" label, sharp titles (F-153), the empty line of a service window, and the blur band on the lead or the camera marker (D-1173, D-1177).
+- Content: two fixture story scenes on tiles of the fixture hub, three fixture portraits, and the new portraits atlas page.
+
+### The state of the build
+
+- `make verify` passes locally. CI run `36271514085` failed on the baselines alone. This round commits 108 changed baselines and 5 new `scene-*` baselines from its `screen-captures` artifact (D-733). The remote head is the push of this round.
+
+### What is in flight
+
+- Gitar approved `e9ff621` with no finding. Its CI analysis named the baselines, RG 3, and the coverage job, and a PR comment answers each claim. The baseline push needs a new Gitar pass and green CI.
+
+### Traps and gotchas
+
+- Core runs a whole move at once. `ScenePlay.TryWalk` walks the actor back from its end tile along the path.
+- Core refuses an intent that no step waits for. `ScenePlay` checks the queue and the queued pause before each intent.
+- The stranger trigger stands at (4, 7), off every walk to a service. A test walks each capture route and fails if a route crosses a trigger.
+
+### The questions that block progress
+
+None. OQ-250, the pause of the fight of a story scene, blocks no PR yet.
+
+### The next concrete action
+
+When CI is green except `review-gate` and Gitar completes, run `make codex-review PR=86` in the background.
+
 ## Session 333: 2026-09-26, Codex
 
 Author: Codex
