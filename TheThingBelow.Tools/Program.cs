@@ -16,6 +16,7 @@ using TheThingBelow.Tools.ReviewGate;
 using TheThingBelow.Tools.Screens;
 using TheThingBelow.Tools.Screenplay;
 using TheThingBelow.Tools.SteCheck;
+using TheThingBelow.Tools.Watch;
 
 namespace TheThingBelow.Tools;
 
@@ -151,6 +152,16 @@ public static class Program
             return PushoverCommand.Run(args[1..], output, errors);
         }
 
+        if (command == NightWatchCommand.Name)
+        {
+            return NightWatchCommand.Run(args[1..], output, errors);
+        }
+
+        if (command == NightWatchInstallCommand.Name)
+        {
+            return NightWatchInstallCommand.Run(args[1..], output, errors);
+        }
+
         if (PlannedCommands.TryGetValue(command, out string? pullRequest))
         {
             errors.WriteLine(
@@ -185,6 +196,8 @@ public static class Program
         errors.WriteLine($"  {NightPromoteCommand.Name}: ready");
         errors.WriteLine($"  {NightAlertCommand.Name}: ready");
         errors.WriteLine($"  {PushoverCommand.Name}: ready");
+        errors.WriteLine($"  {NightWatchCommand.Name}: ready");
+        errors.WriteLine($"  {NightWatchInstallCommand.Name}: ready");
         errors.WriteLine("The planned commands, with the PR that adds each one:");
         foreach (KeyValuePair<string, string> entry in PlannedCommands)
         {

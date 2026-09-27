@@ -21,7 +21,7 @@ SKIP_GITAR_REVIEW := --skip-gitar-review
 CODEX_REVIEW_FLAGS := $(filter $(SKIP_GITAR_REVIEW),$(MAKECMDGOALS))
 
 
-.PHONY: verify where hooks build test lint format ste-check identity bots content atlas smoke sheet walk run clean codex-review screenplay evaluator-cost $(SKIP_GITAR_REVIEW)
+.PHONY: verify where hooks build test lint format ste-check identity bots content atlas smoke sheet walk run clean codex-review screenplay evaluator-cost night-watch night-watch-install $(SKIP_GITAR_REVIEW)
 
 ## verify: every check that this machine can run.
 verify: build test format lint ste-check identity bots content atlas smoke
@@ -228,6 +228,18 @@ screenplay:
 # Steam Deck, and the command fails a miss. A Debug build is slower, so the target builds Release.
 evaluator-cost:
 	dotnet run -c Release --project $(TOOLS_PROJECT) -- evaluator-cost --root .
+
+## night-watch-install: publish Tools and load the launchd job of the night watcher on this Mac (D-1205).
+#
+# The job starts `night-watch` at minute 0 and minute 30 of each hour. Run the target again after
+# a change of the watcher reaches `main`. `docs/runbooks/night-watch.md` gives the steps.
+NIGHT_WATCH_STATE ?= $(HOME)/.the-thing-below/night-watch
+night-watch-install:
+	dotnet run --project $(TOOLS_PROJECT) -- night-watch-install --repository $(CURDIR) --state $(NIGHT_WATCH_STATE)
+
+## night-watch: one check of the night watcher by hand, with the folder of the launchd job (D-1205).
+night-watch:
+	dotnet run --project $(TOOLS_PROJECT) -- night-watch --repository $(CURDIR) --state $(NIGHT_WATCH_STATE)
 
 ## where: the branch, the tree, and the PR state.
 where:
