@@ -1,4 +1,36 @@
 # Session handoff archive
+## Session 339: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR-15, round 2. Repository: the-thing-below. Branch: `feat/pr-15-bots`. PR: #87. Role: author. Base: `f383aa9`.
+
+### What this session did, and why
+
+- Read the first CI run of the `bots` job, run 36278255713. Each leg played 1,000 runs of each policy with no crash and no softlock, and the three legs gave the same ends.
+- Set the counts of D-1180 from the times of the slowest leg, macos-26: 20 seconds for 1,000 greedy runs and 22 for 1,000 random runs. Each policy takes half of 5 minutes, less a margin: 7,000 greedy runs and 6,500 random runs, about 283 seconds on macos-26.
+- Answered the Gitar CI-analysis claim on the PR. The one fault of `review-gate` is RG 3, the absent review record, and not the checkboxes (D-964). The Gitar code review approved `a60e1b5` with no finding.
+
+### The state of the build
+
+- Every check of `a60e1b5` passed except `review-gate`, which waits for `docs/reviews/pr-87.md`. The remote head before this commit is `a60e1b5`.
+
+### What is in flight
+
+- The Gitar pass of this push, then `make codex-review PR=87`.
+
+### Traps and gotchas
+
+- The local `bots` target runs a Debug build, so it plays about 5 times slower than a CI leg. Time the counts on CI alone.
+- The owner adds `bots` to the required checks of `main` after its first run (section 7.16 of `docs/roadmaps/area-ci.md`).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Wait for the Gitar pass and the CI of this push. Then run `make codex-review PR=87` in the background.
+
 ## Session 338: 2026-09-26, Claude Code
 
 Author: Claude Code
