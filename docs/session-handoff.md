@@ -8,6 +8,7 @@ Session: review PR #89 (PR-108). Repository: the-thing-below. Branch: `review/pr
 - Reviewed effective head `e8a8cd9` and found that the `night-promote` concurrency group can cancel a pending push before its promotion runs (D-1202).
 - Confirmed the two Gitar watcher findings are fixed and confirmed by Gitar. The relevant watcher tests pass.
 - Updated the PR Documents row and wrote the review record. The verdict is `Changes required` for P1-1.
+- Pushed the review record and handoff as metadata. The session-end check confirmed the remote head.
 
 ### The state of the build
 
