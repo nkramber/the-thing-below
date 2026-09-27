@@ -1,0 +1,160 @@
+# The promotion of a branch night at the merge (D-1202, D-1203). PR-108 creates it.
+#
+# On each push to `main`, the job finds the merged PR of the push and the newest night on its
+# head, or on a commit with documents alone after it (D-1204). When the newest evidence of `main`
+# is a failed night, and that branch night passed the failed range inside 48 hours, the job keeps
+# the branch night as the artifact `night-promotion`. The night gate then reads it as the newest
+# evidence of `main` (G-22). A push that promotes nothing is no fault, and the log names the reason.
+#
+# The job compares the tree of the merge commit with the tree of the night commit, because a
+# squash merge makes a new commit. It fetches the commits of the PR as data, and it runs no code
+# of the PR. `docs/runbooks/night.md` gives the commands.
+#
+# Each action pins a full commit SHA (D-511).
+name: night-promote
+
+on:
+  push:
+    branches: [main]
+
+# The job reads the runs, the artifacts, the commits, and the PRs. The artifact upload takes the
+# runtime token of the run, and the job writes nothing through the GitHub API.
+permissions:
+  contents: read
+  actions: read
+  pull-requests: read
+
+# No concurrency group: GitHub keeps one pending run for each group, and a new run cancels the
+# pending one, so a push could lose its promotion. Each run waits for each earlier run instead.
+
+env:
+  DOTNET_NOLOGO: "true"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+
+jobs:
+  night-promote:
+    name: night-promote
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    defaults:
+      run:
+        shell: bash
+    steps:
+      # Each push gets its own run, and each run checks the promotion only after each earlier run
+      # of this workflow ended. The checks thus follow the order of the pushes, and no push loses
+      # its run (D-1202). The limit of 15 minutes starts again each time the set of open runs
+      # changes, so it stops a stalled queue alone. The job timeout of 40 minutes stays the hard
+      # limit (T-2).
+      - name: Wait for each earlier promotion run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          end=$(( $(date +%s) + 900 ))
+          last=""
+          while :; do
+            # Each open status gets its own query with every page, so an old open run past the
+            # newest page still counts. The open runs are few, so the pages stay short. The
+            # queries follow the order of the life of a run, so a run that moves on between two
+            # queries shows in the later one.
+            : > "$RUNNER_TEMP/open-runs.txt"
+            for status in requested pending waiting queued in_progress; do
+              gh api --paginate "repos/$REPO/actions/workflows/night-promote.yml/runs?status=$status&per_page=100" \
+                --jq ".workflow_runs[] | select(.id < $RUN_ID) | .id" >> "$RUNNER_TEMP/open-runs.txt"
+            done
+            earlier=$(sort -n -u "$RUNNER_TEMP/open-runs.txt" | paste -s -d " " -)
+            if [ -z "$earlier" ]; then echo "No earlier promotion run is open."; break; fi
+            if [ "$earlier" != "$last" ]; then last="$earlier"; end=$(( $(date +%s) + 900 )); fi
+            if [ "$(date +%s)" -ge "$end" ]; then
+              echo "The earlier promotion runs $earlier made no progress for 15 minutes, so this run stops (D-1202)." >&2
+              exit 1
+            fi
+            echo "The earlier promotion runs $earlier are open. The run waits."
+            sleep 20
+          done
+
+      # The full history of `main`, so the job can compare the trees.
+      - name: Check out the pushed commit of main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Install the .NET SDK of global.json
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      - name: Build the tools
+        run: dotnet build TheThingBelow.Tools/TheThingBelow.Tools.csproj --verbosity quiet
+
+      # A squash merge names its PR through the API. A push with no merged PR leaves both
+      # values empty, and the command reads that case.
+      - name: Find the merged PR of the push
+        id: pull
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$REPO/commits/$GITHUB_SHA/pulls" > "$RUNNER_TEMP/pulls.json"
+          number=$(jq -r --arg merge "$GITHUB_SHA" \
+            '[.[] | select(.merged_at != null and .merge_commit_sha == $merge)] | .[0].number // empty' \
+            "$RUNNER_TEMP/pulls.json")
+          head=$(jq -r --arg merge "$GITHUB_SHA" \
+            '[.[] | select(.merged_at != null and .merge_commit_sha == $merge)] | .[0].head.sha // empty' \
+            "$RUNNER_TEMP/pulls.json")
+          echo "number=$number" >> "$GITHUB_OUTPUT"
+          echo "head=$head" >> "$GITHUB_OUTPUT"
+          echo "The push of $GITHUB_SHA merged the PR '${number:-none}' at the head '${head:-none}'."
+
+      - name: Read the nights, the promotion, and the commits
+        uses: ./.github/actions/night-facts
+        with:
+          token: ${{ github.token }}
+          pull-request: ${{ steps.pull.outputs.number }}
+          head: ${{ steps.pull.outputs.head }}
+          folder: ${{ runner.temp }}/night-facts
+
+      # The ref of the PR keeps its commits after GitHub deletes the branch. The paths come with
+      # no rename match, so a rename lists its old path and its new path.
+      - name: Compare the tree of the merge commit with the tree of the branch night
+        env:
+          NUMBER: ${{ steps.pull.outputs.number }}
+        run: |
+          set -euo pipefail
+          facts="$RUNNER_TEMP/night-facts"
+          if [ -f "$facts/head-night/run.json" ]; then
+            night_commit=$(jq -r .commit "$facts/head-night/run.json")
+            git fetch --no-tags origin "refs/pull/$NUMBER/head"
+            git diff --name-only --no-renames "$night_commit" "$GITHUB_SHA" > "$facts/tree-difference.txt"
+            echo "The trees differ in $(wc -l < "$facts/tree-difference.txt") paths."
+          fi
+
+      - name: Check the promotion
+        id: promote
+        env:
+          NUMBER: ${{ steps.pull.outputs.number }}
+        run: |
+          set -euo pipefail
+          facts="$RUNNER_TEMP/night-facts"
+          extra=()
+          if [ -f "$facts/promotion-order.txt" ]; then extra+=(--promotion-order "$(cat "$facts/promotion-order.txt")"); fi
+          if [ -n "$NUMBER" ]; then extra+=(--pull-request "$NUMBER" --commits "$facts/commits.json"); fi
+          if [ -f "$facts/tree-difference.txt" ]; then extra+=(--tree-difference "$facts/tree-difference.txt"); fi
+          dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj --no-build --verbosity quiet \
+            -- night-promote --merge-commit "$GITHUB_SHA" \
+            --main-night "$facts/main-night" --promotion "$facts/promotion" \
+            --branch-night "$facts/head-night" "${extra[@]}" \
+            --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --out "$RUNNER_TEMP/night-promotion" \
+            | tee -a "$GITHUB_STEP_SUMMARY"
+          if [ -f "$RUNNER_TEMP/night-promotion/promotion.json" ]; then echo "promoted=true" >> "$GITHUB_OUTPUT"; fi
+
+      - name: Keep the promotion
+        if: steps.promote.outputs.promoted == 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: night-promotion
+          path: ${{ runner.temp }}/night-promotion
+          if-no-files-found: error

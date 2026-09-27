@@ -1,4 +1,4 @@
-# The night job (D-64, D-505, D-507, D-509). PR-49 creates it.
+# The night job (D-64, D-505, D-507, D-509). PR-49 creates it, and PR-108 adds the alert (D-1201).
 #
 # GitHub starts `schedule` from the default branch alone, and a manual run needs the workflow on
 # the default branch first. The first night thus runs after the merge of PR-49 (F-37, D-500).
@@ -41,6 +41,9 @@ jobs:
     runs-on: ${{ matrix.leg }}
     # The runs take about 60 minutes of the 6 hours of a hosted runner (D-507, D-1191).
     timeout-minutes: 180
+    # Each leg plays the same range, so the output of any leg names the first seed (D-1190).
+    outputs:
+      first-seed: ${{ steps.seed.outputs.first-seed }}
     strategy:
       fail-fast: false
       matrix:
@@ -75,6 +78,7 @@ jobs:
       # A scheduled night has no input, and it plays a new range from its run number. A manual
       # night can name the range of a failed night, so a fix plays the same seeds (D-1190, D-510).
       - name: Set the first seed of the night
+        id: seed
         run: |
           set -euo pipefail
           if [ -n "${INPUT_FIRST_SEED:-}" ]; then
@@ -87,6 +91,7 @@ jobs:
             first_seed=$(( RUN_NUMBER * 1000000000 ))
           fi
           echo "FIRST_SEED=$first_seed" >> "$GITHUB_ENV"
+          echo "first-seed=$first_seed" >> "$GITHUB_OUTPUT"
           echo "The night plays from the seed $first_seed."
 
       # A softlock or a crash fails the step with the seed, the policy, and the leg. The command
@@ -118,3 +123,53 @@ jobs:
           name: night-failed-runs-${{ matrix.leg }}
           path: artifacts/night/records
           if-no-files-found: warn
+
+  # One Pushover message when a leg fails, with each failed leg, the first seed, and the link of
+  # the run (D-1201). The secrets reach the command through its environment alone, and no step
+  # writes them. A failed send fails this job with the reply of Pushover (T-2).
+  alert:
+    name: alert
+    needs: night
+    if: ${{ !cancelled() && needs.night.result == 'failure' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: read
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out the commit of the night
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install the .NET SDK of global.json
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      - name: Read the jobs of the night
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$REPO/actions/runs/$RUN_ID/jobs?per_page=100" \
+            --jq '[.jobs[] | {name, conclusion}]' > "$RUNNER_TEMP/night-jobs.json"
+
+      # A leg that stopped before the seed step gives no first seed, and the message names that.
+      - name: Send the alert
+        env:
+          PUSHOVER_USER_KEY: ${{ secrets.PUSHOVER_USER_KEY }}
+          PUSHOVER_API_TOKEN: ${{ secrets.PUSHOVER_API_TOKEN }}
+          FIRST_SEED: ${{ needs.night.outputs.first-seed }}
+          BRANCH: ${{ github.ref_name }}
+          RUN_LINK: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          seed=()
+          if [ -n "${FIRST_SEED:-}" ]; then seed=(--first-seed "$FIRST_SEED"); fi
+          dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj --verbosity quiet -- \
+            night-alert --jobs "$RUNNER_TEMP/night-jobs.json" "${seed[@]}" \
+            --branch "$BRANCH" --commit "$GITHUB_SHA" --run-link "$RUN_LINK"

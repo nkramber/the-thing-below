@@ -1,0 +1,130 @@
+# The facts of the nights that the night gate and the promotion read through the GitHub API
+# (D-509, D-1202, D-1204). PR-108 creates this action, and `night-gate` and `night-promote` use it.
+#
+# The action writes four things into its folder:
+# - `main-night`: the newest completed night of `main`, with its night records.
+# - `promotion`: the newest promotion of `main`, and `promotion-order.txt` when a night of
+#   `main` exists too. The order is the compare status of the merge commit against the night.
+# - `commits.json`: each commit of the PR with its parents and its paths, oldest first.
+# - `head-night`: the newest completed night on a commit of the walk of D-1204, with its records.
+#
+# A folder with no `run.json` or no `promotion.json` means that no such night or promotion
+# exists, and the commands read that case. The action reads no file of the head of a PR, and it
+# runs no code of a PR. The caller builds Tools first, for the `night-walk` command.
+name: night facts
+description: Read the nights, the promotion, and the commits of a PR through the GitHub API.
+
+inputs:
+  token:
+    description: "The token of the job, with read access to the runs, the artifacts, and the PRs."
+    required: true
+  pull-request:
+    description: "The number of the PR. Leave it empty for a push with no merged PR."
+    required: true
+  head:
+    description: "The head commit of the PR. Leave it empty with no PR."
+    required: true
+  folder:
+    description: "The new folder of the facts."
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Read the nights, the promotion, and the commits
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+        REPO: ${{ github.repository }}
+        NUMBER: ${{ inputs.pull-request }}
+        HEAD_SHA: ${{ inputs.head }}
+        FACTS: ${{ inputs.folder }}
+      run: |
+        set -euo pipefail
+        rm -rf "$FACTS"
+        mkdir -p "$FACTS/main-night" "$FACTS/promotion" "$FACTS/head-night"
+
+        # Downloads the night records of a run. A failed night can lack a record, and the
+        # command names each absent leg.
+        download_records() {
+          local folder="$1" id conclusion
+          id=$(jq -r .id "$folder/run.json")
+          conclusion=$(jq -r .conclusion "$folder/run.json")
+          echo "The night run $id ended as '$conclusion'."
+          if [ "$conclusion" = "success" ]; then
+            gh run download "$id" --repo "$REPO" --dir "$folder" --pattern 'night-record-*'
+          elif ! gh run download "$id" --repo "$REPO" --dir "$folder" --pattern 'night-record-*'; then
+            echo "The failed night run $id gave no night record, and the command names each absent leg."
+          fi
+        }
+
+        # Writes the facts of the newest completed night that matches a filter, one JSON line.
+        night_line() {
+          gh api "repos/$REPO/actions/workflows/night.yml/runs?$1&status=completed&per_page=1" \
+            --jq '.workflow_runs[0] // empty
+              | {id, commit: .head_sha, branch: .head_branch, conclusion, started: .run_started_at}'
+        }
+
+        night_line "branch=main" > "$FACTS/main-night/run.json"
+        if [ -s "$FACTS/main-night/run.json" ]; then
+          download_records "$FACTS/main-night"
+        else
+          rm "$FACTS/main-night/run.json"
+          echo "No completed night exists on main."
+        fi
+
+        # The newest promotion comes from a push run of the `night-promote` workflow on `main`
+        # alone. An artifact of the same name from any other run takes no part (D-1202).
+        gh api "repos/$REPO/actions/artifacts?name=night-promotion&per_page=30" \
+          --jq '.artifacts[] | select(.expired == false and .workflow_run.head_branch == "main") | .workflow_run.id' \
+          > "$FACTS/promotion-runs.txt"
+        promotion_run=""
+        while read -r run; do
+          source=$(gh api "repos/$REPO/actions/runs/$run" --jq '.path + " " + .event')
+          if [ "$source" = ".github/workflows/night-promote.yml push" ]; then promotion_run="$run"; break; fi
+          echo "The artifact night-promotion of the run $run comes from '$source', so the gate reads past it."
+        done < "$FACTS/promotion-runs.txt"
+        if [ -n "$promotion_run" ]; then
+          gh run download "$promotion_run" --repo "$REPO" --dir "$FACTS/promotion" --name night-promotion
+          echo "The newest promotion is in the run $promotion_run."
+        else
+          echo "No promotion exists on main."
+        fi
+
+        if [ -f "$FACTS/main-night/run.json" ] && [ -f "$FACTS/promotion/promotion.json" ]; then
+          night_commit=$(jq -r .commit "$FACTS/main-night/run.json")
+          merge_commit=$(jq -r '."merge-commit"' "$FACTS/promotion/promotion.json")
+          gh api "repos/$REPO/compare/$night_commit...$merge_commit" --jq .status > "$FACTS/promotion-order.txt"
+          echo "The merge commit of the promotion is '$(cat "$FACTS/promotion-order.txt")' of the night of main."
+        fi
+
+        if [ -z "$NUMBER" ]; then
+          echo "No PR, so the action reads no commit and no head night."
+          exit 0
+        fi
+
+        # Each commit of the PR, oldest first, with the old path of each rename (F-109).
+        gh api --paginate "repos/$REPO/pulls/$NUMBER/commits" --jq '.[].sha' > "$FACTS/shas.txt"
+        : > "$FACTS/commits.jsonl"
+        while read -r sha; do
+          gh api --paginate "repos/$REPO/commits/$sha" \
+            --jq '{parents: (.parents | length), files: [.files[] | .filename, (.previous_filename // empty)]}' \
+            | jq -s -c --arg sha "$sha" '{sha: $sha, parents: .[0].parents, files: (map(.files) | add)}' \
+            >> "$FACTS/commits.jsonl"
+        done < "$FACTS/shas.txt"
+        jq -s . "$FACTS/commits.jsonl" > "$FACTS/commits.json"
+
+        dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj --no-build --verbosity quiet \
+          -- night-walk --commits "$FACTS/commits.json" --head "$HEAD_SHA" > "$FACTS/walk.txt"
+
+        # The newest completed night on a commit of the walk counts, green or red (D-1204).
+        : > "$FACTS/walk-nights.jsonl"
+        while read -r sha; do
+          night_line "head_sha=$sha" >> "$FACTS/walk-nights.jsonl"
+        done < "$FACTS/walk.txt"
+        if [ -s "$FACTS/walk-nights.jsonl" ]; then
+          jq -s -c 'sort_by(.started) | last' "$FACTS/walk-nights.jsonl" > "$FACTS/head-night/run.json"
+          download_records "$FACTS/head-night"
+        else
+          echo "No completed night exists on a commit of the walk: $(tr '\n' ' ' < "$FACTS/walk.txt")"
+        fi

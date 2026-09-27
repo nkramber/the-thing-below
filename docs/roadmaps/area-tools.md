@@ -208,7 +208,7 @@ Built by PR-15. Phase file: `phase-2-first-playable.md`.
 
 ### 7.9 The night gate
 
-Built by PR-49. Phase file: `phase-2-first-playable.md`.
+Built by PR-49. PR-108 adds five commands. Phase file: `phase-2-first-playable.md`.
 
 - The `night` command plays one leg of the night: the greedy runs, then the random runs, from one first seed. It writes the night record of the leg, a failed leg too (D-509, D-1190, D-1191).
 - The `night-gate` command fails a PR with no success record of a night inside 48 hours of the last push (G-22, D-1188).
@@ -217,6 +217,10 @@ Built by PR-49. Phase file: `phase-2-first-playable.md`.
 - An absent field, an unknown field, and a record of another leg are each an error. So is a status that its counts do not give (T-2).
 - The night job runs on `schedule`, which GitHub starts only from `main` (F-37). PR-49 proves the command in Tests on fixture nights, and the live check first runs after the first night (D-500).
 - The bot totals of PR-49 keep no run record. A night of more than 150,000 runs thus fits in the memory of a runner (F-155).
+- The `night-walk` command gives each commit of a PR whose night passes the head. A commit of code, a merge commit, or a commit with no path ends the walk (D-1204).
+- The `night-promote` command checks the promotion of the night of a merged PR, and it writes the artifact folder of a promotion (D-1202, D-1203).
+- The `night-alert` command sends the Pushover message of a failed night, and the `pushover` command sends one message for the `notify` workflow (D-1201, D-1207). No message and no error holds a secret.
+- The `night-watch` command is the night watcher on the Mac, and `night-watch-install` loads its launchd job (D-1205).
 - `area-ci.md` holds the jobs. M-3 records the wall time and the crash and softlock counts of the first seven nights.
 
 > *In plain English:* every night the robots play thousands of runs on all three systems. No change merges unless a recent night ended with no crash and no softlock.
@@ -329,7 +333,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 12. PR-48: the normal maps, right after PR-10 and right before PR-56, the first PR that draws light (D-520, D-521).
 13. PR-50: the screenplay tool, right after PR-68 (D-545).
 14. PR-15: the headless runner and the bots.
-15. PR-49: the `night` command and the night gate. Its live check first runs after the first night (D-500).
+15. PR-49: the `night` command and the night gate. Its live check first runs after the first night (D-500). PR-108 adds the walk, the promotion, the alert, and the watcher (D-1200).
 16. PR-51, PR-52, and PR-53: the PNG import, the map preview, and the tile-edge tool, before PR-17 (D-497).
 17. **← GATE 2 (first playable).**
 18. PR-90: the balance harness, first in Phase 4 (D-822).

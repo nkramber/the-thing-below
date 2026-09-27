@@ -260,7 +260,7 @@ Built by PR-15. Phase file: `phase-2-first-playable.md`.
 
 ### 7.14 The night job
 
-Built by PR-49. Phase file: `phase-2-first-playable.md`.
+Built by PR-49. PR-108 adds the alert and the watcher. Phase file: `phase-2-first-playable.md`.
 
 - The night job runs on `schedule` from `main`, on the latest commit there (F-37). It starts at 04:17 UTC, away from the start of the hour (D-1189, F-41).
 - Each policy plays the most runs that fit in 30 minutes on the slowest leg, and each leg plays the same count (D-1191). PR-49 set 235,000 greedy runs and 153,000 random runs from the bot job of run 36280972257.
@@ -273,18 +273,22 @@ Built by PR-49. Phase file: `phase-2-first-playable.md`.
 - The first live check runs after the first night on `main` (D-500).
 - PR-90 adds a balance check to the night. A metric outside its band fails the night with the metric, the band, and the seed (D-822).
 - M-3 copies the wall time and the counts of the first seven nights into `docs/design.md` before GitHub deletes the records (D-509).
+- A failed leg sends one Pushover message with each failed leg, the first seed, and the link of the run (D-1201). The `notify` workflow sends the other messages, and the Mac holds no secret (D-1207).
+- The night watcher on the Mac reads the newest night of `main` at minute 0 and minute 30 of each hour (D-1205). A failed night gets one fix session, which follows the `night-fix` skill (D-1206, D-1208). `docs/runbooks/night-watch.md` gives the steps.
 
 > *In plain English:* every night, robots play thousands of games on all three systems and leave a result file behind. The files expire after 90 days, so the design doc keeps the numbers that matter.
 
 ### 7.15 The night gate job
 
-Built by PR-49. Phase file: `phase-2-first-playable.md`.
+Built by PR-49. PR-108 adds the walk and the promotion. Phase file: `phase-2-first-playable.md`.
 
 - The workflow `night-gate` runs on `pull_request_target`, as the review gate does. The workflow and the command come from `main`, and a PR cannot change its own gate (D-509, F-37).
-- On each push, the job asks the GitHub API for the newest completed night on `main`, and for the newest on the head commit. It downloads their night records, and it runs the `night-gate` command on them (`area-tools.md` section 7.9).
+- On each push, the action `night-facts` reads three nights through the GitHub API. They are the newest night of `main`, the newest promotion, and the newest night on a commit of the walk of D-1204. It downloads their night records, and the job runs the `night-gate` command on them (`area-tools.md` section 7.9).
 - It passes when every leg of the night of `main` succeeded inside 48 hours of the run of the gate (G-22, D-1188). An absent, stale, or failed record fails the gate with the case, the commit, and the time (T-2).
 - It never checks out the head of the PR, so a PR cannot carry its own record (D-509).
-- A success record of a night on the exact head commit of a PR passes that PR alone (D-510). A failed night on the head fails the PR, even with a green night on `main`.
+- A success record of a night on the head commit of a PR passes that PR alone (D-510). A night on an earlier commit passes when each later commit changes documents alone (D-1204). A failed night there fails the PR, even with a green night on `main`.
+- The `night-promote` workflow runs on each push to `main`. It keeps the green night of a merged PR as the newest evidence of `main` over a failed night (D-1202). The night must play the failed range, and the two trees must differ in documents alone (D-1203).
+- The gate reads the later of the night of `main` and the newest promotion, by the order of their commits. A night on the merge commit or later wins (D-1202).
 - A green head night older than 48 hours proves nothing now. The gate then reads the night of `main` (G-22).
 - A docs-only PR passes the gate. The job reads the changed paths of the PR through the GitHub API, with the old path of each rename (D-513, F-109).
 - The token of the job reads Actions and pull requests, and it writes nothing (D-509).
@@ -310,7 +314,7 @@ The table maps each check of the PR gate in `CLAUDE.md` to its job. PR #11 broug
 | `replay-identity` | Three | PR-4 | Yes |
 | Screen tests | Linux | PR-41 | Yes |
 | Bot runs | Three | PR-15 | Yes |
-| `night-gate` | Linux | PR-49 | Yes, except on a docs-only PR (D-513) |
+| `night-gate` | Linux | PR-49, and the walk and the promotion of PR-108 | Yes, except on a docs-only PR (D-513) |
 | Export | Three | PR-54 | No. It runs on a PR that changes the export (D-512) |
 
 - After PR-3 merges, the owner requires the checks that exist then (OQ-3). The owner adds each later check after its first run, because GitHub lists a check as a choice only after it runs once.
@@ -490,7 +494,8 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 23. PR-15: the bot runs on every leg (D-505).
 24. PR-49: the night job and the night gate. The live gate first runs after the first night (D-500).
 25. PR-15 requires the bot check (D-1186). The PR-49 session requires `night-gate` after the first night on `main` (D-1192).
-26. **← GATE 2 (first playable).**
+26. PR-108: the Pushover alert of a failed night, the promotion of a branch night, and the night watcher (D-1200 to D-1208).
+27. **← GATE 2 (first playable).**
 
 ## 9. Open questions
 

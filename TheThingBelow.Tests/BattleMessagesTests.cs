@@ -48,6 +48,15 @@ public sealed class BattleMessagesTests
     }
 
     [Fact]
+    public void TheFormLineTakesOneSpaceOnEachSideOfTheDash()
+    {
+        // D-1209: "4MP - Fire on one foe, either row." The old line held two spaces on each side.
+        StringTable strings = Content.Value.Strings;
+
+        Assert.Equal("{mp}MP - {text}", strings.Text(ContentId.Parse("battle.form_help", "test", "form help")));
+    }
+
+    [Fact]
     public void EachLineOfEachEventFillsEachPlaceWithTheValuesOfTheCode()
     {
         // Finding P3-16 of the repository review: no test tied the places of a line to the values

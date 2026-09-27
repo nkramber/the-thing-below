@@ -162,6 +162,10 @@ CI terms from the roadmaps PR of 2026-09-14:
 |---|---|---|
 | identity file | the committed file that lists each run of the replay-identity set and its expected state hash (D-504) | golden file, baseline, hash list |
 | night record | the result file that one leg of a night uploads as an artifact of its run (D-509) | night result, night report |
+| branch night | a night by hand on the branch of a PR (D-510) | head night, when the night is on an earlier commit of the walk |
+| promotion | a green branch night of a merged PR that counts as the newest evidence of `main` (D-1202) | record copy, carry-over |
+| night watcher | the launchd job on the Mac that starts a fix session for a failed night (D-1205) | bot, daemon |
+| fix session | a session that the night watcher starts, under the `night-fix` skill (D-1205) | agent run, auto-fix |
 
 Art terms from the roadmaps PR of 2026-09-14:
 

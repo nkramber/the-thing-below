@@ -5,7 +5,7 @@ using System.IO;
 namespace TheThingBelow.Tools.Night;
 
 /// <summary>
-/// The `night-gate` command of PR-49 (G-22, D-509, D-510, D-513, D-1188). It reads the facts of a
+/// The `night-gate` command of PR-49 and PR-108 (G-22, D-509, D-510, D-513, D-1188, D-1202, D-1204). It reads the facts of a
 /// PR and the nights that the gate job downloaded through the GitHub API, and it fails a PR with
 /// no success record from a night inside 48 hours.
 /// </summary>
@@ -24,7 +24,16 @@ public static class NightGateCommand
     /// <summary>The option of the folder of the newest completed night on `main`.</summary>
     public const string MainNightOption = "--main-night";
 
-    /// <summary>The option of the folder of the newest completed night on the head commit.</summary>
+    /// <summary>The option of the JSON file of the commits of the PR, oldest first (D-1204).</summary>
+    public const string CommitsOption = "--commits";
+
+    /// <summary>The option of the folder of the newest promotion of `main` (D-1202).</summary>
+    public const string PromotionOption = "--promotion";
+
+    /// <summary>The option of the compare status of the merge commit of the promotion against the commit of the night of `main`. It is absent unless both exist.</summary>
+    public const string PromotionOrderOption = "--promotion-order";
+
+    /// <summary>The option of the folder of the newest completed night on a commit of the walk of D-1204.</summary>
     public const string HeadNightOption = "--head-night";
 
     /// <summary>The option of the time of the run of the gate, in UTC, such as `2026-09-27T09:00:00Z`.</summary>
@@ -41,19 +50,21 @@ public static class NightGateCommand
         ArgumentNullException.ThrowIfNull(output);
         ArgumentNullException.ThrowIfNull(errors);
 
-        OptionParser? options = OptionParser.Read(Name, args, [PullRequestOption, MainNightOption, HeadNightOption, NowOption], [], errors);
+        OptionParser? options = OptionParser.Read(Name, args, [PullRequestOption, CommitsOption, MainNightOption, PromotionOption, PromotionOrderOption, HeadNightOption, NowOption], [], errors);
         if (options is null)
         {
             return Program.FaultExitCode;
         }
 
         string? pullRequestPath = options.Value(PullRequestOption);
+        string? commitsPath = options.Value(CommitsOption);
         string? mainFolder = options.Value(MainNightOption);
+        string? promotionFolder = options.Value(PromotionOption);
         string? headFolder = options.Value(HeadNightOption);
         string? nowText = options.Value(NowOption);
-        if (pullRequestPath is null || mainFolder is null || headFolder is null || nowText is null)
+        if (pullRequestPath is null || commitsPath is null || mainFolder is null || promotionFolder is null || headFolder is null || nowText is null)
         {
-            errors.WriteLine($"Error: {Name} needs {PullRequestOption}, {MainNightOption}, {HeadNightOption}, and {NowOption}.");
+            errors.WriteLine($"Error: {Name} needs {PullRequestOption}, {CommitsOption}, {MainNightOption}, {PromotionOption}, {HeadNightOption}, and {NowOption}. {PromotionOrderOption} comes with a night of `main` and a promotion alone.");
             return Program.FaultExitCode;
         }
 
@@ -66,7 +77,10 @@ public static class NightGateCommand
         NightVerdict verdict;
         try
         {
-            verdict = NightGate.Check(NightPullRequest.Read(pullRequestPath), NightEvidence.Read(mainFolder), NightEvidence.Read(headFolder), now);
+            NightPullRequest pullRequest = NightPullRequest.Read(pullRequestPath);
+            IReadOnlyList<string> candidates = NightWalk.CandidatesOf(NightWalk.ReadCommits(commitsPath), pullRequest.Head);
+            NightMainFacts main = MainFactsOf(mainFolder, promotionFolder, options.Value(PromotionOrderOption));
+            verdict = NightGate.Check(pullRequest, candidates, main, NightEvidence.Read(headFolder), now);
         }
         catch (Exception fault) when (fault is IOException or UnauthorizedAccessException or InvalidOperationException)
         {
@@ -92,5 +106,17 @@ public static class NightGateCommand
 
         errors.WriteLine("Error: the night gate fails. `docs/runbooks/night.md` gives the steps.");
         return Program.FaultExitCode;
+    }
+
+    /// <summary>Reads the evidence of `main`: the newest night, the newest promotion, and the order of their commits (D-1202).</summary>
+    /// <param name="mainFolder">The folder of the newest completed night of `main`.</param>
+    /// <param name="promotionFolder">The folder of the newest promotion.</param>
+    /// <param name="orderText">The compare status of the two commits, or null when either is absent.</param>
+    /// <returns>The facts.</returns>
+    /// <exception cref="InvalidOperationException">A folder holds no valid facts, or the order does not fit the pair (T-2).</exception>
+    public static NightMainFacts MainFactsOf(string mainFolder, string promotionFolder, string? orderText)
+    {
+        NightOrder order = orderText is null ? NightOrder.None : NightPromotion.OrderOf(orderText);
+        return NightMainFacts.Of(NightEvidence.Read(mainFolder), NightPromotion.Read(promotionFolder), order);
     }
 }
