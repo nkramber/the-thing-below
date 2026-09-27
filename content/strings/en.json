@@ -115,7 +115,7 @@
   },
   {
    "id": "battle.form_help",
-   "text": "{ap}AP - {text}"
+   "text": "{ap} AP - {text}"
   },
   {
    "id": "battle.form_name",
