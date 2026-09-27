@@ -1,3 +1,36 @@
+## Session 367: 2026-09-27, Codex
+
+Author: Codex
+Session: review PR #91 (PR-16), round 2. Repository: the-thing-below. Branch: `review/pr-91`, which tracks `origin/feat/pr-16-dungeon-parts`. Role: reviewer. Base: `78b0d24`.
+
+### What this session did, and why
+
+- Re-reviewed effective head `9ad7f4b` and verified the fix for P2-1. The resume keeps a newly placed enemy dead when map memory holds it dead (D-555, D-1111).
+- Updated `docs/reviews/pr-91.md` to close P2-1 and approve the effective head. The new regression test fails on the prior head.
+
+### The state of the build
+
+- `make verify` passed locally, with 4,196 tests, format, lint, STE, identity, bots, content, atlas, and smoke.
+- CI passed each required leg except `review-gate`, which still read the old review record. The remote head before this metadata commit is `9ad7f4b`.
+
+### What is in flight
+
+- The review record and this entry need one metadata commit and a push to `feat/pr-16-dungeon-parts`.
+- The CI checks of that metadata commit then need verification.
+
+### Traps and gotchas
+
+- The metadata commit does not change effective head `9ad7f4b`.
+- The Gitar CI claim names RG 4 and RG 5 from the old review record. The author answered that claim in a PR comment (D-964).
+
+### The questions that block progress
+
+None for PR-16. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Commit the review record and this entry together, push to the PR branch, then verify the remote head and checks.
+
 ## Session 366: 2026-09-27, Claude Code
 
 Author: Claude Code
@@ -292,41 +325,3 @@ None for PR-107. OQ-251 blocks PR-35.
 ### The next concrete action
 
 Answer the Gitar thread with `818c593`, run the Gitar poll, and then start the cross-provider review.
-
-## Session 357: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-107. Repository: the-thing-below. Branch: `feat/pr-107-ability-power`. PR: the one PR of PR-107. Role: author. Base: `48ed83b`.
-
-### What this session did, and why
-
-- The owner answered OQ-252 and three new questions: both regains from one blow (D-1210), no message for a regain (D-1211), Bolt and Pilfer at 2 AP (D-1212), and a floor of 1 AP for each form (D-1213).
-- Ability power, AP, replaces MP in Core, content, Game, Tools, and the string table (D-1197). The fixture costs follow D-1199 and D-1212.
-- A fall of an enemy gives each character who is not down 10% of full AP. A basic attack that hits gives the attacker 5%, before the fall regain (D-1198, D-1210). The rules file holds `hit_regain` and `fall_regain`. A silent `Regain` event keeps the AP bar true (D-1211).
-- Save format 17 names the pool `ap`, and formats 7 to 16 read `mp` as AP. The fixture `format-17.json` comes from the resumed run of format 16. The simulation version is 34, and the identity file and the content hash are new.
-- `AbilityPowerTests` holds exit tests 1 to 4, the rule of D-1210, the cap at full AP, and a loop of 1,000 seeds. `SaveFixtureTests` holds exit test 5.
-- The design doc, five area files, the phase files of Phase 2 and Phase 4, the glossary, and the `game-text-style` skill say AP.
-
-### The state of the build
-
-- Local: build, 4,169 tests, format, det-lint, the STE check, the content hash, and the identity file pass.
-- The remote head before this push is `48ed83b`, the merge of PR-108.
-
-### What is in flight
-
-- The first push, the PR, and the Gitar pass. The screen-test job fails on the frames that show AP, and its artifact gives the new baselines (D-733).
-
-### Traps and gotchas
-
-- The string `battle.form_entry_free` is now `battle.form_name`: the battle list shows the name alone, and no form is free (D-1195, D-1213).
-- `SnapshotLines.AsFormatSixteen` of Tests renames `ap` to `mp`, and each older converter calls it.
-- A regain at full AP adds no event. A test that counts events must expect none there.
-- `make sheet` captures each frame, then fails to join the sheet: the joined image passes 65,535 rows. PR-107 changes no capture, so the fault was on `main` before it. Read the frames in `artifacts/captures/`.
-
-### The questions that block progress
-
-None for PR-107. OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Push, open the PR, run the Gitar poll, and then take the screen baselines from the capture artifact of CI.
