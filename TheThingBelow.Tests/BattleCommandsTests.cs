@@ -1,9 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
 using Xunit;
 
@@ -204,10 +206,10 @@ public sealed class BattleCommandsTests
     }
 
     [Fact]
-    public void ALessonTakesTheLessonThenTheFormThenATarget()
+    public void ALessonTakesAFormFromOneListThenATarget()
     {
-        // D-1027, D-1031: the Lessons command sits after the attack, and it lists each lesson of
-        // the slots, then each opened form of the lesson with its cost.
+        // D-1031, D-1195: the Lessons command sits after the attack, and it lists each opened
+        // form of each lesson of the slots in one list, with no second menu.
         Simulation run = OnFirstCommand();
         object menu = Open(run);
         Move(menu, 1);
@@ -215,15 +217,12 @@ public sealed class BattleCommandsTests
 
         Assert.Null(Confirm(menu));
         Assert.Equal("Lesson", Read(menu, "Stage").ToString());
-        Assert.Equal(["lesson.fixture_hew", "lesson.fixture_cinder"], Values((IList)Read(menu, "Lessons")));
+        IList entries = (IList)Read(menu, "Lessons");
+        Assert.Equal(
+            [("lesson.fixture_hew", 0, 0), ("lesson.fixture_cinder", 0, 4)],
+            entries.Cast<object>().Select(EntryOf).ToArray());
 
         Move(menu, 1);
-        Assert.Null(Confirm(menu));
-        Assert.Equal("Form", Read(menu, "Stage").ToString());
-        IList forms = (IList)Read(menu, "Forms");
-        Assert.Single(forms);
-        Assert.Equal(4, ((LessonForm)forms[0]!).Mp);
-
         Assert.Null(Confirm(menu));
         Assert.Equal("Target", Read(menu, "Stage").ToString());
         Intent made = Confirm(menu) ?? throw new InvalidOperationException("The menu sent no intent.");
@@ -234,17 +233,35 @@ public sealed class BattleCommandsTests
     }
 
     [Fact]
-    public void ACancelWalksBackFromTheTargetsToTheFormToTheLessonToTheAction()
+    public void EachOpenedFormOfALessonIsAnEntryOfItsOwn()
+    {
+        // D-1195: a second opened form stands next to the first, so a power level takes no menu.
+        Simulation run = OnFirstCommandWithCinderPoints(120);
+        object menu = Open(run);
+        Move(menu, 1);
+        Confirm(menu);
+
+        IList entries = (IList)Read(menu, "Lessons");
+        Assert.Equal(
+            [("lesson.fixture_hew", 0, 0), ("lesson.fixture_cinder", 0, 4), ("lesson.fixture_cinder", 1, 9)],
+            entries.Cast<object>().Select(EntryOf).ToArray());
+
+        // The blaze costs 9 MP, and Marrek holds 8, so its entry refuses the confirm (D-42).
+        Move(menu, 1);
+        Move(menu, 1);
+        Assert.Null(Confirm(menu));
+        Assert.Equal(("Lesson", 2), (Read(menu, "Stage").ToString(), (int)Read(menu, "Cursor")));
+    }
+
+    [Fact]
+    public void ACancelWalksBackFromTheTargetsToTheEntryToTheAction()
     {
         object menu = Open(OnFirstCommand());
         Move(menu, 1);
         Confirm(menu);
         Move(menu, 1);
         Confirm(menu);
-        Confirm(menu);
 
-        Cancel(menu);
-        Assert.Equal("Form", Read(menu, "Stage").ToString());
         Cancel(menu);
         Assert.Equal(("Lesson", 1), (Read(menu, "Stage").ToString(), (int)Read(menu, "Cursor")));
         Cancel(menu);
@@ -309,6 +326,33 @@ public sealed class BattleCommandsTests
         run.TakeBattleEvents();
         Assert.Equal(BattleSide.Party, BattleRuns.BattleOf(run).Next()?.Side);
         return run;
+    }
+
+    /// <summary>Gives the run of <see cref="OnFirstCommand"/>, with the points of the cinder of the first character set before the fight (D-539).</summary>
+    private static Simulation OnFirstCommandWithCinderPoints(int points)
+    {
+        GameMap map = BattleRuns.Map("group.fixture_pair");
+        RunSnapshot start = Simulation.Start(11, map, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None).Snapshot();
+        PartySnapshot party = start.Characters ?? throw new InvalidOperationException("The snapshot holds no party.");
+        CharacterValues first = party.Characters[0];
+        LessonValues lessons = first.Lessons ?? throw new InvalidOperationException("The first character holds no lessons.");
+        List<LessonPoints> changed = lessons.Points.Select(entry => entry.Lesson.Value == "lesson.fixture_cinder" ? entry with { Points = points } : entry).ToList();
+        List<CharacterValues> characters = [first with { Lessons = lessons with { Points = changed } }, .. party.Characters.Skip(1)];
+        Simulation run = Simulation.Resume(11, start with { Characters = party with { Characters = characters } }, map, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
+        run.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
+        run.TakeBattleEvents();
+        Assert.Equal(BattleSide.Party, BattleRuns.BattleOf(run).Next()?.Side);
+        return run;
+    }
+
+    /// <summary>Gives the lesson, the form index, and the MP of one entry of the lesson stage.</summary>
+    private static (string Lesson, int Form, int Mp) EntryOf(object entry)
+    {
+        Type type = entry.GetType();
+        var lesson = (ContentId)type.GetProperty("Lesson")!.GetValue(entry)!;
+        var form = (int)type.GetProperty("Form")!.GetValue(entry)!;
+        var record = (LessonForm)type.GetProperty("Record")!.GetValue(entry)!;
+        return (lesson.Value, form, record.Mp);
     }
 
     private static BattleAction ActionAt(int index) =>

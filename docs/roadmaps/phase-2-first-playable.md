@@ -2124,6 +2124,8 @@ Area files: `area-tools.md` section 7.9, `area-ci.md` sections 7.14 and 7.15.
 - The pass for a night on the exact head commit of a PR, and the pass for a docs-only PR (D-510, D-513).
 - The line for the `night-gate` job in the PR gate, and the check in `docs/runbooks/branch-protection.json` (G-16, D-1192).
 - The runbook of the night, `docs/runbooks/night.md`.
+- One list of the forms in a fight, with the description and the cost in the message box. The list scrolls by row (D-1193, D-1195).
+- A letter on each enemy of a kind that a fight holds twice (D-1193, D-1194).
 
 **Out of scope.**
 
@@ -2140,6 +2142,8 @@ Area files: `area-tools.md` section 7.9, `area-ci.md` sections 7.14 and 7.15.
 5. It fails a PR that carries a night record in its own checkout (D-509).
 6. The PR description shows the output of each fixture (D-500).
 7. The totals of the bot runs keep no run record (F-155).
+8. The Lessons command gives one list, and a confirm goes to the target (D-1195).
+9. Two grunts read "Grunt A" and "Grunt B", and a lone enemy keeps its name (D-1194).
 
 **Review focus.**
 
@@ -2775,6 +2779,41 @@ Area files: `area-release.md` section 7.8, `area-art.md` section 7.5.
 
 **Questions.** OQ-173 and OQ-174.
 
+
+### 7.66 PR-107: ability power
+
+Area files: `area-battle.md` section 7.4, and `area-progression.md` for the forms.
+
+**Scope.**
+
+- Ability power, AP, replaces MP as the one pool of each character. Each form costs AP, a drill too (D-1197).
+- The fixture costs: Hew 2 AP and Cleave 4 AP. Cinder and Blaze keep 4 and 9 (D-1199).
+- A fall of an enemy returns 10% of full AP to each standing character. A basic attack that hits returns 5% to the attacker. Each regain rounds down, with a floor of 1 (D-1198).
+- A rest, a save point, and an item restore AP where they restore MP now (D-1197).
+- The content schema, the saves, the string table, the status panel, and the bots read AP.
+
+**Out of scope.**
+
+- The tuning of each rate and each cost (PR-30).
+
+**Exit tests.**
+
+1. A drill with too little AP refuses the choice, as a rite with too little MP does now.
+2. A fall of an enemy returns 10% of full AP to each standing character. A character who is down gains none.
+3. A basic attack that hits returns 5% of full AP to the attacker, and a miss returns nothing.
+4. A pool of 5 AP regains 1 on each rule, the floor.
+5. A save of MP loads as AP, or fails with the file and the field (T-2).
+6. The simulation version rises, and a replay of a record of the old version fails with the version (G-17, T-7).
+
+**Review focus.**
+
+- The answer of OQ-252 sets whether one blow gives both regains.
+- No MP remains in Core, content, Game, or the string table.
+
+**Questions.** OQ-252.
+
+> *In plain English:* every ability costs one kind of power, a sword cut too. Hits and kills give some of it back, so a fighter can go on.
+
 > *In plain English:* a session draws the pictures on the shop page the same way as everything else in the game. The screenshots come from real play.
 ## 8. Sequence
 
@@ -2788,7 +2827,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 6. PR-68, PR-50: the story scenes, the flags, and the screenplay tool, before the first PR that reads a flag (D-556).
 7. PR-12, PR-13, PR-99, PR-91, PR-100, PR-101, PR-102, PR-103, PR-104, PR-105, PR-106, PR-14, PR-65: the build of a party, the stat set, the torch, the end of the Gitar pause, the torch and pad fixes, the gate fixes, the input fixes, the boot and rule fixes, the save and guard fixes, and the gate, key, crash, and budget fixes of the repository review, the hub, and the shop.
 8. PR-36: the dialogue box.
-9. PR-15, PR-49: the bots, the night job, and the night gate.
+9. PR-15, PR-49, PR-107: the bots, the night job and the night gate, and ability power (D-1196).
 10. PR-15 requires the bot check (D-1186). The PR-49 session requires `night-gate` after the first night on `main` (D-1192).
 11. PR-16, PR-64, PR-35: the dungeon and the region map.
 12. PR-51, PR-52, PR-53: the PNG import, the map preview, and the tile-edge tool.
@@ -2902,3 +2941,4 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-247 | The stat set. Resolved by D-1052 | PR-99 |
 | OQ-248 | The heal of an absorbed hit. Resolved by D-1055 | PR-99 |
 | OQ-251 | The kind of the region map: the node map of D-113, or a walkable overworld | PR-35 |
+| OQ-252 | Two regains of AP from one blow | PR-107 |

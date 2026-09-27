@@ -648,7 +648,7 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 45. PR-65: the shop and the gold economy, after PR-13 (D-60, D-530).
 46. PR-36: the dialogue box, the portraits, and the story scene on screen (D-114, D-223).
 47. PR-15: the headless runner, the two bot policies, the battle numbers, and the bot job (D-64, D-505, D-1179 to D-1184).
-48. PR-49: the night job, the `night` and `night-gate` commands, and the night gate job, right after PR-15 (D-496, D-507, D-1188 to D-1192).
+48. PR-49: the night job, the night gate, and two battle screen changes, right after PR-15 (D-496, D-1188 to D-1195). PR-107, ability power, comes next (D-1196).
 49. PR-15 requires the bot check on `main` (D-1186). After its merge, the PR-49 session requires `night-gate` after the first night passes (D-1192).
 50. PR-16: the treasure, the doors, the keys, and the save points (D-41, D-555).
 51. PR-64: the traps, the hazards, and the statuses that last on the map (D-390, D-529).

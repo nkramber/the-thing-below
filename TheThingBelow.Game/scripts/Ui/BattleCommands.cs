@@ -12,11 +12,8 @@ public enum CommandStage
     /// <summary>The six actions of a turn.</summary>
     Action,
 
-    /// <summary>The lessons of the character, after the Lessons command (D-1031).</summary>
+    /// <summary>Each opened form of each lesson of the character, in one list, after the Lessons command (D-1031, D-1195).</summary>
     Lesson,
-
-    /// <summary>The opened forms of the chosen lesson, with the cost of each (D-1027).</summary>
-    Form,
 
     /// <summary>The items of the pack, after the item action.</summary>
     Item,
@@ -25,9 +22,15 @@ public enum CommandStage
     Target,
 }
 
+/// <summary>One entry of the lesson stage: an opened form of a lesson of the character (D-1195).</summary>
+/// <param name="Lesson">The lesson.</param>
+/// <param name="Form">The index of the form in the lesson, from zero.</param>
+/// <param name="Record">The form, with its ability, its MP, and its description.</param>
+public sealed record LessonEntry(ContentId Lesson, int Form, LessonForm Record);
+
 /// <summary>
-/// The command menu of one turn of a character: the action, then the lesson and its form, or
-/// the item, then the target (D-111, D-827, D-1027, D-1031). Each move of the cursor stays in
+/// The command menu of one turn of a character: the action, then a form of a lesson, or the item,
+/// then the target (D-111, D-827, D-1027, D-1031, D-1195). Each move of the cursor stays in
 /// Game, and the menu makes one intent when
 /// the player confirms a whole choice, so the record holds the choice alone (D-493).
 /// </summary>
@@ -57,8 +60,7 @@ public sealed class BattleCommands
     private readonly RunState state;
     private readonly List<PackValues> items = [];
     private readonly List<BattleTarget> targets = [];
-    private readonly List<ContentId> lessons = [];
-    private readonly List<LessonForm> forms = [];
+    private readonly List<LessonEntry> lessons = [];
     private readonly int slot;
     private BattleAction action = BattleAction.Attack;
     private ContentId? item;
@@ -91,14 +93,11 @@ public sealed class BattleCommands
     /// <summary>The items that the item stage offers, with the count of each, in the order of the pack.</summary>
     public IReadOnlyList<PackValues> Items => this.items;
 
-    /// <summary>The lessons that the lesson stage offers: the lesson of each filled slot of the character, in slot order (D-356).</summary>
-    public IReadOnlyList<ContentId> Lessons => this.lessons;
-
-    /// <summary>The forms that the form stage offers: each form of the chosen lesson that the character opened (D-1027).</summary>
-    public IReadOnlyList<LessonForm> Forms => this.forms;
-
-    /// <summary>The lesson of the form stage, or no value before the lesson stage confirms one.</summary>
-    public ContentId? ChosenLesson => this.lesson;
+    /// <summary>
+    /// The entries that the lesson stage offers: each form that the character opened, of the
+    /// lesson of each filled slot, in slot order and then in form order (D-356, D-1195).
+    /// </summary>
+    public IReadOnlyList<LessonEntry> Lessons => this.lessons;
 
     /// <summary>The targets that the target stage offers, in slot order.</summary>
     public IReadOnlyList<BattleTarget> Targets => this.targets;
@@ -112,7 +111,6 @@ public sealed class BattleCommands
         CommandStage.Action => Actions.Count,
         CommandStage.Item => this.items.Count,
         CommandStage.Lesson => this.lessons.Count,
-        CommandStage.Form => this.forms.Count,
         _ => this.targets.Count,
     };
 
@@ -159,7 +157,7 @@ public sealed class BattleCommands
 
     /// <summary>Tells whether a lesson of the character has a form that the rules take now, on at least one target (D-1027).</summary>
     /// <param name="offered">The lesson.</param>
-    /// <returns>True when the lesson stage can confirm the lesson.</returns>
+    /// <returns>True when the lesson has an entry that the lesson stage can confirm.</returns>
     public bool AllowsLesson(ContentId offered)
     {
         ArgumentNullException.ThrowIfNull(offered);
@@ -179,7 +177,7 @@ public sealed class BattleCommands
     /// <summary>Tells whether the rules take a form of a lesson now, on at least one target: the MP, silence, and the reach (D-42, D-806).</summary>
     /// <param name="offered">The lesson.</param>
     /// <param name="index">The index of the form, from zero.</param>
-    /// <returns>True when the form stage can confirm the form.</returns>
+    /// <returns>True when the lesson stage can confirm the form.</returns>
     public bool AllowsForm(ContentId offered, int index)
     {
         ArgumentNullException.ThrowIfNull(offered);
@@ -231,10 +229,7 @@ public sealed class BattleCommands
                 this.OpenTargets(BattleAction.Item, this.item);
                 return null;
             case CommandStage.Lesson:
-                this.ConfirmLesson(this.lessons[this.Cursor]);
-                return null;
-            case CommandStage.Form:
-                this.ConfirmForm(this.Cursor);
+                this.ConfirmEntry(this.lessons[this.Cursor]);
                 return null;
             case CommandStage.Target when this.action == BattleAction.Lesson:
                 return Intent.OfBattleLesson(this.lesson!, this.form, this.targets[this.Cursor]);
@@ -255,12 +250,8 @@ public sealed class BattleCommands
                 this.Cursor = Math.Max(0, this.items.FindIndex(entry => string.CompareOrdinal(entry.Id.Value, this.item!.Value) == 0));
                 return;
             case CommandStage.Target when this.action == BattleAction.Lesson:
-                this.Stage = CommandStage.Form;
-                this.Cursor = this.form;
-                return;
-            case CommandStage.Form:
                 this.Stage = CommandStage.Lesson;
-                this.Cursor = Math.Max(0, this.lessons.FindIndex(entry => string.CompareOrdinal(entry.Value, this.lesson!.Value) == 0));
+                this.Cursor = Math.Max(0, this.lessons.FindIndex(entry => entry.Form == this.form && string.CompareOrdinal(entry.Lesson.Value, this.lesson!.Value) == 0));
                 return;
             case CommandStage.Target:
             case CommandStage.Item:
@@ -294,7 +285,7 @@ public sealed class BattleCommands
                 return null;
             case BattleAction.Lesson:
                 this.lessons.Clear();
-                this.lessons.AddRange(this.LessonsOfSlots());
+                this.lessons.AddRange(this.EntriesOfSlots());
                 this.Stage = CommandStage.Lesson;
                 this.Cursor = 0;
                 return null;
@@ -309,33 +300,35 @@ public sealed class BattleCommands
         }
     }
 
-    private void ConfirmLesson(ContentId chosen)
+    private void ConfirmEntry(LessonEntry chosen)
     {
-        if (!this.AllowsLesson(chosen))
+        if (!this.AllowsForm(chosen.Lesson, chosen.Form))
         {
             return;
         }
 
-        this.lesson = chosen;
-        this.forms.Clear();
-        this.forms.AddRange(this.OpenedFormsOf(chosen));
-        this.Stage = CommandStage.Form;
+        this.lesson = chosen.Lesson;
+        this.form = chosen.Form;
+        this.targets.Clear();
+        this.targets.AddRange(this.LessonTargets(chosen.Lesson, chosen.Form));
+        this.Stage = CommandStage.Target;
         this.Cursor = 0;
     }
 
-    private void ConfirmForm(int index)
+    /// <summary>Gives each opened form of the lesson of each filled slot, in slot order and then in form order (D-356, D-1195).</summary>
+    private List<LessonEntry> EntriesOfSlots()
     {
-        ContentId chosen = this.lesson ?? throw new InvalidOperationException("The form stage holds no lesson (T-2).");
-        if (!this.AllowsForm(chosen, index))
+        var entries = new List<LessonEntry>();
+        foreach (ContentId held in this.LessonsOfSlots())
         {
-            return;
+            List<LessonForm> opened = this.OpenedFormsOf(held);
+            for (int index = 0; index < opened.Count; index += 1)
+            {
+                entries.Add(new LessonEntry(held, index, opened[index]));
+            }
         }
 
-        this.form = index;
-        this.targets.Clear();
-        this.targets.AddRange(this.LessonTargets(chosen, index));
-        this.Stage = CommandStage.Target;
-        this.Cursor = 0;
+        return entries;
     }
 
     /// <summary>Gives the lesson of each filled slot of the character, in slot order (D-356).</summary>

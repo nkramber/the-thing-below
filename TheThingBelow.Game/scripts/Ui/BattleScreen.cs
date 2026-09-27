@@ -1024,41 +1024,36 @@ public sealed class BattleScreen
 
                 break;
             case CommandStage.Lesson:
-                foreach (ContentId lesson in open.Lessons)
+                foreach (LessonEntry entry in open.Lessons)
                 {
-                    entries.Add((BattleMessages.NameIdOf(lesson), Values(), open.AllowsLesson(lesson)));
-                }
-
-                break;
-            case CommandStage.Form:
-                ContentId chosen = open.ChosenLesson ?? throw new InvalidOperationException(
-                    "The command menu stands in the form stage and holds no lesson (T-2).");
-                for (int index = 0; index < open.Forms.Count; index += 1)
-                {
-                    entries.Add(this.FormEntry(open.Forms[index], open.AllowsForm(chosen, index)));
+                    entries.Add(this.FormEntry(entry.Record, open.AllowsForm(entry.Lesson, entry.Form)));
                 }
 
                 break;
             default:
                 BattleTarget pointed = open.PointedTarget ?? throw new InvalidOperationException(
                     "The command menu stands in the target stage and points at no target (T-2).");
-                entries.Add((BattleMessages.NameIdOf(view.At(pointed).Id), Values(), true));
+                (ContentId nameId, IReadOnlyDictionary<string, string> nameValues) = BattleMessages.NameLineOf(view, pointed, this.content.Strings);
+                entries.Add((nameId, nameValues, true));
                 this.ShowPointer(view, pointed);
                 break;
         }
 
-        string key = $"{open.Stage}:{open.Cursor}:{string.Join(",", entries.ConvertAll(entry => entry.Id.Value + entry.Allowed))}";
-        this.ShowCommandRow(key, entries, open.Stage == CommandStage.Target ? 0 : open.Cursor);
+        // A list longer than the two rows of the box scrolls one row at a time with the cursor (D-1195).
+        int cursor = open.Stage == CommandStage.Target ? 0 : open.Cursor;
+        int first = BattleLayout.FirstShown(entries.Count, cursor);
+        int shownCount = Math.Min(entries.Count - first, BattleLayout.CommandRows * BattleLayout.CommandColumns);
+        List<(ContentId Id, IReadOnlyDictionary<string, string> Values, bool Allowed)> shown = entries.GetRange(first, shownCount);
+        string key = $"{open.Stage}:{open.Cursor}:{first}:{string.Join(",", shown.ConvertAll(entry => entry.Id.Value + string.Join("|", entry.Values.Values) + entry.Allowed))}";
+        this.ShowCommandRow(key, shown, cursor - first);
         this.ShowDescription(open);
     }
 
-    /// <summary>Gives the entry of one form: its name and its MP cost, or its name alone for a drill (D-1027).</summary>
+    /// <summary>Gives the entry of one form: its name alone. The message box shows its cost (D-1195).</summary>
     private (ContentId Id, IReadOnlyDictionary<string, string> Values, bool Allowed) FormEntry(LessonForm form, bool allowed)
     {
         string name = this.content.Strings.Text(BattleMessages.NameIdOf(form.Ability));
-        return form.Mp == 0
-            ? (StringId("battle.form_entry_free"), Values(("form", name)), allowed)
-            : (StringId("battle.form_entry"), Values(("form", name), ("mp", form.Mp.ToString(CultureInfo.InvariantCulture))), allowed);
+        return (StringId("battle.form_entry_free"), Values(("form", name)), allowed);
     }
 
     /// <summary>
@@ -1071,7 +1066,7 @@ public sealed class BattleScreen
         // The line of an item is its own string id, as the item window of the menu reads it (D-1093).
         ContentId? under = open.Stage switch
         {
-            CommandStage.Form => open.Forms[open.Cursor].Description,
+            CommandStage.Lesson => open.Lessons[open.Cursor].Record.Description,
             CommandStage.Item => open.Items[open.Cursor].Id,
             _ => null,
         };
@@ -1081,7 +1076,7 @@ public sealed class BattleScreen
             if (this.shownDescription is null || string.CompareOrdinal(this.shownDescription.Value, description.Value) != 0)
             {
                 this.shownDescription = description;
-                this.ui.Text.Put(this.message, description);
+                this.PutDescription(open, description);
             }
 
             return;
@@ -1095,6 +1090,26 @@ public sealed class BattleScreen
                 this.ui.Text.Put(this.message, line.Id, line.Values);
             }
         }
+    }
+
+    /// <summary>
+    /// Puts a description in the message box. A form with a cost shows the cost after its
+    /// description, and its entry in the list shows its name alone (D-1195).
+    /// </summary>
+    private void PutDescription(BattleCommands open, ContentId description)
+    {
+        if (open.Stage != CommandStage.Lesson || open.Lessons[open.Cursor].Record.Mp == 0)
+        {
+            this.ui.Text.Put(this.message, description);
+            return;
+        }
+
+        this.ui.Text.Put(
+            this.message,
+            StringId("battle.form_help"),
+            Values(
+                ("text", this.content.Strings.Text(description)),
+                ("mp", open.Lessons[open.Cursor].Record.Mp.ToString(CultureInfo.InvariantCulture))));
     }
 
     private void ShowCommandRow(

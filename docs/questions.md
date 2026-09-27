@@ -830,3 +830,6 @@ How to file a question (D-19, D-24):
 251. **OQ-251. The kind of the region map.** D-113 sets a region map of nodes and routes, with no overworld map, and the party moves node to node. Does the region map stay that node map, or become a walkable overworld in the style of Final Fantasy VI? The answer changes three things. The autosave writes on each arrival at a node (D-224). The region map plays one track (D-430). OQ-122 holds the form of the content and the cost of a route. The first item of PR-35 settles this question with OQ-122. Raised 2026-09-26. Blocks PR-35.
     - The node map of D-113. This is the recommendation, because D-224, D-430, and OQ-122 build on it. Nothing changes, and PR-35 stays the size that its roadmap entry gives.
     - A walkable overworld. The party walks a map of tiles between the places, as on a dungeon map. D-113 changes, and PR-35 grows.
+252. **OQ-252. Two regains from one blow.** A basic attack that hits returns 5% of full AP to the attacker (D-1198). A fall of an enemy returns 10% to each standing character. Does a basic attack that fells an enemy give the attacker both? Raised 2026-09-26. Blocks PR-107.
+    - Both, the recommendation. The two rules stay apart, and a finishing blow pays a little more.
+    - The fall alone. The attacker takes 10% like the rest of the party, and one blow never counts twice.

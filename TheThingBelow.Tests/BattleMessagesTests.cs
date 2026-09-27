@@ -84,6 +84,15 @@ public sealed class BattleMessagesTests
         StringTable strings = Content.Value.Strings;
         BattleContent battle = Content.Value.Battle;
         string longestName = LongestNameOf(strings, NamedInFights(battle));
+
+        // D-1194: a combatant place holds a character, or an enemy with its letter, and the last
+        // letter is the widest case. A form takes no letter.
+        string letters = strings.Text(ContentId.Parse("battle.enemy_letters", "test", "letters"));
+        string longestEnemy = strings.Text(ContentId.Parse("battle.lettered_name", "test", "name"))
+            .Replace("{name}", LongestNameOf(strings, EnemiesOf(battle)), StringComparison.Ordinal)
+            .Replace("{letter}", letters[^1].ToString(), StringComparison.Ordinal);
+        string longestCharacter = LongestNameOf(strings, CharactersOf(battle));
+        string longestCombatant = longestEnemy.Length >= longestCharacter.Length ? longestEnemy : longestCharacter;
         string longestItem = LongestNameOf(strings, battle.Items.Ids);
         string longestStatus = Longest(strings, "status.");
         string amount = BattleFixture.MostStat.ToString(System.Globalization.CultureInfo.InvariantCulture);
@@ -97,8 +106,8 @@ public sealed class BattleMessagesTests
 
             ContentId id = (ContentId)line.GetType().GetProperty("Id")!.GetValue(line)!;
             string text = strings.Text(id)
-                .Replace("{actor}", longestName, StringComparison.Ordinal)
-                .Replace("{target}", longestName, StringComparison.Ordinal)
+                .Replace("{actor}", longestCombatant, StringComparison.Ordinal)
+                .Replace("{target}", longestCombatant, StringComparison.Ordinal)
                 .Replace("{status}", longestStatus, StringComparison.Ordinal)
                 .Replace("{form}", longestName, StringComparison.Ordinal)
                 .Replace("{item}", longestItem, StringComparison.Ordinal)
@@ -218,6 +227,55 @@ public sealed class BattleMessagesTests
     }
 
     /// <summary>Gives a view of a fight of the fixture content, with one character and the pair.</summary>
+    [Fact]
+    public void TwoEnemiesOfOneKindTakeALetterInSlotOrderAndACharacterTakesNone()
+    {
+        // D-1194: the pair holds two grunts, so each takes a letter, and the name of Marrek stays plain.
+        object view = EnemyNamedFirst();
+
+        Assert.Equal("Grunt A", NameOf(view, new BattleTarget(BattleSide.Enemy, 0)));
+        Assert.Equal("Grunt B", NameOf(view, new BattleTarget(BattleSide.Enemy, 1)));
+        Assert.Equal("Marrek", NameOf(view, new BattleTarget(BattleSide.Party, 0)));
+    }
+
+    [Fact]
+    public void ALoneEnemyOfItsKindKeepsItsPlainName()
+    {
+        // D-1194: the elite group holds one brute and one waiting grunt, so neither takes a letter.
+        object view = ViewOf("group.fixture_elite");
+
+        Assert.Equal("Brute", NameOf(view, new BattleTarget(BattleSide.Enemy, 0)));
+        Assert.Equal("Grunt", NameOf(view, new BattleTarget(BattleSide.Enemy, 1)));
+    }
+
+    [Fact]
+    public void ALineNamesTheLetteredEnemy()
+    {
+        // D-1194: the message of a blow names the grunt that it reached.
+        var played = new BattleEvent(BattleEventKind.Hit, new BattleTarget(BattleSide.Party, 0), new BattleTarget(BattleSide.Enemy, 1), 16);
+        object line = LineOf(played, EnemyNamedFirst()) ?? throw new InvalidOperationException("The hit gave no line.");
+        var values = (IReadOnlyDictionary<string, string>)line.GetType().GetProperty("Values")!.GetValue(line)!;
+
+        Assert.Equal("Grunt B", values["target"]);
+    }
+
+    private static object ViewOf(string group)
+    {
+        Simulation run = Simulation.Start(20260918, BattleRuns.Map(group), Content.Value.Battle, Content.Value.Notices, Content.Value.Story, DebugIntentHandlers.None);
+        run.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
+        Type viewType = GameAssemblyFile.Type("TheThingBelow.Game.Ui.BattleView");
+        return viewType.GetMethod("AtStart")!.Invoke(null, [run.State, viewType.GetMethod("PartyOf")!.Invoke(null, [run.State])])!;
+    }
+
+    private static string NameOf(object view, BattleTarget target)
+    {
+        object pair = Method("NameLineOf").Invoke(null, [view, target, Content.Value.Strings])!;
+        var id = (ContentId)pair.GetType().GetField("Item1")!.GetValue(pair)!;
+        var values = (IReadOnlyDictionary<string, string>)pair.GetType().GetField("Item2")!.GetValue(pair)!;
+        MethodInfo fill = GameAssemblyFile.Type("TheThingBelow.Game.Ui.TextHelper").GetMethod("Fill")!;
+        return (string)fill.Invoke(null, [Content.Value.Strings.Text(id), id, values])!;
+    }
+
     private static object EnemyNamedFirst()
     {
         Simulation run = Simulation.Start(
@@ -239,6 +297,28 @@ public sealed class BattleMessagesTests
             ?? throw new InvalidOperationException($"The battle messages hold no '{name}' method (T-2).");
 
     /// <summary>Gives the ids whose names a combatant place or a form place of a line reads: each character, each enemy, and each form of a lesson.</summary>
+    private static List<ContentId> EnemiesOf(BattleContent battle)
+    {
+        var ids = new List<ContentId>();
+        foreach (EnemyRecord enemy in battle.Enemies)
+        {
+            ids.Add(enemy.Id);
+        }
+
+        return ids;
+    }
+
+    private static List<ContentId> CharactersOf(BattleContent battle)
+    {
+        var ids = new List<ContentId>();
+        foreach (CharacterRecord character in battle.Fixture.Characters)
+        {
+            ids.Add(character.Id);
+        }
+
+        return ids;
+    }
+
     private static List<ContentId> NamedInFights(BattleContent battle)
     {
         var ids = new List<ContentId>();
