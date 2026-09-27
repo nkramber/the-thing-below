@@ -183,14 +183,14 @@ public sealed class ItemsView : IMenuView
             return entries;
         }
 
-        // A restore shows the MP of each character, and every other item the health (D-1046).
+        // A restore shows the AP of each character, and every other item the health (D-1046).
         bool restore = this.state.BattleContent.Item(this.Cursor.Chosen!) is RestoreItem;
         IReadOnlyList<PartyMember> members = this.state.Characters.Members;
         for (int slot = 0; slot < members.Count; slot += 1)
         {
             PartyMember member = members[slot];
             entries.Add(restore
-                ? new Entry(BattleMessages.NameIdOf(member.Record.Id), Id("battle.mp"), Values(("mp", Number(member.Mp)), ("full", Number(member.Stats.Mp))), this.Cursor.AllowsTarget(slot))
+                ? new Entry(BattleMessages.NameIdOf(member.Record.Id), Id("battle.ap"), Values(("ap", Number(member.Ap)), ("full", Number(member.Stats.Ap))), this.Cursor.AllowsTarget(slot))
                 : new Entry(BattleMessages.NameIdOf(member.Record.Id), Id("battle.health"), Values(("health", Number(member.Health)), ("full", Number(member.Stats.Health))), this.Cursor.AllowsTarget(slot)));
         }
 

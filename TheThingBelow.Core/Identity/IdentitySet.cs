@@ -532,16 +532,16 @@ public static partial class IdentitySet
      "comment": "The lesson file of the identity set. PR-12 added it, and PR-13 added the steal drill.",
      "lessons": [
       { "id": "lesson.identity_blast", "kind": "harm", "forms": [
-       { "ability": "ability.identity_strike", "points": 0, "mp": 3, "description": "lesson.identity_strike" },
-       { "ability": "ability.identity_blast", "points": 6, "mp": 5, "description": "lesson.identity_blast" } ] },
+       { "ability": "ability.identity_strike", "points": 0, "ap": 3, "description": "lesson.identity_strike" },
+       { "ability": "ability.identity_blast", "points": 6, "ap": 5, "description": "lesson.identity_blast" } ] },
       { "id": "lesson.identity_mend", "kind": "mend", "forms": [
-       { "ability": "ability.identity_mend", "points": 0, "mp": 2, "description": "lesson.identity_mend" } ] },
+       { "ability": "ability.identity_mend", "points": 0, "ap": 2, "description": "lesson.identity_mend" } ] },
       { "id": "lesson.identity_purge", "kind": "mend", "forms": [
-       { "ability": "ability.identity_purge", "points": 0, "mp": 1, "description": "lesson.identity_purge" } ] },
+       { "ability": "ability.identity_purge", "points": 0, "ap": 1, "description": "lesson.identity_purge" } ] },
       { "id": "lesson.identity_haste", "kind": "boon", "forms": [
-       { "ability": "ability.identity_haste", "points": 0, "mp": 2, "description": "lesson.identity_haste" } ] },
+       { "ability": "ability.identity_haste", "points": 0, "ap": 2, "description": "lesson.identity_haste" } ] },
       { "id": "lesson.identity_pilfer", "kind": "theft", "forms": [
-       { "ability": "ability.identity_pilfer", "points": 0, "mp": 0, "description": "lesson.identity_pilfer" } ] }
+       { "ability": "ability.identity_pilfer", "points": 0, "ap": 2, "description": "lesson.identity_pilfer" } ] }
      ]
     }
     """;
@@ -596,6 +596,8 @@ public static partial class IdentitySet
      "experience_gap": 4,
      "lesson_slots": 3,
      "aptitude_bonus": 2500,
+     "hit_regain": 500,
+     "fall_regain": 1000,
      "level_experience": [0, 20, 60, 120, 200, 300, 420, 560, 720, 900, 1100, 1320, 1560, 1820, 2100, 2400, 2720, 3060, 3420, 3800, 4200, 4620, 5060, 5520, 6000, 6500, 7020, 7560, 8120, 8700, 9300, 9920, 10560, 11220, 11900, 12600, 13320, 14060, 14820, 15600],
      "lesson_slot_levels": [5, 12, 20, 30]
     }
@@ -993,7 +995,7 @@ public static partial class IdentitySet
     /// menu and puts the charm of the pack on, before the fight, then walks into the guard. In
     /// the fight each turn takes the next step of a fixed cycle: the first form of the blast,
     /// the mend on the hero, the second form of the blast once the hero opened it, a steal, and
-    /// an attack. A form that the rules refuse, such as a rite with too little MP or a fourth
+    /// an attack. A form that the rules refuse, such as a rite with too little AP or a fourth
     /// steal, gives its place to the attack, so the run reads the refusal too.
     /// </summary>
     private static IReadOnlyList<Intent> IntentsOfLessonTick(RunState state, int turns, int step)

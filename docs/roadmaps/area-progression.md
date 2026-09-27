@@ -37,29 +37,30 @@ Built by PR-67. Phase file: `phase-2-first-playable.md`.
 - The experience from an enemy shrinks as a character outlevels it, which is a soft cap for each region (D-388). A cut for each level ends in zero past a gap (D-968), and the shrink reads the level of each character (D-969).
 - A character who joins late starts at a set level in content (D-363).
 - The level raises the stats through the curve of section 7.3, and it raises the lesson slots of section 7.4 (D-356).
-- A level-up fills the health and the MP (D-973), and it plays its sting (D-422).
+- A level-up fills the health and the AP (D-973, D-1197), and it plays its sting (D-422).
 - A property test proves that the experience from one enemy falls as the level of a character rises, to zero past the gap (D-388, D-968, the exit tests of PR-67).
 
 > *In plain English:* a fight makes each character stronger, and the people who wait still learn a little. A fallen character learns nothing from that fight. The same weak enemies soon give nothing.
 
-### 7.2 MP and its recovery
+### 7.2 AP and its recovery
 
-Built by PR-67. Phase file: `phase-2-first-playable.md`.
+Built by PR-67 as MP. PR-107 makes it ability power, AP. Phase file: `phase-2-first-playable.md`.
 
-- Each character holds MP, and a rite spends it (D-42).
-- MP comes back at a hub, at a save point once for the place, and from scarce items (D-42, D-389, D-555).
+- Each character holds AP, the one pool. Each form spends it, a rite and a drill alike, at least 1 AP (D-42, D-1197, D-1213).
+- AP comes back at a hub, at a save point once for the place, and from scarce items (D-42, D-389, D-555, D-1197).
+- In a fight, a fall of an enemy gives each character who is not down 10% of full AP. A basic attack that hits gives the attacker 5%. Each regain rounds down, with a floor of 1 (D-1198, D-1210).
 - A save point restores no health, so health stays the scarce resource inside a dungeon (D-389).
-- Every character can attack with the weapon in hand, so an empty MP pool never leaves a dead turn (D-359, F-8).
-- A fresh character from the reserve brings its own MP at a save point, and the balance of D-35 must hold with it (D-356).
-- A rest at a hub fills health and MP, and a save point fills MP alone (D-967). PR-67 adds the two rules, and PR-16 and PR-14 wire them (D-970).
+- Every character can attack with the weapon in hand, so an empty AP pool never leaves a dead turn (D-359, F-8).
+- A fresh character from the reserve brings its own AP at a save point, and the balance of D-35 must hold with it (D-356).
+- A rest at a hub fills health and AP, and a save point fills AP alone (D-967, D-1197). PR-67 adds the two rules, and PR-16 and PR-14 wire them (D-970).
 
-> *In plain English:* spells run on MP, and MP is scarce until you reach a town. A caster with an empty pool can still swing a weapon.
+> *In plain English:* every ability runs on ability power, and it is scarce until you reach a town. Hits and kills give a little back. A character with an empty pool can still swing a weapon.
 
 ### 7.3 The stat curve of each character
 
 Built by PR-67. Phase file: `phase-2-first-playable.md`.
 
-- Each character carries its own stat curve in content: the health, the MP, the attack, the defense, and the speed at each level (D-537).
+- Each character carries its own stat curve in content: the health, the AP, the attack, the defense, and the speed at each level (D-537, D-1197).
 - PR-99 adds the magic and the resistance to each curve, and PR-30 tunes them (D-1052).
 - The end of the job system left the stats with no source, and D-537 closes that gap (F-54).
 - The cast reads as people before any gear, so one character is tough and another is frail (D-33, D-537).
@@ -134,7 +135,7 @@ Built by PR-13. Phase file: `phase-2-first-playable.md`.
 - Six slots hold gear: the weapon, the shield or off-hand, the head, the body, and two accessories (D-44).
 - Nothing limits what a character wears, because the aptitudes carry the difference (D-374).
 - Gear is fixed and hand-authored, and no random affix and no crafting exist (D-45).
-- A piece adds to attack, magic, defense, resistance, and speed, and never to health or MP (D-1052). Only a special piece holds an element level other than `normal` (D-1036).
+- A piece adds to attack, magic, defense, resistance, and speed, and never to health or AP (D-1052). Only a special piece holds an element level other than `normal` (D-1036).
 - The amounts of the six slots add. The best protection of the worn pieces applies, and each `weak` piece steps it down one step (D-1037).
 - An amount can be negative, and each stat keeps a floor of 1 (D-1047).
 - The party changes gear anywhere outside a fight (D-1048).
@@ -151,8 +152,8 @@ Built by PR-13. Phase file: `phase-2-first-playable.md`.
 
 - Each item record holds its stack limit: 3 to 10 for a used-up item, and 1 for a key item (D-382, D-1038).
 - The limit counts each copy that the party owns (D-1039).
-- A small, hand-placed set of items gets used up: MP draughts, healing, cures for statuses, and the rare revive (D-384).
-- Each item holds one effect: a heal, a restore of MP, a cure, or a revive (D-1046). A key item, such as the torch, holds no effect (D-1065).
+- A small, hand-placed set of items gets used up: AP draughts, healing, cures for statuses, and the rare revive (D-384).
+- Each item holds one effect: a heal, a restore of AP, a cure, or a revive (D-1046, D-1197). A key item, such as the torch, holds no effect (D-1065).
 - Any character can use an item on a turn, and the item rate cuts each amount in a fight, but never a cure (D-382, D-1046).
 - The item window refuses a use that changes nothing, and a fight allows it (D-1049).
 - A find over the stack limit stays in its chest, and the save records what remains (D-385).
@@ -198,6 +199,7 @@ Built by PR-67, PR-12, PR-13, and PR-15. Phase files: `phase-2-first-playable.md
 | PR-12 | The lesson slots, the growth, the forms, the owned lesson set, and the two aptitudes | D-356 to D-361, D-539, D-1018 to D-1024 |
 | PR-13 | The six gear slots, the inventory, the items, the steal, and the drops | D-44, D-45, D-382, D-1036 to D-1046 |
 | PR-99 | The stat set of each curve | D-1041 |
+| PR-107 | Ability power in place of MP, the AP cost of each form, and the regain of AP in a fight | D-1197 to D-1199, D-1210 to D-1213 |
 | PR-19 | The quest state that holds each personal task | D-282, D-538 |
 | PR-16 and PR-65 | The chests and the shops that give lessons, gear, and items | D-365, D-530, D-1024 |
 | PR-42 | The lessons of region one, with their icons and their text | D-304 |
@@ -210,7 +212,7 @@ Built by PR-67, PR-12, PR-13, and PR-15. Phase files: `phase-2-first-playable.md
 | Part | Area file | PR |
 |---|---|---|
 | The content reader, the snapshot, and the migrations | `area-core.md` | PR-5 and PR-43 |
-| The fight that spends MP, items, and gear | `area-battle.md` | PR-9 and PR-66 |
+| The fight that spends AP, items, and gear | `area-battle.md` | PR-9 and PR-66 |
 | The chests, the save points, and the shops | `area-exploration.md` | PR-16 and PR-65 |
 | The quests, the flags, and the story scenes of each task | `area-story.md` | PR-68, PR-18, and PR-19 |
 | The party, lesson, gear, item, and status screens | `area-ui-input.md` | PR-62 |
@@ -243,7 +245,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 6. PR-13: the gear, the inventory, and the items.
 7. PR-99: the stat set (D-1041).
 8. PR-14 and PR-65: the hub and the shop that sell them (`area-exploration.md`).
-9. PR-16: the chests that hold them.
+9. PR-16: the chests that hold them. PR-107 then puts ability power in place of MP (D-1196, D-1200).
 10. PR-17: the lessons, the gear, and the items of the first playable.
 11. M-4: the turns of an encounter and the downs of a dungeon.
 12. **← GATE 2 (first playable).**

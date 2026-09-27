@@ -70,17 +70,17 @@ public static class CostFight
      "comment": "The lessons of the cost fight: a melee strike and a fire strike of any reach for each character.",
      "lessons": [
       { "id": "lesson.cost_cut_first", "kind": "blade", "forms": [
-       { "ability": "ability.cost_cut_first", "points": 0, "mp": 0, "description": "lesson.cost_cut_first" } ] },
+       { "ability": "ability.cost_cut_first", "points": 0, "ap": 2, "description": "lesson.cost_cut_first" } ] },
       { "id": "lesson.cost_flare_first", "kind": "harm", "forms": [
-       { "ability": "ability.cost_flare_first", "points": 0, "mp": 4, "description": "lesson.cost_flare_first" } ] },
+       { "ability": "ability.cost_flare_first", "points": 0, "ap": 4, "description": "lesson.cost_flare_first" } ] },
       { "id": "lesson.cost_cut_second", "kind": "blade", "forms": [
-       { "ability": "ability.cost_cut_second", "points": 0, "mp": 0, "description": "lesson.cost_cut_second" } ] },
+       { "ability": "ability.cost_cut_second", "points": 0, "ap": 2, "description": "lesson.cost_cut_second" } ] },
       { "id": "lesson.cost_flare_second", "kind": "harm", "forms": [
-       { "ability": "ability.cost_flare_second", "points": 0, "mp": 4, "description": "lesson.cost_flare_second" } ] },
+       { "ability": "ability.cost_flare_second", "points": 0, "ap": 4, "description": "lesson.cost_flare_second" } ] },
       { "id": "lesson.cost_cut_third", "kind": "blade", "forms": [
-       { "ability": "ability.cost_cut_third", "points": 0, "mp": 0, "description": "lesson.cost_cut_third" } ] },
+       { "ability": "ability.cost_cut_third", "points": 0, "ap": 2, "description": "lesson.cost_cut_third" } ] },
       { "id": "lesson.cost_flare_third", "kind": "harm", "forms": [
-       { "ability": "ability.cost_flare_third", "points": 0, "mp": 4, "description": "lesson.cost_flare_third" } ] }
+       { "ability": "ability.cost_flare_third", "points": 0, "ap": 4, "description": "lesson.cost_flare_third" } ] }
      ]
     }
     """;

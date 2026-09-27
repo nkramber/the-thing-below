@@ -70,11 +70,12 @@ public sealed class LessonListTests
     [InlineData("\"kind\": \"blade\", ", "", "absent")]
     [InlineData("\"points\": 60", "\"points\": 0", "opens above the form before it")]
     [InlineData("\"ability\": \"ability.fixture_hew\", \"points\": 0", "\"ability\": \"ability.fixture_hew\", \"points\": 5", "a lesson starts at its first form")]
-    [InlineData("\"points\": 0, \"mp\": 0, \"description\": \"lesson.fixture_hew\"", "\"points\": -1, \"mp\": 0, \"description\": \"lesson.fixture_hew\"", "outside 0 to")]
+    [InlineData("\"points\": 0, \"ap\": 2, \"description\": \"lesson.fixture_hew\"", "\"points\": -1, \"ap\": 2, \"description\": \"lesson.fixture_hew\"", "outside 0 to")]
     [InlineData("\"ability\": \"ability.fixture_cleave\"", "\"ability\": \"ability.fixture_hew\"", "each spell has a flash of its own")]
     [InlineData("\"kind\": \"blade\", ", "\"kind\": \"blade\", \"name\": \"name.fixture_hew\", ", "unknown field")]
-    [InlineData("\"mp\": 4", "\"mp\": 1000", "the MP cost 1000")]
-    [InlineData("\"mp\": 4", "\"mp\": -1", "the MP cost -1")]
+    [InlineData("\"ap\": 4", "\"ap\": 1000", "the AP cost 1000")]
+    [InlineData("\"ap\": 4", "\"ap\": -1", "the AP cost -1")]
+    [InlineData("\"ap\": 4", "\"ap\": 0", "the AP cost 0 is outside 1 to")]
     [InlineData(", \"description\": \"lesson.fixture_hew\"", "", "absent")]
     [InlineData("\"ability\": \"ability.fixture_hew\"", "\"ability\": \"item.test_hew\"", "ability")]
     [InlineData("\"id\": \"lesson.fixture_hew\", \"kind\"", "\"id\": \"lesson.fixture_hew\", \"tier\": 1, \"kind\"", "unknown field")]
@@ -103,7 +104,7 @@ public sealed class LessonListTests
     [Fact]
     public void ARepeatedIdFailsWithTheId()
     {
-        const string lesson = """{ "id": "lesson.a", "kind": "mend", "forms": [{ "ability": "ability.a", "points": 0, "mp": 1, "description": "lesson.a" }] }""";
+        const string lesson = """{ "id": "lesson.a", "kind": "mend", "forms": [{ "ability": "ability.a", "points": 0, "ap": 1, "description": "lesson.a" }] }""";
 
         ContentException error = Assert.Throws<ContentException>(() => Read($$"""{ "comment": "c", "lessons": [{{lesson}}, {{lesson}}] }"""));
 
@@ -142,5 +143,5 @@ public sealed class LessonListTests
     private static ContentId Id(string value) => ContentId.Parse(value, "test", "id");
 
     private static (string, int, int, string) FieldsOf(LessonForm form) =>
-        (form.Ability.Value, form.Points, form.Mp, form.Description.Value);
+        (form.Ability.Value, form.Points, form.Ap, form.Description.Value);
 }

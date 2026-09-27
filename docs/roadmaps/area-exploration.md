@@ -164,7 +164,7 @@ Built by PR-16. Phase file: `phase-2-first-playable.md`.
 
 - PR-16 builds the treasure, the locked doors, the keys, and the save points (D-41, D-529). It also adds the gold of a chest (D-1161).
 - A save point saves the party. The party and the lessons swap anywhere outside a fight (D-36, D-1050, D-1134).
-- A save point restores MP once for the place, until a story event reopens it, and it restores no health (D-389, D-555).
+- A save point restores AP once for the place, until a story event reopens it, and it restores no health (D-389, D-555, D-1197).
 - The exit to the region map and a rest at a hub restore the party. So a run never traps itself (D-555).
 - A Theft drill on one of the three who fight opens a lock that the map marks as pickable. A story lock always needs its key (D-386).
 - A chest over the stack limit keeps what the party cannot carry, and the save records what remains (D-385).
@@ -206,7 +206,7 @@ Built by PR-14. Phase file: `phase-2-first-playable.md`.
 - A hub is a walkable map with NPC sprites, and one code path draws a hub and a dungeon (D-112).
 - PR-14 builds the hub map, the NPCs and their movement, the rest, the save, and the party swap (D-59, D-530, D-1132, D-1134, D-1137).
 - Each service sits on an NPC or a thing, and confirm while the lead faces it opens the service (D-1131).
-- A rest restores health and MP, and it cures poison, blind, and silence (D-42, D-390).
+- A rest restores health and AP, and it cures poison, blind, and silence (D-42, D-390, D-1197).
 - Each hub has a shape of its own, so no hub offers every service (D-28, D-59).
 - An NPC wanders in a list of rectangles, walks a route with waits, or chases another NPC. An NPC is solid, and it walks home after a story scene (D-1138 to D-1140).
 - The hanging cells are a dungeon under a hub, and the same map rules cover it (D-244, D-112).

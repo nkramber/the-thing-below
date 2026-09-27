@@ -10,9 +10,9 @@ namespace TheThingBelow.Core.Battles;
 /// </summary>
 /// <param name="Ability">The ability that the form gives, an id of the ability file (D-785).</param>
 /// <param name="Points">The point total that opens the form. The first form opens at zero.</param>
-/// <param name="Mp">The MP that one use of the form costs (D-42).</param>
+/// <param name="Ap">The AP that one use of the form costs, at least 1 (D-1197, D-1213).</param>
 /// <param name="Description">The string id of the short description of the form, which the list of forms shows (D-1027, G-7).</param>
-public sealed record LessonForm(ContentId Ability, int Points, int Mp, ContentId Description);
+public sealed record LessonForm(ContentId Ability, int Points, int Ap, ContentId Description);
 
 /// <summary>
 /// One lesson: a rite or a drill with its kind and its forms (D-278, D-281, D-1026). The name of
@@ -266,7 +266,7 @@ public sealed class LessonList
     {
         ContentId? ability = null;
         int? points = null;
-        int? mp = null;
+        int? ap = null;
         ContentId? description = null;
 
         int depth = reader.ReadObjectStart();
@@ -280,8 +280,8 @@ public sealed class LessonList
                 case "points":
                     points = BattleFixture.ReadStat(ref reader, 0);
                     break;
-                case "mp":
-                    mp = ReadMp(ref reader);
+                case "ap":
+                    ap = ReadAp(ref reader);
                     break;
                 case "description":
                     description = reader.ReadContentId();
@@ -294,20 +294,20 @@ public sealed class LessonList
         return new LessonForm(
             reader.Require(ability, depth, "ability"),
             reader.RequireInt(points, depth, "points"),
-            reader.RequireInt(mp, depth, "mp"),
+            reader.RequireInt(ap, depth, "ap"),
             reader.Require(description, depth, "description"));
     }
 
-    /// <summary>Reads an MP cost: zero for a drill, and at most the most MP of a level (D-42, D-981).</summary>
-    private static int ReadMp(ref ContentReader reader)
+    /// <summary>Reads an AP cost: at least 1, a drill too, and at most the most AP of a level (D-981, D-1197, D-1213).</summary>
+    private static int ReadAp(ref ContentReader reader)
     {
-        int mp = reader.ReadInt();
-        if (mp < 0 || mp > StatCurve.MostPool)
+        int ap = reader.ReadInt();
+        if (ap < 1 || ap > StatCurve.MostPool)
         {
-            throw reader.Refuse($"the MP cost {mp} is outside 0 to {StatCurve.MostPool} (D-42, D-981)");
+            throw reader.Refuse($"the AP cost {ap} is outside 1 to {StatCurve.MostPool}, and each form costs AP (D-981, D-1197, D-1213)");
         }
 
-        return mp;
+        return ap;
     }
 
     /// <summary>Refuses two forms that name one ability, because each spell has a flash of its own (D-1032).</summary>

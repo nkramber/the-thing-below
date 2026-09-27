@@ -50,7 +50,7 @@ public static class LessonRules
     /// <summary>
     /// Gives the reason that the rules refuse a use of a form now, or no value when the use is
     /// legal. A slot of the character must hold the lesson, the character must have opened the
-    /// form, the MP must cover the cost, and silence refuses a rite (D-42, D-806, D-1027). The
+    /// form, the AP must cover the cost, and silence refuses a rite (D-42, D-806, D-1027). The
     /// lists of forms of the battle screen and the lesson window read it (T-2).
     /// </summary>
     /// <param name="state">The run.</param>
@@ -84,10 +84,10 @@ public static class LessonRules
             return $"form {form} of '{lesson.Value}', and '{member.Record.Id.Value}' opened the forms 0 to {opened - 1} (D-539)";
         }
 
-        int cost = record.Forms[form].Mp;
-        if (member.Mp < cost)
+        int cost = record.Forms[form].Ap;
+        if (member.Ap < cost)
         {
-            return $"form {form} of '{lesson.Value}', which costs {cost} MP, and '{member.Record.Id.Value}' holds {member.Mp} (D-42)";
+            return $"form {form} of '{lesson.Value}', which costs {cost} AP, and '{member.Record.Id.Value}' holds {member.Ap} (D-42)";
         }
 
         return record.IsRite && silenced
@@ -147,7 +147,7 @@ public static class LessonRules
     }
 
     /// <summary>
-    /// Casts a Mend rite or a cure rite from the menu (D-391). The caster spends the MP, and the
+    /// Casts a Mend rite or a cure rite from the menu (D-391). The caster spends the AP, and the
     /// heal or the cure takes the aptitude bonus of the caster (D-1028). A heal reads the magic of
     /// the caster with its gear, and it draws the hit factor on the progression stream (D-1057, D-1059).
     /// </summary>
@@ -173,7 +173,7 @@ public static class LessonRules
         PartyMember member = state.Characters.Members[caster];
         PartyMember aimed = state.Characters.Members[target];
         LessonRecord record = state.BattleContent.Lessons.Lesson(lesson);
-        member.Mp -= record.Forms[form].Mp;
+        member.Ap -= record.Forms[form].Ap;
         int bonus = BonusOf(member.Record, record.Kind, state.BattleContent.Rules, state.Story.Flags);
         switch (FormAbility(state, lesson, form))
         {

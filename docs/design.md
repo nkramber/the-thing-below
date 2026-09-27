@@ -160,6 +160,8 @@ The owner then put the four other open findings in PR-106. The remap screen name
 
 The shop window takes a count, and it shows the change of each fighter for a piece of gear (D-1158, D-1159). The gold shows in the main menu, the shop, and the rest window (D-1160). PR-16 adds the gold of a chest (D-1161). A debug command sets the gold, and a save of another build follows an edit of a stock (D-1162, D-1163).
 
+2026-09-27 ability power pass: PR-107 puts ability power, AP, in place of MP as the one pool of each character. Each form costs at least 1 AP, a drill too (D-1197, D-1199, D-1212, D-1213). A fall of an enemy gives each character who is not down 10% of full AP. A basic attack that hits gives the attacker 5%. One blow can give both, and no message shows a regain (D-1198, D-1210, D-1211).
+
 External facts, each with the date of its check:
 
 - The GitHub repository `nkramber/the-thing-below` is public. Its name changed from the working title on 2026-09-14 (D-410). Source: `gh repo view`, run 2026-09-14.

@@ -572,11 +572,11 @@ public sealed class BattleScreen
             Bar = this.BuildBar(BattleLayout.BarHeight, "bar_fill"),
         };
 
-        // A character shows a health bar and an MP bar with no numbers, and the bottom line
+        // A character shows a health bar and an AP bar with no numbers, and the bottom line
         // holds the numbers and the status icons (D-976, D-980).
         if (shown.Target.Side == BattleSide.Party)
         {
-            nodes.MpBar = this.BuildBar(BattleLayout.MpBarHeight, "bar_mp");
+            nodes.ApBar = this.BuildBar(BattleLayout.ApBarHeight, "bar_ap");
         }
         else
         {
@@ -685,14 +685,14 @@ public sealed class BattleScreen
         row.AddThemeConstantOverride("separation", this.ui.Theme.BodySize / 2);
         var name = new Label();
         var health = new Label();
-        var mp = new Label();
+        var ap = new Label();
         var icons = new HBoxContainer();
         icons.AddThemeConstantOverride("separation", 0);
         row.AddChild(name);
         row.AddChild(health);
-        row.AddChild(mp);
+        row.AddChild(ap);
         row.AddChild(icons);
-        return new StatusLine(row, name, health, mp, icons);
+        return new StatusLine(row, name, health, ap, icons);
     }
 
     private void PlaceStatusLines()
@@ -741,9 +741,9 @@ public sealed class BattleScreen
             hidden.Border.Visible = visible;
         }
 
-        if (nodes.MpBar is HealthBar hiddenMp)
+        if (nodes.ApBar is HealthBar hiddenAp)
         {
-            hiddenMp.Border.Visible = visible;
+            hiddenAp.Border.Visible = visible;
         }
 
         if (nodes.Icons is HBoxContainer hiddenIcons)
@@ -775,13 +775,13 @@ public sealed class BattleScreen
             bar.Fill.Size = new Vector2(BattleLayout.BarFill(this.HealthAt(shown, playing, ticks), shown.FullHealth), BattleLayout.BarHeight - 2);
         }
 
-        if (nodes.MpBar is HealthBar mpBar)
+        if (nodes.ApBar is HealthBar apBar)
         {
-            int mp = this.MpAt(shown, playing, ticks);
-            int mpTop = place.Feet + BattleLayout.BarGap + BattleLayout.BarHeight - 1;
-            mpBar.Border.Position = new Vector2(place.X - (BattleLayout.BarWidth / 2), mpTop);
-            int mpFill = shown.FullMp == 0 ? 0 : BattleLayout.BarFill(mp, shown.FullMp);
-            mpBar.Fill.Size = new Vector2(mpFill, BattleLayout.MpBarHeight - 2);
+            int ap = this.ApAt(shown, playing, ticks);
+            int apTop = place.Feet + BattleLayout.BarGap + BattleLayout.BarHeight - 1;
+            apBar.Border.Position = new Vector2(place.X - (BattleLayout.BarWidth / 2), apTop);
+            int apFill = shown.FullAp == 0 ? 0 : BattleLayout.BarFill(ap, shown.FullAp);
+            apBar.Fill.Size = new Vector2(apFill, BattleLayout.ApBarHeight - 2);
         }
 
         if (nodes.Icons is HBoxContainer icons)
@@ -825,11 +825,11 @@ public sealed class BattleScreen
             ? BattleTimes.FillAt(this.pace.Summary, ticks, shown.HealthBefore, shown.Health)
             : shown.Health;
 
-    /// <summary>Gives the MP that a bar and the bottom line show: the fill of a level-up that plays, or the MP of the view (D-975).</summary>
-    private int MpAt(ShownCombatant shown, BattleEvent? playing, int ticks) =>
+    /// <summary>Gives the AP that a bar and the bottom line show: the fill of a level-up that plays, or the AP of the view (D-975).</summary>
+    private int ApAt(ShownCombatant shown, BattleEvent? playing, int ticks) =>
         FillsNow(shown, playing)
-            ? BattleTimes.FillAt(this.pace.Summary, ticks, shown.MpBefore, shown.Mp)
-            : shown.Mp;
+            ? BattleTimes.FillAt(this.pace.Summary, ticks, shown.ApBefore, shown.Ap)
+            : shown.Ap;
 
     private static bool FillsNow(ShownCombatant shown, BattleEvent? playing) =>
         playing is not null && playing.Kind == BattleEventKind.LevelUp && playing.Actor == shown.Target;
@@ -838,8 +838,8 @@ public sealed class BattleScreen
     {
         this.FillIcons(line.Icons, shown.Statuses, line);
         int health = this.HealthAt(shown, playing, ticks);
-        int mp = this.MpAt(shown, playing, ticks);
-        string key = $"{health}/{shown.FullHealth}/{mp}/{shown.FullMp}/{shown.Place}";
+        int ap = this.ApAt(shown, playing, ticks);
+        string key = $"{health}/{shown.FullHealth}/{ap}/{shown.FullAp}/{shown.Place}";
         if (string.CompareOrdinal(key, line.ShownText) == 0)
         {
             return;
@@ -850,9 +850,9 @@ public sealed class BattleScreen
         this.ui.Text.Put(line.Health, ContentId.Parse("battle.health", StringTable.Path, "battle screen"), Values(
             ("health", health.ToString(CultureInfo.InvariantCulture)),
             ("full", shown.FullHealth.ToString(CultureInfo.InvariantCulture))));
-        this.ui.Text.Put(line.Mp, ContentId.Parse("battle.mp", StringTable.Path, "battle screen"), Values(
-            ("mp", mp.ToString(CultureInfo.InvariantCulture)),
-            ("full", shown.FullMp.ToString(CultureInfo.InvariantCulture))));
+        this.ui.Text.Put(line.Ap, ContentId.Parse("battle.ap", StringTable.Path, "battle screen"), Values(
+            ("ap", ap.ToString(CultureInfo.InvariantCulture)),
+            ("full", shown.FullAp.ToString(CultureInfo.InvariantCulture))));
         line.Name.Modulate = shown.Place == CombatantPlace.Down ? this.dimColor : Colors.White;
     }
 
@@ -1053,7 +1053,7 @@ public sealed class BattleScreen
     private (ContentId Id, IReadOnlyDictionary<string, string> Values, bool Allowed) FormEntry(LessonForm form, bool allowed)
     {
         string name = this.content.Strings.Text(BattleMessages.NameIdOf(form.Ability));
-        return (StringId("battle.form_entry_free"), Values(("form", name)), allowed);
+        return (StringId("battle.form_name"), Values(("form", name)), allowed);
     }
 
     /// <summary>
@@ -1093,12 +1093,12 @@ public sealed class BattleScreen
     }
 
     /// <summary>
-    /// Puts a description in the message box. A form with a cost shows the cost before its
-    /// description, and its entry in the list shows its name alone (D-1195).
+    /// Puts a description in the message box. A form shows its cost before its description, and
+    /// its entry in the list shows its name alone (D-1195). Each form costs at least 1 AP (D-1213).
     /// </summary>
     private void PutDescription(BattleCommands open, ContentId description)
     {
-        if (open.Stage != CommandStage.Lesson || open.Lessons[open.Cursor].Record.Mp == 0)
+        if (open.Stage != CommandStage.Lesson)
         {
             this.ui.Text.Put(this.message, description);
             return;
@@ -1109,7 +1109,7 @@ public sealed class BattleScreen
             StringId("battle.form_help"),
             Values(
                 ("text", this.content.Strings.Text(description)),
-                ("mp", open.Lessons[open.Cursor].Record.Mp.ToString(CultureInfo.InvariantCulture))));
+                ("ap", open.Lessons[open.Cursor].Record.Ap.ToString(CultureInfo.InvariantCulture))));
     }
 
     private void ShowCommandRow(
@@ -1206,7 +1206,7 @@ public sealed class BattleScreen
 
         public HealthBar? Bar { get; set; }
 
-        public HealthBar? MpBar { get; set; }
+        public HealthBar? ApBar { get; set; }
 
         public HBoxContainer? Icons { get; set; }
     }
@@ -1216,7 +1216,7 @@ public sealed class BattleScreen
     /// <summary>The spell whose flash plays: the effect, the tick when it started, the body of its target, and the side that the burst leaves toward.</summary>
     private sealed record ShownSpell(SpellEffect Spell, long Start, Vector2 Point, int Away);
 
-    private sealed class StatusLine(HBoxContainer row, Label name, Label health, Label mp, HBoxContainer icons) : IconHolder
+    private sealed class StatusLine(HBoxContainer row, Label name, Label health, Label ap, HBoxContainer icons) : IconHolder
     {
         public HBoxContainer Row { get; } = row;
 
@@ -1224,7 +1224,7 @@ public sealed class BattleScreen
 
         public Label Health { get; } = health;
 
-        public Label Mp { get; } = mp;
+        public Label Ap { get; } = ap;
 
         public HBoxContainer Icons { get; } = icons;
 

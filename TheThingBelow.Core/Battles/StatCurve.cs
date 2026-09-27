@@ -6,13 +6,13 @@ namespace TheThingBelow.Core.Battles;
 
 /// <summary>The seven stats of one character level (D-537, D-966, D-1052).</summary>
 /// <param name="Health">The full health.</param>
-/// <param name="Mp">The full MP (D-42).</param>
+/// <param name="Ap">The full AP (D-42).</param>
 /// <param name="Attack">The attack, which the damage of a physical hit reads (D-771, D-1053).</param>
 /// <param name="Magic">The magic, which the damage of a magic hit and the amount of a heal read (D-1053, D-1057).</param>
 /// <param name="Defense">The defense, which guards against a physical hit (D-771, D-1053).</param>
 /// <param name="Resistance">The resistance, which guards against a magic hit (D-1052, D-1053).</param>
 /// <param name="Speed">The speed, which each push and each tie reads (D-768, D-769).</param>
-public sealed record StatRow(int Health, int Mp, int Attack, int Magic, int Defense, int Resistance, int Speed);
+public sealed record StatRow(int Health, int Ap, int Attack, int Magic, int Defense, int Resistance, int Speed);
 
 /// <summary>One character: the start row, the join level, the stat curve, and the two aptitudes (D-274, D-363, D-537, D-765, D-966).</summary>
 /// <param name="Id">The id, of the kind `character`.</param>
@@ -48,7 +48,7 @@ public static class StatCurve
     /// <summary>The highest character level, which is the row count of each curve (D-972).</summary>
     public const int HighestLevel = 40;
 
-    /// <summary>The most health or MP of a level, which the bottom line of a battle can show (D-981).</summary>
+    /// <summary>The most health or AP of a level, which the bottom line of a battle can show (D-981).</summary>
     public const int MostPool = 999;
 
     /// <summary>
@@ -96,7 +96,7 @@ public static class StatCurve
         var text = new System.Text.StringBuilder("[");
         for (int level = 1; level <= HighestLevel; level += 1)
         {
-            text.Append(System.Globalization.CultureInfo.InvariantCulture, $"{(level > 1 ? ", " : string.Empty)}{{ \"level\": {level}, \"health\": {row.Health}, \"mp\": {row.Mp}, \"attack\": {row.Attack}, \"magic\": {row.Magic}, \"defense\": {row.Defense}, \"resistance\": {row.Resistance}, \"speed\": {row.Speed} }}");
+            text.Append(System.Globalization.CultureInfo.InvariantCulture, $"{(level > 1 ? ", " : string.Empty)}{{ \"level\": {level}, \"health\": {row.Health}, \"ap\": {row.Ap}, \"attack\": {row.Attack}, \"magic\": {row.Magic}, \"defense\": {row.Defense}, \"resistance\": {row.Resistance}, \"speed\": {row.Speed} }}");
         }
 
         return text.Append(']').ToString();
@@ -106,7 +106,7 @@ public static class StatCurve
     {
         int? level = null;
         int? health = null;
-        int? mp = null;
+        int? ap = null;
         int? attack = null;
         int? magic = null;
         int? defense = null;
@@ -124,8 +124,8 @@ public static class StatCurve
                 case "health":
                     health = ReadPool(ref reader, 1);
                     break;
-                case "mp":
-                    mp = ReadPool(ref reader, 0);
+                case "ap":
+                    ap = ReadPool(ref reader, 0);
                     break;
                 case "attack":
                     attack = BattleFixture.ReadStat(ref reader, 0);
@@ -155,7 +155,7 @@ public static class StatCurve
 
         return new StatRow(
             reader.RequireInt(health, depth, "health"),
-            reader.RequireInt(mp, depth, "mp"),
+            reader.RequireInt(ap, depth, "ap"),
             reader.RequireInt(attack, depth, "attack"),
             reader.RequireInt(magic, depth, "magic"),
             reader.RequireInt(defense, depth, "defense"),
@@ -179,7 +179,7 @@ public static class StatCurve
         (string Name, int Before, int Now)[] stats =
         [
             ("health", before.Health, row.Health),
-            ("mp", before.Mp, row.Mp),
+            ("ap", before.Ap, row.Ap),
             ("attack", before.Attack, row.Attack),
             ("magic", before.Magic, row.Magic),
             ("defense", before.Defense, row.Defense),

@@ -31,11 +31,11 @@ public sealed class BattleMessagesTests
         // Exit test 3 of PR-10. det-lint proves that Game shows no inline string (DL 8), and
         // this test proves that each event names an id of the table. A win shows no line, and the
         // experience, the level-ups, and each new form rise above each head instead of a line (D-835,
-        // D-975, D-1027).
+        // D-975, D-1027). A regain of AP shows on the bars alone (D-1211).
         foreach (BattleEvent played in EveryEvent())
         {
             object? line = LineOf(played, EnemyNamedFirst());
-            if (played.Kind is BattleEventKind.Turn or BattleEventKind.Won or BattleEventKind.Experience or BattleEventKind.LevelUp or BattleEventKind.FormOpened)
+            if (played.Kind is BattleEventKind.Turn or BattleEventKind.Won or BattleEventKind.Experience or BattleEventKind.LevelUp or BattleEventKind.FormOpened or BattleEventKind.Regain)
             {
                 Assert.Null(line);
                 continue;
@@ -50,10 +50,10 @@ public sealed class BattleMessagesTests
     [Fact]
     public void TheFormLineTakesOneSpaceOnEachSideOfTheDash()
     {
-        // D-1209: "4MP - Fire on one foe, either row." The old line held two spaces on each side.
+        // D-1209: "4AP - Fire on one foe, either row." The old line held two spaces on each side.
         StringTable strings = Content.Value.Strings;
 
-        Assert.Equal("{mp}MP - {text}", strings.Text(ContentId.Parse("battle.form_help", "test", "form help")));
+        Assert.Equal("{ap}AP - {text}", strings.Text(ContentId.Parse("battle.form_help", "test", "form help")));
     }
 
     [Fact]

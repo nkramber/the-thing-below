@@ -138,7 +138,7 @@ Built by PR-62. Phase file: `phase-2-first-playable.md`.
 - The dungeon map screen draws each tile that the party walked, with the doors and the save points on those tiles (D-567). PR-16 adds the exit mark (D-993). Each walked tile draws at 16 pixels, so a dungeon of 80 by 45 tiles or less shows whole (D-982).
 - A map action opens the dungeon map screen from the walk, with the M key and the Back button of the gamepad (D-986, D-990). Back or the map action closes it.
 - The party window sets the starting row of each character, and the snapshot keeps the row (D-377, D-558).
-- The status window shows the full sheet of each character (D-569, D-991). The sheet holds the level, the row, HP, MP, the experience, the stats, and the statuses that last.
+- The status window shows the full sheet of each character (D-569, D-991). The sheet holds the level, the row, HP, AP, the experience, the stats, and the statuses that last (D-1197).
 - The status window shows the stats with the worn gear (D-1036).
 - The gear window shows the stats with the gear, and the six gear slots with a dash for each empty slot (D-44).
 - The gear window lists the pieces of the pack that fit a slot (D-1048).

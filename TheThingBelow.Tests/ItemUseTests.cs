@@ -41,15 +41,15 @@ public sealed class ItemUseTests
     [Fact]
     public void EachEffectActsInFullFromTheItemWindow()
     {
-        // D-1046: a restore of MP, a cure of its statuses, and a revive with a set health.
-        Simulation run = InMenu(marrek => marrek with { Growth = marrek.Growth! with { Mp = 1 }, Statuses = [StatusKind.Poison, StatusKind.Blind] });
+        // D-1046: a restore of AP, a cure of its statuses, and a revive with a set health.
+        Simulation run = InMenu(marrek => marrek with { Growth = marrek.Growth! with { Ap = 1 }, Statuses = [StatusKind.Poison, StatusKind.Blind] });
         Stock(run, Tonic, Salts);
 
         run.Step([Intent.OfMenuItem(Tonic, 0)]);
         run.Step([Intent.OfMenuItem(Salts, 0)]);
 
         PartyMember marrek = run.State.Characters.Members[0];
-        Assert.Equal(marrek.Stats.Mp, marrek.Mp);
+        Assert.Equal(marrek.Stats.Ap, marrek.Ap);
         Assert.Equal([StatusKind.Blind], marrek.Statuses);
 
         Simulation down = InMenu(stored => stored with { Health = 0, Statuses = [] });
@@ -67,7 +67,7 @@ public sealed class ItemUseTests
         Stock(run, Tonic, Salts, Root, Token);
 
         Assert.Contains("at full health", ItemRules.RefusalOfMenuUse(run.State, Draught, 0), StringComparison.Ordinal);
-        Assert.Contains("at full MP", ItemRules.RefusalOfMenuUse(run.State, Tonic, 0), StringComparison.Ordinal);
+        Assert.Contains("at full AP", ItemRules.RefusalOfMenuUse(run.State, Tonic, 0), StringComparison.Ordinal);
         Assert.Contains("holds none of its statuses", ItemRules.RefusalOfMenuUse(run.State, Salts, 0), StringComparison.Ordinal);
         Assert.Contains("who stands", ItemRules.RefusalOfMenuUse(run.State, Root, 0), StringComparison.Ordinal);
         Assert.Contains("the key item", ItemRules.RefusalOfMenuUse(run.State, Token, 0), StringComparison.Ordinal);
@@ -118,10 +118,10 @@ public sealed class ItemUseTests
     [Fact]
     public void AFightCutsARestoreAndARevive()
     {
-        // D-1046: the rate halves the 10 MP of the tonic and the 25 health of the root, rounded down.
+        // D-1046: the rate halves the 10 AP of the tonic and the 25 health of the root, rounded down.
         Simulation run = TestParty.StartEach(
             Seed,
-            (slot, stored) => slot == 0 ? stored with { Growth = stored.Growth! with { Mp = 0 } } : stored with { Health = 0 },
+            (slot, stored) => slot == 0 ? stored with { Growth = stored.Growth! with { Ap = 0 } } : stored with { Health = 0 },
             TestBattles.ExactWithParty(2),
             BattleRuns.Map("group.test_pair"));
         Stock(run, Tonic, Root);
@@ -136,7 +136,7 @@ public sealed class ItemUseTests
         run.Step([Intent.OfPlayer(IntentIds.BattleItem, second.Target, Root)]);
         List<BattleEvent> then = [.. run.TakeBattleEvents()];
 
-        Assert.Equal(5, Assert.Single(first, played => played.Kind == BattleEventKind.ItemMp).Amount);
+        Assert.Equal(5, Assert.Single(first, played => played.Kind == BattleEventKind.ItemAp).Amount);
         Assert.Equal(12, Assert.Single(then, played => played.Kind == BattleEventKind.Revive).Amount);
         Assert.Equal(CombatantPlace.Field, second.Place);
     }

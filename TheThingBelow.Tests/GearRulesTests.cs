@@ -34,7 +34,7 @@ public sealed class GearRulesTests
     public void TheAmountsOfEachPieceAdd()
     {
         // D-1037: the amounts of the six slots add, magic and resistance too (D-1052). D-1036:
-        // health and MP never change.
+        // health and AP never change.
         var curve = new StatRow(60, 8, 12, 10, 4, 3, 100);
 
         StatRow stats = GearRules.StatsOf(curve, Worn("gear.test_blade", "gear.test_shield", "gear.test_weak_charm", "gear.test_weak_charm"), Gear);

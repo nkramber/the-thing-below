@@ -86,6 +86,8 @@ public sealed class BattleRules
         "experience_gap",
         "lesson_slots",
         "aptitude_bonus",
+        "hit_regain",
+        "fall_regain",
     ];
 
     private BattleRules(SortedDictionary<string, int> numbers, IReadOnlyList<int> levelExperience, IReadOnlyList<int> slotLevels)
@@ -135,6 +137,8 @@ public sealed class BattleRules
         this.LevelExperience = levelExperience;
         this.LessonSlots = numbers["lesson_slots"];
         this.AptitudeBonus = numbers["aptitude_bonus"];
+        this.HitRegain = numbers["hit_regain"];
+        this.FallRegain = numbers["fall_regain"];
         this.LessonSlotLevels = slotLevels;
     }
 
@@ -278,6 +282,12 @@ public sealed class BattleRules
 
     /// <summary>The bonus of a lesson of the main aptitude, in basis points. A side aptitude gives half (D-358, D-360, D-1028).</summary>
     public int AptitudeBonus { get; }
+
+    /// <summary>The share of full AP that a basic attack that hits gives the attacker, rounded down, at least 1 (D-1198).</summary>
+    public int HitRegain { get; }
+
+    /// <summary>The share of full AP that a fall of an enemy gives each character who is not down, rounded down, at least 1 (D-1198).</summary>
+    public int FallRegain { get; }
 
     /// <summary>Gives the count of lesson slots of a character at one level (D-356, D-1018).</summary>
     /// <param name="level">The character level, from 1 to <see cref="StatCurve.HighestLevel"/>.</param>
@@ -452,6 +462,8 @@ public sealed class BattleRules
         CheckRange(numbers, file, "experience_gap", 0, StatCurve.HighestLevel - 1);
         CheckRange(numbers, file, "lesson_slots", 1, StatCurve.HighestLevel);
         CheckRange(numbers, file, "aptitude_bonus", 0, MostRate);
+        CheckRange(numbers, file, "hit_regain", 0, BasisPoints.One);
+        CheckRange(numbers, file, "fall_regain", 0, BasisPoints.One);
     }
 
     /// <summary>Refuses a slot count at the highest level above the one bound of the snapshot (D-1018).</summary>

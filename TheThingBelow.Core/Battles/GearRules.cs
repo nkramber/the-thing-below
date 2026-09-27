@@ -75,7 +75,7 @@ public static class GearRules
     /// <summary>
     /// Gives the stats of a character with its gear. The attack, magic, defense, resistance, and
     /// speed amounts of each worn piece add, and each of the five keeps a floor of 1. Health and
-    /// MP never change (D-1036, D-1037, D-1047, D-1052).
+    /// AP never change (D-1036, D-1037, D-1047, D-1052).
     /// </summary>
     /// <param name="curve">The stats of the character at its level, from its stat curve.</param>
     /// <param name="worn">The six gear slots, each with a gear id or no value for an empty slot.</param>

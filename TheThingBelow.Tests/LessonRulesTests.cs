@@ -31,7 +31,7 @@ public sealed class LessonRulesTests
     [Fact]
     public void ACharacterUsesTheFirstFormOfAnEquippedLessonInAFixtureBattle()
     {
-        // Exit test 1 of PR-12 (D-1027): the rite spends its MP and strikes with its power.
+        // Exit test 1 of PR-12 (D-1027): the rite spends its AP and strikes with its power.
         Simulation run = BattleRuns.IntoBattle(Seed, "group.test_pair", TestBattles.ExactWithParty(1));
         _ = run.TakeBattleEvents();
 
@@ -44,7 +44,7 @@ public sealed class LessonRulesTests
 
         // Harm is no aptitude of Marrek: 12 x 14000 x 100 / (102 x 10000) rounds down to 16 (D-771).
         Assert.Equal(16, hit.Amount);
-        Assert.Equal(TestBattles.MarrekAt(1).Mp - 4, run.State.Characters.Members[0].Mp);
+        Assert.Equal(TestBattles.MarrekAt(1).Ap - 4, run.State.Characters.Members[0].Ap);
     }
 
     [Fact]
@@ -91,7 +91,7 @@ public sealed class LessonRulesTests
     }
 
     [Fact]
-    public void ALessonUseRefusesAnUnopenedFormALessonOfNoSlotAndTooLittleMp()
+    public void ALessonUseRefusesAnUnopenedFormALessonOfNoSlotAndTooLittleAp()
     {
         Simulation run = BattleRuns.IntoBattle(Seed, "group.test_pair", TestBattles.ExactWithParty(1));
 
@@ -99,14 +99,16 @@ public sealed class LessonRulesTests
         Assert.Contains("which no slot of 'character.marrek' holds", Refusal(run, Salve, 0, Marrek), StringComparison.Ordinal);
         Assert.Null(BattleTurns.RefusalOf(run.State, Choice(Cinder, 0, FirstEnemy)));
 
-        // Two rites of 4 MP spend the 8 MP of level 1, and a third costs more than Marrek holds (D-42).
+        // Two rites of 4 AP spend the 8 AP of level 1. The second fells the first grunt, and the fall
+        // gives back 1 AP, the floor of 10% of 8 (D-1198). A third rite costs more than Marrek holds (D-1197).
         run.Step([Intent.OfBattleLesson(Cinder, 0, FirstEnemy)]);
         AssertTheTurnOfMarrek(run);
         run.Step([Intent.OfBattleLesson(Cinder, 0, FirstEnemy)]);
+        Assert.Equal(CombatantPlace.Down, BattleRuns.BattleOf(run).Enemies[0].Place);
         AssertTheTurnOfMarrek(run);
 
-        Assert.Equal(0, run.State.Characters.Members[0].Mp);
-        Assert.Contains("costs 4 MP", Refusal(run, Cinder, 0, FirstEnemy), StringComparison.Ordinal);
+        Assert.Equal(1, run.State.Characters.Members[0].Ap);
+        Assert.Contains("costs 4 AP", Refusal(run, Cinder, 0, new BattleTarget(BattleSide.Enemy, 1)), StringComparison.Ordinal);
     }
 
     [Fact]
@@ -180,7 +182,7 @@ public sealed class LessonRulesTests
         Simulation run = Start(content, BattleRuns.Map("group.test_pair"), party => WithMarrek(party, values => values with
         {
             Health = full.Health,
-            Growth = new GrowthValues(StatCurve.HighestLevel, top, full.Mp),
+            Growth = new GrowthValues(StatCurve.HighestLevel, top, full.Ap),
             Lessons = TestBattles.LessonsAtLevel(values.Lessons, StatCurve.HighestLevel),
         }));
         run.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
@@ -314,7 +316,7 @@ public sealed class LessonRulesTests
         // D-1018: a grunt pair gives 12, and Marrek at 199 experience reaches level 5 and a third slot.
         Simulation run = Start(TestBattles.ExactWithParty(1), BattleRuns.Map("group.test_pair"), party => WithMarrek(party, values => values with
         {
-            Growth = new GrowthValues(4, 199, TestBattles.MarrekAt(4).Mp),
+            Growth = new GrowthValues(4, 199, TestBattles.MarrekAt(4).Ap),
             Health = TestBattles.MarrekAt(4).Health,
         }));
         run.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
@@ -340,7 +342,7 @@ public sealed class LessonRulesTests
         PartyMember marrek = run.State.Characters.Members[0];
         Assert.Empty(marrek.Statuses);
         Assert.Equal(50, marrek.Health);
-        Assert.Equal(TestBattles.MarrekAt(1).Mp - 2 - 3, marrek.Mp);
+        Assert.Equal(TestBattles.MarrekAt(1).Ap - 2 - 3, marrek.Ap);
 
         Simulation silenced = Start(content, TestMaps.Room, party => WithMarrek(party, values => values with { Statuses = [StatusKind.Poison, StatusKind.Silence] }));
         silenced.Step([Intent.OfPlayer(IntentIds.OpenMenu)]);

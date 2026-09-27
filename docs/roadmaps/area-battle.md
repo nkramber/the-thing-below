@@ -66,14 +66,15 @@ Built by PR-9. Phase file: `phase-2-first-playable.md`.
 
 - Every character can attack with the weapon in hand, and no lesson gives that attack (D-359).
 - A lesson gives each other ability, and `area-progression.md` holds the lessons (D-272, D-278).
-- A rite costs MP, and MP comes back at a hub, at a save point, and from scarce items (D-42, D-257, D-389).
+- Each form costs AP, a rite and a drill alike, at least 1 AP (D-1197, D-1213). AP comes back at a hub, at a save point, and from scarce items (D-42, D-257, D-389).
+- A fall of an enemy gives each character who is not down 10% of full AP. A basic attack that hits gives the attacker 5%, and a blow that does both gives both. Each regain rounds down, with a floor of 1, and shows no message. PR-107 builds it (D-1198, D-1210, D-1211).
 - Any character can use an item on their turn, and the use costs an action. An item restores less in a fight than outside one (D-382).
 - A character can step to the other row, and the step costs a light delay (D-380).
 - Any character can try to flee. The chance rises with the speed of the party, a failure costs the turn, and no party flees from a boss (D-378).
 - After a flee, the group returns to its route, and no fight with it starts for a short grace time (D-381). The grace time is 300 ticks (D-748). The flee chance reads the speed gap of the two sides (D-763).
 - A character can defend, which cuts the damage until the next turn of that character (D-755).
 
-> *In plain English:* attack, use a rite or a drill, take an item, change row, or flee. A flight is always possible, never free, and never open against a boss.
+> *In plain English:* attack, use a rite or a drill, take an item, change row, or flee. Each rite and each drill spends ability power, and hits and kills give some back. A flight is always possible, never free, and never open against a boss.
 
 ### 7.4 Damage, elements, and statuses
 
@@ -122,7 +123,7 @@ Built by PR-11. Phase file: `phase-2-first-playable.md`.
 
 - The evaluator scores every legal action of an enemy by its simulated outcome: damage, kills, threat, healing, timeline shift, and row placement (D-65, D-377).
 - It simulates each legal action and the strongest answer of the other side, one action ahead with one reply (D-534).
-- The reply is the best legal strike of the next character on the timeline (D-960, D-1101). That strike is the basic attack, or an open lesson strike with its MP and no silence. Each score takes the expected outcome, and no roll (D-959).
+- The reply is the best legal strike of the next character on the timeline (D-960, D-1101). That strike is the basic attack, or an open lesson strike with its AP and no silence. Each score takes the expected outcome, and no roll (D-959).
 - The score adds each weight times its term (D-958). The damage term is the expected health that the action takes, and the kill term counts the expected kills in basis points.
 - The heal term is the health that a heal restores. The threat term is the expected health that the reply takes, and the score subtracts it (D-960).
 - The timeline term is the push of the action in ticks, and the score subtracts it. The row term counts the change of the enemies that no strike of the next character reaches (D-1101).
@@ -230,6 +231,7 @@ Built by PR-9, PR-11, and PR-15. Phase files: `phase-2-first-playable.md` and ev
 | PR-12 | The lessons and the aptitudes that a fight uses | D-272, D-358 |
 | PR-13 | The gear and the items that a fight spends, the steal, and the drops | D-44, D-382, D-1036 to D-1046 |
 | PR-99 | The stat set and the heal of an absorbed hit | D-1041 |
+| PR-107 | Ability power in place of MP, and the regain of AP in a fight | D-1197 to D-1199, D-1210 to D-1213 |
 | PR-104 | The reply scores the best legal strike, the enemy phase has a bound, an absorbed hit rolls no status, and the miss ceiling takes 6666 at most | D-1101, D-1105, D-1107 |
 | PR-105 | A steal checks the remainder of its pick, and each damage cut checks its overflow | D-641 |
 | PR-17 | The enemies and the groups of the first places | D-313, D-362 |
@@ -276,7 +278,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 8. PR-98: the waiting enemies at the left edge of the field (D-951 to D-954).
 9. PR-12 and PR-13: the lessons, the gear, and the items that a fight uses.
 10. PR-99: the stat set and the heal of an absorbed hit (D-1041).
-11. PR-15: the bots that play the fixture dungeon.
+11. PR-15: the bots that play the fixture dungeon. PR-107 then puts ability power in place of MP (D-1196, D-1200).
 12. PR-16 and PR-64: the dungeon parts around the fights.
 13. PR-17: the enemies and the groups of the first playable.
 14. M-4: the turns of an encounter and the downs of a dungeon.

@@ -140,7 +140,7 @@ public sealed class MenuLayoutTests
     [InlineData(32)]
     public void EachLineOfTheStatusSheetFitsItsColumnAtTheHighestValues(int body)
     {
-        // D-991, D-981: the health and the MP stay at 999 or less, and a name at 8 characters.
+        // D-991, D-981: the health and the AP stay at 999 or less, and a name at 8 characters.
         int fits = (int)GameValue.Static(Layout, "StatusColumnCharacters", body)!;
         string most = Content.Value.Battle.Rules.LevelExperience[^1].ToString(CultureInfo.InvariantCulture);
         string[] lines =
@@ -150,7 +150,7 @@ public sealed class MenuLayoutTests
             Text(Id("menu.row_front")),
             Text(Id("menu.row_back")),
             Fill("battle.health", "health", "999", "full", "999"),
-            Fill("battle.mp", "mp", "999", "full", "999"),
+            Fill("battle.ap", "ap", "999", "full", "999"),
             Fill("menu.experience", "amount", most),
             Fill("menu.next", "amount", most),
             Fill("menu.stat", "stat", Text(Id("battle.stat_spd")), "value", "999"),

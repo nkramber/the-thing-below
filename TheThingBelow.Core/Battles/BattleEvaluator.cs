@@ -194,7 +194,7 @@ public static class BattleEvaluator
     /// that the rules allow now, in slot order and form order. A form takes the aptitude bonus
     /// of its lesson, as a use of it does (D-1028).
     /// </summary>
-    /// <param name="state">The run, whose party holds the lessons, the points, and the MP.</param>
+    /// <param name="state">The run, whose party holds the lessons, the points, and the AP.</param>
     /// <param name="battle">The battle, whose combatants hold silence (D-806).</param>
     /// <returns>One list for each character of the fight. Each list starts with the basic attack.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>

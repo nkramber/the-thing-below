@@ -67,6 +67,8 @@ internal static class TestBattles
      "experience_gap": 4,
      "lesson_slots": 2,
      "aptitude_bonus": 2500,
+     "hit_regain": 500,
+     "fall_regain": 1000,
      "level_experience": [0, 20, 60, 120, 200, 300, 420, 560, 720, 900, 1100, 1320, 1560, 1820, 2100, 2400, 2720, 3060, 3420, 3800, 4200, 4620, 5060, 5520, 6000, 6500, 7020, 7560, 8120, 8700, 9300, 9920, 10560, 11220, 11900, 12600, 13320, 14060, 14820, 15600],
      "lesson_slot_levels": [5, 12, 20, 30]
     }
@@ -349,23 +351,23 @@ internal static class TestBattles
      "comment": "The lesson file of the tests.",
      "lessons": [
       { "id": "lesson.fixture_hew", "kind": "blade", "forms": [
-       { "ability": "ability.fixture_hew", "points": 0, "mp": 0, "description": "lesson.fixture_hew" },
-       { "ability": "ability.fixture_cleave", "points": 60, "mp": 0, "description": "lesson.fixture_cleave" } ] },
+       { "ability": "ability.fixture_hew", "points": 0, "ap": 2, "description": "lesson.fixture_hew" },
+       { "ability": "ability.fixture_cleave", "points": 60, "ap": 4, "description": "lesson.fixture_cleave" } ] },
       { "id": "lesson.fixture_cinder", "kind": "harm", "forms": [
-       { "ability": "ability.fixture_cinder", "points": 0, "mp": 4, "description": "lesson.fixture_cinder" },
-       { "ability": "ability.fixture_blaze", "points": 120, "mp": 9, "description": "lesson.fixture_blaze" } ] },
+       { "ability": "ability.fixture_cinder", "points": 0, "ap": 4, "description": "lesson.fixture_cinder" },
+       { "ability": "ability.fixture_blaze", "points": 120, "ap": 9, "description": "lesson.fixture_blaze" } ] },
       { "id": "lesson.fixture_salve", "kind": "mend", "forms": [
-       { "ability": "ability.fixture_salve", "points": 0, "mp": 3, "description": "lesson.fixture_salve" } ] },
+       { "ability": "ability.fixture_salve", "points": 0, "ap": 3, "description": "lesson.fixture_salve" } ] },
       { "id": "lesson.fixture_purge", "kind": "mend", "forms": [
-       { "ability": "ability.fixture_purge", "points": 0, "mp": 2, "description": "lesson.fixture_purge" } ] },
+       { "ability": "ability.fixture_purge", "points": 0, "ap": 2, "description": "lesson.fixture_purge" } ] },
       { "id": "lesson.fixture_rot", "kind": "blight", "forms": [
-       { "ability": "ability.fixture_rot", "points": 0, "mp": 3, "description": "lesson.fixture_rot" } ] },
+       { "ability": "ability.fixture_rot", "points": 0, "ap": 3, "description": "lesson.fixture_rot" } ] },
       { "id": "lesson.fixture_quicken", "kind": "boon", "forms": [
-       { "ability": "ability.fixture_quicken", "points": 0, "mp": 4, "description": "lesson.fixture_quicken" } ] },
+       { "ability": "ability.fixture_quicken", "points": 0, "ap": 4, "description": "lesson.fixture_quicken" } ] },
       { "id": "lesson.fixture_bolt", "kind": "shot", "forms": [
-       { "ability": "ability.fixture_bolt", "points": 0, "mp": 0, "description": "lesson.fixture_bolt" } ] },
+       { "ability": "ability.fixture_bolt", "points": 0, "ap": 2, "description": "lesson.fixture_bolt" } ] },
       { "id": "lesson.test_pilfer", "kind": "theft", "forms": [
-       { "ability": "ability.test_pilfer", "points": 0, "mp": 0, "description": "lesson.test_pilfer" } ] }
+       { "ability": "ability.test_pilfer", "points": 0, "ap": 2, "description": "lesson.test_pilfer" } ] }
      ]
     }
     """;
@@ -495,9 +497,10 @@ internal static class TestBattles
 
     /// <summary>The exact rules of <see cref="Exact"/>, with a party of the first characters of the fixture.</summary>
     /// <param name="size">The count of characters: 1, 2, or 3 (D-336).</param>
+    /// <param name="changes">More changes of the rules, after the exact rolls.</param>
     /// <returns>The battle content.</returns>
-    public static BattleContent ExactWithParty(int size) =>
-        Build(FixtureWithParty(size), [("hit_low", 10000), ("hit_high", 10000), ("miss_base", 0), ("miss_ceiling", 0)]);
+    public static BattleContent ExactWithParty(int size, params (string Field, int Value)[] changes) =>
+        Build(FixtureWithParty(size), [("hit_low", 10000), ("hit_high", 10000), ("miss_base", 0), ("miss_ceiling", 0), .. changes]);
 
     /// <summary>
     /// The exact content of <see cref="Exact"/>, with a grunt that holds one affinity to one
@@ -652,7 +655,7 @@ internal static class TestBattles
         for (int level = 1; level <= StatCurve.HighestLevel; level += 1)
         {
             StatRow row = MarrekAt(level);
-            rows.Add($"{{ \"level\": {level}, \"health\": {row.Health}, \"mp\": {row.Mp}, \"attack\": {row.Attack}, \"magic\": {row.Magic}, \"defense\": {row.Defense}, \"resistance\": {row.Resistance}, \"speed\": {row.Speed} }}");
+            rows.Add($"{{ \"level\": {level}, \"health\": {row.Health}, \"ap\": {row.Ap}, \"attack\": {row.Attack}, \"magic\": {row.Magic}, \"defense\": {row.Defense}, \"resistance\": {row.Resistance}, \"speed\": {row.Speed} }}");
         }
 
         return $"[{string.Join(", ", rows)}]";

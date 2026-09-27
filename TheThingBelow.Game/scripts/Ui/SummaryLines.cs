@@ -11,7 +11,7 @@ namespace TheThingBelow.Game.Ui;
 /// "Level up!" and one line for each stat that rose (D-975, D-978, D-979).
 /// </summary>
 /// <remarks>
-/// The stat lines follow the order health, MP, attack, defense, speed, and a stat that did not
+/// The stat lines follow the order health, AP, attack, defense, speed, and a stat that did not
 /// rise shows no line (D-975). A character with no experience gets no event, so it shows no
 /// line. This type holds no Godot value, so a test reads it from the built Game assembly with
 /// no engine (D-614).
@@ -59,7 +59,7 @@ public static class SummaryLines
         StatRow after = record.At(shown.Level);
         List<BattleLine> lines = [Line("battle.level_up")];
         AddGain(lines, strings, "battle.stat_hp", after.Health - before.Health);
-        AddGain(lines, strings, "battle.stat_mp", after.Mp - before.Mp);
+        AddGain(lines, strings, "battle.stat_ap", after.Ap - before.Ap);
         AddGain(lines, strings, "battle.stat_atk", after.Attack - before.Attack);
         AddGain(lines, strings, "battle.stat_mag", after.Magic - before.Magic);
         AddGain(lines, strings, "battle.stat_def", after.Defense - before.Defense);

@@ -94,7 +94,7 @@ public sealed class BattleFixtureTests
     [InlineData("\"row\": \"front\"", "\"row\": \"middle\"", "front, back")]
     [InlineData("\"health\": 60", "\"health\": 0", "outside 1 to")]
     [InlineData("\"health\": 60", "\"health\": 1000", "outside 1 to 999")]
-    [InlineData("\"mp\": 8", "\"mp\": 1000", "outside 0 to 999")]
+    [InlineData("\"ap\": 8", "\"ap\": 1000", "outside 0 to 999")]
     [InlineData("\"level\": 2, \"health\": 66", "\"level\": 2, \"health\": 66.5", "fraction")]
     [InlineData("\"level\": 2, \"health\": 66", "\"level\": 2, \"health\": 50", "falls from 60 at level 1 to 50 at level 2")]
     [InlineData("\"level\": 2,", "\"level\": 3,", "names level 3")]

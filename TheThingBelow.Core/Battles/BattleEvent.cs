@@ -72,17 +72,17 @@ public enum BattleEventKind
     /// <summary>A character earned experience from a battle won. The amount is the experience (D-34, D-975).</summary>
     Experience,
 
-    /// <summary>A character reached a new level, which filled its health and its MP. The amount is the new level. PR-70 plays the sting (D-422, D-973).</summary>
+    /// <summary>A character reached a new level, which filled its health and its AP. The amount is the new level. PR-70 plays the sting (D-422, D-973).</summary>
     LevelUp,
 
-    /// <summary>A character used a form of a lesson. The ability names the form, the target is the target, and the amount is the MP spent (D-1027, D-1032).</summary>
+    /// <summary>A character used a form of a lesson. The ability names the form, the target is the target, and the amount is the AP spent (D-1027, D-1032).</summary>
     Lesson,
 
     /// <summary>A lesson opened a new form for a character after a battle won. The ability names the form, and the amount is the points of the lesson (D-539, D-1019).</summary>
     FormOpened,
 
-    /// <summary>A character used a restore item. The ability names the item, and the amount is the MP restored (D-1046).</summary>
-    ItemMp,
+    /// <summary>A character used a restore item. The ability names the item, and the amount is the AP restored (D-1046).</summary>
+    ItemAp,
 
     /// <summary>A character used a cure item. The ability names the item. A status off event follows for each status that ended (D-1046).</summary>
     ItemCure,
@@ -116,6 +116,9 @@ public enum BattleEventKind
 
     /// <summary>A win gave gold, the sum of the rolls of each fallen enemy. The actor is the party, and the amount is the gold (D-1157).</summary>
     WinGold,
+
+    /// <summary>A character regained AP in a fight: a basic attack that hit, or a fall of an enemy. The actor is the character, and the amount is the AP. No message shows it (D-1198, D-1211).</summary>
+    Regain,
 }
 
 /// <summary>One event of a battle (D-168, D-532).</summary>
@@ -175,7 +178,7 @@ public static class BattleEvents
         BattleEventKind.LevelUp => "level up",
         BattleEventKind.Lesson => "lesson",
         BattleEventKind.FormOpened => "form opened",
-        BattleEventKind.ItemMp => "item mp",
+        BattleEventKind.ItemAp => "item ap",
         BattleEventKind.ItemCure => "item cure",
         BattleEventKind.Revive => "revive",
         BattleEventKind.StealItem => "steal item",
@@ -187,6 +190,7 @@ public static class BattleEvents
         BattleEventKind.DropLost => "drop lost",
         BattleEventKind.StealGear => "steal gear",
         BattleEventKind.WinGold => "win gold",
+        BattleEventKind.Regain => "regain",
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no battle event (D-532)"),
     };
 }

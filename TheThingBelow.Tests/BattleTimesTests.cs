@@ -51,13 +51,13 @@ public sealed class BattleTimesTests
     }
 
     [Fact]
-    public void OnlyATurnTakesNoTicks()
+    public void OnlyATurnAndARegainTakeNoTicks()
     {
-        // A turn changes only who acts, so the next event starts at once. Every other event
-        // stands on screen long enough to read (D-213).
+        // A turn changes only who acts, and a regain of AP shows no line (D-1211), so the next event
+        // starts at once. Every other event stands on screen long enough to read (D-213).
         foreach (BattleEventKind kind in Enum.GetValues<BattleEventKind>())
         {
-            Assert.Equal(kind == BattleEventKind.Turn, TicksOf(kind) == 0);
+            Assert.Equal(kind is BattleEventKind.Turn or BattleEventKind.Regain, TicksOf(kind) == 0);
         }
     }
 
@@ -256,7 +256,7 @@ public sealed class BattleTimesTests
     [Fact]
     public void ABarFillsFromItsValueBeforeTheLevelUpToFullAndNeverFalls()
     {
-        // D-975: the health bar and the MP bar fill toward full over the fill ticks.
+        // D-975: the health bar and the AP bar fill toward full over the fill ticks.
         SummaryValues summary = Pace.Value.Summary;
         Assert.Equal(12, FillAt(summary, 0, 12, 66));
         Assert.Equal(66, FillAt(summary, summary.FillTicks, 12, 66));

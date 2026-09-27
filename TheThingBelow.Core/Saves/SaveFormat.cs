@@ -37,7 +37,7 @@ public static class SaveFormat
     /// </para>
     /// <para>
     /// PR-67 raised it to 7. Each character gained its level, its experience, and its MP (D-966).
-    /// A save of an older format starts each character at its join level with full MP (D-363).
+    /// A save of an older format starts each character at its join level with full AP (D-363).
     /// </para>
     /// <para>
     /// PR-62 raised it to 8. The snapshot gained the notice log (D-985). A save of an older format
@@ -84,6 +84,10 @@ public static class SaveFormat
     /// shop that a buy changed (D-1152). A save of an older format starts each stock at the count of
     /// its shop file.
     /// </para>
+    /// <para>
+    /// PR-107 raised it to 17. Ability power replaced MP, and each character names its pool `ap` in
+    /// place of `mp` (D-1197). A save of an older format loads the MP of each character as its AP.
+    /// </para>
     /// </remarks>
-    public const int Current = 16;
+    public const int Current = 17;
 }

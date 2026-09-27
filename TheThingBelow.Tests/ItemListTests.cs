@@ -13,7 +13,7 @@ public sealed class ItemListTests
     [Fact]
     public void TheCheckoutHoldsOneItemOfEachEffect()
     {
-        // D-384, D-1046: the MP draughts, the healing, the cures, and the rare revive.
+        // D-384, D-1046: the AP draughts, the healing, the cures, and the rare revive.
         ContentSet content = ContentSet.Load(ContentFolder.Read(RepositoryRoot.Find()));
         ItemList items = content.Battle.Items;
 

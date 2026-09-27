@@ -1141,7 +1141,7 @@ public sealed partial class CaptureSession : Node
 
     /// <summary>
     /// Opens the lesson list of the command menu, and for the forms frame moves the cursor to the
-    /// cinder, the second entry of the list, with its MP and its description (D-1031, D-1195).
+    /// cinder, the second entry of the list, with its AP and its description (D-1031, D-1195).
     /// No press sends an intent.
     /// </summary>
     private void OpenLessons(BattleScreen screen, ScreenCapture capture, string moment)

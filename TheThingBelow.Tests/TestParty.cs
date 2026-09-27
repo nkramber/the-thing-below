@@ -32,7 +32,7 @@ internal static class TestParty
     /// <summary>
     /// Starts a run of the group of four on one map. The run starts with the three characters of
     /// the content, and a resume of its first snapshot adds the fourth character to the reserve at
-    /// its join values: the join level, full health, full MP, no lesson, and no gear (D-363).
+    /// its join values: the join level, full health, full AP, no lesson, and no gear (D-363).
     /// </summary>
     /// <param name="seed">The seed of the run.</param>
     /// <param name="map">The map.</param>
@@ -56,7 +56,7 @@ internal static class TestParty
             full.Health,
             record.Row,
             [],
-            new GrowthValues(record.JoinLevel, content.Rules.LevelExperience[record.JoinLevel - 1], full.Mp),
+            new GrowthValues(record.JoinLevel, content.Rules.LevelExperience[record.JoinLevel - 1], full.Ap),
             new LessonValues(new ContentId?[content.Rules.SlotsAt(record.JoinLevel)], []),
             new ContentId?[GearRules.SlotCount]);
         List<CharacterValues> characters = [];

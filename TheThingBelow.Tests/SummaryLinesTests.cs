@@ -25,7 +25,7 @@ public sealed class SummaryLinesTests
     [Fact]
     public void ALevelUpShowsTheLevelThenEachStatThatRoseInOrder()
     {
-        // D-975, D-979, D-1056: Marrek rises from level 1 to 2, which adds 6 health, 2 MP, 1
+        // D-975, D-979, D-1056: Marrek rises from level 1 to 2, which adds 6 health, 2 AP, 1
         // attack, 1 magic, 1 defense, and 1 resistance, and no speed, so the speed shows no line.
         (object view, List<BattleEvent> played) = FoughtToTheEnd();
         BattleEvent levelUp = played.Find(each => each.Kind == BattleEventKind.LevelUp && each.Actor.Slot == 0)
@@ -34,7 +34,7 @@ public sealed class SummaryLinesTests
         List<(string Id, string Amount, string Stat)> lines = LinesOf(levelUp, view);
 
         Assert.Equal(
-            [("battle.level_up", "", ""), ("battle.summary_gain", "6", "HP"), ("battle.summary_gain", "2", "MP"), ("battle.summary_gain", "1", "ATK"), ("battle.summary_gain", "1", "MAG"), ("battle.summary_gain", "1", "DEF"), ("battle.summary_gain", "1", "RES")],
+            [("battle.level_up", "", ""), ("battle.summary_gain", "6", "HP"), ("battle.summary_gain", "2", "AP"), ("battle.summary_gain", "1", "ATK"), ("battle.summary_gain", "1", "MAG"), ("battle.summary_gain", "1", "DEF"), ("battle.summary_gain", "1", "RES")],
             lines);
     }
 
@@ -62,7 +62,7 @@ public sealed class SummaryLinesTests
     [Fact]
     public void TheViewOfALevelUpHoldsTheNewLevelFullAndTheValuesBefore()
     {
-        // D-973, D-975: the view fills the health and the MP, and keeps the values that the
+        // D-973, D-975: the view fills the health and the AP, and keeps the values that the
         // fill of the bars starts from.
         (object view, List<BattleEvent> played) = FoughtToTheEnd();
         object marrek = Party(view)[0];
@@ -71,9 +71,9 @@ public sealed class SummaryLinesTests
         Assert.Equal(1, Read<int>(marrek, "LevelBefore"));
         Assert.Equal(TestBattles.MarrekAt(2).Health, Read<int>(marrek, "Health"));
         Assert.Equal(TestBattles.MarrekAt(2).Health, Read<int>(marrek, "FullHealth"));
-        Assert.Equal(TestBattles.MarrekAt(2).Mp, Read<int>(marrek, "Mp"));
-        Assert.Equal(TestBattles.MarrekAt(2).Mp, Read<int>(marrek, "FullMp"));
-        Assert.Equal(TestBattles.MarrekAt(1).Mp, Read<int>(marrek, "MpBefore"));
+        Assert.Equal(TestBattles.MarrekAt(2).Ap, Read<int>(marrek, "Ap"));
+        Assert.Equal(TestBattles.MarrekAt(2).Ap, Read<int>(marrek, "FullAp"));
+        Assert.Equal(TestBattles.MarrekAt(1).Ap, Read<int>(marrek, "ApBefore"));
         Assert.InRange(Read<int>(marrek, "HealthBefore"), 1, TestBattles.MarrekAt(1).Health);
         Assert.Contains(played, each => each.Kind == BattleEventKind.LevelUp);
     }
