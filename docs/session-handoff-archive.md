@@ -1,4 +1,37 @@
 # Session handoff archive
+## Session 343: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR-15, round 4, the hand-over. Repository: the-thing-below. Branch: `feat/pr-15-bots`. PR: #87. Role: author. Base: `f383aa9`.
+
+### What this session did, and why
+
+- The repeat review gave `Ready for owner merge` for `f812808`, with P2-1 fixed. Every check of the review commit `5543ce6` passed, `review-gate` included, and Gitar passed. The Gitar pass of this PR held three CI-analysis claims about `review-gate`, one on each code head, and none had merit: the faults were RG 3, then RG 4 and RG 5, which the review records answer.
+- The owner confirmed the merge after the summary in four sections (D-942).
+- The owner chose to add `bots` to the required checks of `main` in this PR (D-1186). The session changed `docs/runbooks/branch-protection.json` and the live setting together, and the compare of the runbook shows that they match.
+- The owner chose that the next PR that changes Game commits `TheThingBelow.Game/scripts/Ui/DialogueChange.cs.uid` (D-1187). The file is in `/tmp/pr15-aside/` now.
+
+### The state of the build
+
+- The remote head before this commit is `5543ce6`, the review record of `f812808`. This commit changes documents alone, so the approval stays (D-943).
+
+### What is in flight
+
+- The Gitar pass of this commit (D-944), then the gated auto-merge (D-930).
+
+### Traps and gotchas
+
+- Godot writes `DialogueChange.cs.uid` again each time it opens the project, such as in the smoke session of `make verify`. Move it out of the tree before `make codex-review` until a Game PR commits it (D-1187).
+- The `bots` check now gates each PR, and a docs-only PR passes it through its gate job (D-858).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+After the merge, write the transitional prompt of PR #87 alone.
+
 ## Session 342: 2026-09-26, Codex
 
 Author: Codex
