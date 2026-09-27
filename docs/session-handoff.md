@@ -1,3 +1,39 @@
+## Session 363: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-16, round 1. Repository: the-thing-below. Branch: `feat/pr-16-dungeon-parts`. PR: PR-16, the GitHub number follows the push. Role: author. Base: `78b0d24`.
+
+### What this session did, and why
+
+- The owner answered the design of the dungeon parts: D-1216 to D-1225. The save point and the hub waystone merge into one kind that saves alone (D-1221). PR-19 takes the free rest (D-1218).
+- Core: solid doors, chests, and save points; the door and lock rule with the kept key and the Theft drill; the chest with the fallback and the kept rest; the exit; the memory of each map; the reopen flags; notices with values. Save format 18, and the simulation version 35.
+- Game: the art of the doors, the chests, and the exit; the save window of a save point; the Keyring in the Items window; the exit mark beside a walked tile.
+- The bots take doors, chests, save points, and the exit last. The owner approved one space between the AP cost and AP in the form line, with no record.
+
+### The state of the build
+
+- Local: `make build`, all 4,200 tests, `make format`, `make lint`, the STE check, `make bots`, and `make smoke` pass. The content hash and the identity file are rewritten.
+- The remote head before this push is `78b0d24`, the base.
+
+### What is in flight
+
+- The first push of PR-16, then the Gitar pass and the CI legs. The screen baselines change in CI: the menu items, the map screen, the hub, and the save window.
+
+### Traps and gotchas
+
+- The hall door moved from (11, 4) to (27, 6), so the battle walk and its captures keep their ticks.
+- A patrol sees a lead that touches it, diagonal tiles too, so a test map keeps each patrol off the paths.
+- `make sheet` writes no frame of 1080 rows on a screen smaller than that. The 1x frames are read.
+- Core refuses a list literal with elements, because it pulls in `System.Runtime.InteropServices`.
+
+### The questions that block progress
+
+None for PR-16. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Open the PR, run the Gitar poll, take the CI screen baselines, and answer each Gitar item before `make codex-review`.
+
 ## Session 362: 2026-09-27, Claude Code
 
 Author: Claude Code
@@ -292,40 +328,6 @@ Session: author PR-108, round 7. Repository: the-thing-below. Branch: `feat/pr-1
 
 - `notify.yml`, `night-promote.yml`, and the facts action first run from `main`, after the merge (F-37).
 - P2-1 counts one round. A third open round of one finding stops the loop (D-929).
-
-### The questions that block progress
-
-None for PR-108. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Run the Gitar poll. When every check except `review-gate` is green, run `make codex-review PR=89` in the background.
-
-## Session 353: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-108, round 6. Repository: the-thing-below. Branch: `feat/pr-108-night-recovery`. PR: #89. Role: author. Base: `a8ba710`.
-
-### What this session did, and why
-
-- Review round 2 of `4779565` closed P1-1 and gave `Changes required` with P2-1: the promotion wait read one page of 50 runs, so an old open run could fall outside it.
-- `8179c98` asks the API for each open status with every page, and the ids go through one sorted file (D-1202). `docs/reviews/pr-89-response.md` holds the answer, with full merit.
-- Gitar approved `548969b` with its three findings closed.
-
-### The state of the build
-
-- Local build, format, and STE are clean. The workflow tests pass.
-- The remote head before this push is `74c5dca`, the review metadata of round 2.
-
-### What is in flight
-
-- The Gitar pass of this push, then `make codex-review PR=89`, round 3 of the review.
-- After the merge: `make night-watch-install` on the Mac, and one test message through `notify.yml`.
-
-### Traps and gotchas
-
-- `notify.yml`, `night-promote.yml`, and the facts action first run from `main`, after the merge (F-37).
-- P1-1 is closed. P2-1 counts one round. A third open round of one finding stops the loop (D-929).
 
 ### The questions that block progress
 

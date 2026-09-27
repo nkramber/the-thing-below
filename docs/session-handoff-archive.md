@@ -1,4 +1,38 @@
 # Session handoff archive
+## Session 353: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-108, round 6. Repository: the-thing-below. Branch: `feat/pr-108-night-recovery`. PR: #89. Role: author. Base: `a8ba710`.
+
+### What this session did, and why
+
+- Review round 2 of `4779565` closed P1-1 and gave `Changes required` with P2-1: the promotion wait read one page of 50 runs, so an old open run could fall outside it.
+- `8179c98` asks the API for each open status with every page, and the ids go through one sorted file (D-1202). `docs/reviews/pr-89-response.md` holds the answer, with full merit.
+- Gitar approved `548969b` with its three findings closed.
+
+### The state of the build
+
+- Local build, format, and STE are clean. The workflow tests pass.
+- The remote head before this push is `74c5dca`, the review metadata of round 2.
+
+### What is in flight
+
+- The Gitar pass of this push, then `make codex-review PR=89`, round 3 of the review.
+- After the merge: `make night-watch-install` on the Mac, and one test message through `notify.yml`.
+
+### Traps and gotchas
+
+- `notify.yml`, `night-promote.yml`, and the facts action first run from `main`, after the merge (F-37).
+- P1-1 is closed. P2-1 counts one round. A third open round of one finding stops the loop (D-929).
+
+### The questions that block progress
+
+None for PR-108. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Run the Gitar poll. When every check except `review-gate` is green, run `make codex-review PR=89` in the background.
+
 ## Session 352: 2026-09-27, Codex
 
 Author: Codex
