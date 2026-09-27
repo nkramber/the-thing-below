@@ -234,7 +234,7 @@ public static class ScreenCaptures
     /// <summary>The frame of the battle fixture with the one list of the opened forms of the first character after the Lessons command (D-1031, D-1195).</summary>
     public const string BattleLessonsFrame = "lessons-1x";
 
-    /// <summary>The frame of the battle fixture with the cursor on the cinder in that list, with its MP and its description (D-1027, D-1195).</summary>
+    /// <summary>The frame of the battle fixture with the cursor on the cinder in that list, with its AP and its description (D-1027, D-1195).</summary>
     public const string BattleFormsFrame = "forms-1x";
 
     /// <summary>The frame of the menu fixture with the dungeon map screen after the walk of <see cref="DungeonRoute"/> (D-982).</summary>

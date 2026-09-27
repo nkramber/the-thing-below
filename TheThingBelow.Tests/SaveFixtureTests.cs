@@ -32,7 +32,7 @@ namespace TheThingBelow.Tests;
 /// predates the statuses, and its migration gives each character and each combatant none (D-792).
 /// Format 5 and older predate the stream of the evaluator, and the migration opens it at its
 /// first value from the seed of the header (D-947). Format 6 and older predate the level, and the
-/// migration starts each character at its join level with full MP (D-363, D-966). Format 7 and
+/// migration starts each character at its join level with full AP (D-363, D-966). Format 7 and
 /// older predate the notice log, and the migration starts the log empty (D-985). Format 8 and
 /// older predate the story state, and the migration starts with no flag on, no story scene, and
 /// no entry to read (D-540, D-1004). Format 9 and older predate the lessons, and the migration gives
@@ -231,7 +231,7 @@ public sealed class SaveFixtureTests
         Assert.Equal("character.marrek", marrek.Record.Id.Value);
         Assert.Equal(marrek.Stats.Health, marrek.Health);
         Assert.Equal(1, marrek.Level);
-        Assert.Equal(marrek.Stats.Mp, marrek.Mp);
+        Assert.Equal(marrek.Stats.Ap, marrek.Ap);
         Assert.Equal(3, run.State.Characters.CountOf(ContentId.Parse("item.fixture_draught", "test", "item")));
     }
 
@@ -321,10 +321,10 @@ public sealed class SaveFixtureTests
     }
 
     [Fact]
-    public void TheStoredSaveOfFormatSixStartsEachCharacterAtItsJoinLevelWithFullMp()
+    public void TheStoredSaveOfFormatSixStartsEachCharacterAtItsJoinLevelWithFullAp()
     {
         // D-363, D-966: format 6 predates the level, so the migration gives the join level,
-        // the total of that level, and full MP. The health of the save stays.
+        // the total of that level, and full AP. The health of the save stays.
         SaveDocument save = ReadFormat(6);
         CharacterValues stored = Assert.Single(save.Snapshot.Characters!.Characters);
         Assert.Null(stored.Growth);
@@ -333,21 +333,21 @@ public sealed class SaveFixtureTests
 
         Assert.Equal(1, marrek.Level);
         Assert.Equal(0, marrek.Experience);
-        Assert.Equal(8, marrek.Mp);
+        Assert.Equal(8, marrek.Ap);
         Assert.Equal(stored.Health, marrek.Health);
     }
 
     [Fact]
-    public void TheStoredSaveOfFormatSevenHoldsTheLevelTheExperienceAndTheMp()
+    public void TheStoredSaveOfFormatSevenHoldsTheLevelTheExperienceAndTheAp()
     {
-        // Exit test 6 of PR-67: the snapshot holds the level, the experience, and the MP.
+        // Exit test 6 of PR-67: the snapshot holds the level, the experience, and the MP, which loads as AP (D-1197).
         SaveDocument save = ReadFormat(7);
         Simulation run = ResumeInBattle(save);
 
         PartyMember marrek = Assert.Single(run.State.Characters.Members);
         Assert.Equal(2, marrek.Level);
         Assert.Equal(25, marrek.Experience);
-        Assert.Equal(5, marrek.Mp);
+        Assert.Equal(5, marrek.Ap);
 
         // The fight that runs reads the stats of level 2 (D-966).
         Combatant fighter = BattleRuns.BattleOf(run).Party[0];
@@ -563,7 +563,7 @@ public sealed class SaveFixtureTests
 
         Assert.Equal(["character.marrek", "character.test_second", "character.test_third"], MemberIds(run.State.Characters.Members));
         PartyMember waiting = Assert.Single(run.State.Characters.Reserve);
-        Assert.Equal((TestParty.Fourth.Value, 45, 1, 6), (waiting.Record.Id.Value, waiting.Health, waiting.Level, waiting.Mp));
+        Assert.Equal((TestParty.Fourth.Value, 45, 1, 6), (waiting.Record.Id.Value, waiting.Health, waiting.Level, waiting.Ap));
     }
 
     [Fact]
@@ -580,6 +580,52 @@ public sealed class SaveFixtureTests
         Assert.Equal(1, run.State.Shops.LeftOf(store, store.Stock[1]));
         Assert.Equal(1, run.State.Shops.LeftOf(store, store.Stock[3]));
         Assert.Equal(RunSnapshotText.Write(save.Snapshot), RunSnapshotText.Write(run.Snapshot()));
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatSeventeenNamesThePoolAp()
+    {
+        // PR-107 wrote format 17 from the resumed run of format 16. The party holds the same gold and
+        // the same stock, and the pool of Marrek takes the name `ap` (D-1197).
+        SaveDocument save = ReadFormat(17);
+        string text = File.ReadAllText(PathOfFormat(17));
+        Simulation run = Simulation.Resume(save.Header.Seed, save.Snapshot, HubMaps.Store, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
+
+        Assert.Equal(34, save.Header.SimulationVersion);
+        Assert.Contains("\"ap\":8", text, StringComparison.Ordinal);
+        Assert.DoesNotContain("\"mp\"", text, StringComparison.Ordinal);
+        Assert.Equal(8, Assert.Single(run.State.Characters.Members).Ap);
+        Assert.Equal(1000 - 30 - 160, run.State.Characters.Gold);
+        Assert.Equal(RunSnapshotText.Write(save.Snapshot), RunSnapshotText.Write(run.Snapshot()));
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatSixteenLoadsItsMpAsAp()
+    {
+        // Exit test 5 of PR-107: format 16 names the pool `mp`, and the load gives that value as AP (D-1197).
+        SaveDocument save = ReadFormat(16);
+        Simulation run = Simulation.Resume(save.Header.Seed, save.Snapshot, HubMaps.Store, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
+
+        Assert.Contains("\"mp\":8", File.ReadAllText(PathOfFormat(16)), StringComparison.Ordinal);
+        Assert.Equal(8, Assert.Single(run.State.Characters.Members).Ap);
+        Assert.Contains("\"ap\":8", RunSnapshotText.Write(run.Snapshot()), StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData(16, "\"mp\":8", "\"ap\":8", "party.characters[0].ap")]
+    [InlineData(17, "\"ap\":8", "\"mp\":8", "party.characters[0].mp")]
+    public void APoolFieldOfTheOtherFormatFailsWithTheFileAndTheField(int version, string from, string to, string field)
+    {
+        // D-1197: format 17 reads `ap` alone, and each older format reads `mp` alone (T-2).
+        string path = PathOfFormat(version);
+        string[] lines = File.ReadAllText(path).Split('\n');
+        string snapshot = lines[1].Replace(from, to, StringComparison.Ordinal);
+        string header = lines[0].Replace(SaveText.ChecksumOf(lines[1]), SaveText.ChecksumOf(snapshot), StringComparison.Ordinal);
+
+        SaveException error = Assert.Throws<SaveException>(() => SaveText.Read($"{header}\n{snapshot}\n", path));
+
+        Assert.Contains(path, error.Message, StringComparison.Ordinal);
+        Assert.Contains($"an unknown field (file {path}, field {field})", error.Message, StringComparison.Ordinal);
     }
 
     [Fact]

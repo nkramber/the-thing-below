@@ -11,7 +11,7 @@ namespace TheThingBelow.Core.Battles;
 /// <param name="Health">The health now. Zero is a down (D-36).</param>
 /// <param name="Row">The row now (D-558).</param>
 /// <param name="Statuses">Poison, blind, and silence, in the order of D-75, which last past a fight (D-390, D-792).</param>
-/// <param name="Growth">The level, the experience, and the MP, from save format 7 (D-966). Null in a snapshot of an older format, and the resume then starts the character at its join level with full MP (D-166, D-363).</param>
+/// <param name="Growth">The level, the experience, and the AP, from save format 7 (D-966). Null in a snapshot of an older format, and the resume then starts the character at its join level with full AP (D-166, D-363).</param>
 /// <param name="Lessons">The lesson slots and the points of each lesson, from save format 10 (D-361, D-1018). Null in a snapshot of an older format, and the resume then gives the start lessons of the fixture (D-166).</param>
 /// <param name="Gear">The six gear slots, each with a gear id or no value for an empty slot, from save format 11 (D-44). Null in a snapshot of an older format, and the resume then gives the start gear of the fixture (D-166).</param>
 public sealed record CharacterValues(ContentId Character, int Health, BattleRow Row, IReadOnlyList<StatusKind> Statuses, GrowthValues? Growth, LessonValues? Lessons, IReadOnlyList<ContentId?>? Gear);
@@ -26,18 +26,18 @@ public sealed record LessonValues(IReadOnlyList<ContentId?> Slots, IReadOnlyList
 /// <param name="Points">The points, from zero to the total of the last form (D-1021).</param>
 public sealed record LessonPoints(ContentId Lesson, int Points);
 
-/// <summary>The stored level, experience, and MP of one character (D-34, D-42, D-966).</summary>
+/// <summary>The stored level, experience, and AP of one character (D-34, D-42, D-966).</summary>
 /// <param name="Level">The character level, from 1 to 40 (D-972).</param>
 /// <param name="Experience">The total experience, which gives the level through the table of the rules (D-971).</param>
-/// <param name="Mp">The MP now, from zero to the full MP of the level (D-42).</param>
-public sealed record GrowthValues(int Level, int Experience, int Mp);
+/// <param name="Ap">The AP now, from zero to the full AP of the level (D-42).</param>
+public sealed record GrowthValues(int Level, int Experience, int Ap);
 
 /// <summary>The stored count of one item or one piece of spare gear in the pack (D-775, D-1038).</summary>
 /// <param name="Id">The id of the item or the piece, of the kind `item` or `gear`.</param>
 /// <param name="Count">The count now, from 1.</param>
 public sealed record PackValues(ContentId Id, int Count);
 
-/// <summary>One character of the party, with the level, the health, the MP, and the row that last between battles (D-34, D-36, D-42, D-765).</summary>
+/// <summary>One character of the party, with the level, the health, the AP, and the row that last between battles (D-34, D-36, D-42, D-765).</summary>
 public sealed class PartyMember
 {
     private readonly SortedDictionary<string, LessonPoints> points = new(StringComparer.Ordinal);
@@ -50,7 +50,7 @@ public sealed class PartyMember
         this.Record = record;
         this.Level = growth.Level;
         this.Experience = growth.Experience;
-        this.Mp = growth.Mp;
+        this.Ap = growth.Ap;
         this.Health = health;
         this.Row = row;
         this.Statuses = statuses;
@@ -91,7 +91,7 @@ public sealed class PartyMember
     /// <summary>The total experience, which gives the level (D-971).</summary>
     public int Experience { get; private set; }
 
-    /// <summary>The stats of the level now, with no gear (D-966). The full health and the full MP come from it, because gear never changes them (D-1036).</summary>
+    /// <summary>The stats of the level now, with no gear (D-966). The full health and the full AP come from it, because gear never changes them (D-1036).</summary>
     public StatRow Stats => this.Record.At(this.Level);
 
     /// <summary>Gives the stats of the level now with the worn gear (D-1036, D-1047).</summary>
@@ -107,8 +107,8 @@ public sealed class PartyMember
     /// <summary>The health now, from zero to the full health of the level.</summary>
     public int Health { get; internal set; }
 
-    /// <summary>The MP now, from zero to the full MP of the level (D-42). PR-12 gives the rites that spend it.</summary>
-    public int Mp { get; internal set; }
+    /// <summary>The AP now, from zero to the full AP of the level (D-42). PR-12 gives the rites that spend it.</summary>
+    public int Ap { get; internal set; }
 
     /// <summary>The row now, which the next battle starts from (D-558).</summary>
     public BattleRow Row { get; internal set; }
@@ -202,16 +202,16 @@ public sealed class PartyMember
         return after - before;
     }
 
-    /// <summary>Gives the start values of a character who joins: the join level, the total of that level, and full MP (D-363, D-971).</summary>
+    /// <summary>Gives the start values of a character who joins: the join level, the total of that level, and full AP (D-363, D-971).</summary>
     /// <param name="record">The character.</param>
     /// <param name="rules">The rules, which hold the experience table.</param>
     /// <returns>The values.</returns>
     internal static GrowthValues JoinValues(CharacterRecord record, BattleRules rules) =>
-        new(record.JoinLevel, rules.LevelExperience[record.JoinLevel - 1], record.At(record.JoinLevel).Mp);
+        new(record.JoinLevel, rules.LevelExperience[record.JoinLevel - 1], record.At(record.JoinLevel).Ap);
 
     /// <summary>
     /// Adds experience, to the total of the highest level at most (D-972). A new level fills the
-    /// health and the MP (D-973).
+    /// health and the AP (D-973).
     /// </summary>
     /// <param name="earned">The experience of the battle, above zero.</param>
     /// <param name="rules">The rules, which hold the experience table.</param>
@@ -247,18 +247,18 @@ public sealed class PartyMember
         return this.Experience - before;
     }
 
-    /// <summary>Fills the health and the MP to the full values of the level (D-967, D-973).</summary>
+    /// <summary>Fills the health and the AP to the full values of the level (D-967, D-973).</summary>
     internal void Fill()
     {
         this.Health = this.Stats.Health;
-        this.Mp = this.Stats.Mp;
+        this.Ap = this.Stats.Ap;
     }
 }
 
 /// <summary>
 /// The characters of the party, their pack, and their gold, which last between battles (D-36,
 /// D-765, D-775, D-1043). The snapshot holds them from save format 4, the statuses that last
-/// from save format 5 (D-792), the level, the experience, and the MP from save format 7
+/// from save format 5 (D-792), the level, the experience, and the AP from save format 7
 /// (D-966), the gear slots, the spare gear, and the gold from save format 11 (D-44, D-1038), and
 /// the reserve from save format 15 (D-58, D-1136).
 /// </summary>
@@ -824,7 +824,7 @@ public sealed class PartyState
     }
 
     /// <summary>
-    /// The restore of a save point: each character of the party and of the reserve gets full MP,
+    /// The restore of a save point: each character of the party and of the reserve gets full AP,
     /// and no health (D-389, D-967). PR-16 calls it once for each place, until a story event
     /// reopens the place (D-555, D-970).
     /// </summary>
@@ -832,13 +832,13 @@ public sealed class PartyState
     {
         foreach (PartyMember member in this.Everyone())
         {
-            member.Mp = member.Stats.Mp;
+            member.Ap = member.Stats.Ap;
         }
     }
 
     /// <summary>
     /// The rest at a hub: each character of the party and of the reserve gets full health and
-    /// full MP, a down character stands again, and poison, blind, and silence end (D-36, D-390,
+    /// full AP, a down character stands again, and poison, blind, and silence end (D-36, D-390,
     /// D-967, D-1135). PR-14 calls it (D-970).
     /// </summary>
     public void RestAtHub()
@@ -913,7 +913,7 @@ public sealed class PartyState
     }
 
     /// <summary>
-    /// Adds a cast member at its join level with full health and full MP, in the row of its
+    /// Adds a cast member at its join level with full health and full AP, in the row of its
     /// record (D-363, D-563). The cast member takes the last slot of the party while the party
     /// holds fewer than three characters, and the end of the reserve otherwise (D-1136).
     /// </summary>
@@ -1173,7 +1173,7 @@ public sealed class PartyState
         }
     }
 
-    /// <summary>Refuses a stored level that no run can make: a level outside the curve, an experience outside the table or of another level, or MP outside the range of the level (D-363, D-971, D-972).</summary>
+    /// <summary>Refuses a stored level that no run can make: a level outside the curve, an experience outside the table or of another level, or AP outside the range of the level (D-363, D-971, D-972).</summary>
     private static void CheckGrowth(CharacterRecord record, GrowthValues growth, BattleRules rules, string source)
     {
         string who = record.Id.Value;
@@ -1191,11 +1191,11 @@ public sealed class PartyState
             level != growth.Level,
             source,
             $"the character '{who}' holds level {growth.Level} with the experience {growth.Experience}, which gives level {level} (D-971)");
-        int fullMp = record.At(growth.Level).Mp;
+        int fullAp = record.At(growth.Level).Ap;
         Refuse(
-            growth.Mp < 0 || growth.Mp > fullMp,
+            growth.Ap < 0 || growth.Ap > fullAp,
             source,
-            $"the character '{who}' holds the MP {growth.Mp}, and the range at level {growth.Level} is 0 to {fullMp}");
+            $"the character '{who}' holds the AP {growth.Ap}, and the range at level {growth.Level} is 0 to {fullAp}");
     }
 
     /// <summary>
@@ -1259,7 +1259,7 @@ public sealed class PartyState
                 member.Health,
                 member.Row,
                 member.Statuses,
-                new GrowthValues(member.Level, member.Experience, member.Mp),
+                new GrowthValues(member.Level, member.Experience, member.Ap),
                 new LessonValues(PartyMember.CopyOf(member.Slots), member.Points),
                 PartyMember.CopyOf(member.Gear)));
         }
@@ -1274,7 +1274,7 @@ public sealed class PartyState
         hasher.AddInt32(member.Level);
         hasher.AddInt32(member.Experience);
         hasher.AddInt32(member.Health);
-        hasher.AddInt32(member.Mp);
+        hasher.AddInt32(member.Ap);
         hasher.AddInt32((int)member.Row);
         hasher.AddInt32(member.Statuses.Count);
         foreach (StatusKind status in member.Statuses)

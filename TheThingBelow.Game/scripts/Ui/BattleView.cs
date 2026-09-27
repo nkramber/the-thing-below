@@ -60,11 +60,11 @@ public sealed class ShownCombatant
     /// <summary>The level of a character, and zero for an enemy (D-34).</summary>
     public int Level { get; private set; }
 
-    /// <summary>The MP of a character, and zero for an enemy (D-42).</summary>
-    public int Mp { get; internal set; }
+    /// <summary>The AP of a character, and zero for an enemy (D-42).</summary>
+    public int Ap { get; internal set; }
 
-    /// <summary>The full MP of a character, and zero for an enemy (D-42).</summary>
-    public int FullMp { get; private set; }
+    /// <summary>The full AP of a character, and zero for an enemy (D-42).</summary>
+    public int FullAp { get; private set; }
 
     /// <summary>The level before the last level-up, which the stat lines of the summary read (D-975).</summary>
     public int LevelBefore { get; private set; }
@@ -72,8 +72,8 @@ public sealed class ShownCombatant
     /// <summary>The health before the last level-up, where the fill of the bar starts (D-975).</summary>
     public int HealthBefore { get; private set; }
 
-    /// <summary>The MP before the last level-up, where the fill of the bar starts (D-975).</summary>
-    public int MpBefore { get; private set; }
+    /// <summary>The AP before the last level-up, where the fill of the bar starts (D-975).</summary>
+    public int ApBefore { get; private set; }
 
     internal void Put(StatusKind status)
     {
@@ -88,17 +88,17 @@ public sealed class ShownCombatant
 
     internal void RemoveAll() => this.statuses.Clear();
 
-    /// <summary>Gives the combatant the level and the MP of a character (D-966).</summary>
-    internal void Grow(CharacterRecord record, int level, int mp)
+    /// <summary>Gives the combatant the level and the AP of a character (D-966).</summary>
+    internal void Grow(CharacterRecord record, int level, int ap)
     {
         this.Record = record;
         this.Level = level;
         this.LevelBefore = level;
-        this.Mp = mp;
-        this.FullMp = record.At(level).Mp;
+        this.Ap = ap;
+        this.FullAp = record.At(level).Ap;
     }
 
-    /// <summary>Raises the character to a new level, and fills its health and its MP (D-973).</summary>
+    /// <summary>Raises the character to a new level, and fills its health and its AP (D-973).</summary>
     internal void LevelUp(int level)
     {
         CharacterRecord record = this.Record ?? throw new InvalidOperationException(
@@ -106,23 +106,23 @@ public sealed class ShownCombatant
         StatRow stats = record.At(level);
         this.LevelBefore = this.Level;
         this.HealthBefore = this.Health;
-        this.MpBefore = this.Mp;
+        this.ApBefore = this.Ap;
         this.Level = level;
         this.FullHealth = stats.Health;
-        this.FullMp = stats.Mp;
+        this.FullAp = stats.Ap;
         this.Health = stats.Health;
-        this.Mp = stats.Mp;
+        this.Ap = stats.Ap;
     }
 }
 
 /// <summary>One character as it stood before the tick that started a fight, which the start view reads (D-776).</summary>
 /// <param name="Record">The record of the character.</param>
 /// <param name="Level">The level.</param>
-/// <param name="Mp">The MP.</param>
+/// <param name="Ap">The AP.</param>
 /// <param name="Health">The health.</param>
 /// <param name="Row">The row.</param>
 /// <param name="Statuses">A copy of the statuses.</param>
-public sealed record StartMember(CharacterRecord Record, int Level, int Mp, int Health, BattleRow Row, IReadOnlyList<StatusKind> Statuses);
+public sealed record StartMember(CharacterRecord Record, int Level, int Ap, int Health, BattleRow Row, IReadOnlyList<StatusKind> Statuses);
 
 /// <summary>
 /// The fight as the screen shows it: each combatant with the health, the row, the place, and
@@ -197,7 +197,7 @@ public sealed class BattleView
                 member.Row,
                 member.Health == 0 ? CombatantPlace.Down : CombatantPlace.Field,
                 member.Statuses);
-            shownParty[slot].Grow(member.Record, member.Level, member.Mp);
+            shownParty[slot].Grow(member.Record, member.Level, member.Ap);
         }
 
         var shownEnemies = new ShownCombatant[battle.Enemies.Count];
@@ -230,7 +230,7 @@ public sealed class BattleView
         for (int slot = 0; slot < party.Length; slot += 1)
         {
             PartyMember member = state.Characters.Members[slot];
-            party[slot] = new StartMember(member.Record, member.Level, member.Mp, member.Health, member.Row, [.. member.Statuses]);
+            party[slot] = new StartMember(member.Record, member.Level, member.Ap, member.Health, member.Row, [.. member.Statuses]);
         }
 
         return party;
@@ -254,7 +254,7 @@ public sealed class BattleView
         for (int slot = 0; slot < party.Length; slot += 1)
         {
             PartyMember member = state.Characters.Members[slot];
-            party[slot].Grow(member.Record, member.Level, member.Mp);
+            party[slot].Grow(member.Record, member.Level, member.Ap);
         }
 
         return new BattleView(party, ShownOf(battle.Enemies));
@@ -329,12 +329,16 @@ public sealed class BattleView
                 actor.LevelUp(played.Amount);
                 return;
             case BattleEventKind.Lesson:
-                // The amount of a lesson event is the MP that the form spent (D-1027).
-                actor.Mp = Math.Max(0, actor.Mp - played.Amount);
+                // The amount of a lesson event is the AP that the form spent (D-1027).
+                actor.Ap = Math.Max(0, actor.Ap - played.Amount);
                 return;
-            case BattleEventKind.ItemMp:
+            case BattleEventKind.ItemAp:
                 ShownCombatant restored = this.At(TargetOf(played));
-                restored.Mp = checked(restored.Mp + played.Amount);
+                restored.Ap = checked(restored.Ap + played.Amount);
+                return;
+            case BattleEventKind.Regain:
+                // The amount of a regain is the AP that the character gained (D-1198).
+                actor.Ap = checked(actor.Ap + played.Amount);
                 return;
             case BattleEventKind.Revive:
                 // The amount of a revive is the health of the character who stands up (D-1046).

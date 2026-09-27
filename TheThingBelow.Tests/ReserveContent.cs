@@ -68,7 +68,7 @@ internal static class ReserveContent
                 health,
                 record.Row,
                 [],
-                new GrowthValues(record.JoinLevel, battle.Rules.LevelExperience[record.JoinLevel - 1], full.Mp),
+                new GrowthValues(record.JoinLevel, battle.Rules.LevelExperience[record.JoinLevel - 1], full.Ap),
                 new LessonValues(new ContentId?[battle.Rules.SlotsAt(record.JoinLevel)], []),
                 new ContentId?[GearRules.SlotCount]));
         }

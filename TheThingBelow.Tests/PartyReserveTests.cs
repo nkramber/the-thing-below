@@ -65,7 +65,7 @@ public sealed class PartyReserveTests
 
         Assert.Equal(["character.marrek", "character.test_second", "character.test_third"], Ids(run.State.Characters.Members));
         PartyMember joined = Assert.Single(run.State.Characters.Reserve);
-        Assert.Equal((TestParty.Fourth.Value, 1, joined.Stats.Health, joined.Stats.Mp), (joined.Record.Id.Value, joined.Level, joined.Health, joined.Mp));
+        Assert.Equal((TestParty.Fourth.Value, 1, joined.Stats.Health, joined.Stats.Ap), (joined.Record.Id.Value, joined.Level, joined.Health, joined.Ap));
     }
 
     [Fact]
@@ -231,13 +231,13 @@ public sealed class PartyReserveTests
     public void ARestAtAHubFillsAndCuresTheReserve()
     {
         // D-36, D-390, D-1135: a down lasts in the reserve until a rest, and the rest reaches the reserve.
-        Simulation run = TestParty.StartFour(Seed, TestMaps.Room, TestParty.FourContent, (place, stored) => place == 3 ? stored with { Health = 0, Growth = stored.Growth! with { Mp = 1 } } : stored);
+        Simulation run = TestParty.StartFour(Seed, TestMaps.Room, TestParty.FourContent, (place, stored) => place == 3 ? stored with { Health = 0, Growth = stored.Growth! with { Ap = 1 } } : stored);
         PartyMember waiting = Assert.Single(run.State.Characters.Reserve);
         Assert.True(waiting.Down);
 
         run.State.Characters.RestAtHub();
 
-        Assert.Equal((waiting.Stats.Health, waiting.Stats.Mp), (waiting.Health, waiting.Mp));
+        Assert.Equal((waiting.Stats.Health, waiting.Stats.Ap), (waiting.Health, waiting.Ap));
         Assert.Empty(waiting.Statuses);
     }
 
@@ -255,15 +255,15 @@ public sealed class PartyReserveTests
     }
 
     [Fact]
-    public void ASavePointFillsTheMpOfTheReserve()
+    public void ASavePointFillsTheApOfTheReserve()
     {
-        // D-389, D-967: a save point fills the MP of each character and no health.
-        Simulation run = TestParty.StartFour(Seed, TestMaps.Room, TestParty.FourContent, (place, stored) => place == 3 ? stored with { Health = 5, Growth = stored.Growth! with { Mp = 1 } } : stored);
+        // D-389, D-967: a save point fills the AP of each character and no health.
+        Simulation run = TestParty.StartFour(Seed, TestMaps.Room, TestParty.FourContent, (place, stored) => place == 3 ? stored with { Health = 5, Growth = stored.Growth! with { Ap = 1 } } : stored);
 
         run.State.Characters.RestoreAtSavePoint();
 
         PartyMember waiting = Assert.Single(run.State.Characters.Reserve);
-        Assert.Equal((5, waiting.Stats.Mp), (waiting.Health, waiting.Mp));
+        Assert.Equal((5, waiting.Stats.Ap), (waiting.Health, waiting.Ap));
     }
 
     [Fact]

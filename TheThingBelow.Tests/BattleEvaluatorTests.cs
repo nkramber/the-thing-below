@@ -213,13 +213,13 @@ public sealed class BattleEvaluatorTests
     [Theory]
     [InlineData(null, 0)]
     [InlineData(0, 1)]
-    public void AStepBehindAnAllyEarnsNoRowCreditAgainstAStrikeOfAnyReach(int? mp, int row)
+    public void AStepBehindAnAllyEarnsNoRowCreditAgainstAStrikeOfAnyReach(int? ap, int row)
     {
         // P2-5 (D-960, D-1101): Marrek is the next character, and Cinder, a fire strike of any
-        // reach, costs 4 MP. With the MP, a step behind an ally hides from nothing. With no MP,
+        // reach, costs 4 AP. With the AP, a step behind an ally hides from nothing. With no AP,
         // melee alone remains, and the step takes the stepper out of reach, as before.
         BattleContent content = Content(exact: true);
-        Simulation run = MarrekAlone(content, "group.test_careful", mp);
+        Simulation run = MarrekAlone(content, "group.test_careful", ap);
         Battle battle = BattleRuns.BattleOf(run);
 
         ScoredAction step = ScoreOf(battle, content, run, "step");
@@ -231,7 +231,7 @@ public sealed class BattleEvaluatorTests
     public void TheReplyTakesALessonStrikeThatOutDamagesTheBasicAttack()
     {
         // P2-5 (D-960, D-1101): the reply scores the best legal strike of the next character.
-        // Hew is a melee strike of 15000 on the attack, above the basic attack, and it costs no MP.
+        // Hew is a melee strike of 15000 on the attack, above the basic attack, and it costs no AP.
         BattleContent content = Content(exact: true);
         Simulation withLessons = MarrekAlone(content, "group.test_idle", null);
         Battle battle = BattleRuns.BattleOf(withLessons);
@@ -386,7 +386,7 @@ public sealed class BattleEvaluatorTests
     /// Starts a fight of the evaluator content with Marrek alone on his feet: the other two
     /// characters start down, so Marrek is the next character (D-960).
     /// </summary>
-    private static Simulation MarrekAlone(BattleContent content, string group, int? mp)
+    private static Simulation MarrekAlone(BattleContent content, string group, int? ap)
     {
         GameMap map = BattleRuns.Map(group);
         RunSnapshot start = Simulation.Start(1, map, content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None).Snapshot();
@@ -401,7 +401,7 @@ public sealed class BattleEvaluatorTests
             }
             else
             {
-                characters.Add(mp is int points ? stored with { Growth = stored.Growth! with { Mp = points } } : stored);
+                characters.Add(ap is int points ? stored with { Growth = stored.Growth! with { Ap = points } } : stored);
             }
         }
 

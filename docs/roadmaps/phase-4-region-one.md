@@ -340,7 +340,7 @@ Area files: `area-progression.md` section 7.3, `area-battle.md` section 7.6, `ar
 
 - Each change rests on a measurement, not on taste (G-14).
 - The reviewer reads each changed hash of the identity file (D-504).
-- A fresh character from the reserve brings its own MP, and the balance holds with it (D-356).
+- A fresh character from the reserve brings its own AP, and the balance holds with it (D-356, D-1197).
 
 **Questions.** None.
 

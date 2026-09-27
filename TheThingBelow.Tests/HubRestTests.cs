@@ -43,7 +43,7 @@ public sealed class HubRestTests
         Assert.Single(run.State.Characters.Reserve);
         foreach (PartyMember member in Everyone(run.State.Characters))
         {
-            Assert.Equal((member.Stats.Health, member.Stats.Mp), (member.Health, member.Mp));
+            Assert.Equal((member.Stats.Health, member.Stats.Ap), (member.Health, member.Ap));
         }
 
         Assert.Equal([ServiceRules.RestedNotice.Value], NoticeIds(run.TakeNotices()));
@@ -119,13 +119,13 @@ public sealed class HubRestTests
         HubWalks.Face(run, StepDirection.South);
     }
 
-    /// <summary>Hurts one character: 1 health, no MP, and poison, blind, and silence (D-390).</summary>
+    /// <summary>Hurts one character: 1 health, no AP, and poison, blind, and silence (D-390).</summary>
     private static CharacterValues Hurt(CharacterValues stored) =>
         stored with
         {
             Health = 1,
             Statuses = [StatusKind.Poison, StatusKind.Blind, StatusKind.Silence],
-            Growth = (stored.Growth ?? throw new InvalidOperationException("The stored character holds no growth.")) with { Mp = 0 },
+            Growth = (stored.Growth ?? throw new InvalidOperationException("The stored character holds no growth.")) with { Ap = 0 },
         };
 
     private static List<PartyMember> Everyone(PartyState party) => [.. party.Members, .. party.Reserve];

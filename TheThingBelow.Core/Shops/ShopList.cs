@@ -26,7 +26,7 @@ public enum ShopCategory
     /// <summary>An item that restores health.</summary>
     Heal,
 
-    /// <summary>An item that restores MP.</summary>
+    /// <summary>An item that restores AP.</summary>
     Restore,
 
     /// <summary>An item that ends statuses.</summary>

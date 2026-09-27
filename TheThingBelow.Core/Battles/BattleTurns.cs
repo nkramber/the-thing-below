@@ -116,7 +116,7 @@ public static class BattleTurns
         switch (choice.Action)
         {
             case BattleAction.Attack:
-                Strike(state, battle, actor, BattleMove.BasicAttack(rules), TargetOf(choice, context), AbilityReach.Melee, context, log);
+                Strike(state, battle, actor, BattleMove.BasicAttack(rules), TargetOf(choice, context), AbilityReach.Melee, true, context, log);
                 break;
             case BattleAction.Defend:
                 Defend(state, actor, context);
@@ -194,7 +194,7 @@ public static class BattleTurns
 
         Battle battle = RunningBattle(state, context);
         Combatant actor = ActorOf(battle, BattleSide.Party, context);
-        Strike(state, battle, actor, move, target, AbilityReach.Melee, context, log);
+        Strike(state, battle, actor, move, target, AbilityReach.Melee, false, context, log);
         RunUntilCharacter(state, battle, log);
     }
 
@@ -434,7 +434,7 @@ public static class BattleTurns
     }
 
     /// <summary>
-    /// Uses one form of a lesson (D-1027). The character spends the MP, and the effect takes the
+    /// Uses one form of a lesson (D-1027). The character spends the AP, and the effect takes the
     /// aptitude bonus: the power and the status chance of a strike, and the health of a heal
     /// (D-1028). A cure ends its statuses on the target, and a boon gives its status (D-1029).
     /// </summary>
@@ -446,8 +446,8 @@ public static class BattleTurns
         PartyMember member = state.Characters.Members[actor.Slot];
         LessonRecord record = state.BattleContent.Lessons.Lesson(lesson);
         AbilityRecord ability = LessonRules.FormAbility(state, lesson, form);
-        int cost = record.Forms[form].Mp;
-        member.Mp -= cost;
+        int cost = record.Forms[form].Ap;
+        member.Ap -= cost;
         state.AddEvent(new BattleEvent(BattleEventKind.Lesson, actor.Target, aimed, cost, null, Affinity.Normal, ability.Id));
 
         int rate = BasisPoints.One + LessonRules.BonusOf(member.Record, record.Kind, state.BattleContent.Rules, state.Story.Flags);
@@ -458,7 +458,7 @@ public static class BattleTurns
                     ? given with { Chance = LessonRules.RaisedChance(given.Chance, rate, context) }
                     : null;
                 BattleMove move = new(strike.Delay, BasisPoints.Apply(strike.Power, rate, context), strike.Stat, strike.Element, status);
-                Strike(state, battle, actor, move, aimed, strike.Reach, context, log);
+                Strike(state, battle, actor, move, aimed, strike.Reach, false, context, log);
                 break;
             case HealAbility heal:
                 Heal(state, battle, actor, heal, rate, aimed, context);
@@ -716,11 +716,11 @@ public static class BattleTurns
         switch (action.Kind)
         {
             case EnemyActionKind.Attack:
-                Strike(state, battle, enemy, BattleMove.BasicAttack(content.Rules), EnemyTargetOf(action, context), AbilityReach.Melee, context, log);
+                Strike(state, battle, enemy, BattleMove.BasicAttack(content.Rules), EnemyTargetOf(action, context), AbilityReach.Melee, false, context, log);
                 break;
             case EnemyActionKind.Ability when action.Ability is StrikeAbility strike:
                 BattleMove move = new(strike.Delay, strike.Power, strike.Stat, strike.Element, strike.Status);
-                Strike(state, battle, enemy, move, EnemyTargetOf(action, context), strike.Reach, context, log);
+                Strike(state, battle, enemy, move, EnemyTargetOf(action, context), strike.Reach, false, context, log);
                 break;
             case EnemyActionKind.Ability when action.Ability is HealAbility heal:
                 Heal(state, battle, enemy, heal, BasisPoints.One, EnemyTargetOf(action, context), context);
@@ -780,7 +780,9 @@ public static class BattleTurns
 
     /// <summary>
     /// Resolves one strike (D-376). A melee strike reaches the targets of D-377, and a strike
-    /// of any reach reaches each combatant of the other side on the field (D-955).
+    /// of any reach reaches each combatant of the other side on the field (D-955). The basic
+    /// attack command of a character sets <paramref name="basicAttack"/>, and its hit gives the
+    /// attacker the hit regain before a fall gives the fall regain (D-1198, D-1210).
     /// </summary>
     private static void Strike(
         RunState state,
@@ -789,6 +791,7 @@ public static class BattleTurns
         BattleMove move,
         BattleTarget aimed,
         AbilityReach reach,
+        bool basicAttack,
         RunContext context,
         List<LogEntry> log)
     {
@@ -828,6 +831,11 @@ public static class BattleTurns
                 int damage = BattleMath.Damage(rules, attacker, target, hit, affinity, move.Element is not null, melee, target.Defending, context);
                 target.Health = Math.Max(0, target.Health - damage);
                 state.AddEvent(new BattleEvent(BattleEventKind.Hit, attacker.Target, target.Target, damage, null, affinity));
+                if (basicAttack)
+                {
+                    Regain(state, attacker, rules.HitRegain, context);
+                }
+
                 if (target.Health == 0)
                 {
                     FallDown(state, battle, target, context, log);
@@ -923,9 +931,9 @@ public static class BattleTurns
                 break;
             case RestoreItem restore:
                 PartyMember member = state.Characters.Members[aimed.Slot];
-                int mp = Math.Min(BasisPoints.Apply(restore.Amount, rules.ItemRate, context), member.Stats.Mp - member.Mp);
-                member.Mp += mp;
-                state.AddEvent(new BattleEvent(BattleEventKind.ItemMp, actor.Target, target.Target, mp, null, Affinity.Normal, item.Id));
+                int ap = Math.Min(BasisPoints.Apply(restore.Amount, rules.ItemRate, context), member.Stats.Ap - member.Ap);
+                member.Ap += ap;
+                state.AddEvent(new BattleEvent(BattleEventKind.ItemAp, actor.Target, target.Target, ap, null, Affinity.Normal, item.Id));
                 break;
             case CureItem cure:
                 state.AddEvent(new BattleEvent(BattleEventKind.ItemCure, actor.Target, target.Target, 0, null, Affinity.Normal, item.Id));
@@ -989,8 +997,8 @@ public static class BattleTurns
 
     /// <summary>
     /// Puts a combatant down (D-36), and takes every status off it (D-801). A fallen enemy
-    /// lets the next waiting enemy of the group step into its row, one attack push out
-    /// (D-761, D-778).
+    /// gives each character who is not down the fall regain of AP (D-1198), and it lets the next
+    /// waiting enemy of the group step into its row, one attack push out (D-761, D-778).
     /// </summary>
     private static void FallDown(RunState state, Battle battle, Combatant fallen, RunContext context, List<LogEntry> log)
     {
@@ -1010,6 +1018,15 @@ public static class BattleTurns
             return;
         }
 
+        // D-1198: each character who is not down regains a share of full AP, in slot order.
+        foreach (Combatant character in battle.Party)
+        {
+            if (character.Place == CombatantPlace.Field)
+            {
+                Regain(state, character, state.BattleContent.Rules.FallRegain, context);
+            }
+        }
+
         foreach (Combatant waiting in battle.Enemies)
         {
             if (waiting.Place != CombatantPlace.Waiting)
@@ -1022,6 +1039,25 @@ public static class BattleTurns
             state.AddEvent(new BattleEvent(BattleEventKind.StepIn, waiting.Target, null, 0));
             return;
         }
+    }
+
+    /// <summary>
+    /// Gives a character a share of its full AP: rounded down, at least 1, and no more than the AP
+    /// that it lacks (D-1198). A character at full AP gains nothing, and no event follows. A regain
+    /// shows no message, and its event keeps the bar of the screen true (D-1211).
+    /// </summary>
+    private static void Regain(RunState state, Combatant character, int share, RunContext context)
+    {
+        PartyMember member = state.Characters.Members[character.Slot];
+        int gain = Math.Max(1, BasisPoints.Apply(member.Stats.Ap, share, context));
+        int gained = Math.Min(gain, member.Stats.Ap - member.Ap);
+        if (gained == 0)
+        {
+            return;
+        }
+
+        member.Ap += gained;
+        state.AddEvent(new BattleEvent(BattleEventKind.Regain, character.Target, null, gained));
     }
 
     private static void CheckEnd(RunState state, Battle battle, RunContext context, List<LogEntry> log)

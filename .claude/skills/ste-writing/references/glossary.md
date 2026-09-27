@@ -15,7 +15,7 @@ Game terms from the roadmap interview of 2026-09-12:
 | main aptitude | the kind that a character does best (D-274) | class, role, specialty |
 | side aptitude | the second kind of a character, which a personal task unlocks (D-282) | side role, side job, subclass |
 | lesson slot | a place on a character that holds one equipped lesson (D-356, D-1018) | socket, materia slot |
-| lesson points | the points of one lesson for one character, from won battles (D-357, D-361, D-1019) | AP, ability points, lesson experience |
+| lesson points | the points of one lesson for one character, from won battles (D-357, D-361, D-1019) | ability points, lesson experience |
 | lesson level | the level that the lesson points reach on the experience table, which the lesson shrink reads (D-1020) | lesson rank, mastery |
 | form | a named ability of a lesson that a point total opens (D-539) | version, tier, rank, when the text means this |
 | owned lesson | a lesson in the pack, or on a character of the party or the reserve (D-1023, D-1024) | party lesson, held lesson |
@@ -23,7 +23,8 @@ Game terms from the roadmap interview of 2026-09-12:
 | swap place | a hub or a save point, where the party swapped lessons from PR-12 to PR-99 and the reserve before PR-14. A swap now works anywhere outside a fight, and the term names the old rule alone (D-1030, D-1050, D-1134) | swap point, lesson shrine |
 | lead | the one character whom story scenes center on (D-267) | hero, protagonist, main character |
 | ability | an action that a lesson gives (D-272, D-278) | skill, technique, move |
-| spell | an ability that costs MP (D-42) | magic, cast |
+| spell | an ability that a rite gives. It costs AP, as a drill does (D-275, D-1197) | magic, cast |
+| AP | ability power: the one pool of each character, which each form spends and which a rest, a save point, an item, and a fight restore (D-1197, D-1198) | MP, mana, magic points |
 | party | the one to three characters in battle (D-31, D-336) | team, group |
 | reserve | the characters who wait outside the party (D-58) | bench, backup |
 | cast | the story characters who can join the party, eight in the whole game (D-33, D-299) | roster, heroes |
@@ -83,7 +84,7 @@ Game terms from the roadmap interview of 2026-09-12:
 | shop type | the rate of a sale for each category that a shop buys, in basis points (D-1151) | shop class, merchant kind |
 | sale | the party gives a thing to a shop for gold (D-1150) | sell-back, trade-in |
 | character level | the level from experience (D-34) | level, alone |
-| stat curve | the table of the health, the MP, the attack, the magic, the defense, the resistance, and the speed of one character, one row for each level (D-537, D-966, D-1052) | growth table, stat table |
+| stat curve | the table of the health, the AP, the attack, the magic, the defense, the resistance, and the speed of one character, one row for each level (D-537, D-966, D-1052) | growth table, stat table |
 | magic | the stat that a magic hit and a heal read (D-1052, D-1053, D-1057) | intelligence, spirit, power |
 | resistance | the stat that guards against a magic hit (D-1052, D-1053). The affinity `resist` of D-794 is another concept | magic defense, spirit, ward |
 | join level | the character level at which a character joins the party (D-363) | start level, recruit level |

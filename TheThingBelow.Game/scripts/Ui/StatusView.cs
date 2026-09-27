@@ -10,7 +10,7 @@ namespace TheThingBelow.Game.Ui;
 
 /// <summary>
 /// The status window: the full sheet of each character in its own column (D-569, D-991). The
-/// sheet holds the name, the level, the row, HP, MP, the experience and the experience to the
+/// sheet holds the name, the level, the row, HP, AP, the experience and the experience to the
 /// next level, ATK, MAG, DEF, RES, SPD, and each status that lasts (D-1056).
 /// </summary>
 /// <remarks>
@@ -145,13 +145,13 @@ public sealed class StatusView : IMenuView
     private void ShowColumn(List<Label> column, PartyMember member, IReadOnlyList<int> table)
     {
         // The attack, the magic, the defense, the resistance, and the speed hold the worn gear, and the gear never
-        // changes health or MP (D-1036, D-1052).
+        // changes health or AP (D-1036, D-1052).
         StatRow full = member.StatsWith(this.state.BattleContent.Gear);
         this.ui.Text.Put(column[0], BattleMessages.NameIdOf(member.Record.Id));
         this.ui.Text.Put(column[1], Id("menu.level"), Values(("level", Number(member.Level))));
         this.ui.Text.Put(column[2], PartyView.RowIdOf(member.Row));
         this.ui.Text.Put(column[3], Id("battle.health"), Values(("health", Number(member.Health)), ("full", Number(full.Health))));
-        this.ui.Text.Put(column[4], Id("battle.mp"), Values(("mp", Number(member.Mp)), ("full", Number(full.Mp))));
+        this.ui.Text.Put(column[4], Id("battle.ap"), Values(("ap", Number(member.Ap)), ("full", Number(full.Ap))));
         this.ui.Text.Put(column[5], Id("menu.experience"), Values(("amount", Number(member.Experience))));
         if (ToNextLevel(member, table) is int next)
         {

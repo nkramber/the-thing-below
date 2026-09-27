@@ -25,7 +25,7 @@ public sealed record ShakeValues(int Ticks, int StepTicks, int Full, int Reduced
 /// <param name="RiseTicks">The ticks that a line takes to slide up and settle.</param>
 /// <param name="RisePixels">The art pixels that a line slides up.</param>
 /// <param name="BouncePixels">The art pixels that a line passes its place before it settles back, the bounce.</param>
-/// <param name="FillTicks">The ticks that the health bar and the MP bar take to fill at a level-up (D-973).</param>
+/// <param name="FillTicks">The ticks that the health bar and the AP bar take to fill at a level-up (D-973).</param>
 public sealed record SummaryValues(int ExperienceTicks, int LevelUpTicks, int LineTicks, int RiseTicks, int RisePixels, int BouncePixels, int FillTicks);
 
 /// <summary>

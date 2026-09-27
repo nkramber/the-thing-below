@@ -27,7 +27,7 @@ namespace TheThingBelow.Debug.Commands;
 /// </para>
 /// <para>
 /// Each later PR that gives the rules a new value can add its own commands here, such as the
-/// story flags of PR-68. PR-67 added the level, the experience, and the MP, and no command. PR-12 added
+/// story flags of PR-68. PR-67 added the level, the experience, and the AP, and no command. PR-12 added
 /// the `swap` command, which marked a swap place of lessons, and PR-99 removed it, because a
 /// swap of lessons needs no place (D-1030, D-1050). PR-13 added the `stock` command,
 /// which fills the pack for a test of the gear window and the item window (D-1038). PR-14 added

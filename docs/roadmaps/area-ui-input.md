@@ -138,9 +138,10 @@ Built by PR-62. Phase file: `phase-2-first-playable.md`.
 - The dungeon map screen draws each tile that the party walked, with the doors and the save points on those tiles (D-567). PR-16 adds the exit mark (D-993). Each walked tile draws at 16 pixels, so a dungeon of 80 by 45 tiles or less shows whole (D-982).
 - A map action opens the dungeon map screen from the walk, with the M key and the Back button of the gamepad (D-986, D-990). Back or the map action closes it.
 - The party window sets the starting row of each character, and the snapshot keeps the row (D-377, D-558).
-- The status window shows the full sheet of each character (D-569, D-991). The sheet holds the level, the row, HP, MP, the experience, the stats, and the statuses that last.
+- The status window shows the full sheet of each character (D-569, D-991). The sheet holds the level, the row, HP, AP, the experience, the stats, and the statuses that last (D-1197).
 - The status window shows the stats with the worn gear (D-1036).
 - The gear window shows the stats with the gear, and the six gear slots with a dash for each empty slot (D-44).
+- The gear window names the character in one line, such as "Marrek - Level 1", with an empty line under it (D-1170, D-1214).
 - The gear window lists the pieces of the pack that fit a slot (D-1048).
 - The gear list shows the name of each piece. A second line of stats shows each stat with the piece under the cursor, in grey, green, or red (D-1060).
 - The status window and the gear window name the magic MAG and the resistance RES (D-1056).
@@ -261,6 +262,7 @@ Built by PR-41 and every UI PR. Phase file: `phase-2-first-playable.md`.
 | PR-12 | The lesson window with the aptitudes, the slots, the swap, and the cast from the menu, and the Lessons command of a fight in two rows of commands | D-211, D-1030, D-1031, D-1033, D-1034 |
 | PR-13 | The gear window, the item window, and the stats with the gear in the status window | D-44, D-1036, D-1039, D-1048, D-1049 |
 | PR-99 | MAG and RES on each screen, the line of trial stats in the gear window, and the lesson swap anywhere outside a fight | D-1050, D-1056, D-1060 |
+| PR-107 | AP in place of MP on each screen, and the line of the character in the gear window as one string | D-1197, D-1214 |
 | PR-103 | The pause of a fight, with a dim and "Paused" above the hand-off, the crash message above the hand-off, and the line of the item under the cursor in a fight | D-1083, D-1084, D-1093 |
 | PR-104 | The message of a refused settings file, the crash message on a frame of the default display with its folder, and the two absorb lines | D-1099, D-1102, D-1106 |
 | PR-105 | The remap screen marks each conflict, and its line names the conflict of the row with its place | D-1119 |

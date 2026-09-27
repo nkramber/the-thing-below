@@ -26,12 +26,6 @@ public sealed class GearView : IMenuView
     /// <summary>The lines above the list: the character, an empty line, the stat names, the stats with the piece under the cursor, an empty line, and the caption of the list (D-1169 to D-1171).</summary>
     private const int HeadLines = 6;
 
-    /// <summary>The characters of the column of the name, before the hyphen and the level (D-1170).</summary>
-    private const int NameCharacters = 10;
-
-    /// <summary>The characters of the column of the hyphen between the name and the level (D-1170).</summary>
-    private const int DashCharacters = 3;
-
     /// <summary>The share of the inner width of the window that the left column of the list takes, in hundredths.</summary>
     private const int LeftShare = 45;
 
@@ -41,8 +35,8 @@ public sealed class GearView : IMenuView
     private readonly UiBase ui;
     private readonly RunState state;
     private readonly Control layer;
-    private readonly Label name;
-    private readonly Label level;
+    private readonly StringTable strings;
+    private readonly Label who;
     private readonly List<Label> wornCells = [];
     private readonly List<Label> trialCells = [];
     private readonly Label caption;
@@ -59,17 +53,20 @@ public sealed class GearView : IMenuView
     /// <summary>Builds the gear window beside the main list.</summary>
     /// <param name="frame">The frame, whose UI layer takes the window.</param>
     /// <param name="ui">The atlas, the theme, and the text helper.</param>
+    /// <param name="strings">The string table, which gives the name inside the line of the character (G-7).</param>
     /// <param name="state">The state of the run, which the window reads on each frame and never changes.</param>
     /// <param name="cursor">The cursor, which the window keeps when the screen builds again.</param>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
-    public GearView(FrameRoot frame, UiBase ui, RunState state, GearCursor cursor)
+    public GearView(FrameRoot frame, UiBase ui, StringTable strings, RunState state, GearCursor cursor)
     {
         ArgumentNullException.ThrowIfNull(frame);
         ArgumentNullException.ThrowIfNull(ui);
+        ArgumentNullException.ThrowIfNull(strings);
         ArgumentNullException.ThrowIfNull(state);
         ArgumentNullException.ThrowIfNull(cursor);
 
         this.ui = ui;
+        this.strings = strings;
         this.state = state;
         this.Cursor = cursor;
         this.chosenColor = ui.Theme.ColorOf("text_chosen");
@@ -87,14 +84,9 @@ public sealed class GearView : IMenuView
         int inner = box.Width - (MenuLayout.Pad * 2);
         int leftWidth = inner * LeftShare / 100;
         int first = MenuLayout.FirstLineTop(body, ui.Theme.TitleSize);
-        // The level stands in a column of its own close to the name, after a hyphen, and an empty
-        // line stands under them (D-1170).
-        int glyph = body / 2;
-        this.name = MenuNodes.Line(this.layer, left, first, NameCharacters * glyph, line);
-        Label dash = MenuNodes.Line(this.layer, left + (NameCharacters * glyph), first, DashCharacters * glyph, line);
-        ui.Text.Put(dash, Id("menu.dash"));
-        int levelLeft = left + ((NameCharacters + DashCharacters) * glyph);
-        this.level = MenuNodes.Line(this.layer, levelLeft, first, left + inner - levelLeft, line);
+        // The name, a hyphen, and the level stand in one string with one space on each side of the
+        // hyphen, and an empty line stands under it (D-1170, D-1214).
+        this.who = MenuNodes.Line(this.layer, left, first, inner, line);
         int cell = inner / StatNames.Length;
         for (int stat = 0; stat < StatNames.Length; stat += 1)
         {
@@ -175,8 +167,7 @@ public sealed class GearView : IMenuView
     {
         PartyMember member = this.Cursor.Member;
         StatRow worn = member.StatsWith(this.state.BattleContent.Gear);
-        this.ui.Text.Put(this.name, BattleMessages.NameIdOf(member.Record.Id));
-        this.ui.Text.Put(this.level, Id("menu.level"), Values(("level", Number(member.Level))));
+        this.ui.Text.Put(this.who, Id("menu.gear_who"), Values(("name", this.strings.Text(BattleMessages.NameIdOf(member.Record.Id))), ("level", Number(member.Level))));
         int[] wornValues = ValuesOf(worn);
         int[] trialValues = ValuesOf(this.Cursor.TrialStats());
         for (int stat = 0; stat < StatNames.Length; stat += 1)

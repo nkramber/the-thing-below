@@ -25,7 +25,7 @@ public enum CommandStage
 /// <summary>One entry of the lesson stage: an opened form of a lesson of the character (D-1195).</summary>
 /// <param name="Lesson">The lesson.</param>
 /// <param name="Form">The index of the form in the lesson, from zero.</param>
-/// <param name="Record">The form, with its ability, its MP, and its description.</param>
+/// <param name="Record">The form, with its ability, its AP, and its description.</param>
 public sealed record LessonEntry(ContentId Lesson, int Form, LessonForm Record);
 
 /// <summary>
@@ -174,7 +174,7 @@ public sealed class BattleCommands
         return false;
     }
 
-    /// <summary>Tells whether the rules take a form of a lesson now, on at least one target: the MP, silence, and the reach (D-42, D-806).</summary>
+    /// <summary>Tells whether the rules take a form of a lesson now, on at least one target: the AP, silence, and the reach (D-42, D-806).</summary>
     /// <param name="offered">The lesson.</param>
     /// <param name="index">The index of the form, from zero.</param>
     /// <returns>True when the lesson stage can confirm the form.</returns>

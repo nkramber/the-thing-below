@@ -2165,7 +2165,7 @@ Area file: `area-exploration.md` section 7.8.
 
 - The treasure, the locked doors, and the keys (D-41).
 - The save points, which save the party (D-36). The party and the lessons swap anywhere outside a fight, so a save point marks no swap place (D-1050, D-1134).
-- The MP that a save point restores once for the place, and the health that it does not (D-389, D-555).
+- The AP that a save point restores once for the place, and the health that it does not (D-389, D-555, D-1197).
 - The Theft drill that opens a lock that the map marks as pickable, where a story lock always needs its key (D-386).
 - The chest that keeps what the party cannot carry (D-385).
 - The fallback item of a chest that holds an owned lesson (D-1024).
@@ -2185,11 +2185,11 @@ Area file: `area-exploration.md` section 7.8.
 
 1. A bot run that wipes reloads and continues (D-231).
 2. A two-character party after a down still reaches the exit of the fixture dungeon (F-7).
-3. A save point restores MP once for the place (D-555).
+3. A save point restores AP once for the place (D-555, D-1197).
 4. A second use restores none, after an exit and a return too (D-555).
 5. A Theft drill opens a pickable lock, and it never opens a story lock (D-386).
 6. A killed enemy stays dead after the party leaves the dungeon and returns (D-555).
-7. A story event that reopens a fixture place brings its enemies and its MP restore back (D-555).
+7. A story event that reopens a fixture place brings its enemies and its AP restore back (D-555).
 10. Each save point calls `GameRun.Save`, and the record after a save holds no intent before it (D-1115, D-1132).
 9. A chest with an owned lesson gives its fallback item (D-1024).
 10. Each save point and each autosave calls `GameRun.Save`, and the record after a save holds no intent before it (D-1115).
@@ -2199,7 +2199,7 @@ Area file: `area-exploration.md` section 7.8.
 
 **Review focus.**
 
-- The reserve and the swap anywhere answer F-7, and the balance holds with fresh MP (D-356, D-1134).
+- The reserve and the swap anywhere answer F-7, and the balance holds with fresh AP (D-356, D-1134, D-1197).
 - The exit to the region map waits for PR-35, and the PR states what it does until then.
 - The snapshot carries the open chests, the open doors, and the dead enemies.
 
@@ -2784,13 +2784,16 @@ Area files: `area-release.md` section 7.8, `area-art.md` section 7.5.
 
 ### 7.66 PR-107: ability power
 
-Area files: `area-battle.md` section 7.4, and `area-progression.md` for the forms.
+Area files: `area-battle.md` sections 7.3 and 7.4, and `area-progression.md` section 7.2 for the pool and the forms.
 
 **Scope.**
 
-- Ability power, AP, replaces MP as the one pool of each character. Each form costs AP, a drill too (D-1197).
-- The fixture costs: Hew 2 AP and Cleave 4 AP. Cinder and Blaze keep 4 and 9 (D-1199).
-- A fall of an enemy returns 10% of full AP to each standing character. A basic attack that hits returns 5% to the attacker. Each regain rounds down, with a floor of 1 (D-1198).
+- Ability power, AP, replaces MP as the one pool of each character. Each form costs AP, a drill too, and the lesson file refuses a cost of 0 (D-1197, D-1213).
+- The fixture costs: Hew 2 AP and Cleave 4 AP. Cinder and Blaze keep 4 and 9 (D-1199). Bolt and Pilfer cost 2 AP (D-1212).
+- A fall of an enemy returns 10% of full AP to each standing character. A basic attack that hits returns 5% to the attacker, and a basic attack that fells an enemy gives the attacker both (D-1210). Each regain rounds down, with a floor of 1 (D-1198). The rules file holds the two rates.
+- A regain shows no message. A silent event keeps the AP bar of the battle screen true (D-1211).
+- Save format 17 names the pool `ap`, and an older save loads its `mp` as AP (D-166, D-1197).
+- The gear window names the character in one string, "Marrek - Level 1", in place of three columns. D-1215 puts this second concern in PR-107 (D-1214).
 - A rest, a save point, and an item restore AP where they restore MP now (D-1197).
 - The content schema, the saves, the string table, the status panel, and the bots read AP.
 
@@ -2803,16 +2806,16 @@ Area files: `area-battle.md` section 7.4, and `area-progression.md` for the form
 1. A drill with too little AP refuses the choice, as a rite with too little MP does now.
 2. A fall of an enemy returns 10% of full AP to each standing character. A character who is down gains none.
 3. A basic attack that hits returns 5% of full AP to the attacker, and a miss returns nothing.
-4. A pool of 5 AP regains 1 on each rule, the floor.
-5. A save of MP loads as AP, or fails with the file and the field (T-2).
+4. A pool of 8 AP regains 1 on each rule. 5% and 10% of 8 round down to 0, and the floor gives 1.
+5. A save of MP loads as AP. A pool field of the other format fails with the file and the field (T-2).
 6. The simulation version rises, and a replay of a record of the old version fails with the version (G-17, T-7).
 
 **Review focus.**
 
-- The answer of OQ-252 sets whether one blow gives both regains.
+- One blow gives both regains (D-1210). The hit regain comes first, then the fall regain.
 - No MP remains in Core, content, Game, or the string table.
 
-**Questions.** OQ-252.
+**Questions.** OQ-252, resolved by D-1210.
 
 > *In plain English:* every ability costs one kind of power, a sword cut too. Hits and kills give some of it back, so a fighter can go on.
 

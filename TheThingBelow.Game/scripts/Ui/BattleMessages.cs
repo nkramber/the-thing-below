@@ -83,6 +83,9 @@ public static class BattleMessages
         {
             BattleEventKind.Turn => null,
 
+            // A regain of AP shows no line. The AP bar and the bottom line show it (D-1211).
+            BattleEventKind.Regain => null,
+
             // A win shows no line of its own. The last line of the fight stands, and the text of
             // the summary rises above each head. The drops and the gold follow as lines (D-835, D-975,
             // D-1042, D-1157).
@@ -113,7 +116,7 @@ public static class BattleMessages
             BattleEventKind.StatusHeal => Line("battle.status_heal", Actor(played, view, strings), Amount(played)),
             BattleEventKind.Asleep => Line("battle.asleep", Actor(played, view, strings)),
             BattleEventKind.Lesson => Line("battle.lesson", Actor(played, view, strings), Form(played, strings)),
-            BattleEventKind.ItemMp => Line("battle.item_mp", Target(played, view, strings), Amount(played)),
+            BattleEventKind.ItemAp => Line("battle.item_ap", Target(played, view, strings), Amount(played)),
             BattleEventKind.ItemCure => Line("battle.item_cure", Target(played, view, strings), Item(played, strings)),
             BattleEventKind.Revive => Line("battle.revive", Target(played, view, strings)),
             BattleEventKind.StealItem => Line("battle.steal_item", Actor(played, view, strings), Item(played, strings)),

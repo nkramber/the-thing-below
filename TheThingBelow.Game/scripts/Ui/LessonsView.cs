@@ -244,9 +244,7 @@ public sealed class LessonsView : IMenuView
                 {
                     LessonForm form = cursor.Forms[index];
                     string formName = this.Text(BattleMessages.NameIdOf(form.Ability));
-                    entries.Add(form.Mp == 0
-                        ? new Entry(Id("battle.form_entry_free"), Values(("form", formName)), null, Values(), cursor.AllowsForm(index))
-                        : new Entry(Id("battle.form_entry"), Values(("form", formName), ("mp", Number(form.Mp))), null, Values(), cursor.AllowsForm(index)));
+                    entries.Add(new Entry(Id("battle.form_entry"), Values(("form", formName), ("ap", Number(form.Ap))), null, Values(), cursor.AllowsForm(index)));
                 }
 
                 break;

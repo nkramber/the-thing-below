@@ -133,7 +133,7 @@ public sealed class BattleLayoutTests
     {
         // Exit test 4 of PR-10 (D-241, D-708). The message line holds a battle message of 40
         // characters. The command menu holds the five labels with a body between each. The status
-        // holds a name of 8 characters, the health and the MP of the largest pool, and four icons,
+        // holds a name of 8 characters, the health and the AP of the largest pool, and four icons,
         // with half a body between the parts (D-980, D-981).
         StringTable strings = Content.Value.Strings;
         int labels = 0;
@@ -147,8 +147,8 @@ public sealed class BattleLayoutTests
             .Replace("{health}", most, StringComparison.Ordinal)
             .Replace("{full}", most, StringComparison.Ordinal)
             .Length;
-        int mp = strings.Text(ContentId.Parse("battle.mp", StringTable.Path, "id"))
-            .Replace("{mp}", most, StringComparison.Ordinal)
+        int ap = strings.Text(ContentId.Parse("battle.ap", StringTable.Path, "id"))
+            .Replace("{ap}", most, StringComparison.Ordinal)
             .Replace("{full}", most, StringComparison.Ordinal)
             .Length;
 
@@ -157,7 +157,7 @@ public sealed class BattleLayoutTests
             int advance = body / 2;
             Assert.True(advance * MessageLimit <= Inside(Box("Message")), $"At a body of {body}, the message line holds no message of {MessageLimit} characters.");
             Assert.True((advance * labels) + (body * 4) <= Inside(Box("Commands")), $"At a body of {body}, the command menu holds no five labels.");
-            int status = (advance * (StatusNameLimit + health + mp)) + (advance * 3) + (Const("IconSize") * StatusIcons);
+            int status = (advance * (StatusNameLimit + health + ap)) + (advance * 3) + (Const("IconSize") * StatusIcons);
             Assert.True(status <= Inside(Box("Status")), $"At a body of {body}, the status needs {status} pixels, and it holds {Inside(Box("Status"))}.");
             Assert.True(body + (Const("PanelEdge") * 2) <= Box("Message").Height, $"At a body of {body}, a line panel holds no line.");
         }

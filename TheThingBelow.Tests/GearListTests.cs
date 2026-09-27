@@ -44,7 +44,7 @@ public sealed class GearListTests
     [InlineData("\"id\": \"gear.test_shield\"", "\"id\": \"gear.test_blade\"", "gear.test_blade", "two times")]
     public void APieceThatBreaksARuleFailsWithTheField(string from, string to, string field, string reason)
     {
-        // D-1036: a piece never holds health or MP, so an unknown field fails the load.
+        // D-1036: a piece never holds health or AP, so an unknown field fails the load.
         int at = TestBattles.GearFile.IndexOf(from, StringComparison.Ordinal);
         Assert.True(at >= 0, $"The gear file of the tests holds no '{from}'.");
         string text = string.Concat(TestBattles.GearFile.AsSpan(0, at), to, TestBattles.GearFile.AsSpan(at + from.Length));

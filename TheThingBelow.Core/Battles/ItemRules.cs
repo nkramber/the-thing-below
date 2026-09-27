@@ -60,7 +60,7 @@ public static class ItemRules
         return used switch
         {
             HealItem => member.Health < member.Stats.Health ? null : $"a heal of '{who}' at full health, which changes nothing (D-1049)",
-            RestoreItem => member.Mp < member.Stats.Mp ? null : $"a restore of '{who}' at full MP, which changes nothing (D-1049)",
+            RestoreItem => member.Ap < member.Stats.Ap ? null : $"a restore of '{who}' at full AP, which changes nothing (D-1049)",
             CureItem cure => HoldsAny(member, cure) ? null : $"a cure of '{who}', who holds none of its statuses, which changes nothing (D-1049)",
             _ => $"the item '{item.Value}', whose effect names no rule (T-2)",
         };
@@ -92,7 +92,7 @@ public static class ItemRules
                 member.Health = Math.Min(member.Stats.Health, checked(member.Health + heal.Amount));
                 break;
             case RestoreItem restore:
-                member.Mp = Math.Min(member.Stats.Mp, checked(member.Mp + restore.Amount));
+                member.Ap = Math.Min(member.Stats.Ap, checked(member.Ap + restore.Amount));
                 break;
             case CureItem cure:
                 member.Statuses = LessonRules.Without(member.Statuses, cure.Statuses);

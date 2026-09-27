@@ -105,7 +105,7 @@ public sealed class ExperienceTests
     }
 
     [Fact]
-    public void ALevelUpFillsTheHealthAndTheMpAndRaisesItsEvent()
+    public void ALevelUpFillsTheHealthAndTheApAndRaisesItsEvent()
     {
         // Exit test 7 of PR-67 (D-422, D-973). The brute of level 3 and a grunt give 26 to each
         // character of level 1, which passes the 20 of level 2.
@@ -124,7 +124,7 @@ public sealed class ExperienceTests
             Assert.Equal(26, member.Experience);
             Assert.Equal(2, member.Level);
             Assert.Equal(member.Stats.Health, member.Health);
-            Assert.Equal(member.Stats.Mp, member.Mp);
+            Assert.Equal(member.Stats.Ap, member.Ap);
             Assert.Equal(member.Stats.Health, BattleRuns.BattleOf(run).Party[slot].Health);
             Assert.Contains(after, played => played.Kind == BattleEventKind.LevelUp && played.Actor.Slot == slot && played.Amount == 2);
         }
@@ -215,7 +215,7 @@ public sealed class ExperienceTests
             values with
             {
                 Health = full.Health,
-                Growth = new GrowthValues(StatCurve.HighestLevel, top, full.Mp),
+                Growth = new GrowthValues(StatCurve.HighestLevel, top, full.Ap),
                 Lessons = TestBattles.LessonsAtLevel(values.Lessons, StatCurve.HighestLevel),
             });
         Assert.Equal(BattleOutcome.Won, BattleRuns.FightToEnd(run, 4));
@@ -227,7 +227,7 @@ public sealed class ExperienceTests
     [Fact]
     public void ACharacterWhoJoinsLateStartsAtTheLevelThatContentNames()
     {
-        // Exit test 5 of PR-67 (D-363): the join level, the total of that level, full health, and full MP.
+        // Exit test 5 of PR-67 (D-363): the join level, the total of that level, full health, and full AP.
         string fixture = TestBattles.FixtureFile.Replace(
             "\"id\": \"character.marrek\", \"row\": \"front\", \"join_level\": 1",
             "\"id\": \"character.marrek\", \"row\": \"front\", \"join_level\": 3",
@@ -238,11 +238,11 @@ public sealed class ExperienceTests
         Assert.Equal(3, marrek.Level);
         Assert.Equal(TestBattles.TotalOf(3), marrek.Experience);
         Assert.Equal(TestBattles.MarrekAt(3).Health, marrek.Health);
-        Assert.Equal(TestBattles.MarrekAt(3).Mp, marrek.Mp);
+        Assert.Equal(TestBattles.MarrekAt(3).Ap, marrek.Ap);
     }
 
     [Fact]
-    public void ASavePointFillsTheMpAndNoHealth()
+    public void ASavePointFillsTheApAndNoHealth()
     {
         // Exit test 3 of PR-67 (D-389, D-967, D-970).
         PartyState party = HurtParty();
@@ -250,13 +250,13 @@ public sealed class ExperienceTests
         party.RestoreAtSavePoint();
 
         PartyMember marrek = party.Members[0];
-        Assert.Equal(TestBattles.MarrekAt(2).Mp, marrek.Mp);
+        Assert.Equal(TestBattles.MarrekAt(2).Ap, marrek.Ap);
         Assert.Equal(10, marrek.Health);
         Assert.Equal([StatusKind.Poison], marrek.Statuses);
     }
 
     [Fact]
-    public void ARestAtAHubFillsTheHealthAndTheMpAndEndsTheLastingStatuses()
+    public void ARestAtAHubFillsTheHealthAndTheApAndEndsTheLastingStatuses()
     {
         // Exit test 3 of PR-67 (D-36, D-390, D-967, D-970).
         PartyState party = HurtParty();
@@ -264,7 +264,7 @@ public sealed class ExperienceTests
         party.RestAtHub();
 
         PartyMember marrek = party.Members[0];
-        Assert.Equal(TestBattles.MarrekAt(2).Mp, marrek.Mp);
+        Assert.Equal(TestBattles.MarrekAt(2).Ap, marrek.Ap);
         Assert.Equal(TestBattles.MarrekAt(2).Health, marrek.Health);
         Assert.Empty(marrek.Statuses);
     }
@@ -274,10 +274,10 @@ public sealed class ExperienceTests
     [InlineData(2, 25, 11, "the range at level 2 is 0 to 10")]
     [InlineData(41, 25, 5, "the range is 1 to 40")]
     [InlineData(2, 99999, 5, "the range is 0 to 15600")]
-    public void AStoredLevelThatNoRunCanMakeIsRefused(int level, int experience, int mp, string reason)
+    public void AStoredLevelThatNoRunCanMakeIsRefused(int level, int experience, int ap, string reason)
     {
-        // D-971, D-972: the level follows the experience, and the MP stays inside the level.
-        CharacterValues stored = new(Marrek, 10, BattleRow.Front, [], new GrowthValues(level, experience, mp), null, null);
+        // D-971, D-972: the level follows the experience, and the AP stays inside the level.
+        CharacterValues stored = new(Marrek, 10, BattleRow.Front, [], new GrowthValues(level, experience, ap), null, null);
 
         ArgumentException error = Assert.Throws<ArgumentException>(() =>
             PartyState.Resume(TestBattles.Content, [stored], null, [], null, null, null, "the test"));

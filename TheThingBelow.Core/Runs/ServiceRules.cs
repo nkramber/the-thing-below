@@ -70,7 +70,7 @@ public static class ServiceRules
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
     /// <exception cref="SimulationException">No rest service is open, or the party holds less gold than the price (D-1141, D-1156, T-2).</exception>
     /// <remarks>
-    /// Each character of the party and of the reserve gets full health and full MP, a downed
+    /// Each character of the party and of the reserve gets full health and full AP, a downed
     /// character stands again, and poison, blind, and silence end (D-42, D-390, D-970).
     /// The rest window shows the price and refuses a rest that the gold cannot pay, so a rest past
     /// the gold points at a fault in the window (D-1156, T-2).

@@ -9,7 +9,7 @@ namespace TheThingBelow.Core.Maps;
 /// <summary>What one service of a hub does (D-28, D-59, D-1131).</summary>
 public enum ServiceKind
 {
-    /// <summary>The rest, which fills the health and the MP and cures the statuses that last past a fight (D-42, D-390, D-970).</summary>
+    /// <summary>The rest, which fills the health and the AP and cures the statuses that last past a fight (D-42, D-390, D-970).</summary>
     Rest,
 
     /// <summary>The save, which writes the slot save (D-1132).</summary>

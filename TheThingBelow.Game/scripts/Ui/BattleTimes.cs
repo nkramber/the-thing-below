@@ -41,6 +41,7 @@ public static class BattleTimes
         {
             BattleEventKind.Started => pace.StartTicks,
             BattleEventKind.Turn => 0,
+            BattleEventKind.Regain => 0,
             BattleEventKind.Hit => pace.StrikeTicks,
             BattleEventKind.Miss => pace.StrikeTicks,
             BattleEventKind.Absorb => pace.StrikeTicks,
@@ -68,7 +69,7 @@ public static class BattleTimes
 
             // The line of a lesson holds while the flash of a spell plays (D-1032).
             BattleEventKind.Lesson => pace.LineTicks,
-            BattleEventKind.ItemMp => pace.LineTicks,
+            BattleEventKind.ItemAp => pace.LineTicks,
             BattleEventKind.ItemCure => pace.LineTicks,
             BattleEventKind.Revive => pace.LineTicks,
             BattleEventKind.StealItem => pace.LineTicks,

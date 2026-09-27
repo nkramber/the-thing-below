@@ -384,7 +384,7 @@ public sealed class ResumeDriftTests
             for (int level = 1; level <= StatCurve.HighestLevel; level += 1)
             {
                 StatRow row = character.At(level);
-                text.Append(' ').Append(row.Health.ToString(CultureInfo.InvariantCulture)).Append('/').Append(row.Mp.ToString(CultureInfo.InvariantCulture));
+                text.Append(' ').Append(row.Health.ToString(CultureInfo.InvariantCulture)).Append('/').Append(row.Ap.ToString(CultureInfo.InvariantCulture));
             }
         }
 

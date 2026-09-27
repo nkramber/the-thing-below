@@ -42,6 +42,10 @@
    "text": "{target} absorbs the hit. Already full."
   },
   {
+   "id": "battle.ap",
+   "text": "AP {ap}/{full}"
+  },
+  {
    "id": "battle.asleep",
    "text": "{actor} sleeps on."
   },
@@ -107,15 +111,15 @@
   },
   {
    "id": "battle.form_entry",
-   "text": "{form} {mp} MP"
-  },
-  {
-   "id": "battle.form_entry_free",
-   "text": "{form}"
+   "text": "{form} {ap} AP"
   },
   {
    "id": "battle.form_help",
-   "text": "{mp}MP - {text}"
+   "text": "{ap}AP - {text}"
+  },
+  {
+   "id": "battle.form_name",
+   "text": "{form}"
   },
   {
    "id": "battle.heal",
@@ -146,16 +150,16 @@
    "text": "{target} gets {amount} back."
   },
   {
+   "id": "battle.item_ap",
+   "text": "{target} gets {amount} AP back."
+  },
+  {
    "id": "battle.item_cure",
    "text": "{target} takes the {item}."
   },
   {
    "id": "battle.item_entry",
    "text": "{item} x{count}"
-  },
-  {
-   "id": "battle.item_mp",
-   "text": "{target} gets {amount} MP back."
   },
   {
    "id": "battle.lesson",
@@ -172,10 +176,6 @@
   {
    "id": "battle.miss",
    "text": "{actor} misses."
-  },
-  {
-   "id": "battle.mp",
-   "text": "MP {mp}/{full}"
   },
   {
    "id": "battle.number",
@@ -230,6 +230,10 @@
    "text": "Weapons out."
   },
   {
+   "id": "battle.stat_ap",
+   "text": "AP"
+  },
+  {
    "id": "battle.stat_atk",
    "text": "ATK"
   },
@@ -244,10 +248,6 @@
   {
    "id": "battle.stat_mag",
    "text": "MAG"
-  },
-  {
-   "id": "battle.stat_mp",
-   "text": "MP"
   },
   {
    "id": "battle.stat_res",
@@ -383,7 +383,7 @@
   },
   {
    "id": "item.fixture_tonic",
-   "text": "Restores MP. It burns on the way down."
+   "text": "Restores AP. It burns on the way down."
   },
   {
    "id": "item.torch",
@@ -486,10 +486,6 @@
    "text": "—"
   },
   {
-   "id": "menu.dash",
-   "text": "-"
-  },
-  {
    "id": "menu.experience",
    "text": "XP {amount}"
   },
@@ -524,6 +520,10 @@
   {
    "id": "menu.gear_slots",
    "text": "Slots"
+  },
+  {
+   "id": "menu.gear_who",
+   "text": "{name} - Level {level}"
   },
   {
    "id": "menu.gold",

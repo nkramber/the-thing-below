@@ -54,11 +54,11 @@ public sealed class StoryRulesTests
             ["character.marrek", TestStory.Ally.Value],
             MemberIds(run.State.Characters));
 
-        // The ally joins at its join level with full health and full MP (D-363).
+        // The ally joins at its join level with full health and full AP (D-363).
         PartyMember ally = run.State.Characters.Members[1];
         Assert.Equal(1, ally.Level);
         Assert.Equal(ally.Stats.Health, ally.Health);
-        Assert.Equal(ally.Stats.Mp, ally.Mp);
+        Assert.Equal(ally.Stats.Ap, ally.Ap);
     }
 
     [Fact]

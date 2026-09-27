@@ -40,7 +40,7 @@ public sealed record GearRecord(ContentId Id, GearSlotKind Slot, int Limit, int 
 /// The gear file: each piece of gear (D-44, D-1036). The file is `content/rules/gear.json`.
 /// The pack and the start gear of the battle fixture name ids from this list.
 /// </summary>
-/// <remarks>A piece never changes health or MP (D-1036). It adds to each other stat (D-1052).</remarks>
+/// <remarks>A piece never changes health or AP (D-1036). It adds to each other stat (D-1052).</remarks>
 public sealed class GearList
 {
     /// <summary>The path of the file under the content folder.</summary>

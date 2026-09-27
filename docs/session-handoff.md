@@ -1,3 +1,205 @@
+## Session 362: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-107, round 5. Repository: the-thing-below. Branch: `feat/pr-107-ability-power`. PR: #90. Role: author. Base: `48ed83b`.
+
+### What this session did, and why
+
+- The cross-provider review approved the effective head `b9258bcf`: `Ready for owner merge`, with no open finding (T-4, D-17). The record is `docs/reviews/pr-90.md`, in `bac52b5` and `4e261f4`.
+- Gitar approved `b9258bcf` with its one finding closed. Each Gitar item has its answer: the thread in `818c593`, and the three CI claims on RG 3 in PR comments (D-964).
+- The PR description now marks the `docs/reviews/` row as Changed.
+
+### The state of the build
+
+- CI on `b9258bcf` passed each check except `review-gate`, which waited for the record.
+- The remote head before this push is `4e261f4`, the review record.
+
+### What is in flight
+
+- The checks of this metadata commit, then the merge question to the owner (D-933, D-942). The PR then waits for the auto-merge (D-930).
+
+### Traps and gotchas
+
+- The archive move of the review record dropped the title line of `docs/session-handoff-archive.md`. This commit puts it back. A move script that takes the first line as the title must check it.
+- The full `make sheet` fails to join past 65,535 rows, and `make sheet FIXTURE=menu` works. PR-107 changes no capture count.
+
+### The questions that block progress
+
+None for PR-107. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Ask the owner to confirm the merge with the summary of D-942, then turn on the auto-merge (D-930).
+
+## Session 361: 2026-09-27, Codex
+
+Author: Codex
+Session: review PR #90 (PR-107). Repository: the-thing-below. Branch: `review/pr-90`, tracking `origin/feat/pr-107-ability-power`. Role: reviewer. Base: `48ed83b`.
+
+### What this session did, and why
+
+- Reviewed effective head `b9258bc` and traced AP combat regains, save migration, UI updates, and the gear line (D-1197 to D-1215).
+- Verified the Gitar finding fixed in `818c593`, its regression test, and the answered RG 3 claim (D-964).
+- Wrote `docs/reviews/pr-90.md` with `Ready for owner merge` for the effective head.
+
+### The state of the build
+
+- Local `make verify` passed, including 4,175 tests.
+- CI passed all jobs except `review-gate`, which reports RG 3 because the review record is not yet published.
+- The remote head before this metadata commit is `b9258bc`.
+
+### What is in flight
+
+- Push the review record and this handoff to `feat/pr-107-ability-power`, then verify the remote head and review-gate result.
+
+### Traps and gotchas
+
+- The review branch is `review/pr-90`; push with `git push origin HEAD:feat/pr-107-ability-power`.
+- The session moves session 351 to the archive to keep 10 entries in the handoff (D-18, D-607).
+
+### The questions that block progress
+
+None for PR-107. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Run `make where`, commit the review record and handoff together, push to the PR branch, fetch, and verify the remote head with `gh pr view`.
+
+## Session 360: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-107, round 4. Repository: the-thing-below. Branch: `feat/pr-107-ability-power`. PR: #90. Role: author. Base: `48ed83b`.
+
+### What this session did, and why
+
+- Gitar approved `3e990d3` with no new finding.
+- The screen-test job of CI run 36303234544 named four captures: `menu-gear-1x`, `menu-gear-fill-1080`, `menu-gear-pack-1x`, and `menu-gear-pack-fill-1080`. Each shows "Marrek - Level 1" with one space on each side of the hyphen, and no other change. This round commits them as the new baseline (D-733, D-1214).
+
+### The state of the build
+
+- CI on `3e990d3` passed each check except `screen-test`, for the four frames above, and `review-gate`, for RG 3 alone.
+- The remote head before this push is `3e990d3`.
+
+### What is in flight
+
+- The Gitar pass of this push, then `make codex-review PR=90` when every check but `review-gate` is green.
+
+### Traps and gotchas
+
+- The full `make sheet` fails to join past 65,535 rows, and `make sheet FIXTURE=menu` works. PR-107 changes no capture count.
+
+### The questions that block progress
+
+None for PR-107. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Run the Gitar poll, wait for green CI, and start the cross-provider review with `make codex-review PR=90`.
+
+## Session 359: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-107, round 3. Repository: the-thing-below. Branch: `feat/pr-107-ability-power`. PR: #90. Role: author. Base: `48ed83b`.
+
+### What this session did, and why
+
+- The owner asked why the gear window put more space before the hyphen of "Marrek - Level 1" than after it. The three fixed columns of D-1170 caused it: a name of 10 cells, then a hyphen of 3 cells.
+- The owner chose one string (D-1214) and put the fix in PR-107 with a waiver of G-8 for this PR alone (D-1215). `menu.gear_who` reads "{name} - Level {level}", and `menu.dash` is gone. `GearView` takes the string table, as `LessonsView` does.
+- `MenuLayoutTests.TheLineOfTheCharacterInTheGearWindowIsOneStringThatFits` holds the text and the fit. The local capture `menu-gear-fill-1080` shows "Marrek - Level 1".
+- Gitar approved `f72a2fc`, with its one finding closed and its CI claim on RG 3 answered on the PR.
+
+### The state of the build
+
+- CI on `f72a2fc` passed each check except `review-gate`, for RG 3 alone.
+- Local: build, 4,175 tests, format, and det-lint pass. The content hash does not change, because the strings are outside `content/rules/`.
+- The remote head before this push is `f72a2fc`.
+
+### What is in flight
+
+- The screen-test job fails on the gear captures, and its artifact gives the new baselines (D-733). Then the Gitar pass, and `make codex-review PR=90`.
+
+### Traps and gotchas
+
+- `make sheet FIXTURE=menu` joins its sheet, and the full `make sheet` fails to join past 65,535 rows. PR-107 changes no capture count.
+
+### The questions that block progress
+
+None for PR-107. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Take the gear baselines from the capture artifact of CI, push them, run the Gitar poll, and then start the cross-provider review.
+
+## Session 358: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-107, round 2. Repository: the-thing-below. Branch: `feat/pr-107-ability-power`. PR: #90. Role: author. Base: `48ed83b`.
+
+### What this session did, and why
+
+- Gitar approved `5a107ae` with one finding: a regain rate of 0 still gave 1 AP through the floor. `818c593` makes the rules file refuse a rate of 0, with regression rows in `BattleFixtureTests`. Gitar offered an early return in `Regain`. The load refusal is better, because a 0 that loads and does nothing is a silent fault (T-2).
+- The Gitar CI claim on `review-gate` is RG 3 alone: no review record yet. It needs no fix.
+- The screen-test job of CI run 36302235212 named 31 captures. Each one shows AP in place of MP. `battle-lessons-1x` and `battle-lessons-fill-1080` also show "2AP - A hard cut at the front row.", because Hew now costs AP. This round commits the 31 files as the new baseline (D-733).
+
+### The state of the build
+
+- CI on `5a107ae` passed each check except `screen-test`, for the frames above, and `review-gate`, for RG 3.
+- The remote head before this push is `5a107ae`.
+
+### What is in flight
+
+- The Gitar pass of this push, then `make codex-review PR=90` when every check but `review-gate` is green.
+
+### Traps and gotchas
+
+- `make sheet` captures each frame, then fails to join the sheet: the joined image passes 65,535 rows. PR-107 changes no capture, so the fault was on `main` before it.
+
+### The questions that block progress
+
+None for PR-107. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Answer the Gitar thread with `818c593`, run the Gitar poll, and then start the cross-provider review.
+
+## Session 357: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-107. Repository: the-thing-below. Branch: `feat/pr-107-ability-power`. PR: the one PR of PR-107. Role: author. Base: `48ed83b`.
+
+### What this session did, and why
+
+- The owner answered OQ-252 and three new questions: both regains from one blow (D-1210), no message for a regain (D-1211), Bolt and Pilfer at 2 AP (D-1212), and a floor of 1 AP for each form (D-1213).
+- Ability power, AP, replaces MP in Core, content, Game, Tools, and the string table (D-1197). The fixture costs follow D-1199 and D-1212.
+- A fall of an enemy gives each character who is not down 10% of full AP. A basic attack that hits gives the attacker 5%, before the fall regain (D-1198, D-1210). The rules file holds `hit_regain` and `fall_regain`. A silent `Regain` event keeps the AP bar true (D-1211).
+- Save format 17 names the pool `ap`, and formats 7 to 16 read `mp` as AP. The fixture `format-17.json` comes from the resumed run of format 16. The simulation version is 34, and the identity file and the content hash are new.
+- `AbilityPowerTests` holds exit tests 1 to 4, the rule of D-1210, the cap at full AP, and a loop of 1,000 seeds. `SaveFixtureTests` holds exit test 5.
+- The design doc, five area files, the phase files of Phase 2 and Phase 4, the glossary, and the `game-text-style` skill say AP.
+
+### The state of the build
+
+- Local: build, 4,169 tests, format, det-lint, the STE check, the content hash, and the identity file pass.
+- The remote head before this push is `48ed83b`, the merge of PR-108.
+
+### What is in flight
+
+- The first push, the PR, and the Gitar pass. The screen-test job fails on the frames that show AP, and its artifact gives the new baselines (D-733).
+
+### Traps and gotchas
+
+- The string `battle.form_entry_free` is now `battle.form_name`: the battle list shows the name alone, and no form is free (D-1195, D-1213).
+- `SnapshotLines.AsFormatSixteen` of Tests renames `ap` to `mp`, and each older converter calls it.
+- A regain at full AP adds no event. A test that counts events must expect none there.
+- `make sheet` captures each frame, then fails to join the sheet: the joined image passes 65,535 rows. PR-107 changes no capture, so the fault was on `main` before it. Read the frames in `artifacts/captures/`.
+
+### The questions that block progress
+
+None for PR-107. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Push, open the PR, run the Gitar poll, and then take the screen baselines from the capture artifact of CI.
+
 ## Session 356: 2026-09-27, Claude Code
 
 Author: Claude Code
@@ -132,210 +334,3 @@ None for PR-108. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
 ### The next concrete action
 
 Run the Gitar poll. When every check except `review-gate` is green, run `make codex-review PR=89` in the background.
-
-## Session 352: 2026-09-27, Codex
-
-Author: Codex
-Session: repeat review PR #89 (PR-108). Repository: the-thing-below. Branch: `review/pr-89`, which tracks `origin/feat/pr-108-night-recovery`. Role: reviewer. Base: `a8ba710`.
-
-### What this session did, and why
-
-- Verified that P1-1 is fixed in `4779565`: the promotion wait resets its 15-minute limit when the open-run set changes (D-1202, T-2).
-- Found P2-1: the wait reads one page of 50 runs and can miss an older open run. The review records the new finding and keeps the prior verdict in history.
-- Verified all three Gitar code findings are closed. The author answered the current CI-analysis item, and the focused workflow tests pass (D-964).
-
-### The state of the build
-
-- `NightWorkflowTests` passes 17/17. CI run `36298048312` passes build, test, and format on each leg, bots, smoke, replay identity, screen test, det-lint, and STE. Night-gate run `36298047521` passes.
-- Review-gate run `36298047516` reports RG 4 and RG 5 from the prior review record. The remote head before metadata commit `7193214` was `548969b`. GitHub confirmed `7193214` as the remote head after its push.
-
-### What is in flight
-
-- The author must correct P2-1 and request another review.
-
-### Traps and gotchas
-
-- The workflow API query reads only 50 runs. A completed newer page can hide an older open run.
-- The newest Gitar dashboard is current on effective head `4779565`. Its three code findings are closed.
-
-### The questions that block progress
-
-None for PR-108. OQ-251 blocks PR-35, and OQ-252 blocks PR-107.
-
-### The next concrete action
-
-Read P2-1, add a pagination regression test, and request a repeat review of PR #89.
-
-## Session 351: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-108, round 5. Repository: the-thing-below. Branch: `feat/pr-108-night-recovery`. PR: #89. Role: author. Base: `a8ba710`.
-
-### What this session did, and why
-
-- Gitar approved `f5a46c4` with one suggestion: the limit of 15 minutes of the promotion wait counted from the start, so a long queue could stop a run that moved.
-- `4779565` starts the limit again each time the set of open earlier runs changes. The limit stops a stalled queue alone, and the job timeout of 40 minutes stays the hard limit (D-1202, T-2).
-- The review gate faults on RG 4 and RG 5, because the record of round 1 names `e8a8cd9` with `Changes required`. The next Codex round writes the new record.
-
-### The state of the build
-
-- Local build, format, and STE are clean. The workflow tests pass.
-- The remote head before this push is `f5a46c4`.
-
-### What is in flight
-
-- The Gitar pass of this push, then `make codex-review PR=89`, round 2 of the review.
-- After the merge: `make night-watch-install` on the Mac, and one test message through `notify.yml`.
-
-### Traps and gotchas
-
-- `notify.yml`, `night-promote.yml`, and the facts action first run from `main`, after the merge (F-37).
-- P1-1 counts one round. A third open round of one finding stops the loop (D-929).
-
-### The questions that block progress
-
-None for PR-108. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Run the Gitar poll. When every check except `review-gate` is green, run `make codex-review PR=89` in the background.
-
-## Session 350: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-108, round 4. Repository: the-thing-below. Branch: `feat/pr-108-night-recovery`. PR: #89. Role: author. Base: `a8ba710`.
-
-### What this session did, and why
-
-- The Codex review of `e8a8cd9` gave `Changes required` with one finding, P1-1: the concurrency group of `night-promote` kept one pending run, so a push could lose its promotion.
-- The correction removes the group. Each run waits for each earlier run, then reads the facts, so the checks follow the order of the pushes (D-1202). `docs/reviews/pr-89-response.md` holds the answer, with full merit.
-- The `codex-review` command stopped after the record landed, because the record named the handoff commit and not the effective head `9944c29` (D-610). The next round writes a new record.
-- Gitar approved `e8a8cd9` with both of its findings closed.
-
-### The state of the build
-
-- Local build, format, and STE are clean. The workflow tests pass.
-- The remote head before this push is `ce97bb0`, the review metadata.
-
-### What is in flight
-
-- The Gitar pass of this push, then `make codex-review PR=89` again.
-- After the merge: `make night-watch-install` on the Mac, and one test message through `notify.yml`.
-
-### Traps and gotchas
-
-- `notify.yml`, `night-promote.yml`, and the facts action first run from `main`, after the merge (F-37).
-- P1-1 counts one round. A third open round of one finding stops the loop (D-929).
-
-### The questions that block progress
-
-None for PR-108. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Run the Gitar poll. When every check is green, run `make codex-review PR=89` in the background.
-
-## Session 349: 2026-09-27, Codex
-
-Author: Codex
-Session: review PR #89 (PR-108). Repository: the-thing-below. Branch: `review/pr-89`, which tracks `origin/feat/pr-108-night-recovery`. Role: reviewer. Base: `a8ba710`.
-
-### What this session did, and why
-
-- Reviewed effective head `e8a8cd9` and found that the `night-promote` concurrency group can cancel a pending push before its promotion runs (D-1202).
-- Confirmed the two Gitar watcher findings are fixed and confirmed by Gitar. The relevant watcher tests pass.
-- Updated the PR Documents row and wrote the review record. The verdict is `Changes required` for P1-1.
-- Pushed the review record and handoff as metadata. The session-end check confirmed the remote head.
-
-### The state of the build
-
-- `make verify` passes with 4,155 tests, format, lint, STE, replay identity, bots, content hash, atlas, and smoke.
-- CI at `e8a8cd9` passes all product checks. `review-gate` reports RG 3 alone because the review record was not on the head at that time.
-- The remote head before the metadata commit is `e8a8cd9`.
-
-### What is in flight
-
-- The author must fix P1-1 and request a repeat review.
-
-### Traps and gotchas
-
-- `night-promote` uses one concurrency group with no multi-run queue. GitHub replaces pending runs by default.
-- The screen-test artifact shows the form line in `battle-forms-1x` and `battle-forms-fill-1080`.
-
-### The questions that block progress
-
-None for PR-108. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
-
-### The next concrete action
-
-The author fixes P1-1. Then run `make codex-review PR=89` for a repeat review.
-
-## Session 348: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-108, round 3. Repository: the-thing-below. Branch: `feat/pr-108-night-recovery`. PR: #89. Role: author. Base: `a8ba710`.
-
-### What this session did, and why
-
-- The second Gitar pass found one edge case: a failed start Pushover stopped the start after the worktree existed, and each retry left one more worktree.
-- `9944c29` makes each Pushover of the watcher best-effort, with a log line for a failed send. A start that fails before its session removes its worktree and its mark (D-1205, T-2).
-- The watcher command now takes its program runners as delegates, so three tests drive the start with fakes of git, gh, and Claude Code (T-3).
-- The review gate now fails on RG 3 alone, the review record that this PR waits for.
-
-### The state of the build
-
-- Local build, format, and STE are clean. The 19 watcher tests pass.
-- The remote head before this push is `c6a9563`.
-
-### What is in flight
-
-- The Gitar pass of this push, then `make codex-review PR=89`.
-- After the merge: `make night-watch-install` on the Mac, and one test message through `notify.yml`.
-
-### Traps and gotchas
-
-- `notify.yml`, `night-promote.yml`, and the facts action first run from `main`, after the merge (F-37).
-- A command that ends with `cat` and no input waits forever in the shell of the harness.
-
-### The questions that block progress
-
-None for PR-108. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Run the Gitar poll. When every check is green, run `make codex-review PR=89` in the background.
-
-## Session 347: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-108, round 2. Repository: the-thing-below. Branch: `feat/pr-108-night-recovery`. PR: #89. Role: author. Base: `a8ba710`.
-
-### What this session did, and why
-
-- The Gitar pass found one bug: a stop of a fix session after the mark sent no Pushover, and a fault before the session kept the mark. `1521218` fixes both, with a regression test (D-1205, T-2).
-- The CI analysis of Gitar named RG 7: the `CLAUDE.md` row gave no path after `Changed:`. The PR description now names the paths (D-581).
-- The Windows leg failed one test: the launchd log paths took a backslash. The paths now join with a slash.
-- The baselines `battle-forms-1x` and `battle-forms-fill-1080` come from the capture of CI run 36295590285 (D-733). Both frames read "4MP - Fire on one foe, either row.", with no other change (D-784).
-
-### The state of the build
-
-- Local build, format, and STE are clean. The watcher tests pass.
-- The remote head before this push is `ef6eae8`.
-
-### What is in flight
-
-- The Gitar pass of this push, then `make codex-review PR=89`.
-- After the merge: `make night-watch-install` on the Mac, and one test message through `notify.yml`.
-
-### Traps and gotchas
-
-- `notify.yml`, `night-promote.yml`, and the facts action first run from `main`, after the merge (F-37).
-- A command that ends with `cat` and no input waits forever in the shell of the harness.
-
-### The questions that block progress
-
-None for PR-108. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Run the Gitar poll. When every check is green, run `make codex-review PR=89` in the background.

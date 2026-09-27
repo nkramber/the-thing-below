@@ -237,12 +237,12 @@ public sealed class BattleViewTests
         Battle battle = BattleRuns.BattleOf(run);
         AssertSide(Side(view, "Party"), battle.Party, seed, turn);
 
-        // The view spends the MP of each lesson event, as the rules do (D-1027).
+        // The view spends the AP of each lesson event, as the rules do (D-1027).
         IReadOnlyList<object> party = Side(view, "Party");
         for (int slot = 0; slot < party.Count; slot += 1)
         {
-            int held = run.State.Characters.Members[slot].Mp;
-            Assert.True(held == Read<int>(party[slot], "Mp"), $"Seed {seed}, turn {turn}, party {slot}: the view shows MP {Read<int>(party[slot], "Mp")}, and the state holds {held}.");
+            int held = run.State.Characters.Members[slot].Ap;
+            Assert.True(held == Read<int>(party[slot], "Ap"), $"Seed {seed}, turn {turn}, party {slot}: the view shows AP {Read<int>(party[slot], "Ap")}, and the state holds {held}.");
         }
 
         AssertSide(Side(view, "Enemies"), battle.Enemies, seed, turn);

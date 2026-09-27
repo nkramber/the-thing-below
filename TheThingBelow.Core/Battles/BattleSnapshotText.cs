@@ -85,7 +85,7 @@ public static class BattleSnapshotText
         GrowthValues growth = character.Growth ?? throw new ArgumentException($"The character '{character.Character.Value}' holds no level, and a snapshot of this build writes the level of each character (D-966).", parameter);
         writer.WriteNumber("level", growth.Level);
         writer.WriteNumber("experience", growth.Experience);
-        writer.WriteNumber("mp", growth.Mp);
+        writer.WriteNumber("ap", growth.Ap);
         writer.WriteString("row", BattleSides.NameOf(character.Row));
         writer.WriteStartArray("statuses");
         foreach (StatusKind status in character.Statuses)
@@ -448,7 +448,7 @@ public static class BattleSnapshotText
         IReadOnlyList<StatusKind>? statuses = null;
         int? level = null;
         int? experience = null;
-        int? mp = null;
+        int? ap = null;
         LessonValues? lessons = null;
         IReadOnlyList<ContentId?>? gear = null;
 
@@ -478,8 +478,11 @@ public static class BattleSnapshotText
                 case "experience" when format >= 7:
                     experience = reader.ReadInt();
                     break;
-                case "mp" when format >= 7:
-                    mp = reader.ReadInt();
+                case "mp" when format >= 7 && format < 17:
+                    ap = reader.ReadInt();
+                    break;
+                case "ap" when format >= 17:
+                    ap = reader.ReadInt();
                     break;
                 case "statuses" when format >= 5:
                     statuses = Statuses.ReadList(ref reader);
@@ -494,7 +497,7 @@ public static class BattleSnapshotText
             reader.RequireInt(health, depth, "health"),
             reader.RequireValue(row, depth, "row"),
             format >= 5 ? reader.Require(statuses, depth, "statuses") : [],
-            format >= 7 ? ReadGrowth(ref reader, depth, level, experience, mp) : null,
+            format >= 7 ? ReadGrowth(ref reader, depth, level, experience, ap, format >= 17 ? "ap" : "mp") : null,
             format >= 10 ? reader.Require(lessons, depth, "lessons") : null,
             format >= 11 ? reader.Require(gear, depth, "gear") : null);
     }
@@ -654,11 +657,13 @@ public static class BattleSnapshotText
 
     // Save format 7 adds the level, the experience, and the MP (D-966). An older snapshot
     // holds none, and the resume starts the character at its join level (D-166, D-363).
-    private static GrowthValues ReadGrowth(ref ContentReader reader, int depth, int? level, int? experience, int? mp) =>
+    // Save format 17 names the pool `ap` in place of `mp`, and an older save loads its MP as
+    // AP (D-1197). The error of an absent pool names the field of the format of the file (T-2).
+    private static GrowthValues ReadGrowth(ref ContentReader reader, int depth, int? level, int? experience, int? ap, string apField) =>
         new(
             reader.RequireInt(level, depth, "level"),
             reader.RequireInt(experience, depth, "experience"),
-            reader.RequireInt(mp, depth, "mp"));
+            reader.RequireInt(ap, depth, apField));
 
     /// <summary>Reads one pack entry: an item, or from save format 11 an item or a piece of gear (D-1038).</summary>
     private static PackValues ReadPackEntry(ref ContentReader reader, int format)

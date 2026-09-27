@@ -326,8 +326,8 @@ public static class RunSnapshotText
     public static RunSnapshot ReadFormatFive(ref ContentReader reader, ulong seed) => ReadLine(ref reader, 5, seed);
 
     /// <summary>
-    /// Reads a snapshot of save format 6, which holds no level, no experience, and no MP (D-966).
-    /// The resume starts each character at its join level with full MP (D-363).
+    /// Reads a snapshot of save format 6, which holds no level, no experience, and no AP (D-966).
+    /// The resume starts each character at its join level with full AP (D-363).
     /// </summary>
     /// <param name="reader">The reader of the line, which names the save file.</param>
     /// <param name="seed">The seed of the header, which opens the NPC stream (D-1137).</param>
@@ -434,6 +434,16 @@ public static class RunSnapshotText
     /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
     public static RunSnapshot ReadFormatFifteen(ref ContentReader reader, ulong seed) => ReadLine(ref reader, 15, seed);
+
+    /// <summary>
+    /// Reads a snapshot of save format 16, which names the pool of each character `mp` (D-1197).
+    /// The read gives that value as the AP of the character.
+    /// </summary>
+    /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <returns>The snapshot.</returns>
+    /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
+    /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
+    public static RunSnapshot ReadFormatSixteen(ref ContentReader reader) => ReadLine(ref reader, 16, null);
 
     private static RunSnapshot ReadLine(ref ContentReader reader, int format, ulong? seed)
     {

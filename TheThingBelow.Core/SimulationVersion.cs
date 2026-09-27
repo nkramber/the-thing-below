@@ -110,6 +110,10 @@ public static class SimulationVersion
     /// record at the rate of its shop type, at least 1 gold (D-1149 to D-1155, D-1158). A buy of a counted entry
     /// lowers its count, and the state hash and the snapshot hold each count that a buy changed (D-1152).
     /// PR-36 raised it to 33. A choose step holds two to four options, and the load refuses a fifth (D-1175).
+    /// PR-107 raised it to 34. Ability power, AP, replaced MP as the one pool of each character, and each form of a
+    /// lesson costs at least 1 AP (D-1197, D-1213). An enemy that falls gives each character who is not down 10% of
+    /// full AP, and a basic attack that hits gives the attacker 5%, each rounded down with a floor of 1 and a cap at
+    /// full AP (D-1198, D-1210). The rules file holds the two rates, each from 1 to 10000, and a regain event carries each gain (D-1211).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number
@@ -118,5 +122,5 @@ public static class SimulationVersion
     /// hash differs from this build takes the drift rules of D-1111 and D-1112. A change of this
     /// number also changes the expected hashes of the identity file (D-504).
     /// </remarks>
-    public const int Current = 33;
+    public const int Current = 34;
 }

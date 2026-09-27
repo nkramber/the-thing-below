@@ -28,12 +28,12 @@ public abstract record UsedUpItem(ContentId Id, int Limit, int Delay, int Value)
 /// <param name="Amount">The health that a use outside a fight restores. The item rate cuts it in a fight (D-382).</param>
 public sealed record HealItem(ContentId Id, int Limit, int Delay, int Value, int Amount) : UsedUpItem(Id, Limit, Delay, Value);
 
-/// <summary>An item that restores MP to one ally who stands (D-1046).</summary>
+/// <summary>An item that restores AP to one ally who stands (D-1046).</summary>
 /// <param name="Id">The id, of the kind `item`.</param>
 /// <param name="Limit">The most copies that the party owns (D-1038).</param>
 /// <param name="Delay">The delay of a use in a fight (D-757).</param>
 /// <param name="Value">The value that a shop reads for a sale (D-1150).</param>
-/// <param name="Amount">The MP that a use outside a fight restores. The item rate cuts it in a fight (D-382).</param>
+/// <param name="Amount">The AP that a use outside a fight restores. The item rate cuts it in a fight (D-382).</param>
 public sealed record RestoreItem(ContentId Id, int Limit, int Delay, int Value, int Amount) : UsedUpItem(Id, Limit, Delay, Value);
 
 /// <summary>An item that ends set statuses on one ally who stands. The item rate never changes it (D-1046).</summary>
@@ -78,7 +78,7 @@ public sealed class ItemList
     /// <summary>The name of the kind of a heal, in the file (D-1046).</summary>
     public const string HealName = "heal";
 
-    /// <summary>The name of the kind of a restore of MP, in the file (D-1046).</summary>
+    /// <summary>The name of the kind of a restore of AP, in the file (D-1046).</summary>
     public const string RestoreName = "restore";
 
     /// <summary>The name of the kind of a cure, in the file (D-1046).</summary>

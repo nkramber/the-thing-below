@@ -219,7 +219,7 @@ public sealed class BattleCommandsTests
         Assert.Equal("Lesson", Read(menu, "Stage").ToString());
         IList entries = (IList)Read(menu, "Lessons");
         Assert.Equal(
-            [("lesson.fixture_hew", 0, 0), ("lesson.fixture_cinder", 0, 4)],
+            [("lesson.fixture_hew", 0, 2), ("lesson.fixture_cinder", 0, 4)],
             entries.Cast<object>().Select(EntryOf).ToArray());
 
         Move(menu, 1);
@@ -243,10 +243,10 @@ public sealed class BattleCommandsTests
 
         IList entries = (IList)Read(menu, "Lessons");
         Assert.Equal(
-            [("lesson.fixture_hew", 0, 0), ("lesson.fixture_cinder", 0, 4), ("lesson.fixture_cinder", 1, 9)],
+            [("lesson.fixture_hew", 0, 2), ("lesson.fixture_cinder", 0, 4), ("lesson.fixture_cinder", 1, 9)],
             entries.Cast<object>().Select(EntryOf).ToArray());
 
-        // The blaze costs 9 MP, and Marrek holds 8, so its entry refuses the confirm (D-42).
+        // The blaze costs 9 AP, and Marrek holds 8, so its entry refuses the confirm (D-42).
         Move(menu, 1);
         Move(menu, 1);
         Assert.Null(Confirm(menu));
@@ -345,14 +345,14 @@ public sealed class BattleCommandsTests
         return run;
     }
 
-    /// <summary>Gives the lesson, the form index, and the MP of one entry of the lesson stage.</summary>
-    private static (string Lesson, int Form, int Mp) EntryOf(object entry)
+    /// <summary>Gives the lesson, the form index, and the AP of one entry of the lesson stage.</summary>
+    private static (string Lesson, int Form, int Ap) EntryOf(object entry)
     {
         Type type = entry.GetType();
         var lesson = (ContentId)type.GetProperty("Lesson")!.GetValue(entry)!;
         var form = (int)type.GetProperty("Form")!.GetValue(entry)!;
         var record = (LessonForm)type.GetProperty("Record")!.GetValue(entry)!;
-        return (lesson.Value, form, record.Mp);
+        return (lesson.Value, form, record.Ap);
     }
 
     private static BattleAction ActionAt(int index) =>
