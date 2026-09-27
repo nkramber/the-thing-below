@@ -462,8 +462,10 @@ public sealed class BattleRules
         CheckRange(numbers, file, "experience_gap", 0, StatCurve.HighestLevel - 1);
         CheckRange(numbers, file, "lesson_slots", 1, StatCurve.HighestLevel);
         CheckRange(numbers, file, "aptitude_bonus", 0, MostRate);
-        CheckRange(numbers, file, "hit_regain", 0, BasisPoints.One);
-        CheckRange(numbers, file, "fall_regain", 0, BasisPoints.One);
+        // D-1198 gives each regain a floor of 1 AP, so a rate of 0 would still give 1. The file
+        // refuses it, and no rate turns a regain off (T-2).
+        CheckRange(numbers, file, "hit_regain", 1, BasisPoints.One);
+        CheckRange(numbers, file, "fall_regain", 1, BasisPoints.One);
     }
 
     /// <summary>Refuses a slot count at the highest level above the one bound of the snapshot (D-1018).</summary>

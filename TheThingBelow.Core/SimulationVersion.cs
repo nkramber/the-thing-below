@@ -113,7 +113,7 @@ public static class SimulationVersion
     /// PR-107 raised it to 34. Ability power, AP, replaced MP as the one pool of each character, and each form of a
     /// lesson costs at least 1 AP (D-1197, D-1213). An enemy that falls gives each character who is not down 10% of
     /// full AP, and a basic attack that hits gives the attacker 5%, each rounded down with a floor of 1 and a cap at
-    /// full AP (D-1198, D-1210). The rules file holds the two rates, and a regain event carries each gain (D-1211).
+    /// full AP (D-1198, D-1210). The rules file holds the two rates, each from 1 to 10000, and a regain event carries each gain (D-1211).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number
