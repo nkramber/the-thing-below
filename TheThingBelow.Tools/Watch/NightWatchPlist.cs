@@ -65,9 +65,10 @@ public static class NightWatchPlist
         text.Append($"    <key>PATH</key>\n    <string>{Escape(job.PathVariable)}</string>\n");
         text.Append($"    <key>HOME</key>\n    <string>{Escape(job.Home)}</string>\n");
         text.Append("  </dict>\n");
+        // launchd reads macOS paths alone, so each log path joins with a slash on every host of the tests.
         text.Append($"  <key>WorkingDirectory</key>\n  <string>{Escape(job.State)}</string>\n");
-        text.Append($"  <key>StandardOutPath</key>\n  <string>{Escape(Path.Combine(job.State, "launchd-out.log"))}</string>\n");
-        text.Append($"  <key>StandardErrorPath</key>\n  <string>{Escape(Path.Combine(job.State, "launchd-error.log"))}</string>\n");
+        text.Append($"  <key>StandardOutPath</key>\n  <string>{Escape(job.State + "/launchd-out.log")}</string>\n");
+        text.Append($"  <key>StandardErrorPath</key>\n  <string>{Escape(job.State + "/launchd-error.log")}</string>\n");
         text.Append("</dict>\n</plist>\n");
         return text.ToString();
     }
