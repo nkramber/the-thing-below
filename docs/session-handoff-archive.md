@@ -1,4 +1,41 @@
 # Session handoff archive
+## Session 345: 2026-09-27, Codex
+
+Author: Codex
+Session: review PR #88 (PR-49). Repository: the-thing-below. Branch: `review/pr-88`, which tracks `origin/feat/pr-49-night-gate`. Role: reviewer. Base: `defedf6`.
+
+### What this session did, and why
+
+- The cross-provider review found no defect at effective head `758ff43` (T-4, D-17).
+- The stale green head-night Gitar finding is fixed in `b1851c3`. Its regression tests pass, and Gitar verified the fix (G-22, D-1188, D-964).
+- The CI analysis claim names RG 3 alone: the review record that this session adds (D-17, D-926).
+- The PR description now names `docs/reviews/pr-88.md` in its Documents section (D-577, D-581).
+- The review read each changed battle frame from the CI capture artifact. No visual fault appeared (D-784).
+
+### The state of the build
+
+- Local `dotnet build` passed with 0 warnings and 0 errors. `make test` passed 4,068 tests.
+- CI run `36288648659` passed the build, tests, format, smoke, det-lint, replay-identity, screen-test, bots, STE, and coverage checks.
+- The remote branch head before this metadata commit is `758ff43`. `review-gate` awaits this review record.
+
+### What is in flight
+
+- The review record and this entry need one metadata commit and a push to `feat/pr-49-night-gate`.
+- The verdict is `Ready for owner merge`. The PR then waits for the owner merge (D-930).
+
+### Traps and gotchas
+
+- The live `night-gate` check does not run on PR-88. It first runs from `main` on a later PR (F-37, D-500).
+- After the merge, the PR-49 author session runs the first night on `main` and adds the required check (D-1192).
+
+### The questions that block progress
+
+None for PR #88.
+
+### The next concrete action
+
+Commit and push this review record and entry together, then verify the remote head.
+
 ## Session 344: 2026-09-27, Claude Code
 
 Author: Claude Code
