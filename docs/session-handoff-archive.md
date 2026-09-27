@@ -1,4 +1,34 @@
 # Session handoff archive
+## Session 342: 2026-09-26, Codex
+
+Author: Codex
+Session: repeat review PR #87 after the P2-1 correction. Repository: the-thing-below. Branch: `review/pr-87`. PR: #87. Role: reviewer. Base: `f383aa9`.
+
+### What this session did, and why
+
+- Verified that the runner checks each state and that the tick 7 regression test records and replays the softlock (D-1179, T-3).
+- Marked P2-1 fixed in `docs/reviews/pr-87.md`. Verified the current Gitar CI-analysis claim against run `36279907132`; the log names RG 4 and RG 5 from the prior review record (D-964).
+
+### The state of the build
+
+- The local build, 17 focused tests, format, and STE check pass. CI run `36279906549` passes substantive jobs on every leg. The remote head before this metadata commit is `f812808`.
+
+### What is in flight
+
+- This metadata commit and its push. The PR then waits for the owner merge.
+
+### Traps and gotchas
+
+- Review-gate run `36279907132` reads the prior review record. RG 4 and RG 5 wait for this update.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The owner reads the updated record and confirms the merge.
+
 ## Session 341: 2026-09-26, Claude Code
 
 Author: Claude Code
