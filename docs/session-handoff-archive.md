@@ -1,4 +1,35 @@
 # Session handoff archive
+## Session 335: 2026-09-26, Codex
+
+Author: Codex
+Session: reviewer PR #86. Repository: the-thing-below. Branch: `review/pr-86`. PR: #86. Role: reviewer. Base: `6f02d3d`.
+
+### What this session did, and why
+
+- The review found P2-1: a repeated line id can leave the previous speaker's portrait and name on screen (D-223, D-997).
+- The review records `Changes required` for effective head `cd1d452` (T-4, D-17).
+- The `docs/reviews/` Documents row now names `docs/reviews/pr-86.md` (D-581).
+
+### The state of the build
+
+- `make verify` passes on macOS with 3,937 tests. CI run `36271984962` passes every job except `review-gate`, which awaited this review record. The remote head before the metadata commit is `cd1d452`.
+
+### What is in flight
+
+- The author must correct P2-1, add its regression test, and request a repeat review.
+
+### Traps and gotchas
+
+- The CI capture artifact is the visual source for screen review (D-733). The local renderer does not reproduce its baselines.
+- The clean Gitar approval has no item. The CI analysis claim is RG 3 alone (D-964).
+
+### The questions that block progress
+
+None. OQ-250 concerns the pause of a story-scene fight and blocks no PR yet.
+
+### The next concrete action
+
+The author corrects P2-1 and requests a repeat review of PR #86.
 ## Session 334: 2026-09-26, Claude Code
 
 Author: Claude Code

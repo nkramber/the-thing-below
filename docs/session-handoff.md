@@ -1,3 +1,39 @@
+## Session 345: 2026-09-27, Codex
+
+Author: Codex
+Session: review PR #88 (PR-49). Repository: the-thing-below. Branch: `review/pr-88`, which tracks `origin/feat/pr-49-night-gate`. Role: reviewer. Base: `defedf6`.
+
+### What this session did, and why
+
+- The cross-provider review found no defect at effective head `758ff43` (T-4, D-17).
+- The stale green head-night Gitar finding is fixed in `b1851c3`. Its regression tests pass, and Gitar verified the fix (G-22, D-1188, D-964).
+- The CI analysis claim names RG 3 alone: the review record that this session adds (D-17, D-926).
+- The PR description now names `docs/reviews/pr-88.md` in its Documents section (D-577, D-581).
+- The review read each changed battle frame from the CI capture artifact. No visual fault appeared (D-784).
+
+### The state of the build
+
+- Local `dotnet build` passed with 0 warnings and 0 errors. `make test` passed 4,068 tests.
+- CI run `36288648659` passed the build, tests, format, smoke, det-lint, replay-identity, screen-test, bots, STE, and coverage checks.
+- The remote branch head before this metadata commit is `758ff43`. `review-gate` awaits this review record.
+
+### What is in flight
+
+- The review record and this entry need one metadata commit and a push to `feat/pr-49-night-gate`.
+- The verdict is `Ready for owner merge`. The PR then waits for the owner merge (D-930).
+
+### Traps and gotchas
+
+- The live `night-gate` check does not run on PR-88. It first runs from `main` on a later PR (F-37, D-500).
+- After the merge, the PR-49 author session runs the first night on `main` and adds the required check (D-1192).
+
+### The questions that block progress
+
+None for PR #88.
+
+### The next concrete action
+
+Commit and push this review record and entry together, then verify the remote head.
 ## Session 344: 2026-09-27, Claude Code
 
 Author: Claude Code
@@ -301,35 +337,3 @@ None. OQ-250 blocks no PR yet.
 ### The next concrete action
 
 When CI is green but `review-gate` and Gitar completes, run `make codex-review PR=86` in the background.
-
-## Session 335: 2026-09-26, Codex
-
-Author: Codex
-Session: reviewer PR #86. Repository: the-thing-below. Branch: `review/pr-86`. PR: #86. Role: reviewer. Base: `6f02d3d`.
-
-### What this session did, and why
-
-- The review found P2-1: a repeated line id can leave the previous speaker's portrait and name on screen (D-223, D-997).
-- The review records `Changes required` for effective head `cd1d452` (T-4, D-17).
-- The `docs/reviews/` Documents row now names `docs/reviews/pr-86.md` (D-581).
-
-### The state of the build
-
-- `make verify` passes on macOS with 3,937 tests. CI run `36271984962` passes every job except `review-gate`, which awaited this review record. The remote head before the metadata commit is `cd1d452`.
-
-### What is in flight
-
-- The author must correct P2-1, add its regression test, and request a repeat review.
-
-### Traps and gotchas
-
-- The CI capture artifact is the visual source for screen review (D-733). The local renderer does not reproduce its baselines.
-- The clean Gitar approval has no item. The CI analysis claim is RG 3 alone (D-964).
-
-### The questions that block progress
-
-None. OQ-250 concerns the pause of a story-scene fight and blocks no PR yet.
-
-### The next concrete action
-
-The author corrects P2-1 and requests a repeat review of PR #86.
