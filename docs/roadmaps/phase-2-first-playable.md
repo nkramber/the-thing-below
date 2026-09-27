@@ -2793,6 +2793,7 @@ Area files: `area-battle.md` sections 7.3 and 7.4, and `area-progression.md` sec
 - A fall of an enemy returns 10% of full AP to each standing character. A basic attack that hits returns 5% to the attacker, and a basic attack that fells an enemy gives the attacker both (D-1210). Each regain rounds down, with a floor of 1 (D-1198). The rules file holds the two rates.
 - A regain shows no message. A silent event keeps the AP bar of the battle screen true (D-1211).
 - Save format 17 names the pool `ap`, and an older save loads its `mp` as AP (D-166, D-1197).
+- The gear window names the character in one string, "Marrek - Level 1", in place of three columns. D-1215 puts this second concern in PR-107 (D-1214).
 - A rest, a save point, and an item restore AP where they restore MP now (D-1197).
 - The content schema, the saves, the string table, the status panel, and the bots read AP.
 

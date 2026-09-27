@@ -1,3 +1,37 @@
+## Session 359: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-107, round 3. Repository: the-thing-below. Branch: `feat/pr-107-ability-power`. PR: #90. Role: author. Base: `48ed83b`.
+
+### What this session did, and why
+
+- The owner asked why the gear window put more space before the hyphen of "Marrek - Level 1" than after it. The three fixed columns of D-1170 caused it: a name of 10 cells, then a hyphen of 3 cells.
+- The owner chose one string (D-1214) and put the fix in PR-107 with a waiver of G-8 for this PR alone (D-1215). `menu.gear_who` reads "{name} - Level {level}", and `menu.dash` is gone. `GearView` takes the string table, as `LessonsView` does.
+- `MenuLayoutTests.TheLineOfTheCharacterInTheGearWindowIsOneStringThatFits` holds the text and the fit. The local capture `menu-gear-fill-1080` shows "Marrek - Level 1".
+- Gitar approved `f72a2fc`, with its one finding closed and its CI claim on RG 3 answered on the PR.
+
+### The state of the build
+
+- CI on `f72a2fc` passed each check except `review-gate`, for RG 3 alone.
+- Local: build, 4,175 tests, format, and det-lint pass. The content hash does not change, because the strings are outside `content/rules/`.
+- The remote head before this push is `f72a2fc`.
+
+### What is in flight
+
+- The screen-test job fails on the gear captures, and its artifact gives the new baselines (D-733). Then the Gitar pass, and `make codex-review PR=90`.
+
+### Traps and gotchas
+
+- `make sheet FIXTURE=menu` joins its sheet, and the full `make sheet` fails to join past 65,535 rows. PR-107 changes no capture count.
+
+### The questions that block progress
+
+None for PR-107. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Take the gear baselines from the capture artifact of CI, push them, run the Gitar poll, and then start the cross-provider review.
+
 ## Session 358: 2026-09-27, Claude Code
 
 Author: Claude Code
@@ -304,38 +338,3 @@ None for PR-108. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
 ### The next concrete action
 
 Run the Gitar poll. When every check is green, run `make codex-review PR=89` in the background.
-
-## Session 349: 2026-09-27, Codex
-
-Author: Codex
-Session: review PR #89 (PR-108). Repository: the-thing-below. Branch: `review/pr-89`, which tracks `origin/feat/pr-108-night-recovery`. Role: reviewer. Base: `a8ba710`.
-
-### What this session did, and why
-
-- Reviewed effective head `e8a8cd9` and found that the `night-promote` concurrency group can cancel a pending push before its promotion runs (D-1202).
-- Confirmed the two Gitar watcher findings are fixed and confirmed by Gitar. The relevant watcher tests pass.
-- Updated the PR Documents row and wrote the review record. The verdict is `Changes required` for P1-1.
-- Pushed the review record and handoff as metadata. The session-end check confirmed the remote head.
-
-### The state of the build
-
-- `make verify` passes with 4,155 tests, format, lint, STE, replay identity, bots, content hash, atlas, and smoke.
-- CI at `e8a8cd9` passes all product checks. `review-gate` reports RG 3 alone because the review record was not on the head at that time.
-- The remote head before the metadata commit is `e8a8cd9`.
-
-### What is in flight
-
-- The author must fix P1-1 and request a repeat review.
-
-### Traps and gotchas
-
-- `night-promote` uses one concurrency group with no multi-run queue. GitHub replaces pending runs by default.
-- The screen-test artifact shows the form line in `battle-forms-1x` and `battle-forms-fill-1080`.
-
-### The questions that block progress
-
-None for PR-108. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
-
-### The next concrete action
-
-The author fixes P1-1. Then run `make codex-review PR=89` for a repeat review.

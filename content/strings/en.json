@@ -486,10 +486,6 @@
    "text": "—"
   },
   {
-   "id": "menu.dash",
-   "text": "-"
-  },
-  {
    "id": "menu.experience",
    "text": "XP {amount}"
   },
@@ -524,6 +520,10 @@
   {
    "id": "menu.gear_slots",
    "text": "Slots"
+  },
+  {
+   "id": "menu.gear_who",
+   "text": "{name} - Level {level}"
   },
   {
    "id": "menu.gold",

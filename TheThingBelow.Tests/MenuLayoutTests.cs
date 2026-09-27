@@ -122,6 +122,20 @@ public sealed class MenuLayoutTests
     [Theory]
     [InlineData(24)]
     [InlineData(32)]
+    public void TheLineOfTheCharacterInTheGearWindowIsOneStringThatFits(int body)
+    {
+        // D-1214: one space on each side of the hyphen for every name, and a name at 8 characters
+        // with level 40 fits a line of the window (D-981).
+        Assert.Equal("Marrek - Level 1", Fill("menu.gear_who", "name", "Marrek", "level", "1"));
+
+        int fits = (int)GameValue.Static(Layout, "TaskLineCharacters", body)!;
+        string longest = Fill("menu.gear_who", "name", "12345678", "level", "40");
+        Assert.True(longest.Length <= fits, $"The line '{longest}' passes the {fits} characters of the window at a body of {body}.");
+    }
+
+    [Theory]
+    [InlineData(24)]
+    [InlineData(32)]
     public void EachNoticeFitsTheNoticeBoxAndALineOfTheLog(int body)
     {
         // D-221, D-987: the notice box and the log show a notice on one line.

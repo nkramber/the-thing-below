@@ -1,4 +1,38 @@
 # Session handoff archive
+## Session 349: 2026-09-27, Codex
+
+Author: Codex
+Session: review PR #89 (PR-108). Repository: the-thing-below. Branch: `review/pr-89`, which tracks `origin/feat/pr-108-night-recovery`. Role: reviewer. Base: `a8ba710`.
+
+### What this session did, and why
+
+- Reviewed effective head `e8a8cd9` and found that the `night-promote` concurrency group can cancel a pending push before its promotion runs (D-1202).
+- Confirmed the two Gitar watcher findings are fixed and confirmed by Gitar. The relevant watcher tests pass.
+- Updated the PR Documents row and wrote the review record. The verdict is `Changes required` for P1-1.
+- Pushed the review record and handoff as metadata. The session-end check confirmed the remote head.
+
+### The state of the build
+
+- `make verify` passes with 4,155 tests, format, lint, STE, replay identity, bots, content hash, atlas, and smoke.
+- CI at `e8a8cd9` passes all product checks. `review-gate` reports RG 3 alone because the review record was not on the head at that time.
+- The remote head before the metadata commit is `e8a8cd9`.
+
+### What is in flight
+
+- The author must fix P1-1 and request a repeat review.
+
+### Traps and gotchas
+
+- `night-promote` uses one concurrency group with no multi-run queue. GitHub replaces pending runs by default.
+- The screen-test artifact shows the form line in `battle-forms-1x` and `battle-forms-fill-1080`.
+
+### The questions that block progress
+
+None for PR-108. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
+
+### The next concrete action
+
+The author fixes P1-1. Then run `make codex-review PR=89` for a repeat review.
 ## Session 348: 2026-09-27, Claude Code
 
 Author: Claude Code
