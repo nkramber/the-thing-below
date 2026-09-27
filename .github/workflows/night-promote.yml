@@ -56,9 +56,11 @@ jobs:
           last=""
           while :; do
             # Each open status gets its own query with every page, so an old open run past the
-            # newest page still counts. The open runs are few, so the pages stay short.
+            # newest page still counts. The open runs are few, so the pages stay short. The
+            # queries follow the order of the life of a run, so a run that moves on between two
+            # queries shows in the later one.
             : > "$RUNNER_TEMP/open-runs.txt"
-            for status in queued in_progress waiting requested pending; do
+            for status in requested pending waiting queued in_progress; do
               gh api --paginate "repos/$REPO/actions/workflows/night-promote.yml/runs?status=$status&per_page=100" \
                 --jq ".workflow_runs[] | select(.id < $RUN_ID) | .id" >> "$RUNNER_TEMP/open-runs.txt"
             done

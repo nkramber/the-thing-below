@@ -32,7 +32,7 @@ Disposition: full merit.
 
 Evidence: the wait read one page of 50 runs, newest first. An open run older than 50 later runs then fell outside the page. The later runs wait for it, so the case needs 50 later runs that stopped on the limit of a stalled queue. The case is rare, and the correction is small.
 
-Correction: the wait now asks the API for each open status on its own: `queued`, `in_progress`, `waiting`, `requested`, and `pending`. Each query reads every page, and the open runs are few, so the pages stay short. The ids go through one file, and `sort -n -u` gives the set.
+Correction: the wait now asks the API for each open status on its own: `requested`, `pending`, `waiting`, `queued`, and `in_progress`, in the order of the life of a run. A run that moves on between two queries thus shows in the later one. Each query reads every page, and the open runs are few, so the pages stay short. The ids go through one file, and `sort -n -u` gives the set.
 
 Regression check: `NightWorkflowTests.EachPushKeepsItsPromotionRunInTheOrderOfThePushes` asserts the query of each open status with `--paginate`. It fails on `4779565`.
 
