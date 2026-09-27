@@ -125,7 +125,7 @@ Area files: `area-ui-input.md` sections 7.1 to 7.5, 7.9, and 7.10.
 **Out of scope.**
 
 - The menu windows (PR-62) and the settings screen with the remap (PR-63).
-- The dialogue box (PR-36) and the map HUD (PR-7).
+- The dialogue box (PR-36) and the map HUD (PR-64, D-721).
 - The screen captures of the frame and the fit. PR-41 creates the screen-test job and takes them (D-172, G-16).
 
 **Exit tests.**

@@ -1,4 +1,38 @@
 # Session handoff archive
+## Session 359: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-107, round 3. Repository: the-thing-below. Branch: `feat/pr-107-ability-power`. PR: #90. Role: author. Base: `48ed83b`.
+
+### What this session did, and why
+
+- The owner asked why the gear window put more space before the hyphen of "Marrek - Level 1" than after it. The three fixed columns of D-1170 caused it: a name of 10 cells, then a hyphen of 3 cells.
+- The owner chose one string (D-1214) and put the fix in PR-107 with a waiver of G-8 for this PR alone (D-1215). `menu.gear_who` reads "{name} - Level {level}", and `menu.dash` is gone. `GearView` takes the string table, as `LessonsView` does.
+- `MenuLayoutTests.TheLineOfTheCharacterInTheGearWindowIsOneStringThatFits` holds the text and the fit. The local capture `menu-gear-fill-1080` shows "Marrek - Level 1".
+- Gitar approved `f72a2fc`, with its one finding closed and its CI claim on RG 3 answered on the PR.
+
+### The state of the build
+
+- CI on `f72a2fc` passed each check except `review-gate`, for RG 3 alone.
+- Local: build, 4,175 tests, format, and det-lint pass. The content hash does not change, because the strings are outside `content/rules/`.
+- The remote head before this push is `f72a2fc`.
+
+### What is in flight
+
+- The screen-test job fails on the gear captures, and its artifact gives the new baselines (D-733). Then the Gitar pass, and `make codex-review PR=90`.
+
+### Traps and gotchas
+
+- `make sheet FIXTURE=menu` joins its sheet, and the full `make sheet` fails to join past 65,535 rows. PR-107 changes no capture count.
+
+### The questions that block progress
+
+None for PR-107. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Take the gear baselines from the capture artifact of CI, push them, run the Gitar poll, and then start the cross-provider review.
+
 ## Session 358: 2026-09-27, Claude Code
 
 Author: Claude Code

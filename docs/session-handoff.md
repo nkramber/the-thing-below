@@ -1,3 +1,39 @@
+## Session 369: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-64, round 1. Repository: the-thing-below. Branch: `feat/pr-64-traps-hazards`. PR: the PR-64 intent, with no GitHub number before the push. Role: author. Base: `b7eb8bc`.
+
+### What this session did, and why
+
+- The owner answered OQ-119 and OQ-120 and nine batches of detail: D-1226 to D-1239.
+- Core: a trap fires one time on the arrival of the lead: a share of full health, a lasting status, or a fight in which the enemies act first. The memory of the map keeps it spent (D-1226, D-1229 to D-1231). A Theft drill shows a trap at 2 steps, and a confirm disarms it (D-1228).
+- Core: deep snow doubles a step, and ice slides the lead until a stop. A load check proves that each field of ice has a way out (D-1232, D-1233).
+- Core: each 60 world ticks, poison hurts each poisoned character, the reserve included, and bad air hurts each fighter. A down of each fighter holds a wipe on the map (D-397, D-1234 to D-1236). Save format 19, simulation version 36.
+- Game: the map HUD at the top left, the trap looks, the drain of a wipe on the map, and the frame `pit-trap-1x`. The art holds 3 tiles, 2 trap looks, and 5 faces (D-1237 to D-1239).
+
+### The state of the build
+
+- Local: the build, 4269 tests, format, det-lint, content, identity, atlas, smoke, and the bots pass. `make sheet` wrote every frame, and its joined sheet passes the PNG height limit, so the session read the frames alone.
+- The remote head before this push is `b7eb8bc`, the base.
+
+### What is in flight
+
+- The first push, the PR, the Gitar poll, and the screen baselines from the capture artifact of CI.
+
+### Traps and gotchas
+
+- `RunState.MapWiped` comes from the party alone: no battle and no fighter who stands. A test that downs the only fighter on the map now meets a wipe, so two item tests take a partner.
+- The snow and the ice read bright on a dark map, because their colors are pale. The PR asks the owner about it.
+- The full `make sheet` fails in the join, because the sheet passes 65535 rows. `make sheet FIXTURE=pit` joins one fixture.
+
+### The questions that block progress
+
+None for PR-64. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Push, open the PR, run the Gitar poll, and then commit the baselines of CI.
+
 ## Session 368: 2026-09-27, Claude Code
 
 Author: Claude Code
@@ -290,37 +326,3 @@ None for PR-107. OQ-251 blocks PR-35.
 ### The next concrete action
 
 Run the Gitar poll, wait for green CI, and start the cross-provider review with `make codex-review PR=90`.
-
-## Session 359: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-107, round 3. Repository: the-thing-below. Branch: `feat/pr-107-ability-power`. PR: #90. Role: author. Base: `48ed83b`.
-
-### What this session did, and why
-
-- The owner asked why the gear window put more space before the hyphen of "Marrek - Level 1" than after it. The three fixed columns of D-1170 caused it: a name of 10 cells, then a hyphen of 3 cells.
-- The owner chose one string (D-1214) and put the fix in PR-107 with a waiver of G-8 for this PR alone (D-1215). `menu.gear_who` reads "{name} - Level {level}", and `menu.dash` is gone. `GearView` takes the string table, as `LessonsView` does.
-- `MenuLayoutTests.TheLineOfTheCharacterInTheGearWindowIsOneStringThatFits` holds the text and the fit. The local capture `menu-gear-fill-1080` shows "Marrek - Level 1".
-- Gitar approved `f72a2fc`, with its one finding closed and its CI claim on RG 3 answered on the PR.
-
-### The state of the build
-
-- CI on `f72a2fc` passed each check except `review-gate`, for RG 3 alone.
-- Local: build, 4,175 tests, format, and det-lint pass. The content hash does not change, because the strings are outside `content/rules/`.
-- The remote head before this push is `f72a2fc`.
-
-### What is in flight
-
-- The screen-test job fails on the gear captures, and its artifact gives the new baselines (D-733). Then the Gitar pass, and `make codex-review PR=90`.
-
-### Traps and gotchas
-
-- `make sheet FIXTURE=menu` joins its sheet, and the full `make sheet` fails to join past 65,535 rows. PR-107 changes no capture count.
-
-### The questions that block progress
-
-None for PR-107. OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Take the gear baselines from the capture artifact of CI, push them, run the Gitar poll, and then start the cross-provider review.

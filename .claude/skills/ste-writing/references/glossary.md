@@ -75,9 +75,16 @@ Game terms from the roadmap interview of 2026-09-12:
 | story lock | a lock that its key alone opens, and no Theft drill (D-386, D-1219) | key lock, plot lock |
 | pickable lock | a lock that a Theft drill of a standing character of the party opens (D-386) | weak lock, easy lock |
 | chest entry | one item, piece of gear, or lesson of a chest, with its count (D-1220) | chest slot, loot line |
-| memory of a map | the killed enemies, the open doors, and what stays in each chest of one map, which lasts past the exit (D-555) | map state, map save, persistence |
+| memory of a map | the killed enemies, the open doors, what stays in each chest, and the spent traps of one map, which lasts past the exit (D-555, D-1229) | map state, map save, persistence |
 | exit | the thing of a map whose tile enters the map that it names (D-1216) | door out, warp, portal |
-| reopen | the story event that brings the killed enemies of a place back at the next entry (D-555) | respawn, reset |
+| reopen | the story event that brings the killed enemies of a place back at the next entry, and arms each spent trap again (D-555, D-1229) | respawn, reset |
+| trap | a thing of a map that fires one time when the lead steps onto it: damage, a status, or an encounter (D-1226) | snare, pitfall, when the text means the kind |
+| spent trap | a trap that fired or that the lead disarmed, which never fires again until a reopen (D-1229) | used trap, sprung trap, in documents |
+| show | of a trap: to draw on the map while a standing character who fights carries a Theft drill near it (D-1228) | reveal, when the text means the rule, and detect |
+| hazard | a kind of ground that the place holds and nobody set: deep snow, ice, or bad air (D-41, D-1227) | terrain effect, environmental damage |
+| harm of the map | the loss of health from poison or bad air once each 60 world ticks (D-1234, D-1235) | damage over time, DoT, tick damage |
+| wipe on the map | the down of each character who fights outside a battle, which reloads the newer save (D-397) | game over, overworld death |
+| map HUD | the block at the top left of the map screen with a face, a health bar, and the status icons of each character who fights (D-212, D-1237) | overlay, status bar |
 | held out | the state of the torch in the hand, which is always lit (D-1064) | lit, when the text means this state, and torch on |
 | put away | the state of the torch in the pack, with no light (D-1064) | put out, unlit, extinguished |
 | dark map | a map whose file sets the `dark` field, where the sight of the party hides each thing past it (D-1062) | dark area, unlit map |
