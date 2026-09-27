@@ -1,3 +1,38 @@
+## Session 347: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-108, round 2. Repository: the-thing-below. Branch: `feat/pr-108-night-recovery`. PR: #89. Role: author. Base: `a8ba710`.
+
+### What this session did, and why
+
+- The Gitar pass found one bug: a stop of a fix session after the mark sent no Pushover, and a fault before the session kept the mark. `1521218` fixes both, with a regression test (D-1205, T-2).
+- The CI analysis of Gitar named RG 7: the `CLAUDE.md` row gave no path after `Changed:`. The PR description now names the paths (D-581).
+- The Windows leg failed one test: the launchd log paths took a backslash. The paths now join with a slash.
+- The baselines `battle-forms-1x` and `battle-forms-fill-1080` come from the capture of CI run 36295590285 (D-733). Both frames read "4MP - Fire on one foe, either row.", with no other change (D-784).
+
+### The state of the build
+
+- Local build, format, and STE are clean. The watcher tests pass.
+- The remote head before this push is `ef6eae8`.
+
+### What is in flight
+
+- The Gitar pass of this push, then `make codex-review PR=89`.
+- After the merge: `make night-watch-install` on the Mac, and one test message through `notify.yml`.
+
+### Traps and gotchas
+
+- `notify.yml`, `night-promote.yml`, and the facts action first run from `main`, after the merge (F-37).
+- A command that ends with `cat` and no input waits forever in the shell of the harness.
+
+### The questions that block progress
+
+None for PR-108. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Run the Gitar poll. When every check is green, run `make codex-review PR=89` in the background.
+
 ## Session 346: 2026-09-27, Claude Code
 
 Author: Claude Code
@@ -309,37 +344,3 @@ None.
 ### The next concrete action
 
 Read the time of each leg in the first CI run of the `bots` job, set the counts, and push. Then run the Gitar pass.
-
-## Session 337: 2026-09-26, Codex
-
-Author: Codex
-Session: repeat review PR #86 (PR-36). Repository: the-thing-below. Local branch: `review/pr-86`; PR branch: `feat/pr-36-dialogue`. PR: #86. Role: reviewer. Base: `6f02d3d`.
-
-### What this session did, and why
-
-- Re-reviewed effective head `6b1b7d5`. The same line now redraws for each say step, and the portrait and name redraw when the speaker changes (D-223, D-997).
-- The regression test reaches two speakers of the same line id. It passes with the correction. P2-1 is fixed in `docs/reviews/pr-86.md`.
-- The CI-analysis claim of Gitar names RG 4 and RG 5. The workflow log confirms that the prior review record still held the old verdict and head (D-964).
-- The record keeps the earlier `Changes required` verdict and gives `Ready for owner merge` for the current effective head (T-4, D-17).
-
-### The state of the build
-
-- `make verify` passes with 3,938 tests, format, det-lint, STE, replay identity, content hash, atlas, and smoke. CI run `36273874604` passes all checks except `review-gate`, which waits for this review record. The remote head before the metadata commit is `6b1b7d5`.
-
-### What is in flight
-
-- This session commits the review record and handoff as one metadata commit, then verifies the push.
-- The PR waits for the owner merge (D-930).
-
-### Traps and gotchas
-
-- The correction changes no capture content. The CI artifact of run `36271984962` remains the visual evidence for the earlier screen changes (D-733).
-- The clean Gitar approval has no item. The actionable CI analysis names RG 4 and RG 5 (D-964).
-
-### The questions that block progress
-
-None. OQ-250 blocks no PR yet.
-
-### The next concrete action
-
-The owner reads the review record and confirms the merge.
