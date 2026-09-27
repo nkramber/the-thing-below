@@ -190,7 +190,7 @@ Built by PR-10, PR-98, and PR-57. Phase file: `phase-2-first-playable.md`.
 - The player picks each action, item, and target from the keyboard or the gamepad, and a pointer marks the target (D-827, D-833).
 - A short bar under each enemy shows its health, with no number (D-826).
 - PR-98 draws each waiting enemy at full size and darker, in one column at the left edge, behind the back row (D-951 to D-954). The load fails a group whose column is taller than the field (D-963). PR-12 takes the room to 270 art pixels (D-1035).
-- PR-12 adds the Lessons command after the attack (D-1031). PR-49 makes it one list of the opened forms, with the description and the cost in the message box (D-1195). The command menu takes two rows of three (D-1034).
+- PR-12 adds the Lessons command after the attack (D-1031). PR-49 makes it one list of the opened forms, with the description and the cost in the message box (D-1195, D-1209). The command menu takes two rows of three (D-1034).
 - PR-49 gives a letter to each enemy of a kind that a fight holds twice, in the target row and in each message (D-1194).
 - A damage number pops over its target, and one message line states the action in the game voice (D-213, G-20).
 - The attack pose plays on an action, and a color flash marks a hit (D-96, D-108).
