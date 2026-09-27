@@ -38,8 +38,11 @@ public sealed class NightGateFixture : IDisposable
         this.PullRequestPath = Path.Combine(root, "pull-request.json");
         this.MainNight = Path.Combine(root, "main-night");
         this.HeadNight = Path.Combine(root, "head-night");
+        this.Promotion = Path.Combine(root, "promotion");
+        this.CommitsPath = Path.Combine(root, "commits.json");
         Directory.CreateDirectory(this.MainNight);
         Directory.CreateDirectory(this.HeadNight);
+        Directory.CreateDirectory(this.Promotion);
     }
 
     /// <summary>Gets the root folder of the fixture.</summary>
@@ -53,6 +56,15 @@ public sealed class NightGateFixture : IDisposable
 
     /// <summary>Gets the folder of the newest night on the head commit.</summary>
     public string HeadNight { get; }
+
+    /// <summary>Gets the folder of the newest promotion of `main` (D-1202).</summary>
+    public string Promotion { get; }
+
+    /// <summary>Gets the path of the commits of the PR (D-1204).</summary>
+    public string CommitsPath { get; }
+
+    /// <summary>Gets or sets the compare status of the promotion against the night of `main`, or null for no option.</summary>
+    public string? PromotionOrder { get; set; }
 
     /// <summary>Makes a fixture of a PR that changes the given paths, with no night.</summary>
     /// <param name="files">The changed paths of the PR.</param>
@@ -72,6 +84,7 @@ public sealed class NightGateFixture : IDisposable
 
         writer.WriteEndArray();
         writer.WriteEndObject();
+        fixture.WriteCommits(new NightCommit(Head, 1, files));
         return fixture;
     }
 
@@ -139,6 +152,61 @@ public sealed class NightGateFixture : IDisposable
         }
     }
 
+    /// <summary>Writes the commits of the PR, oldest first. The last commit is the head (D-1204).</summary>
+    /// <param name="commits">The commits.</param>
+    public void WriteCommits(params NightCommit[] commits)
+    {
+        WriteCommitsFile(this.CommitsPath, commits);
+    }
+
+    /// <summary>Writes a file of commits in the form that the facts action writes.</summary>
+    /// <param name="path">The path of the file.</param>
+    /// <param name="commits">The commits, oldest first.</param>
+    public static void WriteCommitsFile(string path, params NightCommit[] commits)
+    {
+        using FileStream stream = File.Create(path);
+        using Utf8JsonWriter writer = new(stream, WriteOptions);
+        writer.WriteStartArray();
+        foreach (NightCommit commit in commits)
+        {
+            writer.WriteStartObject();
+            writer.WriteString("sha", commit.Sha);
+            writer.WriteNumber("parents", commit.Parents);
+            writer.WriteStartArray("files");
+            foreach (string file in commit.Files)
+            {
+                writer.WriteStringValue(file);
+            }
+
+            writer.WriteEndArray();
+            writer.WriteEndObject();
+        }
+
+        writer.WriteEndArray();
+    }
+
+    /// <summary>Writes a promotion: a green branch night and the file of the promotion (D-1202).</summary>
+    /// <param name="folder">The folder of the promotion.</param>
+    /// <param name="merge">The merge commit on `main`.</param>
+    /// <param name="nightCommit">The commit of the branch night.</param>
+    /// <param name="started">The start of the branch night.</param>
+    public static void WritePromotion(string folder, string merge, string nightCommit, DateTimeOffset started)
+    {
+        WriteRun(folder, 201, nightCommit, "fix/pr-99-night", NightGate.SuccessConclusion, started);
+        foreach (string leg in NightLegs.Labels)
+        {
+            WriteRecord(folder, GreenRecord(nightCommit, leg));
+        }
+
+        using FileStream stream = File.Create(Path.Combine(folder, NightPromotion.PromotionFile));
+        using Utf8JsonWriter writer = new(stream, WriteOptions);
+        writer.WriteStartObject();
+        writer.WriteString("merge-commit", merge);
+        writer.WriteNumber("pull-request", 99);
+        writer.WriteNumber("failed-run", 102);
+        writer.WriteEndObject();
+    }
+
     /// <summary>Runs the `night-gate` command on the fixture at <see cref="Now"/>.</summary>
     /// <param name="output">The output of the command.</param>
     /// <param name="errors">The error lines of the command.</param>
@@ -155,12 +223,23 @@ public sealed class NightGateFixture : IDisposable
         using StringWriter outputWriter = new();
         using StringWriter errorWriter = new();
         int exitCode = Program.Run(
-            [NightGateCommand.Name, "--pull-request", this.PullRequestPath, "--main-night", this.MainNight, "--head-night", this.HeadNight, "--now", now],
+            this.Arguments(now),
             outputWriter,
             errorWriter);
         output = outputWriter.ToString();
         errors = errorWriter.ToString();
         return exitCode;
+    }
+
+    private string[] Arguments(string now)
+    {
+        List<string> arguments = [NightGateCommand.Name, "--pull-request", this.PullRequestPath, "--commits", this.CommitsPath, "--main-night", this.MainNight, "--promotion", this.Promotion, "--head-night", this.HeadNight, "--now", now];
+        if (this.PromotionOrder is not null)
+        {
+            arguments.AddRange(["--promotion-order", this.PromotionOrder]);
+        }
+
+        return [.. arguments];
     }
 
     /// <inheritdoc/>

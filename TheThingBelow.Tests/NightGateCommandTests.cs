@@ -14,6 +14,10 @@ public sealed class NightGateCommandTests
 {
     private const string CodePath = "TheThingBelow.Core/Simulation.cs";
 
+    private const string Earlier = "b0b1b2b3b4b5b6b7b8b9c0c1c2c3c4c5c6c7c8c9";
+
+    private const string Merge = "e0e1e2e3e4e5e6e7e8e9f0f1f2f3f4f5f6f7f8f9";
+
     /// <summary>Exit test 1: a night with every leg green inside 48 hours passes.</summary>
     [Fact]
     public void AGreenNightOnMainInside48HoursPasses()
@@ -207,7 +211,7 @@ public sealed class NightGateCommandTests
         int exitCode = fixture.Run(out _, out string errors);
 
         Assert.Equal(Program.FaultExitCode, exitCode);
-        Assert.Contains($"wrong commit: the night run 101 on the commit {NightGateFixture.MainCommit}, started at 2026-09-28T07:00:00Z, did not play the head commit {NightGateFixture.Head}.", errors, StringComparison.Ordinal);
+        Assert.Contains($"wrong commit: the night run 101 on the commit {NightGateFixture.MainCommit} of this PR is not the head {NightGateFixture.Head}, and a later commit of the PR changes a path outside the paths of a docs-only PR (D-1204).", errors, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -314,6 +318,107 @@ public sealed class NightGateCommandTests
     }
 
     /// <summary>The command with no option names each option that it needs.</summary>
+    /// <summary>
+    /// D-1204: the review record and the handoff land after the night, and they move the head. A
+    /// green night on the code commit still passes the PR. The old gate failed this case.
+    /// </summary>
+    [Fact]
+    public void AGreenNightBeforeCommitsOfDocumentsAlonePassesThePr()
+    {
+        using NightGateFixture fixture = NightGateFixture.Create(CodePath, "docs/reviews/pr-99.md");
+        fixture.WriteCommits(new NightCommit(Earlier, 1, [CodePath]), new NightCommit(NightGateFixture.Head, 1, ["docs/reviews/pr-99.md", "docs/session-handoff.md"]));
+        NightGateFixture.WriteGreenNight(fixture.HeadNight, Earlier, "fix/pr-99-night", NightGateFixture.Now - TimeSpan.FromHours(2));
+
+        int exitCode = fixture.Run(out string output, out _);
+
+        Assert.Equal(0, exitCode);
+        Assert.Contains($"The night run 101 on the commit {Earlier} of this PR succeeded on each leg. Each later commit changes documents alone, so it passes this PR alone (D-510, D-1204).", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AGreenNightBeforeACodeCommitFailsThePr()
+    {
+        using NightGateFixture fixture = NightGateFixture.Create(CodePath);
+        fixture.WriteCommits(new NightCommit(Earlier, 1, [CodePath]), new NightCommit(NightGateFixture.Head, 1, [CodePath]));
+        NightGateFixture.WriteGreenNight(fixture.HeadNight, Earlier, "fix/pr-99-night", NightGateFixture.Now - TimeSpan.FromHours(2));
+
+        int exitCode = fixture.Run(out _, out string errors);
+
+        Assert.Equal(Program.FaultExitCode, exitCode);
+        Assert.Contains("wrong commit:", errors, StringComparison.Ordinal);
+    }
+
+    /// <summary>D-1202: a promotion at a later commit of `main` covers the failed night.</summary>
+    [Fact]
+    public void APromotionAheadOfAFailedNightOfMainPasses()
+    {
+        using NightGateFixture fixture = NightGateFixture.Create(CodePath);
+        NightGateFixture.WriteRun(fixture.MainNight, 102, NightGateFixture.MainCommit, NightGate.MainBranch, "failure", NightGateFixture.LastNight);
+        NightGateFixture.WritePromotion(fixture.Promotion, Merge, Earlier, NightGateFixture.Now - TimeSpan.FromHours(3));
+        fixture.PromotionOrder = "ahead";
+
+        int exitCode = fixture.Run(out string output, out _);
+
+        Assert.Equal(0, exitCode);
+        Assert.Contains($"The night run 201 of the PR #99, promoted at the merge commit {Merge} of `main` over the failed night run 102", output, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData("behind")]
+    [InlineData("identical")]
+    public void ANightOfMainOnTheMergeCommitOrLaterWinsOverAPromotion(string order)
+    {
+        using NightGateFixture fixture = NightGateFixture.Create(CodePath);
+        NightGateFixture.WriteRun(fixture.MainNight, 102, NightGateFixture.MainCommit, NightGate.MainBranch, "failure", NightGateFixture.LastNight);
+        NightGateFixture.WritePromotion(fixture.Promotion, Merge, Earlier, NightGateFixture.Now - TimeSpan.FromHours(3));
+        fixture.PromotionOrder = order;
+
+        int exitCode = fixture.Run(out _, out string errors);
+
+        Assert.Equal(Program.FaultExitCode, exitCode);
+        Assert.Contains("The newest night on `main` does not pass:", errors, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AStalePromotionFails()
+    {
+        using NightGateFixture fixture = NightGateFixture.Create(CodePath);
+        NightGateFixture.WritePromotion(fixture.Promotion, Merge, Earlier, NightGateFixture.Now - TimeSpan.FromHours(50));
+
+        int exitCode = fixture.Run(out _, out string errors);
+
+        Assert.Equal(Program.FaultExitCode, exitCode);
+        Assert.Contains("and it does not pass:", errors, StringComparison.Ordinal);
+        Assert.Contains("stale: the night run 201", errors, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ANightAndAPromotionWithNoOrderStopTheGate()
+    {
+        using NightGateFixture fixture = NightGateFixture.Create(CodePath);
+        NightGateFixture.WriteRun(fixture.MainNight, 102, NightGateFixture.MainCommit, NightGate.MainBranch, "failure", NightGateFixture.LastNight);
+        NightGateFixture.WritePromotion(fixture.Promotion, Merge, Earlier, NightGateFixture.Now - TimeSpan.FromHours(3));
+
+        int exitCode = fixture.Run(out _, out string errors);
+
+        Assert.Equal(Program.FaultExitCode, exitCode);
+        Assert.Contains("come with no order of their commits", errors, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ADivergedOrderStopsTheGate()
+    {
+        using NightGateFixture fixture = NightGateFixture.Create(CodePath);
+        NightGateFixture.WriteRun(fixture.MainNight, 102, NightGateFixture.MainCommit, NightGate.MainBranch, "failure", NightGateFixture.LastNight);
+        NightGateFixture.WritePromotion(fixture.Promotion, Merge, Earlier, NightGateFixture.Now - TimeSpan.FromHours(3));
+        fixture.PromotionOrder = "diverged";
+
+        int exitCode = fixture.Run(out _, out string errors);
+
+        Assert.Equal(Program.FaultExitCode, exitCode);
+        Assert.Contains("cannot diverge", errors, StringComparison.Ordinal);
+    }
+
     [Fact]
     public void TheCommandWithNoOptionNamesEachOption()
     {
@@ -323,6 +428,6 @@ public sealed class NightGateCommandTests
         int exitCode = Program.Run([NightGateCommand.Name], output, errors);
 
         Assert.Equal(Program.FaultExitCode, exitCode);
-        Assert.Contains("night-gate needs --pull-request, --main-night, --head-night, and --now.", errors.ToString(), StringComparison.Ordinal);
+        Assert.Contains("night-gate needs --pull-request, --commits, --main-night, --promotion, --head-night, and --now.", errors.ToString(), StringComparison.Ordinal);
     }
 }

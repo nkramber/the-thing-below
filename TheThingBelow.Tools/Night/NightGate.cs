@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text.Json;
 using TheThingBelow.Tools.Bots;
-using TheThingBelow.Tools.ReviewGate;
 
 namespace TheThingBelow.Tools.Night;
 
@@ -61,8 +60,10 @@ public sealed record NightVerdict(bool Passes, IReadOnlyList<string> Lines);
 
 /// <summary>
 /// The rules of the night gate (G-22). A PR passes when it is a docs-only PR (D-513), when a
-/// night on its head commit succeeded (D-510), or when the newest night on `main` succeeded on
-/// each leg. A night counts inside 48 hours of the run of the gate on the last push (D-1188).
+/// night on its head commit succeeded (D-510), or a night on an earlier commit with documents alone
+/// after it (D-1204). Else the newest evidence of `main` must pass: its newest night, or a newer
+/// promotion of the night of a merged PR (D-1202). A night counts inside 48 hours of the run of
+/// the gate on the last push (D-1188).
 /// </summary>
 public static class NightGate
 {
@@ -77,15 +78,18 @@ public static class NightGate
 
     /// <summary>Checks one PR against the nights that the gate job downloaded.</summary>
     /// <param name="pullRequest">The facts of the PR.</param>
-    /// <param name="mainNight">The newest completed night on `main`, or null when no night exists there.</param>
-    /// <param name="headNight">The newest completed night on the head commit of the PR, or null when no night exists there.</param>
+    /// <param name="candidates">Each commit of the PR whose night passes the head, newest first, as <see cref="NightWalk.CandidatesOf"/> gives them (D-1204).</param>
+    /// <param name="main">The newest night of `main`, the newest promotion, and their order (D-1202).</param>
+    /// <param name="headNight">The newest completed night on a commit of <paramref name="candidates"/>, or null when no night exists there.</param>
     /// <param name="now">The time of the run of the gate, in UTC.</param>
     /// <returns>The result.</returns>
-    public static NightVerdict Check(NightPullRequest pullRequest, NightEvidence? mainNight, NightEvidence? headNight, DateTimeOffset now)
+    public static NightVerdict Check(NightPullRequest pullRequest, IReadOnlyList<string> candidates, NightMainFacts main, NightEvidence? headNight, DateTimeOffset now)
     {
         ArgumentNullException.ThrowIfNull(pullRequest);
+        ArgumentNullException.ThrowIfNull(candidates);
+        ArgumentNullException.ThrowIfNull(main);
 
-        string? code = FirstPathOutsideDocs(pullRequest.Files);
+        string? code = NightWalk.FirstCodePath(pullRequest.Files);
         if (code is null)
         {
             return new NightVerdict(true, ["The PR changes documents alone, and a docs-only PR passes the night gate (D-513)."]);
@@ -94,21 +98,30 @@ public static class NightGate
         List<string> lines = [$"The PR changes the path '{code}', so the night gate binds it (G-22, D-513)."];
 
         // A failed night on the head commit fails the PR, even when `main` has a green night,
-        // because that night played the code of this PR (D-510, T-2). A green head night that is
-        // only older than 48 hours proves nothing now, so the gate reads the night of `main` (G-22).
+        // because that night played the code of this PR (D-510, T-2). A night on an earlier commit
+        // counts when each later commit changes documents alone (D-1204). A green head night that
+        // is only older than 48 hours proves nothing now, so the gate reads the night of `main` (G-22).
         if (headNight is not null)
         {
-            List<string> headFaults = FaultsOf(headNight, pullRequest.Head, null, now);
+            string name = HeadNightName(headNight, pullRequest.Head);
+            List<string> headFaults = FaultsOf(headNight, null, null, now);
+            if (!Contains(candidates, headNight.Run.Commit))
+            {
+                headFaults.Insert(0, $"wrong commit: {name} is not the head {pullRequest.Head}, and a later commit of the PR changes a path outside the paths of a docs-only PR (D-1204).");
+            }
+
             string? headStale = StaleOf(headNight.Run, now);
             if (headFaults.Count == 0 && headStale is null)
             {
-                lines.Add($"The night run {headNight.Run.Id} on the head commit {pullRequest.Head} succeeded on each leg, and it passes this PR alone (D-510).");
+                lines.Add(string.Equals(headNight.Run.Commit, pullRequest.Head, StringComparison.Ordinal)
+                    ? $"{Capital(name)} succeeded on each leg, and it passes this PR alone (D-510)."
+                    : $"{Capital(name)} succeeded on each leg. Each later commit changes documents alone, so it passes this PR alone (D-510, D-1204).");
                 return new NightVerdict(true, lines);
             }
 
             if (headFaults.Count > 0)
             {
-                lines.Add($"The night run {headNight.Run.Id} on the head commit {pullRequest.Head} does not pass:");
+                lines.Add($"{Capital(name)} does not pass:");
                 lines.AddRange(headFaults);
                 if (headStale is not null)
                 {
@@ -118,15 +131,21 @@ public static class NightGate
                 return new NightVerdict(false, lines);
             }
 
-            lines.Add($"The night run {headNight.Run.Id} on the head commit {pullRequest.Head} succeeded, and it is older than 48 hours, so the gate reads the night of `{MainBranch}` (G-22).");
+            lines.Add($"{Capital(name)} succeeded, and it is older than 48 hours, so the gate reads the night of `{MainBranch}` (G-22).");
         }
 
-        if (mainNight is null)
+        if (main.PromotionWins)
+        {
+            return CheckPromotion(main.Promotion!, lines, now);
+        }
+
+        if (main.Night is null)
         {
             lines.Add($"absent: no completed night exists on `{MainBranch}` or on the head commit {pullRequest.Head} (G-22).");
             return new NightVerdict(false, lines);
         }
 
+        NightEvidence mainNight = main.Night;
         List<string> problems = ProblemsOf(mainNight, null, MainBranch, now);
         if (problems.Count == 0)
         {
@@ -137,6 +156,83 @@ public static class NightGate
         lines.Add($"The newest night on `{MainBranch}` does not pass:");
         lines.AddRange(problems);
         return new NightVerdict(false, lines);
+    }
+
+    /// <summary>Tells whether two night records played the same range: the same first seed and the same count of runs of each policy (D-1190, D-1203).</summary>
+    /// <param name="record">One record.</param>
+    /// <param name="other">The other record.</param>
+    /// <returns>True when the ranges match.</returns>
+    public static bool SameRange(NightRecord record, NightRecord other)
+    {
+        ArgumentNullException.ThrowIfNull(record);
+        ArgumentNullException.ThrowIfNull(other);
+        if (record.FirstSeed != other.FirstSeed || record.Policies.Count != other.Policies.Count)
+        {
+            return false;
+        }
+
+        for (int index = 0; index < record.Policies.Count; index += 1)
+        {
+            if (record.Policies[index].Runs != other.Policies[index].Runs)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>Gives the text of the range of a night record, for a message.</summary>
+    /// <param name="record">The record.</param>
+    /// <returns>The count of runs of each policy and the first seed.</returns>
+    public static string RangeOf(NightRecord record)
+    {
+        ArgumentNullException.ThrowIfNull(record);
+        List<string> parts = [];
+        foreach (NightPolicyCounts counts in record.Policies)
+        {
+            parts.Add($"{counts.Runs.ToString(CultureInfo.InvariantCulture)} {BotPolicyKinds.NameOf(counts.Policy)} runs");
+        }
+
+        return $"{string.Join(" and ", parts)} from the seed {record.FirstSeed.ToString(CultureInfo.InvariantCulture)}";
+    }
+
+    private static NightVerdict CheckPromotion(NightPromotion promotion, List<string> lines, DateTimeOffset now)
+    {
+        NightRun run = promotion.Night.Run;
+        string name = $"the night run {run.Id} of the PR #{promotion.PullRequest.ToString(CultureInfo.InvariantCulture)}, promoted at the merge commit {promotion.MergeCommit} of `{MainBranch}` over the failed night run {promotion.FailedRun.ToString(CultureInfo.InvariantCulture)}";
+        List<string> problems = ProblemsOf(promotion.Night, null, null, now);
+        if (problems.Count == 0)
+        {
+            lines.Add($"{Capital(name)}, started at {NightJson.TextOf(run.Started)} and succeeded on each leg (G-22, D-1202).");
+            return new NightVerdict(true, lines);
+        }
+
+        lines.Add($"The newest evidence of `{MainBranch}` is {name}, and it does not pass:");
+        lines.AddRange(problems);
+        return new NightVerdict(false, lines);
+    }
+
+    private static string HeadNightName(NightEvidence night, string head)
+    {
+        return string.Equals(night.Run.Commit, head, StringComparison.Ordinal)
+            ? $"the night run {night.Run.Id} on the head commit {head}"
+            : $"the night run {night.Run.Id} on the commit {night.Run.Commit} of this PR";
+    }
+
+    private static string Capital(string text) => char.ToUpperInvariant(text[0]) + text[1..];
+
+    private static bool Contains(IReadOnlyList<string> items, string item)
+    {
+        foreach (string each in items)
+        {
+            if (string.Equals(each, item, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>Gives each reason why a night does not pass, or an empty list for a night that passes.</summary>
@@ -249,48 +345,5 @@ public static class NightGate
         }
 
         return problems;
-    }
-
-
-    private static bool SameRange(NightRecord record, NightRecord other)
-    {
-        if (record.FirstSeed != other.FirstSeed)
-        {
-            return false;
-        }
-
-        for (int index = 0; index < record.Policies.Count; index += 1)
-        {
-            if (record.Policies[index].Runs != other.Policies[index].Runs)
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private static string RangeOf(NightRecord record)
-    {
-        List<string> parts = [];
-        foreach (NightPolicyCounts counts in record.Policies)
-        {
-            parts.Add($"{counts.Runs.ToString(CultureInfo.InvariantCulture)} {BotPolicyKinds.NameOf(counts.Policy)} runs");
-        }
-
-        return $"{string.Join(" and ", parts)} from the seed {record.FirstSeed.ToString(CultureInfo.InvariantCulture)}";
-    }
-
-    private static string? FirstPathOutsideDocs(IReadOnlyList<string> files)
-    {
-        foreach (string file in files)
-        {
-            if (!OverrideRules.IsEligible(file))
-            {
-                return file;
-            }
-        }
-
-        return null;
     }
 }

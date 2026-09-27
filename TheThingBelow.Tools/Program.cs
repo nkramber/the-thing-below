@@ -131,6 +131,16 @@ public static class Program
             return NightGateCommand.Run(args[1..], output, errors);
         }
 
+        if (command == NightWalkCommand.Name)
+        {
+            return NightWalkCommand.Run(args[1..], output, errors);
+        }
+
+        if (command == NightPromoteCommand.Name)
+        {
+            return NightPromoteCommand.Run(args[1..], output, errors);
+        }
+
         if (command == NightAlertCommand.Name)
         {
             return NightAlertCommand.Run(args[1..], output, errors);
@@ -171,6 +181,8 @@ public static class Program
         errors.WriteLine($"  {BotsCommand.Name}: ready");
         errors.WriteLine($"  {NightCommand.Name}: ready");
         errors.WriteLine($"  {NightGateCommand.Name}: ready");
+        errors.WriteLine($"  {NightWalkCommand.Name}: ready");
+        errors.WriteLine($"  {NightPromoteCommand.Name}: ready");
         errors.WriteLine($"  {NightAlertCommand.Name}: ready");
         errors.WriteLine($"  {PushoverCommand.Name}: ready");
         errors.WriteLine("The planned commands, with the PR that adds each one:");

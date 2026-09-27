@@ -20,6 +20,10 @@ public sealed class NightWorkflowTests
 
     private const string NotifyPath = ".github/workflows/notify.yml";
 
+    private const string FactsPath = ".github/actions/night-facts/action.yml";
+
+    private const string PromotePath = ".github/workflows/night-promote.yml";
+
     [Fact]
     public void TheNightStartsAt0417Utc()
     {
@@ -70,7 +74,9 @@ public sealed class NightWorkflowTests
         Assert.Contains("  pull_request_target:", lines);
         Assert.DoesNotContain(lines, line => Regex.IsMatch(line, @"^\s+ref:"));
         Assert.DoesNotContain(lines, line => line.Contains("git fetch", StringComparison.Ordinal) || line.Contains("refs/pull", StringComparison.Ordinal));
-        Assert.Contains(lines, line => line.Contains("actions/workflows/night.yml/runs?", StringComparison.Ordinal));
+        Assert.Contains("uses: ./.github/actions/night-facts", Text(GatePath), StringComparison.Ordinal);
+        Assert.Contains("actions/workflows/night.yml/runs?", Text(FactsPath), StringComparison.Ordinal);
+        Assert.DoesNotContain(Lines(FactsPath), line => line.Contains("git fetch", StringComparison.Ordinal) || line.Contains("actions/checkout", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -134,6 +140,47 @@ public sealed class NightWorkflowTests
         Assert.Equal(3, lines.Length);
         Assert.All(lines, line => Assert.Matches(@"^          [A-Z]+: \$\{\{ inputs\.[a-z]+ \}\}$", line));
         Assert.Contains(Lines(NotifyPath), line => line.Contains(PushoverCommand.Name + " --title", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void ThePromotionRunsOnEachPushToMainWithAReadToken()
+    {
+        // D-1202: the job writes nothing through the API, and the upload takes the runtime token.
+        string[] lines = Lines(PromotePath);
+        int start = Array.IndexOf(lines, "permissions:");
+        string[] block = lines[(start + 1)..].TakeWhile(line => line.StartsWith("  ", StringComparison.Ordinal)).ToArray();
+
+        Assert.Contains("  push:", lines);
+        Assert.Contains("    branches: [main]", lines);
+        Assert.Equal(["  contents: read", "  actions: read", "  pull-requests: read"], block);
+    }
+
+    [Fact]
+    public void ThePromotionComparesTreesAndKeepsItsArtifactOnAPromotionAlone()
+    {
+        // D-1202: a squash merge makes a new commit, so the job compares trees. A rename lists
+        // both paths. The job fetches the commits of the PR as data alone.
+        string text = Text(PromotePath);
+
+        Assert.Contains("git fetch --no-tags origin \"refs/pull/$NUMBER/head\"", text, StringComparison.Ordinal);
+        Assert.Contains("git diff --name-only --no-renames \"$night_commit\" \"$GITHUB_SHA\"", text, StringComparison.Ordinal);
+        Assert.Contains("if: steps.promote.outputs.promoted == 'true'", text, StringComparison.Ordinal);
+        Assert.Contains($"name: {NightPromotion.ArtifactName}", text, StringComparison.Ordinal);
+        Assert.Contains(NightPromoteCommand.Name + " --merge-commit", text, StringComparison.Ordinal);
+        Assert.DoesNotContain("dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- bots", text, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TheFactsReadAPromotionOfAPushRunOfThePromoteWorkflowAlone()
+    {
+        // D-1202: an artifact of the same name from another workflow or branch takes no part.
+        string text = Text(FactsPath);
+
+        Assert.Contains($"artifacts?name={NightPromotion.ArtifactName}", text, StringComparison.Ordinal);
+        Assert.Contains(".workflow_run.head_branch == \"main\"", text, StringComparison.Ordinal);
+        Assert.Contains("\".github/workflows/night-promote.yml push\"", text, StringComparison.Ordinal);
+        Assert.Contains("compare/$night_commit...$merge_commit", text, StringComparison.Ordinal);
+        Assert.Contains(NightWalkCommand.Name + " --commits", text, StringComparison.Ordinal);
     }
 
     private static string Text(string path) => File.ReadAllText(RepositoryRoot.PathTo(path));

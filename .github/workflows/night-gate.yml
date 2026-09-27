@@ -1,13 +1,14 @@
-# The night gate of every pull request (G-22, D-509, D-510, D-513, D-1188). PR-49 creates it.
+# The night gate of every pull request (G-22, D-509, D-510, D-513, D-1188). PR-49 creates it,
+# and PR-108 adds the walk of D-1204 and the promotion of D-1202.
 #
 # The trigger is `pull_request_target`, so the workflow file and the command come from `main`.
 # The job never checks out the head of the PR, and it reads no file of it. It reads the changed
-# paths of the PR and the nights through the GitHub API, so a PR cannot carry its own night record
-# (D-509, D-513). GitHub starts this trigger from the default branch alone, so the check first
-# runs on the PR after PR-49 (F-37, D-500).
+# paths of the PR, its commits, the nights, and the promotion through the GitHub API, so a PR
+# cannot carry its own night record (D-509, D-513). GitHub starts this trigger from the default
+# branch alone, so the check first runs on the PR after PR-49 (F-37, D-500).
 #
 # The result of the last push stands until the merge (D-1188). After a night by hand on the head
-# of a PR, run this job again. `docs/runbooks/night.md` gives the commands.
+# of a PR, or after a promotion, run this job again. `docs/runbooks/night.md` gives the commands.
 #
 # Each action pins a full commit SHA (D-511).
 name: night-gate
@@ -46,10 +47,24 @@ jobs:
         with:
           global-json-file: global.json
 
+      # The facts action runs the `night-walk` command of Tools, so Tools builds first.
+      - name: Build the tools
+        run: dotnet build TheThingBelow.Tools/TheThingBelow.Tools.csproj --verbosity quiet
+
+      # The action of the checkout of `main` reads the nights, the promotion, and the commits of
+      # the PR through the GitHub API (D-1202, D-1204).
+      - name: Read the nights, the promotion, and the commits
+        uses: ./.github/actions/night-facts
+        with:
+          token: ${{ github.token }}
+          pull-request: ${{ github.event.pull_request.number }}
+          head: ${{ github.event.pull_request.head.sha }}
+          folder: ${{ runner.temp }}/night-facts
+
       # Each value of the PR goes through the environment, and never into the text of the script.
       # The list of paths holds the old path of each rename, so a rename out of the code paths
       # still binds the PR (D-513, F-109).
-      - name: Read the PR and the nights through the GitHub API
+      - name: Read the changed paths of the PR
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
@@ -58,43 +73,11 @@ jobs:
         run: |
           set -euo pipefail
           facts="$RUNNER_TEMP/night-facts"
-          rm -rf "$facts"
-          mkdir -p "$facts/main-night" "$facts/head-night"
-
           gh api --paginate "repos/$REPO/pulls/$NUMBER/files" \
             --jq '.[] | .filename, (.previous_filename // empty)' > "$facts/files.txt"
           jq -R -s -c --arg head "$HEAD_SHA" \
             '{head: $head, files: (split("\n") | map(select(length > 0)))}' \
             "$facts/files.txt" > "$facts/pull-request.json"
-
-          # Writes the facts of the newest completed night that matches a filter, and downloads
-          # its night records. No such night leaves the folder with no facts file, and the command
-          # reads that case. A failed night can lack a record, and the command names each absent leg.
-          read_night() {
-            local filter="$1" folder="$2"
-            gh api "repos/$REPO/actions/workflows/night.yml/runs?$filter&status=completed&per_page=1" \
-              --jq '.workflow_runs[0] // empty
-                | {id, commit: .head_sha, branch: .head_branch, conclusion, started: .run_started_at}' \
-              > "$folder/run.json"
-            if [ ! -s "$folder/run.json" ]; then
-              rm "$folder/run.json"
-              echo "No completed night matches '$filter'."
-              return 0
-            fi
-
-            local id conclusion
-            id=$(jq -r .id "$folder/run.json")
-            conclusion=$(jq -r .conclusion "$folder/run.json")
-            echo "The newest completed night that matches '$filter' is the run $id, which ended as '$conclusion'."
-            if [ "$conclusion" = "success" ]; then
-              gh run download "$id" --repo "$REPO" --dir "$folder" --pattern 'night-record-*'
-            elif ! gh run download "$id" --repo "$REPO" --dir "$folder" --pattern 'night-record-*'; then
-              echo "The failed night run $id gave no night record, and the command names each absent leg."
-            fi
-          }
-
-          read_night "branch=main" "$facts/main-night"
-          read_night "head_sha=$HEAD_SHA" "$facts/head-night"
 
       # The command gives one line for each fact that it read, and the exit code of a fault (T-2).
       # The step holds the exit code until the report reaches the log and the summary.
@@ -102,11 +85,15 @@ jobs:
         run: |
           set -uo pipefail
           facts="$RUNNER_TEMP/night-facts"
+          order=()
+          if [ -f "$facts/promotion-order.txt" ]; then order=(--promotion-order "$(cat "$facts/promotion-order.txt")"); fi
           status=0
-          dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj --verbosity quiet \
+          dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj --no-build --verbosity quiet \
             -- night-gate \
             --pull-request "$facts/pull-request.json" \
+            --commits "$facts/commits.json" \
             --main-night "$facts/main-night" \
+            --promotion "$facts/promotion" "${order[@]}" \
             --head-night "$facts/head-night" \
             --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$RUNNER_TEMP/night-gate.log" 2>&1 || status=$?
           cat "$RUNNER_TEMP/night-gate.log"
