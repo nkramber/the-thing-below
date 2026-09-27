@@ -1,3 +1,38 @@
+## Session 350: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-108, round 4. Repository: the-thing-below. Branch: `feat/pr-108-night-recovery`. PR: #89. Role: author. Base: `a8ba710`.
+
+### What this session did, and why
+
+- The Codex review of `e8a8cd9` gave `Changes required` with one finding, P1-1: the concurrency group of `night-promote` kept one pending run, so a push could lose its promotion.
+- The correction removes the group. Each run waits for each earlier run, then reads the facts, so the checks follow the order of the pushes (D-1202). `docs/reviews/pr-89-response.md` holds the answer, with full merit.
+- The `codex-review` command stopped after the record landed, because the record named the handoff commit and not the effective head `9944c29` (D-610). The next round writes a new record.
+- Gitar approved `e8a8cd9` with both of its findings closed.
+
+### The state of the build
+
+- Local build, format, and STE are clean. The workflow tests pass.
+- The remote head before this push is `ce97bb0`, the review metadata.
+
+### What is in flight
+
+- The Gitar pass of this push, then `make codex-review PR=89` again.
+- After the merge: `make night-watch-install` on the Mac, and one test message through `notify.yml`.
+
+### Traps and gotchas
+
+- `notify.yml`, `night-promote.yml`, and the facts action first run from `main`, after the merge (F-37).
+- P1-1 counts one round. A third open round of one finding stops the loop (D-929).
+
+### The questions that block progress
+
+None for PR-108. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Run the Gitar poll. When every check is green, run `make codex-review PR=89` in the background.
+
 ## Session 349: 2026-09-27, Codex
 
 Author: Codex
@@ -312,35 +347,3 @@ None.
 ### The next concrete action
 
 Wait for the Gitar pass and the CI of this push. Then run `make codex-review PR=87` in the background.
-
-## Session 340: 2026-09-26, Codex
-
-Author: Codex
-Session: review PR #87. Repository: the-thing-below. Branch: `review/pr-87`. PR: #87. Role: reviewer. Base: `f383aa9`.
-
-### What this session did, and why
-
-- Reviewed effective head `66dcf4d`. P2-1 finds that 60-tick softlock sampling can miss a softlocked state between samples (D-1179).
-- Verified the Gitar CI-analysis item against the review-gate log. RG 3 waits for the review record, and the author answered the claim about unchecked boxes (D-964).
-- Added `docs/reviews/pr-87.md` and corrected the PR Documents row.
-
-### The state of the build
-
-- `make verify` passes with 4,003 tests. CI run `36278779725` passed all substantive jobs on every leg. Review-gate run `36278780411` waits for the review record. The remote head before this metadata commit is `66dcf4d`.
-
-### What is in flight
-
-- The PR needs a correction for P2-1 and a repeat review.
-
-### Traps and gotchas
-
-- The runner checks softlocks every 60 played ticks. The exit condition of D-1179 applies to each state.
-- A clean Gitar approval has no item and does not block the verdict (D-964).
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Correct P2-1, add its regression test, and request a repeat review of PR #87.

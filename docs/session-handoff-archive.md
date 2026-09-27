@@ -1,4 +1,36 @@
 # Session handoff archive
+## Session 340: 2026-09-26, Codex
+
+Author: Codex
+Session: review PR #87. Repository: the-thing-below. Branch: `review/pr-87`. PR: #87. Role: reviewer. Base: `f383aa9`.
+
+### What this session did, and why
+
+- Reviewed effective head `66dcf4d`. P2-1 finds that 60-tick softlock sampling can miss a softlocked state between samples (D-1179).
+- Verified the Gitar CI-analysis item against the review-gate log. RG 3 waits for the review record, and the author answered the claim about unchecked boxes (D-964).
+- Added `docs/reviews/pr-87.md` and corrected the PR Documents row.
+
+### The state of the build
+
+- `make verify` passes with 4,003 tests. CI run `36278779725` passed all substantive jobs on every leg. Review-gate run `36278780411` waits for the review record. The remote head before this metadata commit is `66dcf4d`.
+
+### What is in flight
+
+- The PR needs a correction for P2-1 and a repeat review.
+
+### Traps and gotchas
+
+- The runner checks softlocks every 60 played ticks. The exit condition of D-1179 applies to each state.
+- A clean Gitar approval has no item and does not block the verdict (D-964).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Correct P2-1, add its regression test, and request a repeat review of PR #87.
+
 ## Session 339: 2026-09-26, Claude Code
 
 Author: Claude Code
