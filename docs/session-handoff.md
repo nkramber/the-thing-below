@@ -1,3 +1,34 @@
+## Session 370: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-64, round 2. Repository: the-thing-below. Branch: `feat/pr-64-traps-hazards`. PR: #92. Role: author. Base: `b7eb8bc`.
+
+### What this session did, and why
+
+- Gitar approved `8d652b0` with no thread. Its CI analysis named the RG 3 fault, which waits for the review record, and a PR comment answers it (D-964).
+- CI run 36346460741 passed each job except the screen-test job. The 91 changed frames show the snow, the ice, or the new `pit-trap-1x` frame. The two frames of the battle pointer change in 12 and 27 pixels, because the `ui` page grew with the faces.
+- This round commits the 92 baselines of the capture artifact of that run (D-733). The captures of the artifact match them.
+
+### The state of the build
+
+- The remote head before this push is `8d652b0`.
+
+### What is in flight
+
+- The CI of this push and its Gitar pass, then `make codex-review PR=92` (D-926).
+
+### Traps and gotchas
+
+- The full `make sheet` fails in the join, because the sheet passes 65535 rows. `make sheet FIXTURE=pit` joins one fixture.
+
+### The questions that block progress
+
+None for PR-64. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Wait for green CI and the Gitar pass on this head, then run `make codex-review PR=92` in the background.
+
 ## Session 369: 2026-09-27, Claude Code
 
 Author: Claude Code
@@ -295,34 +326,3 @@ None for PR-107. OQ-251 blocks PR-35.
 ### The next concrete action
 
 Run `make where`, commit the review record and handoff together, push to the PR branch, fetch, and verify the remote head with `gh pr view`.
-
-## Session 360: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-107, round 4. Repository: the-thing-below. Branch: `feat/pr-107-ability-power`. PR: #90. Role: author. Base: `48ed83b`.
-
-### What this session did, and why
-
-- Gitar approved `3e990d3` with no new finding.
-- The screen-test job of CI run 36303234544 named four captures: `menu-gear-1x`, `menu-gear-fill-1080`, `menu-gear-pack-1x`, and `menu-gear-pack-fill-1080`. Each shows "Marrek - Level 1" with one space on each side of the hyphen, and no other change. This round commits them as the new baseline (D-733, D-1214).
-
-### The state of the build
-
-- CI on `3e990d3` passed each check except `screen-test`, for the four frames above, and `review-gate`, for RG 3 alone.
-- The remote head before this push is `3e990d3`.
-
-### What is in flight
-
-- The Gitar pass of this push, then `make codex-review PR=90` when every check but `review-gate` is green.
-
-### Traps and gotchas
-
-- The full `make sheet` fails to join past 65,535 rows, and `make sheet FIXTURE=menu` works. PR-107 changes no capture count.
-
-### The questions that block progress
-
-None for PR-107. OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Run the Gitar poll, wait for green CI, and start the cross-provider review with `make codex-review PR=90`.

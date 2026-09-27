@@ -1,4 +1,35 @@
 # Session handoff archive
+## Session 360: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-107, round 4. Repository: the-thing-below. Branch: `feat/pr-107-ability-power`. PR: #90. Role: author. Base: `48ed83b`.
+
+### What this session did, and why
+
+- Gitar approved `3e990d3` with no new finding.
+- The screen-test job of CI run 36303234544 named four captures: `menu-gear-1x`, `menu-gear-fill-1080`, `menu-gear-pack-1x`, and `menu-gear-pack-fill-1080`. Each shows "Marrek - Level 1" with one space on each side of the hyphen, and no other change. This round commits them as the new baseline (D-733, D-1214).
+
+### The state of the build
+
+- CI on `3e990d3` passed each check except `screen-test`, for the four frames above, and `review-gate`, for RG 3 alone.
+- The remote head before this push is `3e990d3`.
+
+### What is in flight
+
+- The Gitar pass of this push, then `make codex-review PR=90` when every check but `review-gate` is green.
+
+### Traps and gotchas
+
+- The full `make sheet` fails to join past 65,535 rows, and `make sheet FIXTURE=menu` works. PR-107 changes no capture count.
+
+### The questions that block progress
+
+None for PR-107. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Run the Gitar poll, wait for green CI, and start the cross-provider review with `make codex-review PR=90`.
+
 ## Session 359: 2026-09-27, Claude Code
 
 Author: Claude Code
