@@ -1,3 +1,35 @@
+## Session 372: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-64, round 3. Repository: the-thing-below. Branch: `feat/pr-64-traps-hazards`. PR: #92. Role: author. Base: `b7eb8bc`.
+
+### What this session did, and why
+
+- Gitar approved `869cc59` with no thread. A PR comment answers its RG 3 claim again (D-964).
+- The review of `869cc59` gave `Changes required` with one finding, P2-1: a damage trap that downs a fighter posted no notice of the down.
+- P2-1 has full merit. A damage trap now posts `notice.fell_on_map` after its own notice when a fighter goes down and the party does not wipe. Two tests of `TrapRulesTests` prove it, and the first fails on `869cc59`. `docs/reviews/pr-92-response.md` records the answer.
+
+### The state of the build
+
+- Local: the build, 4271 tests, format, det-lint, and the replay identity pass.
+- The remote head before this push is `33bca20`, the review record.
+
+### What is in flight
+
+- The CI and the Gitar pass of this push, then the repeat review with `make codex-review PR=92` (D-926).
+
+### Traps and gotchas
+
+- The full `make sheet` fails in the join, because the sheet passes 65535 rows. `make sheet FIXTURE=pit` joins one fixture.
+
+### The questions that block progress
+
+None for PR-64. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Wait for green CI and the Gitar pass on this head, then run `make codex-review PR=92` in the background.
+
 ## Session 371: 2026-09-27, Codex
 
 Author: Codex
@@ -294,36 +326,3 @@ None for PR-16. OQ-251 blocks PR-35.
 ### The next concrete action
 
 Open the PR, run the Gitar poll, take the CI screen baselines, and answer each Gitar item before `make codex-review`.
-
-## Session 362: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-107, round 5. Repository: the-thing-below. Branch: `feat/pr-107-ability-power`. PR: #90. Role: author. Base: `48ed83b`.
-
-### What this session did, and why
-
-- The cross-provider review approved the effective head `b9258bcf`: `Ready for owner merge`, with no open finding (T-4, D-17). The record is `docs/reviews/pr-90.md`, in `bac52b5` and `4e261f4`.
-- Gitar approved `b9258bcf` with its one finding closed. Each Gitar item has its answer: the thread in `818c593`, and the three CI claims on RG 3 in PR comments (D-964).
-- The PR description now marks the `docs/reviews/` row as Changed.
-
-### The state of the build
-
-- CI on `b9258bcf` passed each check except `review-gate`, which waited for the record.
-- The remote head before this push is `4e261f4`, the review record.
-
-### What is in flight
-
-- The checks of this metadata commit, then the merge question to the owner (D-933, D-942). The PR then waits for the auto-merge (D-930).
-
-### Traps and gotchas
-
-- The archive move of the review record dropped the title line of `docs/session-handoff-archive.md`. This commit puts it back. A move script that takes the first line as the title must check it.
-- The full `make sheet` fails to join past 65,535 rows, and `make sheet FIXTURE=menu` works. PR-107 changes no capture count.
-
-### The questions that block progress
-
-None for PR-107. OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Ask the owner to confirm the merge with the summary of D-942, then turn on the auto-merge (D-930).

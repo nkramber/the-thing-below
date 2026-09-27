@@ -74,6 +74,32 @@ public sealed class TrapRulesTests
     }
 
     [Fact]
+    public void ADamageTrapThatDownsOneFighterWhileAnotherStandsPostsTheDownNotice()
+    {
+        // P2-1 of the review of PR #92 (D-392, D-1230, D-1241): the blade downs Marrek at 1 health,
+        // the second fighter stands, and the notice of the down follows the notice of the trap.
+        Simulation run = TestParty.StartEach(Seed, (slot, stored) => slot == 0 ? stored with { Health = 1 } : stored, TestBattles.WithParty(2), TrapMaps.Hall);
+
+        TrapMaps.WalkTo(run, TrapMaps.Blade.X);
+
+        Assert.True(run.State.Characters.Members[0].Down);
+        Assert.False(run.State.MapWiped);
+        Assert.Equal([TrapRules.DamageNotice.Value, MapHarmRules.FellNotice.Value], NoticeIds(run));
+    }
+
+    [Fact]
+    public void ADamageTrapThatWipesThePartyPostsNoDownNotice()
+    {
+        // D-397: the drain of the wipe tells the down of the whole party, so no notice of a down follows.
+        Simulation run = TestParty.Start(Seed, stored => stored with { Health = 1 }, null, TrapMaps.Hall);
+
+        TrapMaps.WalkTo(run, TrapMaps.Blade.X);
+
+        Assert.True(run.State.MapWiped);
+        Assert.Equal([TrapRules.DamageNotice.Value], NoticeIds(run));
+    }
+
+    [Fact]
     public void AStatusTrapPutsItsStatusOnEachStandingCharacterInTheOrderOfTheStatuses()
     {
         // D-75, D-1230: the needle puts poison before the silence that the first character holds, and

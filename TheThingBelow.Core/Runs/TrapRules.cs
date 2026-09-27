@@ -111,9 +111,18 @@ public static class TrapRules
         switch (harm.Kind)
         {
             case TrapHarmKind.Damage:
-                HurtEach(state, harm.Share ?? throw MissingValue(trap, TrapHarm.ShareField), context);
+                bool downed = HurtEach(state, harm.Share ?? throw MissingValue(trap, TrapHarm.ShareField), context);
                 log.Add(Entry(state, LogLevel.Info, "a damage trap fired", trap));
                 NoticeRules.Post(state, DamageNotice, context, log);
+
+                // A down that leaves a fighter who stands takes the notice of a down, as a harm of
+                // poison or bad air does. The drain of a wipe tells the down of the whole party
+                // (D-392, D-397, D-1241).
+                if (downed && !state.MapWiped)
+                {
+                    NoticeRules.Post(state, MapHarmRules.FellNotice, context, log);
+                }
+
                 return false;
             case TrapHarmKind.Status:
                 StatusKind status = harm.Status ?? throw MissingValue(trap, TrapHarm.StatusField);
@@ -157,15 +166,20 @@ public static class TrapRules
         NoticeRules.Post(state, DisarmNotice, context, log);
     }
 
-    private static void HurtEach(RunState state, int share, RunContext context)
+    /// <summary>Hurts each character who fights and stands, and tells whether the harm downed one (D-1230).</summary>
+    private static bool HurtEach(RunState state, int share, RunContext context)
     {
+        bool downed = false;
         foreach (PartyMember member in state.Characters.Members)
         {
             if (!member.Down)
             {
                 _ = MapHarmRules.Hurt(member, share, context);
+                downed |= member.Down;
             }
         }
+
+        return downed;
     }
 
     /// <summary>Puts one status on each character who fights and stands, and keeps the order of D-75.</summary>

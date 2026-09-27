@@ -1,4 +1,37 @@
 # Session handoff archive
+## Session 362: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-107, round 5. Repository: the-thing-below. Branch: `feat/pr-107-ability-power`. PR: #90. Role: author. Base: `48ed83b`.
+
+### What this session did, and why
+
+- The cross-provider review approved the effective head `b9258bcf`: `Ready for owner merge`, with no open finding (T-4, D-17). The record is `docs/reviews/pr-90.md`, in `bac52b5` and `4e261f4`.
+- Gitar approved `b9258bcf` with its one finding closed. Each Gitar item has its answer: the thread in `818c593`, and the three CI claims on RG 3 in PR comments (D-964).
+- The PR description now marks the `docs/reviews/` row as Changed.
+
+### The state of the build
+
+- CI on `b9258bcf` passed each check except `review-gate`, which waited for the record.
+- The remote head before this push is `4e261f4`, the review record.
+
+### What is in flight
+
+- The checks of this metadata commit, then the merge question to the owner (D-933, D-942). The PR then waits for the auto-merge (D-930).
+
+### Traps and gotchas
+
+- The archive move of the review record dropped the title line of `docs/session-handoff-archive.md`. This commit puts it back. A move script that takes the first line as the title must check it.
+- The full `make sheet` fails to join past 65,535 rows, and `make sheet FIXTURE=menu` works. PR-107 changes no capture count.
+
+### The questions that block progress
+
+None for PR-107. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Ask the owner to confirm the merge with the summary of D-942, then turn on the auto-merge (D-930).
+
 ## Session 361: 2026-09-27, Codex
 
 Author: Codex
