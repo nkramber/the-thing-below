@@ -171,6 +171,20 @@ public sealed class NightWorkflowTests
     }
 
     [Fact]
+    public void EachPushKeepsItsPromotionRunInTheOrderOfThePushes()
+    {
+        // P1-1 of the review of PR #89: a concurrency group keeps one pending run, and a new run
+        // cancels it, so a push lost its promotion. Each run now waits for each earlier run.
+        string[] lines = Lines(PromotePath);
+        int wait = Array.FindIndex(lines, line => line.Contains("- name: Wait for each earlier promotion run", StringComparison.Ordinal));
+        int facts = Array.FindIndex(lines, line => line.Contains("uses: ./.github/actions/night-facts", StringComparison.Ordinal));
+
+        Assert.DoesNotContain("concurrency:", lines);
+        Assert.True(wait > 0 && wait < facts, "The wait for the earlier runs comes before the read of the facts.");
+        Assert.Contains("select(.status != \\\"completed\\\" and .id < $RUN_ID)", Text(PromotePath), StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void TheFactsReadAPromotionOfAPushRunOfThePromoteWorkflowAlone()
     {
         // D-1202: an artifact of the same name from another workflow or branch takes no part.

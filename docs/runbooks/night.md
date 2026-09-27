@@ -86,7 +86,7 @@ The night of a fix plays the range of the failed night with the `first-seed` inp
 - The branch night played the same first seed and the same count of runs of each policy as the failed night.
 - The tree of the merge commit differs from the tree of the night commit in paths of a docs-only PR alone.
 
-The job summary of the run names each condition that did not hold. Read the newest promotion with these commands:
+Each push to `main` gets its own run, and each run waits for each earlier run to end. The checks thus follow the order of the pushes, and no push loses its run. The job summary of the run names each condition that did not hold. Read the newest promotion with these commands:
 
 ```bash
 gh run list --workflow night-promote.yml --limit 5

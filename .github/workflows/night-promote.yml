@@ -24,10 +24,8 @@ permissions:
   actions: read
   pull-requests: read
 
-# One promotion at a time, in the order of the pushes.
-concurrency:
-  group: night-promote
-  cancel-in-progress: false
+# No concurrency group: GitHub keeps one pending run for each group, and a new run cancels the
+# pending one, so a push could lose its promotion. Each run waits for each earlier run instead.
 
 env:
   DOTNET_NOLOGO: "true"
@@ -37,11 +35,34 @@ jobs:
   night-promote:
     name: night-promote
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 40
     defaults:
       run:
         shell: bash
     steps:
+      # Each push gets its own run, and each run checks the promotion only after each earlier run
+      # of this workflow ended. The checks thus follow the order of the pushes, and no push loses
+      # its run (D-1202). An earlier run that stays open past 15 minutes fails this run (T-2).
+      - name: Wait for each earlier promotion run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          end=$(( $(date +%s) + 900 ))
+          while :; do
+            earlier=$(gh api "repos/$REPO/actions/workflows/night-promote.yml/runs?per_page=50" \
+              --jq "[.workflow_runs[] | select(.status != \"completed\" and .id < $RUN_ID) | .id] | join(\" \")")
+            if [ -z "$earlier" ]; then echo "No earlier promotion run is open."; break; fi
+            if [ "$(date +%s)" -ge "$end" ]; then
+              echo "The earlier promotion runs $earlier stayed open for 15 minutes, so this run stops (D-1202)." >&2
+              exit 1
+            fi
+            echo "The earlier promotion runs $earlier are open. The run waits."
+            sleep 20
+          done
+
       # The full history of `main`, so the job can compare the trees.
       - name: Check out the pushed commit of main
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
