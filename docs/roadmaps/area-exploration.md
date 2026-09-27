@@ -22,7 +22,7 @@ Text rules: this file follows ASD-STE100 (D-10). Tables are exempt from sentence
 
 Exploration is the part of the game between the fights. The party walks a tile map, sees each enemy before it fights, and opens what a dungeon holds (D-37, D-41, D-106). Core holds every rule: the tiles, the movement, the sight, the patrols, and the dungeon parts. Game draws the map and slides each step across the ticks of that step (D-203). One rule file holds each map, and the generated files beside it never reach the content hash (D-495, D-528).
 
-The order of the area follows the first screen. PR-7 builds the map, the movement, the sight, and the map scene. PR-8 adds the enemies that walk it, and the battle PRs follow. The dungeon parts split across PR-16 and PR-64, the hub across PR-14 and PR-65, and the region map lands in PR-35 (D-529, D-530). The puzzles and the secrets of PR-21 close the area in Phase 3.
+The order of the area follows the first screen. PR-7 builds the map, the movement, the sight, and the map scene. PR-8 adds the enemies that walk it, and the battle PRs follow. The dungeon parts split across PR-16 and PR-64, the hub across PR-14 and PR-65, and the overworld across PR-35, PR-109, and PR-110 (D-529, D-530, D-1254). The puzzles and the secrets of PR-21 close the area in Phase 3.
 
 ## 5. Findings that bind this area
 
@@ -169,7 +169,7 @@ Built by PR-16. Phase file: `phase-2-first-playable.md`.
 - A Theft drill on one of the three who fight opens a lock that the map marks as pickable. A story lock always needs its key (D-386).
 - A key is a key item on the Keyring, and it stays in the pack after it opens a lock (D-1219).
 - A chest over the stack limit keeps what the party cannot carry, and the save records what remains (D-385).
-- The exit of the dungeon enters the map that it names. The fixture exit leads to the fixture hub until PR-35 builds the region map (D-113, D-1216).
+- The exit of the dungeon enters the map that it names. The fixture exit leads to the fixture hub until PR-35 builds the overworld (D-1216, D-1242).
 - A bot run that wipes reloads and continues, and a two-character party can still reach the exit (the exit tests of PR-16).
 
 > *In plain English:* dungeons gain their chests, doors, keys, and waystones. A thief can pick some locks, and the story keeps its own doors shut until you find the key.
@@ -233,19 +233,21 @@ Built by PR-65. Phase file: `phase-2-first-playable.md`.
 
 > *In plain English:* every fight pays a little, and the gold buys gear, supplies, and a bed. Some shops close for good when the story turns.
 
-### 7.13 The region map
+### 7.13 The overworld
 
-Built by PR-35. Phase file: `phase-2-first-playable.md`.
+Built by PR-35, PR-109, and PR-110. Phase file: `phase-2-first-playable.md`.
 
-- The region map is a screen of nodes and routes, and the party moves node to node (D-113).
-- A route opens and closes with a story flag (D-40, D-113, D-329).
-- The autosave writes on each arrival at a node (D-224).
-- No clock runs, so a route costs no time (D-442). OQ-122 holds the format and the cost of a route.
-- The region map plays one track, and it shows no sign of night (D-430, D-445).
-- The layout of region one follows `docs/world/places.md` (D-250, D-255, D-371).
-- A closed route refuses the move, the screen says why, and a replay reproduces the path (the exit tests of PR-35).
+- The overworld is a walkable map between the places, at the scale of Final Fantasy VI. The map shows the lead alone, and a place is a small mark (D-1242, D-1245).
+- The overworld is a map file of the kind `overworld`, with the terrain and the things of every map (D-1243).
+- An entrance enters the map of its place. The exit of a place leads back to the overworld, onto the entrance of that place (D-1216, D-1243).
+- A gate holds a condition of the PR-68 form and a notice. The lead passes it only while the condition holds (D-543, D-1243).
+- A step costs nothing, because no clock runs (D-442, D-1243).
+- The autosave writes on each step onto the overworld (D-1246).
+- The story sets the time and the dark of the overworld, and one track plays at every time (D-1252).
+- PR-109 adds the invisible encounters: a step counter, and zones that name a rate, a weighted list of groups, and an optional condition (D-1247 to D-1251).
+- PR-110 lays out the overworld of region one from `docs/world/places.md` (D-250, D-255, D-371, D-1244).
 
-> *In plain English:* between places the party travels on a map of the region, along roads that the story opens and closes.
+> *In plain English:* between places the party walks a small map of the region, as in Final Fantasy VI. The story opens and closes its roads.
 
 ### 7.14 Maps by PR
 
@@ -261,7 +263,9 @@ Built by PR-35. Phase file: `phase-2-first-playable.md`.
 | PR-64 | The traps, the hazards, and the statuses that last on the map | D-390 to D-393, D-529 |
 | PR-14 | The hub map, the NPCs and their movement, the rest, the save, and the party swap | D-59, D-112, D-530, D-1131 to D-1140 |
 | PR-65 | The shop and the gold economy | D-60, D-530, D-1149 to D-1161 |
-| PR-35 | The region map, its nodes, and its routes | D-113 |
+| PR-35 | The overworld, its entrances, its gates, and its autosave | D-1242 to D-1246 |
+| PR-109 | The invisible encounters of the overworld: the step counter and the zones | D-1247 to D-1251 |
+| PR-110 | The overworld of region one | D-250, D-255, D-371, D-1244 |
 | PR-21 | The switches, the blocks, the light and dark, and the secrets | D-41 |
 | PR-17 | The village, the land near it, the mining town, and the hanging cells | D-313, D-362, D-369 |
 | PR-23 to PR-27 | The deep mine, the second visit to the cells, the border fort, the ice crossing, and the second hub, the refuge | D-313, D-327, D-574 |
@@ -324,7 +328,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 10. PR-65: the shop and the gold economy, after PR-13 (D-530).
 11. PR-16: the treasure, the doors, the keys, and the save points.
 12. PR-64: the traps, the hazards, and the statuses on the map (D-529).
-13. PR-35: the region map.
+13. PR-35, PR-109, and PR-110: the overworld, its encounters, and the overworld of region one (D-1254).
 14. PR-52 and PR-53: the map preview and the tile-edge tool, before PR-17 (D-497).
 15. PR-17: the village, the town, and the first dungeons.
 16. **← GATE 2 (first playable).**
@@ -339,7 +343,7 @@ The register is `docs/questions.md` (D-19). These questions block exploration PR
 - OQ-119: what a trap does, and what a Theft drill does to it. Resolved by D-1226 and D-1228 to D-1231.
 - OQ-120: the hazards of region one. Resolved by D-1227 and D-1232 to D-1235.
 - OQ-121: the prices, the buy-back, and the stock of a shop. Resolved by D-1149 to D-1155.
-- OQ-122: the format of the region map, and the cost of a route. Blocks PR-35.
+- OQ-122: the format of the overworld, and the cost of a step. Resolved by D-1242 and D-1243.
 - OQ-123: how the player finds a secret. Blocks PR-21.
 - OQ-217: how far the party sees in the dark. Blocks PR-91.
 - OQ-218: how much farther an enemy sees a lit torch. Blocks PR-91.

@@ -58,7 +58,7 @@ Area file: `area-story.md` section 7.6.
 
 **Exit tests.**
 
-1. A fixture branch closes a route on the region map, and the screen says why (D-113).
+1. A fixture branch closes a gate of the overworld, and the screen says why (D-1243).
 2. A replay of that run reproduces the branch.
 3. A fixture choice changes a hub, and the hub holds the change across a save and a load.
 4. A fixture choice sets a new time of day, and the light and the music follow (D-428, D-442).

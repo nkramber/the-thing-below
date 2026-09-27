@@ -38,7 +38,7 @@ Game terms from the roadmap interview of 2026-09-12:
 | arc | the part of the main story that one region tells (D-56, D-131) | plot, chapter |
 | encounter | one battle against one enemy group | fight, combat, when a noun |
 | patrol | one enemy that a map places, with its routes, its size, and its group (D-740, D-752) | mob, spawn, guard, map enemy |
-| route | the list of tiles that one patrol or one NPC walks (D-739, D-1138). `docs/design.md` and D-113 use the same word for a link of the region map | path, waypoint list |
+| route | the list of tiles that one patrol or one NPC walks (D-739, D-1138). The node map of D-113 used the same word for a link, and D-1242 superseded that map | path, waypoint list |
 | area | the rectangle that holds a large enemy, in the place of a route (D-209, D-741) | zone, pen, region, for this rectangle |
 | body | the tiles that one enemy holds: one, two by two, or three by three (D-206, D-737) | footprint, hitbox |
 | timeline | the visible turn order in battle (D-29) | queue, initiative |
@@ -115,7 +115,10 @@ Game terms from the roadmap interview of 2026-09-12:
 | atlas | the PNG the tool renders from every grid (D-107) | sheet, texture |
 | portrait | the 64 by 64 face in the dialogue box (D-109, D-234) | avatar, face |
 | backdrop | the battle background of a place (D-111) | background, stage |
-| region map | the node and route screen between places (D-113) | overworld, world map |
+| overworld | the walkable map between the places of a region, at the scale of Final Fantasy VI (D-1242, D-1245, D-1253) | region map, world map |
+| entrance | a thing of the overworld that enters the map of a place on a step onto it (D-1243) | exit, which names the thing of a place that leads out |
+| gate | a thing of the overworld that the party passes only while its condition holds (D-1243). A process gate always takes its qualifier: PR gate, phase gate, night gate | barrier, block, story gate |
+| zone | an area of the overworld with an encounter rate, a weighted list of groups, and an optional condition (D-1250, D-1251) | region, band, for this area |
 | story scene | a scripted story beat on the map, which Core runs (D-114, D-540, D-572) | cutscene, event, scene alone |
 | map scene | the Game screen that draws a map (D-572) | scene alone |
 | battle scene | the Game screen that draws a fight (D-572) | scene alone |

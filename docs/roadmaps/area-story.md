@@ -72,7 +72,7 @@ Built by PR-68, and used by PR-18, PR-14, PR-35, and PR-19. Phase file: `phase-2
 
 - A story flag is a name that is on or off, and Core holds the set of the flags that are on (D-542).
 - The flag file `content/rules/flags.json` declares every flag id with one line of prose (D-1003). A load fails on an id that the file does not declare (T-2).
-- One condition form serves every reader (D-543). The readers are a story scene step, a route of the region map, a hub line, a quest, and an enemy group.
+- One condition form serves every reader (D-543). The readers are a story scene step, a gate and a zone of the overworld, a hub line, a quest, and an enemy group (D-1242, D-1251).
 - Core validates each condition at load against the declared ids, so one parser, one test, and one error message cover every reader (T-1, T-2).
 - PR-68 takes the flag set and the condition form, because a story scene step sets a flag and PR-18 lands in Phase 3 (D-544, F-55).
 - A flag id is permanent, and the snapshot of the prologue carries each flag into the full game (D-163, D-166).
@@ -189,7 +189,7 @@ Built by PR-68, PR-18, PR-19, PR-15, and PR-49. Phase files: `phase-2-first-play
 - A fixture scene runs to its end, and a replay of that run gives the same state hash (G-5, D-504).
 - Each PR adds its fixture run and its hash to the identity file (G-5, D-504).
 - A bot answers each wait intent, so the night of PR-49 plays every story scene of region one (D-64, G-22).
-- A fixture branch closes a route on the region map, and a replay reproduces the branch (the exit tests of PR-18).
+- A fixture branch closes a gate of the overworld, and a replay reproduces the branch (the exit tests of PR-18).
 - A fixture quest completes, a hub line changes with a story flag, and a finished task unlocks a side aptitude (the exit tests of PR-19).
 - The bots play the fixture dungeon with each side aptitude absent in turn (D-282, D-304).
 - A save from an older snapshot format loads through its migration, with a fixture save (D-166).
@@ -217,7 +217,7 @@ Built by PR-68, PR-18, PR-19, PR-15, and PR-49. Phase files: `phase-2-first-play
 | The UI base, the dialogue box, and the text speed | `area-ui-input.md` | PR-61, PR-36, and PR-63 |
 | The portraits and the sprites that a story scene moves | `area-art.md` | PR-34 and PR-17 |
 | The maps and the triggers that a story scene plays on | `area-exploration.md` | PR-7, PR-14, and PR-16 |
-| The routes of the region map that a flag closes | `area-exploration.md` | PR-35 |
+| The gates of the overworld that a condition closes | `area-exploration.md` | PR-35 |
 | The side aptitude that a personal task unlocks | `area-progression.md` | PR-12 |
 | The boss phases with their scripted moves | `area-battle.md` | PR-20 |
 | The screenplay tool and the headless runner | `area-tools.md` | PR-50 and PR-15 |
@@ -250,7 +250,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 4. PR-50: the screenplay tool (D-545).
 5. PR-14: the first hub, whose services read a condition of PR-68 (`area-exploration.md`).
 6. PR-36: the dialogue box, the portraits, and the story scene presentation.
-7. PR-35: the region map, with routes that a condition closes.
+7. PR-35: the overworld, with gates that a condition closes (D-1243).
 8. PR-17: the text of three characters and a placeholder story scene.
 9. **← GATE 2 (first playable).**
 10. PR-18: the branches, the choice effects, and the lost ally, in Phase 3.
