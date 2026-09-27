@@ -1,4 +1,38 @@
 # Session handoff archive
+## Session 348: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-108, round 3. Repository: the-thing-below. Branch: `feat/pr-108-night-recovery`. PR: #89. Role: author. Base: `a8ba710`.
+
+### What this session did, and why
+
+- The second Gitar pass found one edge case: a failed start Pushover stopped the start after the worktree existed, and each retry left one more worktree.
+- `9944c29` makes each Pushover of the watcher best-effort, with a log line for a failed send. A start that fails before its session removes its worktree and its mark (D-1205, T-2).
+- The watcher command now takes its program runners as delegates, so three tests drive the start with fakes of git, gh, and Claude Code (T-3).
+- The review gate now fails on RG 3 alone, the review record that this PR waits for.
+
+### The state of the build
+
+- Local build, format, and STE are clean. The 19 watcher tests pass.
+- The remote head before this push is `c6a9563`.
+
+### What is in flight
+
+- The Gitar pass of this push, then `make codex-review PR=89`.
+- After the merge: `make night-watch-install` on the Mac, and one test message through `notify.yml`.
+
+### Traps and gotchas
+
+- `notify.yml`, `night-promote.yml`, and the facts action first run from `main`, after the merge (F-37).
+- A command that ends with `cat` and no input waits forever in the shell of the harness.
+
+### The questions that block progress
+
+None for PR-108. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Run the Gitar poll. When every check is green, run `make codex-review PR=89` in the background.
 ## Session 347: 2026-09-27, Claude Code
 
 Author: Claude Code

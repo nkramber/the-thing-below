@@ -1,3 +1,35 @@
+## Session 358: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-107, round 2. Repository: the-thing-below. Branch: `feat/pr-107-ability-power`. PR: #90. Role: author. Base: `48ed83b`.
+
+### What this session did, and why
+
+- Gitar approved `5a107ae` with one finding: a regain rate of 0 still gave 1 AP through the floor. `818c593` makes the rules file refuse a rate of 0, with regression rows in `BattleFixtureTests`. Gitar offered an early return in `Regain`. The load refusal is better, because a 0 that loads and does nothing is a silent fault (T-2).
+- The Gitar CI claim on `review-gate` is RG 3 alone: no review record yet. It needs no fix.
+- The screen-test job of CI run 36302235212 named 31 captures. Each one shows AP in place of MP. `battle-lessons-1x` and `battle-lessons-fill-1080` also show "2AP - A hard cut at the front row.", because Hew now costs AP. This round commits the 31 files as the new baseline (D-733).
+
+### The state of the build
+
+- CI on `5a107ae` passed each check except `screen-test`, for the frames above, and `review-gate`, for RG 3.
+- The remote head before this push is `5a107ae`.
+
+### What is in flight
+
+- The Gitar pass of this push, then `make codex-review PR=90` when every check but `review-gate` is green.
+
+### Traps and gotchas
+
+- `make sheet` captures each frame, then fails to join the sheet: the joined image passes 65,535 rows. PR-107 changes no capture, so the fault was on `main` before it.
+
+### The questions that block progress
+
+None for PR-107. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Answer the Gitar thread with `818c593`, run the Gitar poll, and then start the cross-provider review.
+
 ## Session 357: 2026-09-27, Claude Code
 
 Author: Claude Code
@@ -307,38 +339,3 @@ None for PR-108. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
 ### The next concrete action
 
 The author fixes P1-1. Then run `make codex-review PR=89` for a repeat review.
-
-## Session 348: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-108, round 3. Repository: the-thing-below. Branch: `feat/pr-108-night-recovery`. PR: #89. Role: author. Base: `a8ba710`.
-
-### What this session did, and why
-
-- The second Gitar pass found one edge case: a failed start Pushover stopped the start after the worktree existed, and each retry left one more worktree.
-- `9944c29` makes each Pushover of the watcher best-effort, with a log line for a failed send. A start that fails before its session removes its worktree and its mark (D-1205, T-2).
-- The watcher command now takes its program runners as delegates, so three tests drive the start with fakes of git, gh, and Claude Code (T-3).
-- The review gate now fails on RG 3 alone, the review record that this PR waits for.
-
-### The state of the build
-
-- Local build, format, and STE are clean. The 19 watcher tests pass.
-- The remote head before this push is `c6a9563`.
-
-### What is in flight
-
-- The Gitar pass of this push, then `make codex-review PR=89`.
-- After the merge: `make night-watch-install` on the Mac, and one test message through `notify.yml`.
-
-### Traps and gotchas
-
-- `notify.yml`, `night-promote.yml`, and the facts action first run from `main`, after the merge (F-37).
-- A command that ends with `cat` and no input waits forever in the shell of the harness.
-
-### The questions that block progress
-
-None for PR-108. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Run the Gitar poll. When every check is green, run `make codex-review PR=89` in the background.
