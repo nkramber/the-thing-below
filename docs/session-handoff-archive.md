@@ -1,4 +1,35 @@
 # Session handoff archive
+## Session 364: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-16, round 2. Repository: the-thing-below. Branch: `feat/pr-16-dungeon-parts`. PR: #91. Role: author. Base: `78b0d24`.
+
+### What this session did, and why
+
+- Gitar approved `7c0483b` with no thread. Its one CI claim, RG 3 of `review-gate`, has its answer in a PR comment: the review record comes with the cross-provider review (D-964).
+- CI run 36337887982 passed each leg but `screen-test` and `review-gate`. The author read the 45 changed captures and took them as the baseline: the form line of D-1209 with the space of the owner, the Items window with the key items, the map screen with the waystone and the exit, and the walk, scroll, and pit frames that now draw the waystone and the cache chest (D-733, D-784).
+
+### The state of the build
+
+- Each build, test, smoke, replay-identity, bots, det-lint, night-gate, and ste-check leg passed on `7c0483b`.
+- The remote head before this push is `7c0483b`.
+
+### What is in flight
+
+- The CI legs of the baseline commit, then `make codex-review PR=91`.
+
+### Traps and gotchas
+
+- The baseline commit changes screens alone, so it moves the effective head, and Gitar reviews it again.
+
+### The questions that block progress
+
+None for PR-16. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Wait for the Gitar poll and the checks of the baseline commit, then run `make codex-review PR=91` in the background.
+
 ## Session 363: 2026-09-27, Claude Code
 
 Author: Claude Code
