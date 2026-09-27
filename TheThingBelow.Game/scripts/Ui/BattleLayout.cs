@@ -128,6 +128,31 @@ public static class BattleLayout
     /// <summary>The count of the columns of the command menu: two rows of three hold the six commands (D-1031, D-1034).</summary>
     public const int CommandColumns = 3;
 
+    /// <summary>The count of the rows of the command menu that the box shows at once (D-1034).</summary>
+    public const int CommandRows = 2;
+
+    /// <summary>
+    /// Gives the first entry that the command menu shows: the start of the row above the row of
+    /// the cursor, so the box shows the row of the cursor and its neighbor, and a list longer than
+    /// the box scrolls one row at a time (D-1195).
+    /// </summary>
+    /// <param name="count">The count of entries of the list.</param>
+    /// <param name="cursor">The entry under the cursor, or -1 for no cursor.</param>
+    /// <returns>The index of the first entry that the box shows, at the start of a row.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The count is below zero, or the cursor is outside the list (T-2).</exception>
+    public static int FirstShown(int count, int cursor)
+    {
+        if (count < 0 || cursor < -1 || cursor >= Math.Max(count, 1))
+        {
+            throw new ArgumentOutOfRangeException(nameof(cursor), cursor, $"The command menu holds {count} entries, and the cursor stands outside them (T-2).");
+        }
+
+        int rows = (count + CommandColumns - 1) / CommandColumns;
+        int lastFirstRow = Math.Max(0, rows - CommandRows);
+        int cursorRow = Math.Max(cursor, 0) / CommandColumns;
+        return Math.Min(Math.Max(0, cursorRow - (CommandRows - 1)), lastFirstRow) * CommandColumns;
+    }
+
     /// <summary>The frame pixels between two rows of the command menu.</summary>
     public const int CommandRowGap = 4;
 

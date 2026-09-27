@@ -94,6 +94,10 @@
    "text": "No room for {item}. It stays."
   },
   {
+   "id": "battle.enemy_letters",
+   "text": "ABCDEFGHIJKL"
+  },
+  {
    "id": "battle.fled",
    "text": "Away. Nobody follows."
   },
@@ -108,6 +112,10 @@
   {
    "id": "battle.form_entry_free",
    "text": "{form}"
+  },
+  {
+   "id": "battle.form_help",
+   "text": "{mp}MP  -  {text}"
   },
   {
    "id": "battle.heal",
@@ -152,6 +160,10 @@
   {
    "id": "battle.lesson",
    "text": "{actor}: {form}."
+  },
+  {
+   "id": "battle.lettered_name",
+   "text": "{name} {letter}"
   },
   {
    "id": "battle.level_up",

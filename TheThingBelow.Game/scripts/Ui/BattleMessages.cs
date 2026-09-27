@@ -51,6 +51,18 @@ public static class BattleMessages
     /// <summary>The place in a line of the name of an item (D-1046).</summary>
     public const string ItemPlace = "item";
 
+    /// <summary>The place of the name of the kind in a lettered name (D-1194).</summary>
+    public const string NamePlace = "name";
+
+    /// <summary>The place of the letter in a lettered name (D-1194).</summary>
+    public const string LetterPlace = "letter";
+
+    /// <summary>The string of the name of an enemy with its letter, such as `Grunt B` (D-1194).</summary>
+    public static readonly ContentId LetteredNameId = IdOf("battle.lettered_name");
+
+    /// <summary>The string of the letters of the enemies of one kind, one character for each, in slot order (D-1194).</summary>
+    public static readonly ContentId LettersId = IdOf("battle.enemy_letters");
+
     /// <summary>
     /// Gives the line of one event, or no value for a turn, a win, or the summary. A turn changes only who
     /// acts, a win keeps the line of the last event on screen, and the summary shows above each head (D-835, D-975).
@@ -178,8 +190,81 @@ public static class BattleMessages
         return new BattleLine(id, filled);
     }
 
+    /// <summary>
+    /// Gives the name of a combatant as the battle screen shows it: the name of its kind, and a
+    /// letter when the fight holds more than one enemy of that kind, such as `Grunt B` (D-1194).
+    /// </summary>
+    /// <param name="view">The shown fight.</param>
+    /// <param name="target">The combatant.</param>
+    /// <param name="strings">The string table.</param>
+    /// <returns>The string id of the name, and the values that fill it.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    public static (ContentId Id, IReadOnlyDictionary<string, string> Values) NameLineOf(BattleView view, BattleTarget target, StringTable strings)
+    {
+        ArgumentNullException.ThrowIfNull(view);
+        ArgumentNullException.ThrowIfNull(strings);
+
+        ShownCombatant shown = view.At(target);
+        ContentId nameId = NameIdOf(shown.Id);
+        if (LetterOf(view, shown, strings) is not string letter)
+        {
+            return (nameId, new SortedDictionary<string, string>(StringComparer.Ordinal));
+        }
+
+        var values = new SortedDictionary<string, string>(StringComparer.Ordinal)
+        {
+            [NamePlace] = strings.Text(nameId),
+            [LetterPlace] = letter,
+        };
+        return (LetteredNameId, values);
+    }
+
+    /// <summary>
+    /// Gives the letter of an enemy whose kind the fight holds more than once: its place among
+    /// the enemies of that kind in slot order, waiting enemies included. The letter thus stays
+    /// with the enemy for the whole fight (D-1194).
+    /// </summary>
+    /// <param name="view">The shown fight.</param>
+    /// <param name="shown">The combatant.</param>
+    /// <param name="strings">The string table, which holds the letters.</param>
+    /// <returns>The letter, or no value for a character or for the one enemy of its kind.</returns>
+    /// <exception cref="InvalidOperationException">The fight holds more enemies of one kind than the table holds letters (T-2).</exception>
+    public static string? LetterOf(BattleView view, ShownCombatant shown, StringTable strings)
+    {
+        ArgumentNullException.ThrowIfNull(view);
+        ArgumentNullException.ThrowIfNull(shown);
+        ArgumentNullException.ThrowIfNull(strings);
+
+        if (shown.Target.Side != BattleSide.Enemy)
+        {
+            return null;
+        }
+
+        int same = 0;
+        int before = 0;
+        foreach (ShownCombatant enemy in view.Enemies)
+        {
+            if (string.CompareOrdinal(enemy.Id.Value, shown.Id.Value) == 0)
+            {
+                same += 1;
+                before += enemy.Target.Slot < shown.Target.Slot ? 1 : 0;
+            }
+        }
+
+        if (same < 2)
+        {
+            return null;
+        }
+
+        string letters = strings.Text(LettersId);
+        return before < letters.Length
+            ? letters[before].ToString()
+            : throw new InvalidOperationException(
+                $"The fight holds {same} enemies of the kind '{shown.Id.Value}', and the string '{LettersId.Value}' holds {letters.Length} letters (D-1194, T-2).");
+    }
+
     private static KeyValuePair<string, string> Actor(BattleEvent played, BattleView view, StringTable strings) =>
-        new(ActorPlace, strings.Text(NameIdOf(view.At(played.Actor).Id)));
+        new(ActorPlace, NameOf(view, played.Actor, strings));
 
     private static KeyValuePair<string, string> Target(BattleEvent played, BattleView view, StringTable strings)
     {
@@ -187,7 +272,13 @@ public static class BattleMessages
             $"The battle event '{BattleEvents.NameOf(played.Kind)}' of {played.Actor.Describe()} holds no target (T-2).",
             nameof(played));
 
-        return new(TargetPlace, strings.Text(NameIdOf(view.At(target).Id)));
+        return new(TargetPlace, NameOf(view, target, strings));
+    }
+
+    private static string NameOf(BattleView view, BattleTarget target, StringTable strings)
+    {
+        (ContentId id, IReadOnlyDictionary<string, string> values) = NameLineOf(view, target, strings);
+        return TextHelper.Fill(strings.Text(id), id, values);
     }
 
     /// <summary>Gives the name of the form of a lesson event: `name.` and the name part of its ability (D-1026, D-1027).</summary>

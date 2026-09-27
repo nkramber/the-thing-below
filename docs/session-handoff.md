@@ -1,3 +1,78 @@
+## Session 345: 2026-09-27, Codex
+
+Author: Codex
+Session: review PR #88 (PR-49). Repository: the-thing-below. Branch: `review/pr-88`, which tracks `origin/feat/pr-49-night-gate`. Role: reviewer. Base: `defedf6`.
+
+### What this session did, and why
+
+- The cross-provider review found no defect at effective head `758ff43` (T-4, D-17).
+- The stale green head-night Gitar finding is fixed in `b1851c3`. Its regression tests pass, and Gitar verified the fix (G-22, D-1188, D-964).
+- The CI analysis claim names RG 3 alone: the review record that this session adds (D-17, D-926).
+- The PR description now names `docs/reviews/pr-88.md` in its Documents section (D-577, D-581).
+- The review read each changed battle frame from the CI capture artifact. No visual fault appeared (D-784).
+
+### The state of the build
+
+- Local `dotnet build` passed with 0 warnings and 0 errors. `make test` passed 4,068 tests.
+- CI run `36288648659` passed the build, tests, format, smoke, det-lint, replay-identity, screen-test, bots, STE, and coverage checks.
+- The remote branch head before this metadata commit is `758ff43`. `review-gate` awaits this review record.
+
+### What is in flight
+
+- The review record and this entry need one metadata commit and a push to `feat/pr-49-night-gate`.
+- The verdict is `Ready for owner merge`. The PR then waits for the owner merge (D-930).
+
+### Traps and gotchas
+
+- The live `night-gate` check does not run on PR-88. It first runs from `main` on a later PR (F-37, D-500).
+- After the merge, the PR-49 author session runs the first night on `main` and adds the required check (D-1192).
+
+### The questions that block progress
+
+None for PR #88.
+
+### The next concrete action
+
+Commit and push this review record and entry together, then verify the remote head.
+## Session 344: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-49, round 1. Repository: the-thing-below. Branch: `feat/pr-49-night-gate`. PR: the one PR-49 intent, with no GitHub number before the push. Role: author. Base: `defedf6`.
+
+### What this session did, and why
+
+- The owner answered OQ-81, OQ-82, and OQ-84 (D-1188 to D-1190), the night counts (D-1191), and the join of `night-gate` to the protection of `main` (D-1192). G-22 now counts the 48 hours from the last push.
+- The session built the night: the workflow `night`, the `night` command, the night record, the `night-gate` command, and the workflow `night-gate` on `pull_request_target`. The runbook is `docs/runbooks/night.md`.
+- A measure found F-155: the `bots` command kept each run record, 5.8 GB at 20,000 runs. The bot totals keep none now, and 60,000 runs held 182 MB.
+- The owner added two battle screen changes to this PR (D-1193): one list of forms with the cost in the message box (D-1195), and a letter on each enemy of a kind that a fight holds twice (D-1194).
+- The owner set ability power, AP, for PR-107 right after PR-49 (D-1196 to D-1199). OQ-252 blocks PR-107.
+- The session corrected two slips of PR-15 on owner approval: the resolution lines of OQ-74 and OQ-80, and a stray `\n` in F-154.
+- The owner note: the first item of PR-35 settles OQ-251, the node map of D-113 or a walkable overworld in the style of Final Fantasy VI, with OQ-122. Each later transitional prompt names OQ-251 until PR-35 starts.
+
+### The state of the build
+
+- The remote head of `main` is `defedf6`. The branch holds the night commit and the UI commit, and it goes to origin with this entry.
+- `make verify` passed on the UI commit on this machine.
+
+### What is in flight
+
+- The screen-test job fails on the frames of the battle menu until the session commits the CI captures as the new baselines (D-733).
+- The Gitar pass, then `make codex-review`.
+
+### Traps and gotchas
+
+- `make sheet` with no fixture fails: the contact sheet passes 65,535 rows. `make sheet FIXTURE=battle` works.
+- The live night gate cannot run on this PR (F-37, D-500). After the merge, the session runs the first night on `main` and then requires the check (D-1192).
+- The night counts come from one bot job. A slower rate needs a new measure (G-14).
+
+### The questions that block progress
+
+None for PR-49. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Push, open the PR, commit the CI captures of the changed battle frames as baselines, and answer the Gitar pass.
+
 ## Session 343: 2026-09-26, Claude Code
 
 Author: Claude Code
@@ -262,71 +337,3 @@ None. OQ-250 blocks no PR yet.
 ### The next concrete action
 
 When CI is green but `review-gate` and Gitar completes, run `make codex-review PR=86` in the background.
-
-## Session 335: 2026-09-26, Codex
-
-Author: Codex
-Session: reviewer PR #86. Repository: the-thing-below. Branch: `review/pr-86`. PR: #86. Role: reviewer. Base: `6f02d3d`.
-
-### What this session did, and why
-
-- The review found P2-1: a repeated line id can leave the previous speaker's portrait and name on screen (D-223, D-997).
-- The review records `Changes required` for effective head `cd1d452` (T-4, D-17).
-- The `docs/reviews/` Documents row now names `docs/reviews/pr-86.md` (D-581).
-
-### The state of the build
-
-- `make verify` passes on macOS with 3,937 tests. CI run `36271984962` passes every job except `review-gate`, which awaited this review record. The remote head before the metadata commit is `cd1d452`.
-
-### What is in flight
-
-- The author must correct P2-1, add its regression test, and request a repeat review.
-
-### Traps and gotchas
-
-- The CI capture artifact is the visual source for screen review (D-733). The local renderer does not reproduce its baselines.
-- The clean Gitar approval has no item. The CI analysis claim is RG 3 alone (D-964).
-
-### The questions that block progress
-
-None. OQ-250 concerns the pause of a story-scene fight and blocks no PR yet.
-
-### The next concrete action
-
-The author corrects P2-1 and requests a repeat review of PR #86.
-
-## Session 334: 2026-09-26, Claude Code
-
-Author: Claude Code
-Session: author PR-36, round 1. Repository: the-thing-below. Branch: `feat/pr-36-dialogue`. PR: #86. Role: author. Base: `6f02d3d`.
-
-### What this session did, and why
-
-- The owner answered OQ-150 and OQ-151, folded the playtest fixes of PR-65 into PR-36, and set the text batch and the scope (D-1172 to D-1178). OQ-250 is new.
-- Core: a choice holds two to four options, and the simulation version rises to 33 (D-1175, G-17).
-- Game: `ScenePlay` follows each step from the ticks and sends one wait intent at its end. `DialogueBox` draws the line, the portrait, the name plate, and the choices. The map walks each actor, and the story pause dims the frame (D-1009, D-1013).
-- A set fight takes its transition with no encounter: the boss flag, then the largest body of the group (D-788, D-937).
-- Fixes: WASD and Backspace in menus, the "Quantity" label, sharp titles (F-153), the empty line of a service window, and the blur band on the lead or the camera marker (D-1173, D-1177).
-- Content: two fixture story scenes on tiles of the fixture hub, three fixture portraits, and the new portraits atlas page.
-
-### The state of the build
-
-- `make verify` passes locally. CI run `36271514085` failed on the baselines alone. This round commits 108 changed baselines and 5 new `scene-*` baselines from its `screen-captures` artifact (D-733). The remote head is the push of this round.
-
-### What is in flight
-
-- Gitar approved `e9ff621` with no finding. Its CI analysis named the baselines, RG 3, and the coverage job, and a PR comment answers each claim. The baseline push needs a new Gitar pass and green CI.
-
-### Traps and gotchas
-
-- Core runs a whole move at once. `ScenePlay.TryWalk` walks the actor back from its end tile along the path.
-- Core refuses an intent that no step waits for. `ScenePlay` checks the queue and the queued pause before each intent.
-- The stranger trigger stands at (4, 7), off every walk to a service. A test walks each capture route and fails if a route crosses a trigger.
-
-### The questions that block progress
-
-None. OQ-250, the pause of the fight of a story scene, blocks no PR yet.
-
-### The next concrete action
-
-When CI is green except `review-gate` and Gitar completes, run `make codex-review PR=86` in the background.

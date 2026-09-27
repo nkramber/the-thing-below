@@ -210,12 +210,14 @@ Built by PR-15. Phase file: `phase-2-first-playable.md`.
 
 Built by PR-49. Phase file: `phase-2-first-playable.md`.
 
-- The night job plays ten thousand runs on Linux, and two thousand each on Windows and macOS (D-507). Each leg writes a night record (D-509). It lands right after PR-15 (D-496).
-- The `night-gate` command fails a PR when no success record comes from a night inside the last 48 hours (G-22).
-- The night job runs on `schedule`, which GitHub starts only from `main` (F-37). PR-49 proves the command in Tests on a fixture record, and the live check first runs after the first night (D-500).
-- The night record is an artifact of its run, and the check finds it through the GitHub API (D-509).
-- A night on the head commit of a PR passes that PR alone, and a docs-only PR passes the gate (D-510, D-513). `area-ci.md` holds the jobs.
-- M-3 records the wall time and the crash and softlock counts of the first seven nights.
+- The `night` command plays one leg of the night: the greedy runs, then the random runs, from one first seed. It writes the night record of the leg, a failed leg too (D-509, D-1190, D-1191).
+- The `night-gate` command fails a PR with no success record of a night inside 48 hours of the last push (G-22, D-1188).
+- The command reads the facts of the PR and the folders of two nights, which the gate job writes from the GitHub API. It reads no file of the checkout of the PR (D-509).
+- A night on the head commit of a PR passes that PR alone, and a docs-only PR passes the gate (D-510, D-513). The docs-only set is the eligible set of the review gate.
+- An absent field, an unknown field, and a record of another leg are each an error. So is a status that its counts do not give (T-2).
+- The night job runs on `schedule`, which GitHub starts only from `main` (F-37). PR-49 proves the command in Tests on fixture nights, and the live check first runs after the first night (D-500).
+- The bot totals of PR-49 keep no run record. A night of more than 150,000 runs thus fits in the memory of a runner (F-155).
+- `area-ci.md` holds the jobs. M-3 records the wall time and the crash and softlock counts of the first seven nights.
 
 > *In plain English:* every night the robots play thousands of runs on all three systems. No change merges unless a recent night ended with no crash and no softlock.
 
@@ -327,7 +329,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 12. PR-48: the normal maps, right after PR-10 and right before PR-56, the first PR that draws light (D-520, D-521).
 13. PR-50: the screenplay tool, right after PR-68 (D-545).
 14. PR-15: the headless runner and the bots.
-15. PR-49: the night gate. Its live check first runs after the first night (D-500).
+15. PR-49: the `night` command and the night gate. Its live check first runs after the first night (D-500).
 16. PR-51, PR-52, and PR-53: the PNG import, the map preview, and the tile-edge tool, before PR-17 (D-497).
 17. **← GATE 2 (first playable).**
 18. PR-90: the balance harness, first in Phase 4 (D-822).

@@ -192,7 +192,13 @@ public static class OverrideRules
             && !string.Equals(firstCell, "#", StringComparison.Ordinal);
     }
 
-    private static bool IsEligible(string file)
+    /// <summary>
+    /// Reads whether one path is in the eligible set: the paths of a docs-only PR. The night gate
+    /// reads the same set, because D-513 names these paths (D-16, D-513, D-700).
+    /// </summary>
+    /// <param name="file">A path from the root of the checkout, with forward slashes.</param>
+    /// <returns>True when the path is in the eligible set.</returns>
+    public static bool IsEligible(string file)
     {
         // The settings files of `.claude/` take the review, so the refusal comes before the
         // folder match (D-700, D-1086).

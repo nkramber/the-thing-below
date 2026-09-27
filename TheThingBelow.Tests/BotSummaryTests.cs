@@ -27,7 +27,13 @@ public sealed class BotSummaryTests
             Result(3, BotEnd.Complete, 700, []),
         ];
 
-        string summary = BotSummary.Markdown(BotPolicyKind.Greedy, "ubuntu-24.04", results, 7);
+        BotTotals totals = new();
+        foreach (BotResult result in results)
+        {
+            totals.Add(result);
+        }
+
+        string summary = BotSummary.Markdown(BotPolicyKind.Greedy, "ubuntu-24.04", totals, 7);
 
         Assert.Contains("### Bot runs: greedy on ubuntu-24.04", summary, StringComparison.Ordinal);
         Assert.Contains("- Runs: 3, in 7 seconds.", summary, StringComparison.Ordinal);

@@ -283,6 +283,30 @@ public sealed class BattleLayoutTests
     }
 
     /// <summary>Gives the slots of the waiting column of a view, from the top.</summary>
+    [Theory]
+    [InlineData(2, 1, 0)]
+    [InlineData(6, 5, 0)]
+    [InlineData(7, 3, 0)]
+    [InlineData(7, 6, 3)]
+    [InlineData(9, 8, 3)]
+    [InlineData(12, 11, 6)]
+    [InlineData(12, 4, 0)]
+    [InlineData(1, -1, 0)]
+    public void TheCommandMenuShowsTheRowOfTheCursorAndTheRowAboveIt(int count, int cursor, int first)
+    {
+        // D-1195: a list longer than two rows of three scrolls one row at a time with the cursor.
+        Assert.Equal(first, (int)Method("FirstShown").Invoke(null, [count, cursor])!);
+    }
+
+    [Theory]
+    [InlineData(3, 3)]
+    [InlineData(3, -2)]
+    public void ACursorOutsideTheListIsAnError(int count, int cursor)
+    {
+        TargetInvocationException fault = Assert.Throws<TargetInvocationException>(() => Method("FirstShown").Invoke(null, [count, cursor]));
+        Assert.IsType<ArgumentOutOfRangeException>(fault.InnerException);
+    }
+
     private static List<int> WaitingSlots(object view)
     {
         var slots = new List<int>();

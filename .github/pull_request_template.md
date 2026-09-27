@@ -16,7 +16,7 @@ Each line holds before the merge: the gated auto-merge or the owner merge (`CLAU
 - [ ] The `screen-test` job is green (D-172, F-23, D-731).
 - [ ] A screen change: the author read each frame of `make sheet` or `make walk` that the change reaches. The PR records the result (D-784). A PR that changes no screen says so.
 - [ ] The `bots` job is green on every CI leg (D-64, D-505, D-1179, D-1180).
-- [ ] The `night-gate` job is green (G-22). PR-49 creates it.
+- [ ] The `night-gate` job is green (G-22, D-1188).
 - [ ] The `ste-check` job is green: the writing, reference, session number, size, and Documents row rules (G-12, D-605, D-607, D-611, D-696).
 - [ ] The automated pass of gitar approved the head, or each Gitar item of the pass has its answer (D-14, D-66, D-964). The review is current under the `gitar-review` skill.
 - [ ] The other provider reviewed it through `make codex-review`, and `docs/reviews/pr-<number>.md` has the verdict `Ready for owner merge` for the effective head (T-4, D-17). A commit of the skip set alone after it keeps the verdict, but a commit of a settings file of `.claude/` does not (D-943, D-1122). A PR in the override set that changes no decision row is exempt when the `review-override` label is on (D-16, D-401, D-560). A change to `.github/workflows/`, to `.claude/settings.json`, or to .claude/settings.local.json is never exempt (D-700, D-1086).

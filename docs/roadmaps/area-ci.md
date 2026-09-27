@@ -51,7 +51,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-37 | Two GitHub triggers start only from `main` | PR-3 and PR-49: a proof in Tests (D-500) |
 | F-38 | Double math can differ by platform | PR-4, PR-34, PR-38, and PR-48: integer math on every leg (D-502) |
 | F-40 | The test command of `CLAUDE.md` works in VSTest mode alone | PR-1: the MTP mode, and the commands follow (D-592) |
-| F-41 | Four rules of GitHub Actions meet the CI plan | PR-1 and PR-49: the skip condition on each job (D-595), and the night (OQ-81, OQ-82) |
+| F-41 | Four rules of GitHub Actions meet the CI plan | PR-1 and PR-49: the skip condition on each job (D-595), and the night (D-1188, D-1189) |
 | F-42 | The Godot export reads the project folder alone, and no command installs export templates | PR-5 and PR-54: content in the Game assembly (D-508), and the cache of D-596 |
 | F-43 | A failed night blocked the PR that fixes it | PR-49: a night on the head of a PR, and docs-only PRs pass (D-510, D-513) |
 | F-60 | The Godot editor writes `net8.0` into a `.csproj` that holds none. A pipe hid the exit code of the editor | PR-1: the Game project pins `net10.0`, and each smoke command writes its log to a file |
@@ -262,10 +262,13 @@ Built by PR-15. Phase file: `phase-2-first-playable.md`.
 
 Built by PR-49. Phase file: `phase-2-first-playable.md`.
 
-- The night job runs on `schedule` from `main`, on the latest commit there (F-37). OQ-82 holds the time.
-- Each night plays ten thousand runs on Linux, and two thousand each on Windows and macOS (D-507). OQ-84 holds which seeds a night plays.
-- Each leg uploads its night record as an artifact of its run (D-509). The record names the commit, the leg, the seeds, the count of each end state, and the status.
-- A leg near the 6-hour limit of GitHub splits into more than one job, and M-3 records the wall time of each leg (D-507).
+- The night job runs on `schedule` from `main`, on the latest commit there (F-37). It starts at 04:17 UTC, away from the start of the hour (D-1189, F-41).
+- Each policy plays the most runs that fit in 30 minutes on the slowest leg, and each leg plays the same count (D-1191). PR-49 set 235,000 greedy runs and 153,000 random runs from the bot job of run 36280972257.
+- Each night plays a new seed range: its run number times 1,000,000,000. The three legs share the range, and a manual night can name its first seed (D-1190).
+- The `night` command of Tools plays one leg and writes its night record. The record names the commit, the leg, the first seed, the runs and the count of each end of each policy, and the status (D-509).
+- Each leg uploads its night record as an artifact of its run, a failed night too. The records of the failed runs replay with the `bots` command (T-7).
+- A leg takes about 60 minutes, and the job stops at 180 minutes, inside the 6-hour limit of GitHub (D-507). M-3 records the wall time of each leg.
+- The bot totals keep no run record, so the memory of a leg stays flat (F-155).
 - GitHub disables the schedule of a public repository after 60 days with no activity, and the night gate then fails every PR (F-41). The owner enables the workflow again, and a session runs a night by hand.
 - The first live check runs after the first night on `main` (D-500).
 - PR-90 adds a balance check to the night. A metric outside its band fails the night with the metric, the band, and the seed (D-822).
@@ -277,13 +280,16 @@ Built by PR-49. Phase file: `phase-2-first-playable.md`.
 
 Built by PR-49. Phase file: `phase-2-first-playable.md`.
 
-- On each PR, the job asks the GitHub API for the newest night on `main` and downloads its night records (D-509). It runs the `night-gate` command on them (`area-tools.md` section 7.9).
-- It passes when every leg of that night succeeded inside the last 48 hours (G-22). An absent, stale, or failed record fails the gate with the case, the commit, and the time (T-2).
-- It never reads a record from the PR checkout, so a PR cannot carry its own record (D-509).
-- A success record of a night on the exact head commit of a PR passes that PR alone (D-510). A session starts that night by hand on the PR branch.
-- A docs-only PR passes the gate. The job reads the changed paths of the PR through the GitHub API, never from the checkout (D-513).
+- The workflow `night-gate` runs on `pull_request_target`, as the review gate does. The workflow and the command come from `main`, and a PR cannot change its own gate (D-509, F-37).
+- On each push, the job asks the GitHub API for the newest completed night on `main`, and for the newest on the head commit. It downloads their night records, and it runs the `night-gate` command on them (`area-tools.md` section 7.9).
+- It passes when every leg of the night of `main` succeeded inside 48 hours of the run of the gate (G-22, D-1188). An absent, stale, or failed record fails the gate with the case, the commit, and the time (T-2).
+- It never checks out the head of the PR, so a PR cannot carry its own record (D-509).
+- A success record of a night on the exact head commit of a PR passes that PR alone (D-510). A failed night on the head fails the PR, even with a green night on `main`.
+- A green head night older than 48 hours proves nothing now. The gate then reads the night of `main` (G-22).
+- A docs-only PR passes the gate. The job reads the changed paths of the PR through the GitHub API, with the old path of each rename (D-513, F-109).
 - The token of the job reads Actions and pull requests, and it writes nothing (D-509).
-- A check result stays on the commit that it ran on, and GitHub offers no merge queue to this repository (F-41). OQ-81 holds how the result stays current until the merge.
+- The result of the last push stands until the merge, and no workflow runs the gate again after a night (D-1188). After a night by hand on the head of a PR, a session runs the job again. `docs/runbooks/night.md` gives the commands.
+- After the merge of PR-49, its session runs the first night on `main`, and then `night-gate` joins the protection of `main` (D-1192).
 
 > *In plain English:* no change merges unless a recent night ended with no crash and no dead end. A fix for a failed night proves itself with a night of its own, and a change to documents alone never waits.
 
@@ -483,7 +489,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 22. PR-106: the trust of the review gate and the required Gitar check, right after PR-105 (D-1121 to D-1125).
 23. PR-15: the bot runs on every leg (D-505).
 24. PR-49: the night job and the night gate. The live gate first runs after the first night (D-500).
-25. Owner: require the bot and `night-gate` checks on `main` after their first runs.
+25. PR-15 requires the bot check (D-1186). The PR-49 session requires `night-gate` after the first night on `main` (D-1192).
 26. **← GATE 2 (first playable).**
 
 ## 9. Open questions
@@ -494,9 +500,7 @@ The register is `docs/questions.md` (D-19). These questions block CI PRs, and ea
 - D-614 answers OQ-70, and the lint reads the Godot assembly of the Game build output.
 - OQ-79: how the screen-test job pins Mesa. Closed 2026-09-20 by D-729, and D-730 holds the pin.
 - D-1179 answers OQ-74, and D-1180 answers OQ-80. PR-15 builds both.
-- OQ-81: how the night gate result stays current until the merge. Blocks PR-49.
-- OQ-82: the time of the night. Blocks PR-49.
-- OQ-84: the seeds of the night. Blocks PR-49.
+- D-1188 answers OQ-81, D-1189 answers OQ-82, and D-1190 answers OQ-84. PR-49 builds them.
 - OQ-3: the required checks on `main`. Closed 2026-09-19, and the protection is live (D-681).
 - OQ-197: the unstable check names of the matrix jobs. Resolved by D-682 and D-683, and PR-88 builds them.
 - OQ-198: the third-party notices of the engine in an export. Blocks PR-31.

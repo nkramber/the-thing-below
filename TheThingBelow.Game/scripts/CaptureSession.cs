@@ -1140,15 +1140,16 @@ public sealed partial class CaptureSession : Node
     }
 
     /// <summary>
-    /// Opens the lesson list of the command menu, and for the forms frame the forms of the cinder,
-    /// the second lesson of the first character (D-1027, D-1031). No press sends an intent.
+    /// Opens the lesson list of the command menu, and for the forms frame moves the cursor to the
+    /// cinder, the second entry of the list, with its MP and its description (D-1031, D-1195).
+    /// No press sends an intent.
     /// </summary>
     private void OpenLessons(BattleScreen screen, ScreenCapture capture, string moment)
     {
         List<string> presses = [InputActions.StepEast, InputActions.Confirm];
         if (string.CompareOrdinal(moment, ScreenCaptures.BattleFormsFrame) == 0)
         {
-            presses.AddRange([InputActions.StepEast, InputActions.Confirm]);
+            presses.Add(InputActions.StepEast);
         }
 
         foreach (string press in presses)

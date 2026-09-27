@@ -231,10 +231,10 @@ public static class ScreenCaptures
     /// <summary>The gear slot that <see cref="MenuGearPackFrame"/> opens: the first accessory slot.</summary>
     public const int GearPackSlot = 4;
 
-    /// <summary>The frame of the battle fixture with the lessons of the first character after the Lessons command (D-1031).</summary>
+    /// <summary>The frame of the battle fixture with the one list of the opened forms of the first character after the Lessons command (D-1031, D-1195).</summary>
     public const string BattleLessonsFrame = "lessons-1x";
 
-    /// <summary>The frame of the battle fixture with the forms of the cinder and the description of the first form (D-1027).</summary>
+    /// <summary>The frame of the battle fixture with the cursor on the cinder in that list, with its MP and its description (D-1027, D-1195).</summary>
     public const string BattleFormsFrame = "forms-1x";
 
     /// <summary>The frame of the menu fixture with the dungeon map screen after the walk of <see cref="DungeonRoute"/> (D-982).</summary>
@@ -543,7 +543,7 @@ public static class ScreenCaptures
         captures.Add(new ScreenCapture(
             BattleFixture, BattleTargetFrame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
 
-        // PR-12: the list of the lessons and the list of the forms with the description of the first form (D-1027, D-1031).
+        // PR-12: the list of the forms, with the cursor on the first entry and on the cinder (D-1027, D-1031, D-1195).
         foreach (string frame in new[] { BattleLessonsFrame, BattleFormsFrame })
         {
             captures.Add(new ScreenCapture(BattleFixture, frame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));

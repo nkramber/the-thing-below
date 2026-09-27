@@ -33,7 +33,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-31 | Every rendered audio file in git would pass 500 MB | PR-38: the build renders the audio, and git holds the hashes (D-432) |
 | F-37 | GitHub starts a schedule only from the default branch | PR-49: the command proves itself in Tests (D-500) |
 | F-38 | Double math differs by platform, and a literal with no suffix is a double | PR-48: integer math with an integer square root (D-502) |
-| F-41 | Four rules of GitHub Actions meet the CI plan | PR-49: OQ-81 the age of a result, and OQ-82 the time of the night |
+| F-41 | Four rules of GitHub Actions meet the CI plan | PR-49: the result of the last push (D-1188), and the time of the night (D-1189) |
 | F-42 | No command-line option installs the export templates | PR-54: the job unpacks them from the cache of D-596 |
 | F-44 | A full-screen grid holds over a million palette keys | PR-55: a large picture places drawn pieces (D-516) |
 | F-45 | Three Godot defaults fight the pixel art | PR-7: the Nearest filter, and a check after each such call |
@@ -2113,17 +2113,25 @@ Area files: `area-tools.md` section 7.9, `area-ci.md` sections 7.14 and 7.15.
 
 **Scope.**
 
-- The night job on a schedule from `main`: ten thousand runs on Linux, and two thousand each on Windows and macOS (D-507, OQ-82).
+- The night job on a schedule from `main` at 04:17 UTC, on three legs (D-505, D-1189).
+- The count of each policy: the most runs that fit in 30 minutes on the slowest leg, the same on each leg (D-1191).
+- A new seed range each night from the run number, which the legs share (D-1190).
+- The `night` command, which plays one leg and writes its night record (D-509).
+- The bot totals, which keep no run record, so the memory of a night stays flat (F-155, G-14).
 - The night record of each leg, as an artifact of its run (D-509).
-- The `night-gate` command, which fails a PR with no success record from a night inside 48 hours (G-22).
-- The night gate job, which finds the newest night through the GitHub API and never reads the checkout (D-509).
+- The `night-gate` command, which fails a PR with no success record from a night inside 48 hours of the last push (G-22, D-1188).
+- The night gate job on `pull_request_target`, which finds the nights through the GitHub API and never reads the checkout (D-509).
 - The pass for a night on the exact head commit of a PR, and the pass for a docs-only PR (D-510, D-513).
-- The line for the `night-gate` job in the PR gate (G-16).
+- The line for the `night-gate` job in the PR gate, and the check in `docs/runbooks/branch-protection.json` (G-16, D-1192).
+- The runbook of the night, `docs/runbooks/night.md`.
+- One list of the forms in a fight, with the description and the cost in the message box. The list scrolls by row (D-1193, D-1195).
+- A letter on each enemy of a kind that a fight holds twice (D-1193, D-1194).
 
 **Out of scope.**
 
 - The headless runner and the policies (PR-15).
 - The M-3 numbers, which seven nights give later.
+- A new run of the gate on each open PR after a night (D-1188).
 
 **Exit tests.**
 
@@ -2133,15 +2141,19 @@ Area files: `area-tools.md` section 7.9, `area-ci.md` sections 7.14 and 7.15.
 4. It passes a fixture PR whose head commit has a success record of its own (D-510).
 5. It fails a PR that carries a night record in its own checkout (D-509).
 6. The PR description shows the output of each fixture (D-500).
+7. The totals of the bot runs keep no run record (F-155).
+8. The Lessons command gives one list, and a confirm goes to the target (D-1195).
+9. Two grunts read "Grunt A" and "Grunt B", and a lone enemy keeps its name (D-1194).
 
 **Review focus.**
 
 - The live check cannot run on this PR, and the PR says so (F-37, G-16, D-500).
-- The answer of OQ-81 keeps a result current until the merge (F-41).
-- The answer of OQ-84 sets which seeds a night plays.
-- A leg near the 6-hour limit of GitHub splits into more than one job (D-507).
+- The result of the last push stands until the merge, and G-22 reads the 48 hours from that push (D-1188).
+- Each night plays a new range from its run number, and each record names its first seed (D-1190).
+- The job stops at 180 minutes, far inside the 6-hour limit of GitHub, so no leg splits (D-507).
+- After the merge, the session runs the first night on `main` and requires the check (D-1192).
 
-**Questions.** OQ-81, OQ-82, and OQ-84.
+**Questions.** OQ-81, OQ-82, and OQ-84, answered by D-1188, D-1189, and D-1190.
 
 > *In plain English:* every night the robots play thousands of runs on all three systems. No change merges unless a recent night ended with no crash and no dead end.
 
@@ -2265,9 +2277,10 @@ Area file: `area-exploration.md` section 7.13.
 
 - The route condition uses the one condition form of PR-68 (D-543).
 - The answer of OQ-122 sets the format of the map and the cost of a route.
+- The first item settles OQ-251 with OQ-122: the node map of D-113, or a walkable overworld. The answer can change D-113, D-224, and D-430.
 - The screen shows no sign of night, because the story sets the time (D-445).
 
-**Questions.** OQ-122.
+**Questions.** OQ-122 and OQ-251.
 
 > *In plain English:* between places the party travels on a map of the region, along roads that the story opens and closes.
 
@@ -2766,6 +2779,41 @@ Area files: `area-release.md` section 7.8, `area-art.md` section 7.5.
 
 **Questions.** OQ-173 and OQ-174.
 
+
+### 7.66 PR-107: ability power
+
+Area files: `area-battle.md` section 7.4, and `area-progression.md` for the forms.
+
+**Scope.**
+
+- Ability power, AP, replaces MP as the one pool of each character. Each form costs AP, a drill too (D-1197).
+- The fixture costs: Hew 2 AP and Cleave 4 AP. Cinder and Blaze keep 4 and 9 (D-1199).
+- A fall of an enemy returns 10% of full AP to each standing character. A basic attack that hits returns 5% to the attacker. Each regain rounds down, with a floor of 1 (D-1198).
+- A rest, a save point, and an item restore AP where they restore MP now (D-1197).
+- The content schema, the saves, the string table, the status panel, and the bots read AP.
+
+**Out of scope.**
+
+- The tuning of each rate and each cost (PR-30).
+
+**Exit tests.**
+
+1. A drill with too little AP refuses the choice, as a rite with too little MP does now.
+2. A fall of an enemy returns 10% of full AP to each standing character. A character who is down gains none.
+3. A basic attack that hits returns 5% of full AP to the attacker, and a miss returns nothing.
+4. A pool of 5 AP regains 1 on each rule, the floor.
+5. A save of MP loads as AP, or fails with the file and the field (T-2).
+6. The simulation version rises, and a replay of a record of the old version fails with the version (G-17, T-7).
+
+**Review focus.**
+
+- The answer of OQ-252 sets whether one blow gives both regains.
+- No MP remains in Core, content, Game, or the string table.
+
+**Questions.** OQ-252.
+
+> *In plain English:* every ability costs one kind of power, a sword cut too. Hits and kills give some of it back, so a fighter can go on.
+
 > *In plain English:* a session draws the pictures on the shop page the same way as everything else in the game. The screenshots come from real play.
 ## 8. Sequence
 
@@ -2779,8 +2827,8 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 6. PR-68, PR-50: the story scenes, the flags, and the screenplay tool, before the first PR that reads a flag (D-556).
 7. PR-12, PR-13, PR-99, PR-91, PR-100, PR-101, PR-102, PR-103, PR-104, PR-105, PR-106, PR-14, PR-65: the build of a party, the stat set, the torch, the end of the Gitar pause, the torch and pad fixes, the gate fixes, the input fixes, the boot and rule fixes, the save and guard fixes, and the gate, key, crash, and budget fixes of the repository review, the hub, and the shop.
 8. PR-36: the dialogue box.
-9. PR-15, PR-49: the bots, the night job, and the night gate.
-10. Owner: require the bot and `night-gate` checks on `main` after their first runs.
+9. PR-15, PR-49, PR-107: the bots, the night job and the night gate, and ability power (D-1196).
+10. PR-15 requires the bot check (D-1186). The PR-49 session requires `night-gate` after the first night on `main` (D-1192).
 11. PR-16, PR-64, PR-35: the dungeon and the region map.
 12. PR-51, PR-52, PR-53: the PNG import, the map preview, and the tile-edge tool.
 13. PR-17: the village, the mining town, and the hanging cells.
@@ -2806,10 +2854,10 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-74 | How the runner finds a softlock. Resolved by D-1179 | PR-15 |
 | OQ-79 | How the screen-test job pins Mesa, resolved by D-729 and D-730 | PR-41 |
 | OQ-80 | The count of bot runs on each PR. Resolved by D-1180 | PR-15 |
-| OQ-81 | How the night gate result stays current | PR-49 |
-| OQ-82 | The time of the night | PR-49 |
+| OQ-81 | How the night gate result stays current. Resolved by D-1188 | PR-49 |
+| OQ-82 | The time of the night. Resolved by D-1189 | PR-49 |
 | OQ-83 | How CI gets the Godot editor and the templates, resolved by D-596 | PR-54 |
-| OQ-84 | The seeds of the night | PR-49 |
+| OQ-84 | The seeds of the night. Resolved by D-1190 | PR-49 |
 | OQ-86 | How the atlas places tiles, and how Game draws a map | PR-7, answered by D-667 |
 | OQ-89 | Pixel snap in Game, resolved by D-715 | PR-7 |
 | OQ-91 | The operations of a large picture on a piece, resolved by D-812 | PR-55 |
@@ -2892,3 +2940,5 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-243 | A column of the waiting enemies, taller than the field. Resolved by D-963 | PR-98 |
 | OQ-247 | The stat set. Resolved by D-1052 | PR-99 |
 | OQ-248 | The heal of an absorbed hit. Resolved by D-1055 | PR-99 |
+| OQ-251 | The kind of the region map: the node map of D-113, or a walkable overworld | PR-35 |
+| OQ-252 | Two regains of AP from one blow | PR-107 |
