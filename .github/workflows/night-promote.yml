@@ -42,7 +42,9 @@ jobs:
     steps:
       # Each push gets its own run, and each run checks the promotion only after each earlier run
       # of this workflow ended. The checks thus follow the order of the pushes, and no push loses
-      # its run (D-1202). An earlier run that stays open past 15 minutes fails this run (T-2).
+      # its run (D-1202). The limit of 15 minutes starts again each time the set of open runs
+      # changes, so it stops a stalled queue alone. The job timeout of 40 minutes stays the hard
+      # limit (T-2).
       - name: Wait for each earlier promotion run
         env:
           GH_TOKEN: ${{ github.token }}
@@ -51,12 +53,14 @@ jobs:
         run: |
           set -euo pipefail
           end=$(( $(date +%s) + 900 ))
+          last=""
           while :; do
             earlier=$(gh api "repos/$REPO/actions/workflows/night-promote.yml/runs?per_page=50" \
               --jq "[.workflow_runs[] | select(.status != \"completed\" and .id < $RUN_ID) | .id] | join(\" \")")
             if [ -z "$earlier" ]; then echo "No earlier promotion run is open."; break; fi
+            if [ "$earlier" != "$last" ]; then last="$earlier"; end=$(( $(date +%s) + 900 )); fi
             if [ "$(date +%s)" -ge "$end" ]; then
-              echo "The earlier promotion runs $earlier stayed open for 15 minutes, so this run stops (D-1202)." >&2
+              echo "The earlier promotion runs $earlier made no progress for 15 minutes, so this run stops (D-1202)." >&2
               exit 1
             fi
             echo "The earlier promotion runs $earlier are open. The run waits."

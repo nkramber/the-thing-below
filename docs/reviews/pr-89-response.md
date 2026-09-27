@@ -10,7 +10,7 @@ Disposition: full merit.
 
 Evidence: GitHub keeps at most one pending run in a concurrency group, and a new queued run cancels the pending one. With one run active, a second push waits, and a third push cancels the second. The second push then has no promotion check, and no later run checks its PR.
 
-Correction: `.github/workflows/night-promote.yml` has no concurrency group now. Each push gets its own run. The first step of each run waits until each earlier run of the workflow ends, and it fails the run after 15 minutes with the ids of the open runs (T-2). The facts and the promotion check come after the wait, so the checks follow the order of the pushes (D-1202). `docs/runbooks/night.md` states the order.
+Correction: `.github/workflows/night-promote.yml` has no concurrency group now. Each push gets its own run. The first step of each run waits until each earlier run of the workflow ends, and it fails the run when the queue makes no progress for 15 minutes, with the ids of the open runs (T-2). The limit starts again each time the set of open runs changes. The facts and the promotion check come after the wait, so the checks follow the order of the pushes (D-1202). `docs/runbooks/night.md` states the order.
 
 Regression check: `NightWorkflowTests.EachPushKeepsItsPromotionRunInTheOrderOfThePushes` asserts no concurrency block, the wait before the read of the facts, and the filter of the open earlier runs. It fails on `e8a8cd9`. The live queue of several pushes needs the workflow on `main`, so it first runs after the merge (F-37).
 

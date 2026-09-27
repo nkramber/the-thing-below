@@ -182,6 +182,7 @@ public sealed class NightWorkflowTests
         Assert.DoesNotContain("concurrency:", lines);
         Assert.True(wait > 0 && wait < facts, "The wait for the earlier runs comes before the read of the facts.");
         Assert.Contains("select(.status != \\\"completed\\\" and .id < $RUN_ID)", Text(PromotePath), StringComparison.Ordinal);
+        Assert.Contains("if [ \"$earlier\" != \"$last\" ]; then last=\"$earlier\"; end=", Text(PromotePath), StringComparison.Ordinal);
     }
 
     [Fact]
