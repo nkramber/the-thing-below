@@ -1,4 +1,42 @@
 # Session handoff archive
+## Session 338: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR-15. Repository: the-thing-below. Branch: `feat/pr-15-bots`. PR: #87. Role: author. Base: `f383aa9`.
+
+### What this session did, and why
+
+- Asked OQ-74 and OQ-80 and four more questions, and recorded D-1179 to D-1185. The softlock is a state where no accepted intent changes the state other than the tick. The count of runs fits 5 minutes of bot play on the slowest leg. The greedy policy, the goal flag, the tick budget, the battle numbers, and the start maps follow from the answers.
+- Built the query of the accepted intents in Core (`AcceptedIntents`, `Simulation.Accepted()`), the bot rules file and its reader, the record store of Storage, and the `bots` command of Tools with both policies, the softlock check, the saves, the reload after a wipe, and `--replay`.
+- Added the `bots` family and its gate job to CI, `make bots` to `make verify`, and `bots` to the skipped checks of D-858.
+- Found F-154: Game starts in the fixture dungeon, which holds no story scene, so no run could reach a goal. D-1185 starts the runs in the dungeon and on the hub in turn.
+- Measured the budget: the longest greedy run to the goal over seeds 1 to 2,000 took 783 ticks, so the budget is 2,349 (D-1184). A softlock check on each tick cost about 99% of a run, so the runner checks each 60 played ticks.
+
+### The state of the build
+
+- `make verify` passes on this machine. The remote head before this commit is `fe4d4b4`, and this push opens PR #87. CI of the first push measures the counts of D-1180.
+
+### What is in flight
+
+- The counts of `GREEDY_RUNS` and `RANDOM_RUNS` in the `bots` job hold 1,000 each until the first CI run gives the time of each leg. Then the session sets the counts of D-1180 and records the numbers in the PR.
+- The Gitar pass, then `make codex-review`.
+
+### Traps and gotchas
+
+- `CLAUDE.md` and `AGENTS.md` sit 34 bytes under the size limit of D-583. A later line there needs a cut first.
+- A collection expression such as `[null]` on a `List` in Core compiles to `CollectionsMarshal` and adds `System.Runtime.InteropServices` to the references of Core, which the G-1 test refuses.
+- Many test content sets hold no map, so the load checks the goal flag alone. The runner checks the start maps (`BotRules.RequireStartsOf`).
+- 12 of 1,000 greedy hub seeds wipe in the fight of the rats before any save and loop to the budget. That is a budget end under D-1179, not a failure.
+- The owner adds `bots` to the required checks of `main` after its first run (section 7.16 of `docs/roadmaps/area-ci.md`).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Read the time of each leg in the first CI run of the `bots` job, set the counts, and push. Then run the Gitar pass.
+
 ## Session 337: 2026-09-26, Codex
 
 Author: Codex
