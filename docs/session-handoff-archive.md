@@ -1,4 +1,38 @@
 # Session handoff archive
+## Session 350: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-108, round 4. Repository: the-thing-below. Branch: `feat/pr-108-night-recovery`. PR: #89. Role: author. Base: `a8ba710`.
+
+### What this session did, and why
+
+- The Codex review of `e8a8cd9` gave `Changes required` with one finding, P1-1: the concurrency group of `night-promote` kept one pending run, so a push could lose its promotion.
+- The correction removes the group. Each run waits for each earlier run, then reads the facts, so the checks follow the order of the pushes (D-1202). `docs/reviews/pr-89-response.md` holds the answer, with full merit.
+- The `codex-review` command stopped after the record landed, because the record named the handoff commit and not the effective head `9944c29` (D-610). The next round writes a new record.
+- Gitar approved `e8a8cd9` with both of its findings closed.
+
+### The state of the build
+
+- Local build, format, and STE are clean. The workflow tests pass.
+- The remote head before this push is `ce97bb0`, the review metadata.
+
+### What is in flight
+
+- The Gitar pass of this push, then `make codex-review PR=89` again.
+- After the merge: `make night-watch-install` on the Mac, and one test message through `notify.yml`.
+
+### Traps and gotchas
+
+- `notify.yml`, `night-promote.yml`, and the facts action first run from `main`, after the merge (F-37).
+- P1-1 counts one round. A third open round of one finding stops the loop (D-929).
+
+### The questions that block progress
+
+None for PR-108. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Run the Gitar poll. When every check is green, run `make codex-review PR=89` in the background.
 ## Session 349: 2026-09-27, Codex
 
 Author: Codex
