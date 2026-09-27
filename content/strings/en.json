@@ -115,7 +115,7 @@
   },
   {
    "id": "battle.form_help",
-   "text": "{text} {mp} MP"
+   "text": "{mp}MP  -  {text}"
   },
   {
    "id": "battle.heal",

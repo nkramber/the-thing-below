@@ -1093,7 +1093,7 @@ public sealed class BattleScreen
     }
 
     /// <summary>
-    /// Puts a description in the message box. A form with a cost shows the cost after its
+    /// Puts a description in the message box. A form with a cost shows the cost before its
     /// description, and its entry in the list shows its name alone (D-1195).
     /// </summary>
     private void PutDescription(BattleCommands open, ContentId description)
