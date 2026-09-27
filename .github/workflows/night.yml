@@ -1,0 +1,120 @@
+# The night job (D-64, D-505, D-507, D-509). PR-49 creates it.
+#
+# GitHub starts `schedule` from the default branch alone, and a manual run needs the workflow on
+# the default branch first. The first night thus runs after the merge of PR-49 (F-37, D-500).
+# Each leg plays both policies on one seed range and uploads its night record as an artifact of
+# this run. The `night-gate` workflow finds the newest night through the GitHub API (D-509).
+#
+# A session starts a night by hand on the branch of a PR, and a success of that night passes that
+# PR alone (D-510). `docs/runbooks/night.md` gives the commands.
+#
+# Each action pins a full commit SHA (D-511).
+name: night
+
+on:
+  schedule:
+    # 04:17 UTC, away from the start of the hour, when GitHub can delay or drop a run (D-1189, F-41).
+    - cron: "17 4 * * *"
+  workflow_dispatch:
+    inputs:
+      first-seed:
+        description: "The first seed. Leave it empty for the run number times 1,000,000,000 (D-1190)."
+        required: false
+        default: ""
+
+# The jobs read the checkout alone (T-2).
+permissions:
+  contents: read
+
+# One night at a time on each branch. A new night never cancels a night in progress.
+concurrency:
+  group: night-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  DOTNET_NOLOGO: "true"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+
+jobs:
+  night:
+    name: night (${{ matrix.leg }})
+    runs-on: ${{ matrix.leg }}
+    # The runs take about 60 minutes of the 6 hours of a hosted runner (D-507, D-1191).
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        # The labels of `NightLegs.Labels` in Tools. A test compares the two lists.
+        leg: [ubuntu-24.04, windows-2025, macos-26]
+    defaults:
+      run:
+        shell: bash
+    env:
+      LEG: ${{ matrix.leg }}
+      # The counts of D-1191: the most runs of each policy that fit in 30 minutes of bot play on
+      # the slowest leg, the same on each leg (G-14). The bot job of run 36280972257 on defedf6
+      # played 7,000 greedy runs in 50 seconds on windows-2025, and 6,500 random runs in
+      # 71 seconds on macos-26. Each count keeps a margin of about 7% for the noise of a runner,
+      # as D-1180 did.
+      GREEDY_RUNS: "235000"
+      RANDOM_RUNS: "153000"
+      INPUT_FIRST_SEED: ${{ inputs.first-seed }}
+      RUN_NUMBER: ${{ github.run_number }}
+    steps:
+      - name: Check out the commit of the night
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install the .NET SDK of global.json
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      - name: Build the solution
+        run: dotnet build TheThingBelow.slnx --configuration Release
+
+      # A scheduled night has no input, and it plays a new range from its run number. A manual
+      # night can name the range of a failed night, so a fix plays the same seeds (D-1190, D-510).
+      - name: Set the first seed of the night
+        run: |
+          set -euo pipefail
+          if [ -n "${INPUT_FIRST_SEED:-}" ]; then
+            if ! [[ "$INPUT_FIRST_SEED" =~ ^[0-9]+$ ]]; then
+              echo "The first seed '$INPUT_FIRST_SEED' is not a whole number (D-1190)." >&2
+              exit 1
+            fi
+            first_seed="$INPUT_FIRST_SEED"
+          else
+            first_seed=$(( RUN_NUMBER * 1000000000 ))
+          fi
+          echo "FIRST_SEED=$first_seed" >> "$GITHUB_ENV"
+          echo "The night plays from the seed $first_seed."
+
+      # A softlock or a crash fails the step with the seed, the policy, and the leg. The command
+      # writes the night record in each case, and the summary joins the page of the run.
+      - name: Play the night
+        run: |
+          set -euo pipefail
+          dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj \
+            --configuration Release --no-build -- night --root . \
+            --greedy-runs "$GREEDY_RUNS" --random-runs "$RANDOM_RUNS" \
+            --first-seed "$FIRST_SEED" --leg "$LEG" --commit "$GITHUB_SHA" --out artifacts/night \
+            | tee -a "$GITHUB_STEP_SUMMARY"
+
+      # The night gate reads this artifact. A failed night uploads its record too, so the gate
+      # names the counts. An absent record fails this step, and the gate reads the leg as absent.
+      - name: Keep the night record
+        if: success() || failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: night-record-${{ matrix.leg }}
+          path: artifacts/night/night-record-${{ matrix.leg }}.json
+          if-no-files-found: error
+
+      # The record of each failed run replays the failure with the `--replay` option of `bots` (T-7).
+      - name: Keep the records of the failed runs
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: night-failed-runs-${{ matrix.leg }}
+          path: artifacts/night/records
+          if-no-files-found: warn

@@ -508,7 +508,8 @@ Status: ✅ done (code merged, or "doc" for a document-only correction) · 🔧 
 | F-151 | No test ran the crash path, and a search of the source text stood for it. The menu windows and the battle windows had captures at body 32 alone, and no capture showed the screen of the Steam Deck | 2026-09-24 | ✅ PR-106: both sessions run a planted crash, and the captures add body 24 and 1280 by 800 (D-1130) |
 | F-152 | The light budget read the nominal range of a torch, which flickers to 120%. A fight counted the weather and one hit burst, and a lesson shows a spell burst beside it. Game built one constant light texture again at each fight | 2026-09-24 | ✅ PR-106: both budgets count the widest case, and each texture builds one time in a session (D-1129) |
 | F-153 | A window title of the playtest of PR-65 drew with a soft edge of two pixels on each stroke. A title doubles the strike of its bitmap font, and the frame viewport drew it with a linear filter. A `SubViewport` made in code takes the linear filter of `canvas_item_default_texture_filter`, and the project setting of the default filter reaches the root viewport alone. A pixel map of `menu-items-1x.png` showed the soft edge on 2026-09-26 | 2026-09-26 | ✅ PR-36: the frame viewport sets the Nearest filter, and a test reads the setting (D-1172) |
-| F-154 | The bot runs of PR-15 could reach no goal. Game starts each run in the fixture dungeon (D-1133), which holds no story scene, no NPC, and no service, and the hub holds the one flag that a scene sets. A measure of 2,000 greedy runs also found 12 hub seeds that wipe in the fight of the rats before any save, start again from the seed, and wipe the same way until the budget | 2026-09-26 | ✅ PR-15: the bot runs start in the dungeon and on the hub in turn, and a loop of that kind ends as budget, not as softlock (D-1179, D-1185) |\n
+| F-154 | The bot runs of PR-15 could reach no goal. Game starts each run in the fixture dungeon (D-1133), which holds no story scene, no NPC, and no service, and the hub holds the one flag that a scene sets. A measure of 2,000 greedy runs also found 12 hub seeds that wipe in the fight of the rats before any save, start again from the seed, and wipe the same way until the budget | 2026-09-26 | ✅ PR-15: the bot runs start in the dungeon and on the hub in turn, and a loop of that kind ends as budget, not as softlock (D-1179, D-1185) |
+| F-155 | The `bots` command kept each run result with its run record until the summary. 20,000 random runs held 5.8 GB. A night of D-1191 plays more than 150,000 random runs, and a macOS runner of a public repository has "7 GB". Source: `https://docs.github.com/en/actions/reference/runners/github-hosted-runners`, read 2026-09-26 | 2026-09-26 | ✅ PR-49: the totals of each policy keep no run record, and 60,000 random runs held 182 MB (G-14) |
 ## 6. Guardrails (the safety contract for every PR)
 
 ### 6.1 Tenets
@@ -546,7 +547,7 @@ The tenets are the constitution. When a tenet conflicts with speed or convenienc
 19. **G-19.** Every screen designs to one 16:9 frame of 1280 by 720 with 32-pixel tiles (D-568). The Steam Deck is the readability floor, with black bars above and below (D-92, D-228). The world draws at 2x, so the frame holds 20 by 11.25 tiles (D-633). Every other screen shape shows black bars too. A desktop at 1920 by 1080 must look good, and the fit of D-232 holds that rule (D-568).
 20. **G-20.** Every player string follows the `game-text-style` skill, and the owner approves each text batch in its PR (D-57, D-63).
 21. **G-21.** Every enemy profile validates at load, and a profile that can never act fails the load (D-65, T-2).
-22. **G-22.** The night gate is green before merge, once PR-49 creates it (D-496). It needs a success record from a night inside 48 hours (D-64). A night on the head commit of a PR passes that PR, and a docs-only PR passes the gate (D-510, D-513).
+22. **G-22.** The night gate is green before merge, once PR-49 creates it (D-496). It needs a success record of a night inside 48 hours of the last push (D-64, D-1188). A night on the head commit of a PR passes that PR, and a docs-only PR passes the gate (D-510, D-513).
 23. **G-23.** Godot physics, timers, and navigation never feed the simulation. The camera, the shader, the audio, and the input map live in Game (D-100, D-106).
 24. **G-24.** Every sprite, tile, and portrait is a text grid in content. The atlas tool renders the PNG, and a test proves the committed atlas matches (D-107). A normal map comes from the grid, and its atlas gets the same test (D-184). A drawing file is JSON with its rows as strings, and a large picture places drawn pieces (D-515, D-516).
 25. **G-25.** Every content batch the owner approves, sprites and text alike, appears in its PR description in full (D-57, D-107). A tool renders each art batch as review sheets, and the session attaches them with `gh` (D-514).
@@ -647,8 +648,8 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 45. PR-65: the shop and the gold economy, after PR-13 (D-60, D-530).
 46. PR-36: the dialogue box, the portraits, and the story scene on screen (D-114, D-223).
 47. PR-15: the headless runner, the two bot policies, the battle numbers, and the bot job (D-64, D-505, D-1179 to D-1184).
-48. PR-49: the night job and the `night-gate` command, right after PR-15 (D-496, D-507).
-49. Owner: require the bot and `night-gate` checks on `main` after their first runs.
+48. PR-49: the night job, the `night` and `night-gate` commands, and the night gate job, right after PR-15 (D-496, D-507, D-1188 to D-1192).
+49. PR-15 requires the bot check on `main` (D-1186). After its merge, the PR-49 session requires `night-gate` after the first night passes (D-1192).
 50. PR-16: the treasure, the doors, the keys, and the save points (D-41, D-555).
 51. PR-64: the traps, the hazards, and the statuses that last on the map (D-390, D-529).
 52. PR-35: the region map of nodes and routes (D-113).
@@ -761,8 +762,8 @@ Section 7 gives the same order inside each phase, with a link to each phase file
 18. PR-68, PR-50.
 19. PR-12, PR-13, PR-99, PR-91, PR-100, PR-101, PR-102, PR-103, PR-104, PR-105, PR-106, PR-14, PR-65.
 20. PR-36.
-21. PR-15, PR-49. One night runs, then the `night-gate` job joins the PR gate.
-22. PR-15 adds the `bots` check to the protection of `main` (D-1186). Owner: require the `night-gate` check after its first run.
+21. PR-15, PR-49. After the merge of PR-49, a night runs on `main`, then `night-gate` joins the protection of `main` (D-1192).
+22. PR-15 adds the `bots` check to the protection of `main` (D-1186). The PR-49 session adds `night-gate` after the first night passes (D-1192).
 23. PR-16, PR-64, PR-35.
 24. PR-51, PR-52, PR-53.
 25. PR-17.

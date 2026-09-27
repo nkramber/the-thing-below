@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using TheThingBelow.Tools;
 using TheThingBelow.Tools.Identity;
+using TheThingBelow.Tools.Night;
 using TheThingBelow.Tools.ReviewGate;
 using TheThingBelow.Tools.SteCheck;
 using Xunit;
@@ -83,18 +84,8 @@ public sealed class ToolsCommandLineTests
         Assert.Contains("codex-review: ready", errors.ToString(), StringComparison.Ordinal);
         Assert.Contains("screenplay: ready", errors.ToString(), StringComparison.Ordinal);
         Assert.Contains("bots: ready", errors.ToString(), StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void APlannedCommandNamesThePullRequestThatAddsIt()
-    {
-        using StringWriter output = new StringWriter();
-        using StringWriter errors = new StringWriter();
-
-        int exitCode = Program.Run(["night-gate"], output, errors);
-
-        Assert.Equal(Program.FaultExitCode, exitCode);
-        Assert.Contains("PR-49 adds it", errors.ToString(), StringComparison.Ordinal);
+        Assert.Contains("night: ready", errors.ToString(), StringComparison.Ordinal);
+        Assert.Contains("night-gate: ready", errors.ToString(), StringComparison.Ordinal);
     }
 
     [Fact]
@@ -112,7 +103,6 @@ public sealed class ToolsCommandLineTests
     [Fact]
     public void EveryPlannedCommandNamesAPullRequest()
     {
-        Assert.NotEmpty(Program.PlannedCommands);
         Assert.All(
             Program.PlannedCommands,
             entry => Assert.StartsWith("PR-", entry.Value, StringComparison.Ordinal));
@@ -124,6 +114,8 @@ public sealed class ToolsCommandLineTests
         Assert.DoesNotContain(SteCheckCommand.Name, Program.PlannedCommands.Keys);
         Assert.DoesNotContain(ReviewGateCommand.Name, Program.PlannedCommands.Keys);
         Assert.DoesNotContain(ReplayIdentityCommand.Name, Program.PlannedCommands.Keys);
+        Assert.DoesNotContain(NightCommand.Name, Program.PlannedCommands.Keys);
+        Assert.DoesNotContain(NightGateCommand.Name, Program.PlannedCommands.Keys);
     }
 
     [Fact]

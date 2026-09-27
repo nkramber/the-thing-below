@@ -98,7 +98,21 @@ public static class BotsCommand
     /// <param name="output">The writer of the summary.</param>
     /// <param name="errors">The writer of each failure line.</param>
     /// <returns>The exit code: 0 when no run failed, else <see cref="Program.FaultExitCode"/>.</returns>
-    public static int Play(ContentSet content, BotPlan plan, AcceptedSource accepted, Func<BotPolicyKind, ulong, IBotPolicy> policyOf, TextWriter output, TextWriter errors)
+    public static int Play(ContentSet content, BotPlan plan, AcceptedSource accepted, Func<BotPolicyKind, ulong, IBotPolicy> policyOf, TextWriter output, TextWriter errors) =>
+        PlayAll(content, plan, accepted, policyOf, output, errors).Totals.Failures == 0 ? 0 : Program.FaultExitCode;
+
+    /// <summary>
+    /// Plays the runs of a plan as <see cref="Play"/> does, and gives the totals of the runs and
+    /// their wall time. The `night` command writes the night record from them (D-509).
+    /// </summary>
+    /// <param name="content">The content of this build.</param>
+    /// <param name="plan">The plan.</param>
+    /// <param name="accepted">The source of the accepted intents: the query of Core, or the plant of a test.</param>
+    /// <param name="policyOf">Makes the policy of the run of one seed.</param>
+    /// <param name="output">The writer of the summary.</param>
+    /// <param name="errors">The writer of each failure line.</param>
+    /// <returns>The totals of the runs, and their wall time in whole seconds.</returns>
+    public static BotPlayed PlayAll(ContentSet content, BotPlan plan, AcceptedSource accepted, Func<BotPolicyKind, ulong, IBotPolicy> policyOf, TextWriter output, TextWriter errors)
     {
         ArgumentNullException.ThrowIfNull(content);
         ArgumentNullException.ThrowIfNull(plan);
@@ -113,18 +127,18 @@ public static class BotsCommand
 
         // Tools reads the wall clock to measure the count of D-1180. No rule reads it (G-3, G-14).
         Stopwatch watch = Stopwatch.StartNew();
-        List<BotResult> results = [];
+        BotTotals totals = new();
         List<string> lines = [];
-        int failures = 0;
         for (int index = 0; index < plan.Runs; index += 1)
         {
             ulong seed = checked(plan.FirstSeed + (ulong)index);
             BotResult result = PlayOne(content, seed, policyOf(plan.Policy, seed), accepted, plan.OutFolder);
-            results.Add(result);
+
+            // The totals keep no run record, so the memory of a night stays flat (D-1191, G-14).
+            totals.Add(result);
             lines.Add(BotSummary.LineOf(result));
             if (BotEnds.Fails(result.End))
             {
-                failures += 1;
                 string path = records.Write(RecordNameOf(plan.Policy, seed), result.Record);
                 errors.WriteLine($"Error: the {name} bot run of seed {seed} on the leg {plan.Leg} ended as {BotEnds.NameOf(result.End)} at tick {result.Tick}. {result.Message} The record is '{path}'.");
             }
@@ -132,10 +146,10 @@ public static class BotsCommand
 
         long seconds = watch.ElapsedMilliseconds / 1000;
         File.WriteAllLines(Path.Combine(plan.OutFolder, $"results-{name}.txt"), lines);
-        string summary = BotSummary.Markdown(plan.Policy, plan.Leg, results, seconds);
+        string summary = BotSummary.Markdown(plan.Policy, plan.Leg, totals, seconds);
         File.WriteAllText(Path.Combine(plan.OutFolder, $"summary-{name}.md"), summary);
         output.Write(summary);
-        return failures == 0 ? 0 : Program.FaultExitCode;
+        return new BotPlayed(totals, seconds);
     }
 
     /// <summary>Gives the name of the record file of a failed run, such as `greedy-42`.</summary>

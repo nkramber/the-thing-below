@@ -9,6 +9,7 @@ using TheThingBelow.Tools.Content;
 using TheThingBelow.Tools.DetLint;
 using TheThingBelow.Tools.Evaluator;
 using TheThingBelow.Tools.Identity;
+using TheThingBelow.Tools.Night;
 using TheThingBelow.Tools.Pictures;
 using TheThingBelow.Tools.ReviewGate;
 using TheThingBelow.Tools.Screens;
@@ -25,10 +26,7 @@ public static class Program
 
     /// <summary>The commands that no PR has written yet, and the PR that adds each one.</summary>
     public static readonly IReadOnlyDictionary<string, string> PlannedCommands =
-        new SortedDictionary<string, string>(StringComparer.Ordinal)
-        {
-            ["night-gate"] = "PR-49",
-        };
+        new SortedDictionary<string, string>(StringComparer.Ordinal);
 
     /// <summary>Reads the command name and runs it.</summary>
     /// <param name="args">The command name, then the arguments of that command.</param>
@@ -122,6 +120,16 @@ public static class Program
             return BotsCommand.Run(args[1..], output, errors);
         }
 
+        if (command == NightCommand.Name)
+        {
+            return NightCommand.Run(args[1..], output, errors);
+        }
+
+        if (command == NightGateCommand.Name)
+        {
+            return NightGateCommand.Run(args[1..], output, errors);
+        }
+
         if (PlannedCommands.TryGetValue(command, out string? pullRequest))
         {
             errors.WriteLine(
@@ -150,6 +158,8 @@ public static class Program
         errors.WriteLine($"  {EvaluatorCostCommand.Name}: ready");
         errors.WriteLine($"  {ScreenplayCommand.Name}: ready");
         errors.WriteLine($"  {BotsCommand.Name}: ready");
+        errors.WriteLine($"  {NightCommand.Name}: ready");
+        errors.WriteLine($"  {NightGateCommand.Name}: ready");
         errors.WriteLine("The planned commands, with the PR that adds each one:");
         foreach (KeyValuePair<string, string> entry in PlannedCommands)
         {

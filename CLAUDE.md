@@ -161,7 +161,7 @@ A PR merges only when every line holds:
 - [ ] The `screen-test` job is green: each fixture matches the committed baseline (D-172, F-23, D-731).
 - [ ] A screen change: the author read each frame of `make sheet` or `make walk`, and the PR says so (D-784).
 - [ ] The `bots` job is green on every CI leg: no crash and no softlock (D-64, D-505, D-1179).
-- [ ] The `night-gate` job is green: a success record from a night inside 48 hours (G-22). PR-49 creates it (D-496). A docs-only PR passes it (D-513).
+- [ ] The `night-gate` job is green: a success record of a night inside 48 hours of the last push (G-22, D-1188). A night on the head, or a docs-only PR, passes (D-510, D-513).
 - [ ] The `ste-check` job is green: the writing, reference, session number, size, and Documents row rules (G-12, D-605, D-607, D-611, D-696).
 - [ ] The automated pass of gitar approved the head, or each item of the pass has its answer (D-14). The review is current under the `gitar-review` skill.
 - [ ] The other provider reviewed it through `make codex-review`, and `docs/reviews/pr-<number>.md` has the verdict `Ready for owner merge` for the effective head (T-4, D-17, D-943). The label of D-401 exempts a PR of the override set that changes no decision row.

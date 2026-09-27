@@ -129,6 +129,7 @@ A setting of the repository is outward-facing. A session changes one only after 
 - A required context matches by name. Each context reports on a docs-only head and on a code head, because each gate job of `ci.yml` runs with `if: always()`. The `review-gate` workflow runs on each event of the PR.
 - The `export` workflow runs on a change of its paths alone, so it is not a required context (D-512, D-692). A required context that never reports blocks each merge.
 - The `Gitar` context comes from the Gitar app, and it reports on each head (D-1123). A Gitar outage holds each merge until the check completes.
+- The `night-gate` workflow runs on each push of a PR from the workflow file of `main` (D-509). It passes a docs-only PR, and `docs/runbooks/night.md` gives its steps (D-513, D-1192).
 - A required context matches by name alone. `BranchProtectionTests` fails a context whose name is the name of no job of a workflow or of two jobs (D-1125).
 
 ## The limit of the review gate

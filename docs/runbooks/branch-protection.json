@@ -14,6 +14,7 @@
         "changed paths",
         "coverage report",
         "det-lint",
+        "night-gate",
         "replay-identity",
         "review-gate",
         "screen-test",
