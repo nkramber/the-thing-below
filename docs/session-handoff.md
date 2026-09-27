@@ -1,7 +1,7 @@
 ## Session 375: 2026-09-27, Claude Code
 
 Author: Claude Code
-Session: author PR-35, round 1. Repository: the-thing-below. Branch: `feat/pr-35-region-map`. PR: the PR of this branch. Role: author. Base: `9d1d73f`.
+Session: author PR-35, round 1. Repository: the-thing-below. Branch: `feat/pr-35-region-map`. PR: #93. Role: author. Base: `9d1d73f`.
 
 ### What this session did, and why
 
@@ -13,12 +13,12 @@ Session: author PR-35, round 1. Repository: the-thing-below. Branch: `feat/pr-35
 
 ### The state of the build
 
-- Every test passes on this machine except the three new baselines of the `overworld` capture, which CI renders (D-733). The simulation version is 37.
+- CI run 36359224796 on `5799c14` passed the bots, the smoke, the replay identity, the det-lint, and the STE jobs on each leg. The tests failed on the three absent `overworld` baselines alone. The simulation version is 37.
 - The author read each frame of `make sheet FIXTURE=overworld`.
 
 ### What is in flight
 
-- The first push, CI, the baselines from the `screen-test` artifact, and the Gitar pass. Then `make codex-review`.
+- Gitar approved `5799c14` with no thread, and a PR comment answers its claim on RG 3. The second push adds the three `overworld` baselines and 12 hub baselines from the CI artifact: the hub exit now draws on the east wall of the yard (D-733). All 153 CI captures match them. Then `make codex-review PR=93`.
 
 ### Traps and gotchas
 
@@ -31,7 +31,7 @@ None for PR-35.
 
 ### The next concrete action
 
-Push, open the PR, commit the three `overworld` baselines from the CI artifact, and run the Gitar poll of the `gitar-review` skill.
+Run the Gitar poll of the second push, wait for its checks, then run `make codex-review PR=93` in the background (D-926).
 
 ## Session 374: 2026-09-27, Claude Code
 
