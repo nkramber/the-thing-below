@@ -1,3 +1,37 @@
+## Session 351: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-108, round 5. Repository: the-thing-below. Branch: `feat/pr-108-night-recovery`. PR: #89. Role: author. Base: `a8ba710`.
+
+### What this session did, and why
+
+- Gitar approved `f5a46c4` with one suggestion: the limit of 15 minutes of the promotion wait counted from the start, so a long queue could stop a run that moved.
+- `4779565` starts the limit again each time the set of open earlier runs changes. The limit stops a stalled queue alone, and the job timeout of 40 minutes stays the hard limit (D-1202, T-2).
+- The review gate faults on RG 4 and RG 5, because the record of round 1 names `e8a8cd9` with `Changes required`. The next Codex round writes the new record.
+
+### The state of the build
+
+- Local build, format, and STE are clean. The workflow tests pass.
+- The remote head before this push is `f5a46c4`.
+
+### What is in flight
+
+- The Gitar pass of this push, then `make codex-review PR=89`, round 2 of the review.
+- After the merge: `make night-watch-install` on the Mac, and one test message through `notify.yml`.
+
+### Traps and gotchas
+
+- `notify.yml`, `night-promote.yml`, and the facts action first run from `main`, after the merge (F-37).
+- P1-1 counts one round. A third open round of one finding stops the loop (D-929).
+
+### The questions that block progress
+
+None for PR-108. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Run the Gitar poll. When every check except `review-gate` is green, run `make codex-review PR=89` in the background.
+
 ## Session 350: 2026-09-27, Claude Code
 
 Author: Claude Code
@@ -314,36 +348,3 @@ None.
 ### The next concrete action
 
 The owner reads the updated record and confirms the merge.
-
-## Session 341: 2026-09-26, Claude Code
-
-Author: Claude Code
-Session: author PR-15, round 3, the answer to the review. Repository: the-thing-below. Branch: `feat/pr-15-bots`. PR: #87. Role: author. Base: `f383aa9`.
-
-### What this session did, and why
-
-- Gitar approved `66dcf4d` with no finding. The author answered its CI-analysis claim on the PR: the one fault of `review-gate` was RG 3, the absent record (D-964). Two claims in all, one on each head, and neither had merit.
-- The cross-provider review of `66dcf4d` gave `Changes required` for P2-1: the check each 60 played ticks could miss a softlock that clears on a later tick. The finding has full merit. `docs/reviews/pr-87-response.md` holds the answer.
-- The runner now checks each state. The check skips the trial when the state accepts a toggle, which always changes the hash, and a seed loop proves that the two paths agree. The check on each tick ran faster than the old sampling.
-- Moved the untracked `TheThingBelow.Game/scripts/Ui/DialogueChange.cs.uid` to `/tmp/pr15-aside/`, because the review refuses a tree with an untracked file. PR-36 added `DialogueChange.cs` with no `.uid`, and the repo tracks 91 such files. The owner decides where that file goes.
-
-### The state of the build
-
-- `make verify` passes on this machine. The remote head before this commit is `3e8f772`, the review record.
-
-### What is in flight
-
-- The Gitar pass of this push, then the repeat review of `make codex-review PR=87`.
-
-### Traps and gotchas
-
-- The review command refuses a tree with an untracked file. Godot writes a `.uid` for a new script when the editor opens the project.
-- The owner adds `bots` to the required checks of `main` after its first run (section 7.16 of `docs/roadmaps/area-ci.md`).
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Wait for the Gitar pass and the CI of this push. Then run `make codex-review PR=87` in the background.
