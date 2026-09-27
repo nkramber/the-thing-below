@@ -833,3 +833,7 @@ How to file a question (D-19, D-24):
 252. **OQ-252. Two regains from one blow.** A basic attack that hits returns 5% of full AP to the attacker (D-1198). A fall of an enemy returns 10% to each standing character. Does a basic attack that fells an enemy give the attacker both? Raised 2026-09-26. Blocks PR-107.
     - Both, the recommendation. The two rules stay apart, and a finishing blow pays a little more.
     - The fall alone. The attacker takes 10% like the rest of the party, and one blow never counts twice.
+253. **OQ-253. A head night after commits of documents alone.** A night by hand passes the exact head commit of a PR alone (D-510). The review record and the handoff entry land after that night, and they move the head. Does a green head night also pass later commits that change documents alone, as a review approval does (D-943)? Raised 2026-09-27. Blocks PR-108. Resolved 2026-09-27: D-1204, the paths of a docs-only PR (D-513).
+    - Yes, with the paths of a docs-only PR, the recommendation. The gate keeps one path set, and a commit of metadata needs no night of 55 minutes.
+    - Yes, with the skip set of D-943. The review and the night then share one rule, and the gate holds two path sets.
+    - No. Each push needs its own night, and a PR with its own night then passes only on a green night of `main`.

@@ -648,7 +648,7 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 45. PR-65: the shop and the gold economy, after PR-13 (D-60, D-530).
 46. PR-36: the dialogue box, the portraits, and the story scene on screen (D-114, D-223).
 47. PR-15: the headless runner, the two bot policies, the battle numbers, and the bot job (D-64, D-505, D-1179 to D-1184).
-48. PR-49: the night job, the night gate, and two battle screen changes, right after PR-15 (D-496, D-1188 to D-1195). PR-107, ability power, comes next (D-1196).
+48. PR-49: the night job, the night gate, and two battle screen changes, right after PR-15 (D-496, D-1188 to D-1195). PR-108, night recovery, comes next, then PR-107, ability power (D-1196, D-1200).
 49. PR-15 requires the bot check on `main` (D-1186). After its merge, the PR-49 session requires `night-gate` after the first night passes (D-1192).
 50. PR-16: the treasure, the doors, the keys, and the save points (D-41, D-555).
 51. PR-64: the traps, the hazards, and the statuses that last on the map (D-390, D-529).
@@ -762,7 +762,7 @@ Section 7 gives the same order inside each phase, with a link to each phase file
 18. PR-68, PR-50.
 19. PR-12, PR-13, PR-99, PR-91, PR-100, PR-101, PR-102, PR-103, PR-104, PR-105, PR-106, PR-14, PR-65.
 20. PR-36.
-21. PR-15, PR-49. After the merge of PR-49, a night runs on `main`, then `night-gate` joins the protection of `main` (D-1192).
+21. PR-15, PR-49, PR-108, PR-107. After the merge of PR-49, a night runs on `main`, then `night-gate` joins the protection of `main` (D-1192).
 22. PR-15 adds the `bots` check to the protection of `main` (D-1186). The PR-49 session adds `night-gate` after the first night passes (D-1192).
 23. PR-16, PR-64, PR-35.
 24. PR-51, PR-52, PR-53.

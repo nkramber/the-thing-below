@@ -2779,6 +2779,8 @@ Area files: `area-release.md` section 7.8, `area-art.md` section 7.5.
 
 **Questions.** OQ-173 and OQ-174.
 
+> *In plain English:* a session draws the pictures on the shop page the same way as everything else in the game. The screenshots come from real play.
+
 
 ### 7.66 PR-107: ability power
 
@@ -2814,7 +2816,50 @@ Area files: `area-battle.md` section 7.4, and `area-progression.md` for the form
 
 > *In plain English:* every ability costs one kind of power, a sword cut too. Hits and kills give some of it back, so a fighter can go on.
 
-> *In plain English:* a session draws the pictures on the shop page the same way as everything else in the game. The screenshots come from real play.
+### 7.67 PR-108: night recovery
+
+Area files: `area-ci.md` sections 7.14 and 7.15, `area-tools.md` for the commands, and `area-battle.md` section 7.4 for the form line.
+
+**Scope.** The four concerns come in the order of D-1200:
+
+- The alert. A job of the night workflow sends one Pushover message when a leg fails. The message names each failed leg, the first seed, and the link of the run (D-1201).
+- The `notify` workflow sends one Pushover message with a title, a message, and a link (D-1207).
+- The head night walk. A green night on an earlier commit of a PR passes the head when each later commit changes paths of a docs-only PR alone (D-1204).
+- The promotion. A `night-promote` workflow on each push to `main` keeps the night of the merged PR as the newest evidence of `main` (D-1202, D-1203). The night gate reads the later of the night of `main` and the promotion.
+- The watcher. The `night-watch` command, its launchd job, and the `night-fix` skill of the fix session (D-1205 to D-1208).
+- The form line. The string `battle.form_help` reads `{mp}MP - {text}`, and the baselines `battle-forms-1x` and `battle-forms-fill-1080` change (D-1209, D-733).
+
+**Out of scope.**
+
+- A new run of the gate of each open PR after a promotion (D-1188).
+- A merge by the watcher (D-933).
+- Ability power (PR-107).
+
+**Exit tests.**
+
+1. A failed leg gives one message with each failed leg, the first seed, and the link. A green night sends none.
+2. A Pushover reply with a status other than 1 fails the send with the HTTP status and the errors. No message and no error holds a secret.
+3. A green night two commits back passes a head when each later commit changes documents alone.
+4. A later code commit, a merge commit, or a commit with no path ends the walk.
+5. A promotion needs a failed night of `main` and a green branch night inside 48 hours on the same range.
+6. A promotion needs a tree difference of documents alone between the night commit and the merge commit.
+7. Each absent condition of a promotion names its reason, and the workflow promotes nothing.
+8. The gate reads a promotion on a later commit of `main` as the evidence of `main`. A night on the same commit or a later commit wins.
+9. The watcher starts one session for a failed night, and never a second session for the same night.
+10. A green night, a night that the watcher handled, and a night that a promotion covers start no session.
+11. The launchd file holds the two start minutes, the program, the path, and the log files.
+12. The form line reads "4MP - Fire on one foe, either row.", and the two baselines match the CI capture.
+
+**Review focus.**
+
+- No secret value reaches a file, a log, a record, or a command line.
+- The promotion reads the head of the merged PR by its git ref, and it runs no code of that PR.
+- The watcher never merges, and each stop of a fix session sends a Pushover.
+
+**Questions.** OQ-253, resolved by D-1204.
+
+> *In plain English:* when the robots find a crash at night, the owner gets a phone alert. The Mac then starts a session that fixes the fault and asks for the merge. A fix that proved itself turns the check green for everyone at its merge.
+
 ## 8. Sequence
 
 The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). Phase 2 holds this order:
@@ -2827,7 +2872,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 6. PR-68, PR-50: the story scenes, the flags, and the screenplay tool, before the first PR that reads a flag (D-556).
 7. PR-12, PR-13, PR-99, PR-91, PR-100, PR-101, PR-102, PR-103, PR-104, PR-105, PR-106, PR-14, PR-65: the build of a party, the stat set, the torch, the end of the Gitar pause, the torch and pad fixes, the gate fixes, the input fixes, the boot and rule fixes, the save and guard fixes, and the gate, key, crash, and budget fixes of the repository review, the hub, and the shop.
 8. PR-36: the dialogue box.
-9. PR-15, PR-49, PR-107: the bots, the night job and the night gate, and ability power (D-1196).
+9. PR-15, PR-49, PR-108, PR-107: the bots, the night job and the night gate, night recovery, and ability power (D-1196, D-1200).
 10. PR-15 requires the bot check (D-1186). The PR-49 session requires `night-gate` after the first night on `main` (D-1192).
 11. PR-16, PR-64, PR-35: the dungeon and the region map.
 12. PR-51, PR-52, PR-53: the PNG import, the map preview, and the tile-edge tool.
@@ -2942,3 +2987,4 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-248 | The heal of an absorbed hit. Resolved by D-1055 | PR-99 |
 | OQ-251 | The kind of the region map: the node map of D-113, or a walkable overworld | PR-35 |
 | OQ-252 | Two regains of AP from one blow | PR-107 |
+| OQ-253 | A head night after commits of documents alone. Resolved by D-1204 | PR-108 |

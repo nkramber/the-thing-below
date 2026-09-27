@@ -490,7 +490,8 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 23. PR-15: the bot runs on every leg (D-505).
 24. PR-49: the night job and the night gate. The live gate first runs after the first night (D-500).
 25. PR-15 requires the bot check (D-1186). The PR-49 session requires `night-gate` after the first night on `main` (D-1192).
-26. **← GATE 2 (first playable).**
+26. PR-108: the Pushover alert of a failed night, the promotion of a branch night, and the night watcher (D-1200 to D-1208).
+27. **← GATE 2 (first playable).**
 
 ## 9. Open questions
 
