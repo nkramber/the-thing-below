@@ -10,6 +10,7 @@ using TheThingBelow.Tools.DetLint;
 using TheThingBelow.Tools.Evaluator;
 using TheThingBelow.Tools.Identity;
 using TheThingBelow.Tools.Night;
+using TheThingBelow.Tools.Notify;
 using TheThingBelow.Tools.Pictures;
 using TheThingBelow.Tools.ReviewGate;
 using TheThingBelow.Tools.Screens;
@@ -130,6 +131,16 @@ public static class Program
             return NightGateCommand.Run(args[1..], output, errors);
         }
 
+        if (command == NightAlertCommand.Name)
+        {
+            return NightAlertCommand.Run(args[1..], output, errors);
+        }
+
+        if (command == PushoverCommand.Name)
+        {
+            return PushoverCommand.Run(args[1..], output, errors);
+        }
+
         if (PlannedCommands.TryGetValue(command, out string? pullRequest))
         {
             errors.WriteLine(
@@ -160,6 +171,8 @@ public static class Program
         errors.WriteLine($"  {BotsCommand.Name}: ready");
         errors.WriteLine($"  {NightCommand.Name}: ready");
         errors.WriteLine($"  {NightGateCommand.Name}: ready");
+        errors.WriteLine($"  {NightAlertCommand.Name}: ready");
+        errors.WriteLine($"  {PushoverCommand.Name}: ready");
         errors.WriteLine("The planned commands, with the PR that adds each one:");
         foreach (KeyValuePair<string, string> entry in PlannedCommands)
         {

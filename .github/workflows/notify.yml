@@ -1,0 +1,65 @@
+# The Pushover message of the night watcher and of its fix session (D-1205, D-1207). PR-108
+# creates it.
+#
+# The watcher on the Mac runs `gh workflow run notify.yml --ref main` with a title, a message,
+# and a link. The job reads the two repository secrets, so no copy of a secret lives on the Mac.
+# A manual run needs the workflow on the default branch, so it works after the merge of PR-108.
+# `docs/runbooks/night-watch.md` gives the commands.
+#
+# Each action pins a full commit SHA (D-511).
+name: notify
+
+on:
+  workflow_dispatch:
+    inputs:
+      title:
+        description: "The title of the message."
+        required: true
+      message:
+        description: "The text of the message."
+        required: true
+      link:
+        description: "The link of the message, such as a PR. Leave it empty for no link."
+        required: false
+        default: ""
+
+# The job reads the checkout alone.
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: "true"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+
+jobs:
+  notify:
+    name: notify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out the branch of the run
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install the .NET SDK of global.json
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      # Each input goes through the environment, and never into the text of the script. The
+      # secrets reach the command through its environment alone (D-1201).
+      - name: Send the message
+        env:
+          PUSHOVER_USER_KEY: ${{ secrets.PUSHOVER_USER_KEY }}
+          PUSHOVER_API_TOKEN: ${{ secrets.PUSHOVER_API_TOKEN }}
+          TITLE: ${{ inputs.title }}
+          MESSAGE: ${{ inputs.message }}
+          LINK: ${{ inputs.link }}
+        run: |
+          set -euo pipefail
+          link=()
+          if [ -n "${LINK:-}" ]; then link=(--link "$LINK"); fi
+          dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj --verbosity quiet -- \
+            pushover --title "$TITLE" --message "$MESSAGE" "${link[@]}"

@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using TheThingBelow.Tools.Night;
+using TheThingBelow.Tools.Notify;
 using Xunit;
 
 namespace TheThingBelow.Tests;
@@ -16,6 +17,8 @@ public sealed class NightWorkflowTests
     private const string NightPath = ".github/workflows/night.yml";
 
     private const string GatePath = ".github/workflows/night-gate.yml";
+
+    private const string NotifyPath = ".github/workflows/notify.yml";
 
     [Fact]
     public void TheNightStartsAt0417Utc()
@@ -85,6 +88,52 @@ public sealed class NightWorkflowTests
     {
         // F-109: a rename lists its old path too, so a move out of the code paths binds the PR.
         Assert.Contains("(.previous_filename // empty)", Text(GatePath), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TheAlertRunsAfterAFailedLegAlone()
+    {
+        // D-1201: one message when a leg fails, and none for a green night or a cancel.
+        string[] lines = Lines(NightPath);
+        int start = Array.IndexOf(lines, "  alert:");
+
+        Assert.True(start > 0, "The night workflow holds no alert job.");
+        Assert.Contains("    needs: night", lines[start..]);
+        Assert.Contains("    if: ${{ !cancelled() && needs.night.result == 'failure' }}", lines[start..]);
+        Assert.Contains(lines[start..], line => line.Contains(NightAlertCommand.Name, StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void TheFirstSeedOfTheNightReachesTheAlert()
+    {
+        string text = Text(NightPath);
+
+        Assert.Contains("first-seed: ${{ steps.seed.outputs.first-seed }}", text, StringComparison.Ordinal);
+        Assert.Contains("echo \"first-seed=$first_seed\" >> \"$GITHUB_OUTPUT\"", text, StringComparison.Ordinal);
+        Assert.Contains("FIRST_SEED: ${{ needs.night.outputs.first-seed }}", text, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData(NightPath)]
+    [InlineData(NotifyPath)]
+    public void EachSecretReachesTheCommandThroughItsEnvironmentAlone(string path)
+    {
+        // D-1201: no step writes a secret, and no script text holds one.
+        string[] lines = Lines(path).Where(line => line.Contains("secrets.", StringComparison.Ordinal)).ToArray();
+
+        Assert.Equal(2, lines.Length);
+        Assert.All(lines, line => Assert.Matches(@"^          (PUSHOVER_USER_KEY|PUSHOVER_API_TOKEN): \$\{\{ secrets\.\1 \}\}$", line));
+    }
+
+    [Fact]
+    public void EachInputOfTheNotifyWorkflowGoesThroughTheEnvironment()
+    {
+        // D-1207: an input never reaches the text of a script.
+        string[] lines = Lines(NotifyPath).Where(line => line.Contains("${{ inputs.", StringComparison.Ordinal)).ToArray();
+
+        Assert.Equal(3, lines.Length);
+        Assert.All(lines, line => Assert.Matches(@"^          [A-Z]+: \$\{\{ inputs\.[a-z]+ \}\}$", line));
+        Assert.Contains(Lines(NotifyPath), line => line.Contains(PushoverCommand.Name + " --title", StringComparison.Ordinal));
     }
 
     private static string Text(string path) => File.ReadAllText(RepositoryRoot.PathTo(path));
