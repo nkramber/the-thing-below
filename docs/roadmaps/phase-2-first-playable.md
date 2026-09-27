@@ -2206,7 +2206,7 @@ Area file: `area-exploration.md` section 7.8.
 - The exit leads to the fixture hub until PR-35 points it at the region map (D-1216).
 - The snapshot carries the open chests, the open doors, and the dead enemies of each map.
 
-**Questions.** None. OQ-119 and OQ-120 block PR-64.
+**Questions.** None.
 
 > *In plain English:* the dungeon gains its chests, doors, keys, and waystones. A thief can pick some locks, and the story keeps its own doors shut until you find the key.
 
@@ -2216,39 +2216,43 @@ Area file: `area-exploration.md` section 7.9.
 
 **Scope.**
 
-- The traps of D-41, apart from the parts of PR-16 (D-529, OQ-119).
-- The hazards of region one (OQ-120).
-- The Theft drill that reveals and disarms a trap (D-386).
+- The traps of D-41, apart from the parts of PR-16 (D-529). A trap deals damage, puts a status, or starts an encounter (D-1226, D-1230, D-1231).
+- A trap fires one time, and the memory of the map keeps it spent (D-1229).
+- The Theft drill that reveals and disarms a trap (D-386, D-1228).
+- The three hazards of region one: deep snow, ice, and bad air (D-1227, D-1232, D-1233, D-1235).
 - What poison, blind, and silence do after a battle, until a cure or a rest at a hub. PR-66 keeps them on each character (D-390, D-792).
-- The poison that ticks on the map and can down a character (D-392).
+- The poison that ticks on the map and can down a character, the reserve included (D-392, D-1234, D-1236).
 - The silence that stops a rite from the menu, and the blind that does nothing outside battle (D-393).
-- The wipe when poison downs every character who fights, even with a healthy reserve (D-397).
-- The map HUD: the health mark and the status mark at the edge (D-212, D-390, D-721).
+- The wipe when a trap, the bad air, or poison downs every character who fights, even with a healthy reserve (D-397).
+- The map HUD: the faces, the health bars, and the status icons at the top left (D-212, D-721, D-1237, D-1239).
+- The fixture drawings of the traps, the hazards, and the faces, and a patch of each hazard in the fixture dungeon (D-1238, D-1239).
 
 **Out of scope.**
 
 - The statuses inside a fight, and the three that each character keeps after it (PR-66, D-533, D-792).
 - The puzzles and the secrets (PR-21).
+- The maps of the deep mine, the ice crossing, and the pass, which hold the hazards of region one.
 
 **Exit tests.**
 
 1. A property test over one thousand seeds proves each trap and each hazard rule.
-2. A Theft drill reveals and disarms a fixture trap (D-386).
+2. A Theft drill reveals and disarms a fixture trap (D-386, D-1228).
 3. A fixture party that poison downs on the map wipes and reloads (D-397).
 4. The same rule holds for a party of one, two, or three (D-336).
 5. Silence stops a rite from the menu, and a rest cures it (D-390, D-393).
 6. The bots play the fixture dungeon with these rules (D-64). PR-17 runs the bots over each map of the first playable.
-7. The snapshot holds each status that lasts on the map.
+7. The snapshot holds each status that lasts on the map, and the save holds each spent trap (D-1229).
+8. A load test proves that each field of ice has a way out (D-1232).
 
 **Review focus.**
 
-- The answer of OQ-119 sets what each trap does, and OQ-120 the hazards of region one.
-- A healthy reserve never saves a party that poison downs (D-397).
-- Poison ticks on the tick of Core, and no clock reaches it (G-3).
+- A healthy reserve never saves a party that a trap, the bad air, or poison downs (D-397, D-1236).
+- Poison and the bad air count world ticks, and no clock reaches them (G-3, D-650).
+- The step of deep snow keeps the even slide (D-821, D-1233).
 
-**Questions.** OQ-119 and OQ-120.
+**Questions.** None. D-1226 to D-1239 answer each question of this PR.
 
-> *In plain English:* the dungeon itself can hurt you. Poison still hurts while you walk, and a party can go down between fights.
+> *In plain English:* the dungeon itself can hurt you. Traps wait on the floor, snow and ice change how you walk, and bad air and poison hurt while you walk or stand. A party can go down between fights.
 
 ### 7.50 PR-35: the region map
 
@@ -2936,8 +2940,8 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-115 | How a large enemy holds its tiles and sorts, resolved by D-737 | PR-8 |
 | OQ-117 | A diagonal step on the map, resolved by D-716 | PR-7 |
 | OQ-118 | The limits of the camera on a small map, resolved by D-717 | PR-7 |
-| OQ-119 | What a trap does, and what a Theft drill does to it | PR-64 |
-| OQ-120 | The hazards of region one | PR-64 |
+| OQ-119 | What a trap does, and what a Theft drill does to it, resolved by D-1226, D-1228 to D-1231 | PR-64 |
+| OQ-120 | The hazards of region one, resolved by D-1227, D-1232 to D-1235 | PR-64 |
 | OQ-121 | The prices, the buy-back, and the stock of a shop, resolved by D-1149 to D-1155 | PR-65 |
 | OQ-122 | The format of the region map, and the cost of a route | PR-35 |
 | OQ-124 | A defend action. Resolved by D-755 | PR-9 |
