@@ -12,7 +12,7 @@ Session: repeat review PR #89 (PR-108). Repository: the-thing-below. Branch: `re
 ### The state of the build
 
 - `NightWorkflowTests` passes 17/17. CI run `36298048312` passes build, test, and format on each leg, bots, smoke, replay identity, screen test, det-lint, and STE. Night-gate run `36298047521` passes.
-- Review-gate run `36298047516` reports RG 4 and RG 5 from the prior review record. The remote head before this metadata commit is `548969b`.
+- Review-gate run `36298047516` reports RG 4 and RG 5 from the prior review record. The remote head before metadata commit `7193214` was `548969b`. GitHub confirmed `7193214` as the remote head after its push.
 
 ### What is in flight
 
