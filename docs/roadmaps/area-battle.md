@@ -66,7 +66,7 @@ Built by PR-9. Phase file: `phase-2-first-playable.md`.
 
 - Every character can attack with the weapon in hand, and no lesson gives that attack (D-359).
 - A lesson gives each other ability, and `area-progression.md` holds the lessons (D-272, D-278).
-- Each form costs AP, a rite and a drill alike, at least 1 AP (D-1197, D-1213). AP comes back at a hub, at a save point, and from scarce items (D-42, D-257, D-389).
+- Each form costs AP, a rite and a drill alike, at least 1 AP (D-1197, D-1213). AP comes back at a hub, in a fight, and from scarce items (D-42, D-1198, D-1221).
 - A fall of an enemy gives each character who is not down 10% of full AP. A basic attack that hits gives the attacker 5%, and a blow that does both gives both. Each regain rounds down, with a floor of 1, and shows no message. PR-107 builds it (D-1198, D-1210, D-1211).
 - Any character can use an item on their turn, and the use costs an action. An item restores less in a fight than outside one (D-382).
 - A character can step to the other row, and the step costs a light delay (D-380).

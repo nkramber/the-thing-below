@@ -87,6 +87,7 @@ Area files: `area-story.md` section 7.7, `area-progression.md` section 7.6.
 - The close of a missed task at the end of its region, and the result in the save (D-375).
 - The quest window in the stack of PR-62.
 - The hub lines that the dialogue box of PR-36 shows, and the change of a hub line with a story flag (D-329, D-1176).
+- The free rest of a poor and hurt party, with its line of the inn (D-1218).
 
 **Out of scope.**
 
@@ -101,6 +102,7 @@ Area files: `area-story.md` section 7.7, `area-progression.md` section 7.6.
 4. A missed task closes at the end of its region, and the save carries the result (D-375).
 5. A task in the mining town becomes impossible at the breakout, with no notice (D-319).
 6. A property test over one thousand seeds proves that the balance holds with any side aptitude absent (D-282, D-304).
+7. A hurt party with fewer than three standing characters and too little gold rests for free (D-1218).
 
 **Review focus.**
 

@@ -47,12 +47,12 @@ Built by PR-67. Phase file: `phase-2-first-playable.md`.
 Built by PR-67 as MP. PR-107 makes it ability power, AP. Phase file: `phase-2-first-playable.md`.
 
 - Each character holds AP, the one pool. Each form spends it, a rite and a drill alike, at least 1 AP (D-42, D-1197, D-1213).
-- AP comes back at a hub, at a save point once for the place, and from scarce items (D-42, D-389, D-555, D-1197).
+- AP comes back at a hub, in a fight, and from scarce items. A save point restores nothing (D-42, D-1197, D-1221).
 - In a fight, a fall of an enemy gives each character who is not down 10% of full AP. A basic attack that hits gives the attacker 5%. Each regain rounds down, with a floor of 1 (D-1198, D-1210).
-- A save point restores no health, so health stays the scarce resource inside a dungeon (D-389).
+- Health stays the scarce resource inside a dungeon, because only a hub and items restore it (D-389, D-1221).
 - Every character can attack with the weapon in hand, so an empty AP pool never leaves a dead turn (D-359, F-8).
-- A fresh character from the reserve brings its own AP at a save point, and the balance of D-35 must hold with it (D-356).
-- A rest at a hub fills health and AP, and a save point fills AP alone (D-967, D-1197). PR-67 adds the two rules, and PR-16 and PR-14 wire them (D-970).
+- A fresh character from the reserve brings its own AP, and the balance of D-35 must hold with it (D-356, D-1134).
+- A rest at a hub fills health and AP (D-967, D-1197). PR-67 adds the rule, and PR-14 wires it (D-970). PR-16 removes the restore of a save point (D-1221).
 
 > *In plain English:* every ability runs on ability power, and it is scarce until you reach a town. Hits and kills give a little back. A character with an empty pool can still swing a weapon.
 

@@ -66,7 +66,7 @@ Built by PR-7. Phase file: `phase-2-first-playable.md`.
 - A menu pauses the world (D-162). The tick rises while a menu is open, and the world systems skip their work (D-650).
 - The lead walks the map in every case, in the party or in the reserve (D-292, D-306).
 - A step goes north, south, east, or west, and a diagonal walk takes two steps (D-716).
-- A door, a lock, a chest, or a save point answers the step into it. The intent names the thing by its id (D-493).
+- A door, a chest, and a save point are solid, and a confirm while the lead faces one answers it (D-1131, D-1142, D-1222). An open door takes a step. An exit answers the step onto it (D-1216).
 
 > *In plain English:* the party moves one tile at a time, and the screen slides it smoothly between tiles. The rules only ever see whole tiles, so a replay always lands on the same square.
 
@@ -162,16 +162,17 @@ Built by PR-8, PR-9, and PR-60. Phase file: `phase-2-first-playable.md`.
 
 Built by PR-16. Phase file: `phase-2-first-playable.md`.
 
-- PR-16 builds the treasure, the locked doors, the keys, and the save points (D-41, D-529). It also adds the gold of a chest (D-1161).
-- A save point saves the party. The party and the lessons swap anywhere outside a fight (D-36, D-1050, D-1134).
-- A save point restores AP once for the place, until a story event reopens it, and it restores no health (D-389, D-555, D-1197).
-- The exit to the region map and a rest at a hub restore the party. So a run never traps itself (D-555).
+- PR-16 builds the treasure, the locked doors, the keys, and the save points (D-41, D-529). It also adds the gold of a chest (D-1161, D-1220).
+- A save point saves the party, on a hub and in a dungeon. The party and the lessons swap anywhere outside a fight (D-36, D-1050, D-1134, D-1221).
+- A save point restores nothing, and it always shows the lit waystone (D-1221, D-1222).
+- The exit restores nothing, and a rest at a hub restores the party. So the walk to a hub is the recovery path (D-555, D-1217).
 - A Theft drill on one of the three who fight opens a lock that the map marks as pickable. A story lock always needs its key (D-386).
+- A key is a key item on the Keyring, and it stays in the pack after it opens a lock (D-1219).
 - A chest over the stack limit keeps what the party cannot carry, and the save records what remains (D-385).
-- The exit of the dungeon returns the party to the region map (D-113).
+- The exit of the dungeon enters the map that it names. The fixture exit leads to the fixture hub until PR-35 builds the region map (D-113, D-1216).
 - A bot run that wipes reloads and continues, and a two-character party can still reach the exit (the exit tests of PR-16).
 
-> *In plain English:* dungeons gain their chests, doors, keys, and resting stones. A thief can pick some locks, and the story keeps its own doors shut until you find the key.
+> *In plain English:* dungeons gain their chests, doors, keys, and waystones. A thief can pick some locks, and the story keeps its own doors shut until you find the key.
 
 ### 7.9 Traps, hazards, and statuses on the map
 
