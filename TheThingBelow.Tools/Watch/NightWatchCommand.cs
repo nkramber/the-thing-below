@@ -65,7 +65,7 @@ public static class NightWatchCommand
         try
         {
             Directory.CreateDirectory(state);
-            return Check(Path.GetFullPath(repository), Path.GetFullPath(state), claude, output);
+            return Check(WatchPrograms.Live, Path.GetFullPath(repository), Path.GetFullPath(state), claude, output);
         }
         catch (Exception fault) when (fault is IOException or UnauthorizedAccessException or InvalidOperationException)
         {
@@ -79,23 +79,32 @@ public static class NightWatchCommand
         }
     }
 
-    private static int Check(string repository, string state, string claude, TextWriter output)
+    private static int Check(WatchPrograms programs, string repository, string state, string claude, TextWriter output)
     {
-        string repo = ExternalProgram.RunChecked("gh", ["repo", "view", "--json", "nameWithOwner", "--jq", ".nameWithOwner"], repository);
-        WatchedNight? night = NewestNight(repo, repository);
+        string repo = programs.RunChecked("gh", ["repo", "view", "--json", "nameWithOwner", "--jq", ".nameWithOwner"], repository);
+        WatchedNight? night = NewestNight(programs, repo, repository);
         SortedSet<long> handled = NightWatch.ReadHandled(state);
         NightOrder order = NightOrder.None;
         if (night is not null && !string.Equals(night.Conclusion, NightGate.SuccessConclusion, StringComparison.Ordinal) && !handled.Contains(night.Id))
         {
-            order = PromotionOrder(repo, repository, state, night);
+            order = PromotionOrder(programs, repo, repository, state, night);
         }
 
         WatchStep step = NightWatch.Decide(night, handled, order);
         Log(state, step.Reason, output);
-        return step.Night is null ? 0 : StartSession(repo, repository, state, claude, step.Night, output);
+        return step.Night is null ? 0 : StartSession(programs, repo, repository, state, claude, step.Night, output);
     }
 
-    private static int StartSession(string repo, string repository, string state, string claude, WatchedNight night, TextWriter output)
+    /// <summary>Starts one fix session for a failed night, and waits for its end (D-1205).</summary>
+    /// <param name="programs">The runners of git, gh, and Claude Code: the real programs in the command, and fakes in a test.</param>
+    /// <param name="repo">The owner and the name of the repository on GitHub.</param>
+    /// <param name="repository">The checkout of the repository.</param>
+    /// <param name="state">The folder of the watcher.</param>
+    /// <param name="claude">The program of Claude Code.</param>
+    /// <param name="night">The failed night.</param>
+    /// <param name="output">The writer of each line of the log.</param>
+    /// <returns>0 when the session ended with no fault, else <see cref="Program.FaultExitCode"/>.</returns>
+    public static int StartSession(WatchPrograms programs, string repo, string repository, string state, string claude, WatchedNight night, TextWriter output)
     {
         Guid sessionId = Guid.NewGuid();
         string id = night.Id.ToString(CultureInfo.InvariantCulture);
@@ -111,13 +120,13 @@ public static class NightWatchCommand
         bool started = false;
         try
         {
-            ExternalProgram.RunChecked("git", ["-C", repository, "fetch", "--no-tags", "origin", NightGate.MainBranch], repository);
-            ExternalProgram.RunChecked("git", ["-C", repository, "worktree", "add", "--detach", worktree, $"origin/{NightGate.MainBranch}"], repository);
-            Notify(repo, repository, "The Thing Below: fix session started", $"Night run {id} failed. Session {sessionId:D} runs in {worktree}.", night.Link);
+            programs.RunChecked("git", ["-C", repository, "fetch", "--no-tags", "origin", NightGate.MainBranch], repository);
+            programs.RunChecked("git", ["-C", repository, "worktree", "add", "--detach", worktree, $"origin/{NightGate.MainBranch}"], repository);
+            NotifyOrLog(programs, repo, repository, state, "The Thing Below: fix session started", $"Night run {id} failed. Session {sessionId:D} runs in {worktree}.", night.Link, output);
             Log(state, $"The session {sessionId:D} starts in '{worktree}', and its log is '{log}'.", output);
 
             started = true;
-            ProgramResult result = ExternalProgram.Run(
+            ProgramResult result = programs.RunSession(
                 claude,
                 ["-p", NightWatch.PromptOf(night, sessionId, worktree), "--permission-mode", PermissionMode, "--session-id", sessionId.ToString("D")],
                 worktree,
@@ -129,7 +138,7 @@ public static class NightWatchCommand
                 return 0;
             }
 
-            Stop(repo, repository, state, night, $"The session {sessionId:D} of night run {id} ended with the exit code {result.ExitCode.ToString(CultureInfo.InvariantCulture)}. Log: {log}. {result.Error.Trim()}", output);
+            Stop(programs, repo, repository, state, night, $"The session {sessionId:D} of night run {id} ended with the exit code {result.ExitCode.ToString(CultureInfo.InvariantCulture)}. Log: {log}. {result.Error.Trim()}", output);
             return Program.FaultExitCode;
         }
         catch (Exception fault) when (fault is IOException or UnauthorizedAccessException or InvalidOperationException)
@@ -138,34 +147,61 @@ public static class NightWatchCommand
             // of the session itself, such as the limit of 24 hours, keeps the mark (D-1205, T-2).
             if (!started)
             {
+                RemoveWorktree(programs, repository, state, worktree, output);
                 NightWatch.RemoveMark(state, night);
             }
 
             string retry = started ? "The night keeps its mark." : "The next check starts the night again.";
-            Stop(repo, repository, state, night, $"The session {sessionId:D} of night run {id} stopped: {fault.Message} {retry}", output);
+            Stop(programs, repo, repository, state, night, $"The session {sessionId:D} of night run {id} stopped: {fault.Message} {retry}", output);
             return Program.FaultExitCode;
         }
     }
 
     /// <summary>Logs a stop of a fix session, and sends the stop Pushover when the notify workflow works.</summary>
-    private static void Stop(string repo, string repository, string state, WatchedNight night, string message, TextWriter output)
+    private static void Stop(WatchPrograms programs, string repo, string repository, string state, WatchedNight night, string message, TextWriter output)
     {
         Log(state, message, output);
+        NotifyOrLog(programs, repo, repository, state, "The Thing Below: fix session stopped", Clip(message), night.Link, output);
+    }
+
+    /// <summary>Sends a Pushover, and writes a failed send to the log.</summary>
+    private static void NotifyOrLog(WatchPrograms programs, string repo, string repository, string state, string title, string message, string link, TextWriter output)
+    {
         try
         {
-            Notify(repo, repository, "The Thing Below: fix session stopped", Clip(message), night.Link);
+            Notify(programs, repo, repository, title, message, link);
         }
         catch (InvalidOperationException fault)
         {
-            // The stop is already a fault of the command, and the log holds both lines. The exit
-            // code of the command still reports the stop to launchd (T-2).
-            Log(state, $"The stop Pushover failed too: {fault.Message}", output);
+            // A Pushover informs the owner and never gates the session: the start goes on, and a
+            // stop is already a fault of the command. The log holds the failed send (T-2).
+            Log(state, $"The Pushover '{title}' failed: {fault.Message}", output);
         }
     }
 
-    private static WatchedNight? NewestNight(string repo, string repository)
+    /// <summary>Removes the worktree of a start that failed before its session, so no retry leaves a folder behind.</summary>
+    private static void RemoveWorktree(WatchPrograms programs, string repository, string state, string worktree, TextWriter output)
     {
-        string line = ExternalProgram.RunChecked(
+        if (!Directory.Exists(worktree))
+        {
+            return;
+        }
+
+        try
+        {
+            programs.RunChecked("git", ["-C", repository, "worktree", "remove", "--force", worktree], repository);
+        }
+        catch (InvalidOperationException fault)
+        {
+            // The start is already a fault of the command. The log names the folder, so the owner
+            // can remove it by hand (T-2).
+            Log(state, $"The worktree '{worktree}' of the failed start stays: {fault.Message}", output);
+        }
+    }
+
+    private static WatchedNight? NewestNight(WatchPrograms programs, string repo, string repository)
+    {
+        string line = programs.RunChecked(
             "gh",
             ["api", $"repos/{repo}/actions/workflows/night.yml/runs?branch={NightGate.MainBranch}&status=completed&per_page=1", "--jq", ".workflow_runs[0] // empty | [.id, .head_sha, .conclusion, .html_url] | @tsv"],
             repository);
@@ -183,15 +219,15 @@ public static class NightWatchCommand
         return new WatchedNight(id, parts[1], parts[2], parts[3]);
     }
 
-    private static NightOrder PromotionOrder(string repo, string repository, string state, WatchedNight night)
+    private static NightOrder PromotionOrder(WatchPrograms programs, string repo, string repository, string state, WatchedNight night)
     {
-        string runs = ExternalProgram.RunChecked(
+        string runs = programs.RunChecked(
             "gh",
             ["api", $"repos/{repo}/actions/artifacts?name={NightPromotion.ArtifactName}&per_page=30", "--jq", $".artifacts[] | select(.expired == false and .workflow_run.head_branch == \"{NightGate.MainBranch}\") | .workflow_run.id"],
             repository);
         foreach (string run in runs.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
         {
-            string source = ExternalProgram.RunChecked("gh", ["api", $"repos/{repo}/actions/runs/{run}", "--jq", ".path + \" \" + .event"], repository);
+            string source = programs.RunChecked("gh", ["api", $"repos/{repo}/actions/runs/{run}", "--jq", ".path + \" \" + .event"], repository);
             if (!string.Equals(source, ".github/workflows/night-promote.yml push", StringComparison.Ordinal))
             {
                 continue;
@@ -203,20 +239,20 @@ public static class NightWatchCommand
                 Directory.Delete(folder, recursive: true);
             }
 
-            ExternalProgram.RunChecked("gh", ["run", "download", run, "--repo", repo, "--name", NightPromotion.ArtifactName, "--dir", folder], repository);
+            programs.RunChecked("gh", ["run", "download", run, "--repo", repo, "--name", NightPromotion.ArtifactName, "--dir", folder], repository);
             NightPromotion promotion = NightPromotion.Read(folder)
                 ?? throw new InvalidOperationException($"The artifact {NightPromotion.ArtifactName} of the run {run} holds no {NightPromotion.PromotionFile} (T-2).");
-            string status = ExternalProgram.RunChecked("gh", ["api", $"repos/{repo}/compare/{night.Commit}...{promotion.MergeCommit}", "--jq", ".status"], repository);
+            string status = programs.RunChecked("gh", ["api", $"repos/{repo}/compare/{night.Commit}...{promotion.MergeCommit}", "--jq", ".status"], repository);
             return NightPromotion.OrderOf(status);
         }
 
         return NightOrder.None;
     }
 
-    private static void Notify(string repo, string repository, string title, string message, string link)
+    private static void Notify(WatchPrograms programs, string repo, string repository, string title, string message, string link)
     {
         // D-1207: the notify workflow reads the secrets, and the Mac holds no copy.
-        ExternalProgram.RunChecked(
+        programs.RunChecked(
             "gh",
             ["workflow", "run", "notify.yml", "--repo", repo, "--ref", NightGate.MainBranch, "-f", $"title={title}", "-f", $"message={message}", "-f", $"link={link}"],
             repository);
@@ -230,4 +266,21 @@ public static class NightWatchCommand
         output.WriteLine(stamped);
         File.AppendAllText(Path.Combine(state, NightWatch.LogFile), stamped + "\n");
     }
+}
+
+/// <summary>
+/// The runners of the programs of the watcher: git and gh to the end of each call, and Claude Code
+/// for the session. The command takes the real programs, and a test takes fakes, so no test runs
+/// git, gh, or Claude Code.
+/// </summary>
+/// <param name="RunChecked">Runs one program to its end, fails on an exit code other than 0, and gives its output.</param>
+/// <param name="RunSession">Runs the session program with its output file and its time limit, and gives its result.</param>
+public sealed record WatchPrograms(
+    Func<string, IReadOnlyList<string>, string, string> RunChecked,
+    Func<string, IReadOnlyList<string>, string, string, TimeSpan, ProgramResult> RunSession)
+{
+    /// <summary>Gets the real programs, through <see cref="ExternalProgram"/>.</summary>
+    public static WatchPrograms Live { get; } = new(
+        (program, arguments, folder) => ExternalProgram.RunChecked(program, arguments, folder),
+        (program, arguments, folder, output, limit) => ExternalProgram.Run(program, arguments, folder, output, limit));
 }

@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml.Linq;
 using TheThingBelow.Tools;
+using TheThingBelow.Tools.CodexReview;
 using TheThingBelow.Tools.Night;
 using TheThingBelow.Tools.Watch;
 using Xunit;
@@ -155,5 +157,116 @@ public sealed class NightWatchTests : IDisposable
 
         Assert.Equal(Program.FaultExitCode, Program.Run([command], output, errors));
         Assert.Contains("needs --repository and --state", errors.ToString(), StringComparison.Ordinal);
+    }
+    [Fact]
+    public void AFailedStartPushoverStillRunsTheSession()
+    {
+        // Finding of the second Gitar pass on PR #89: a failed start Pushover stopped the start
+        // after the worktree existed, and each retry left one more worktree.
+        FakePrograms fake = new() { NotifyFails = true };
+
+        int exitCode = this.Start(fake);
+
+        Assert.Equal(0, exitCode);
+        Assert.Equal(1, fake.Sessions);
+        Assert.Contains(Failed.Id, NightWatch.ReadHandled(this.state));
+        Assert.Contains("failed", File.ReadAllText(Path.Combine(this.state, NightWatch.LogFile)), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AFaultBeforeTheSessionRemovesItsWorktreeAndItsMark()
+    {
+        FakePrograms fake = new() { WorktreeAddFails = true };
+
+        int exitCode = this.Start(fake);
+
+        Assert.Equal(Program.FaultExitCode, exitCode);
+        Assert.Equal(0, fake.Sessions);
+        Assert.Equal(1, fake.Removed);
+        Assert.Empty(Directory.GetDirectories(Path.Combine(this.state, NightWatch.WorktreeFolder)));
+        Assert.DoesNotContain(Failed.Id, NightWatch.ReadHandled(this.state));
+        Assert.Contains(fake.Notices, notice => notice.Contains("title=The Thing Below: fix session stopped", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void ASessionPastItsLimitKeepsTheMarkAndSendsTheStop()
+    {
+        FakePrograms fake = new() { SessionFails = true };
+
+        int exitCode = this.Start(fake);
+
+        Assert.Equal(Program.FaultExitCode, exitCode);
+        Assert.Contains(Failed.Id, NightWatch.ReadHandled(this.state));
+        Assert.Equal(0, fake.Removed);
+        Assert.Contains(fake.Notices, notice => notice.Contains("title=The Thing Below: fix session stopped", StringComparison.Ordinal));
+    }
+
+    private int Start(FakePrograms fake)
+    {
+        Directory.CreateDirectory(this.state);
+        return NightWatchCommand.StartSession(fake.Programs(), "o/r", this.state, this.state, "claude", Failed, TextWriter.Null);
+    }
+
+    /// <summary>Fakes of git, gh, and Claude Code for the start of a session.</summary>
+    private sealed class FakePrograms
+    {
+        public bool NotifyFails { get; init; }
+
+        public bool WorktreeAddFails { get; init; }
+
+        public bool SessionFails { get; init; }
+
+        public int Sessions { get; private set; }
+
+        public int Removed { get; private set; }
+
+        public List<string> Notices { get; } = [];
+
+        public WatchPrograms Programs() => new(this.RunChecked, this.RunSession);
+
+        private string RunChecked(string program, IReadOnlyList<string> arguments, string folder)
+        {
+            string line = string.Join(' ', arguments);
+            if (program == "gh" && line.StartsWith("workflow run notify.yml", StringComparison.Ordinal))
+            {
+                this.Notices.Add(line);
+                return this.NotifyFails ? throw new InvalidOperationException("gh: the workflow notify.yml is absent") : string.Empty;
+            }
+
+            int add = IndexOf(arguments, "add");
+            if (add >= 0)
+            {
+                Directory.CreateDirectory(arguments[add + 2]);
+                return this.WorktreeAddFails ? throw new InvalidOperationException("git: the checkout of the worktree failed") : string.Empty;
+            }
+
+            int remove = IndexOf(arguments, "remove");
+            if (remove >= 0)
+            {
+                this.Removed += 1;
+                Directory.Delete(arguments[^1], recursive: true);
+            }
+
+            return string.Empty;
+        }
+
+        private ProgramResult RunSession(string program, IReadOnlyList<string> arguments, string folder, string output, TimeSpan limit)
+        {
+            this.Sessions += 1;
+            return this.SessionFails ? throw new InvalidOperationException("`claude` ran past its limit of 86400 seconds") : new ProgramResult(0, string.Empty, string.Empty);
+        }
+
+        private static int IndexOf(IReadOnlyList<string> arguments, string word)
+        {
+            for (int index = 0; index < arguments.Count; index += 1)
+            {
+                if (arguments[index] == word)
+                {
+                    return index;
+                }
+            }
+
+            return -1;
+        }
     }
 }
