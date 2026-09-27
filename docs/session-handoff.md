@@ -5,7 +5,7 @@ Session: author PR-64, round 1. Repository: the-thing-below. Branch: `feat/pr-64
 
 ### What this session did, and why
 
-- The owner answered OQ-119 and OQ-120 and nine batches of detail: D-1226 to D-1239.
+- The owner answered OQ-119, OQ-120, and the batches of detail: D-1226 to D-1241, with the look of the ice and the text batch.
 - Core: a trap fires one time on the arrival of the lead: a share of full health, a lasting status, or a fight in which the enemies act first. The memory of the map keeps it spent (D-1226, D-1229 to D-1231). A Theft drill shows a trap at 2 steps, and a confirm disarms it (D-1228).
 - Core: deep snow doubles a step, and ice slides the lead until a stop. A load check proves that each field of ice has a way out (D-1232, D-1233).
 - Core: each 60 world ticks, poison hurts each poisoned character, the reserve included, and bad air hurts each fighter. A down of each fighter holds a wipe on the map (D-397, D-1234 to D-1236). Save format 19, simulation version 36.
@@ -23,7 +23,7 @@ Session: author PR-64, round 1. Repository: the-thing-below. Branch: `feat/pr-64
 ### Traps and gotchas
 
 - `RunState.MapWiped` comes from the party alone: no battle and no fighter who stands. A test that downs the only fighter on the map now meets a wipe, so two item tests take a partner.
-- The snow and the ice read bright on a dark map, because their colors are pale. The PR asks the owner about it.
+- The owner chose darker snow and ice (D-1240). The ice now sits in the dark, and the snow on a base of snow shade still reads pale.
 - The full `make sheet` fails in the join, because the sheet passes 65535 rows. `make sheet FIXTURE=pit` joins one fixture.
 
 ### The questions that block progress
