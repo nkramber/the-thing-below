@@ -1,3 +1,34 @@
+## Session 364: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-16, round 2. Repository: the-thing-below. Branch: `feat/pr-16-dungeon-parts`. PR: #91. Role: author. Base: `78b0d24`.
+
+### What this session did, and why
+
+- Gitar approved `7c0483b` with no thread. Its one CI claim, RG 3 of `review-gate`, has its answer in a PR comment: the review record comes with the cross-provider review (D-964).
+- CI run 36337887982 passed each leg but `screen-test` and `review-gate`. The author read the 45 changed captures and took them as the baseline: the form line of D-1209 with the space of the owner, the Items window with the key items, the map screen with the waystone and the exit, and the walk, scroll, and pit frames that now draw the waystone and the cache chest (D-733, D-784).
+
+### The state of the build
+
+- Each build, test, smoke, replay-identity, bots, det-lint, night-gate, and ste-check leg passed on `7c0483b`.
+- The remote head before this push is `7c0483b`.
+
+### What is in flight
+
+- The CI legs of the baseline commit, then `make codex-review PR=91`.
+
+### Traps and gotchas
+
+- The baseline commit changes screens alone, so it moves the effective head, and Gitar reviews it again.
+
+### The questions that block progress
+
+None for PR-16. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Wait for the Gitar poll and the checks of the baseline commit, then run `make codex-review PR=91` in the background.
+
 ## Session 363: 2026-09-27, Claude Code
 
 Author: Claude Code
@@ -302,37 +333,3 @@ None for PR-108. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
 ### The next concrete action
 
 Commit and push this review record and entry together. Then verify the new review-gate result and the remote head.
-
-## Session 354: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-108, round 7. Repository: the-thing-below. Branch: `feat/pr-108-night-recovery`. PR: #89. Role: author. Base: `a8ba710`.
-
-### What this session did, and why
-
-- Gitar approved `cd04546` with one suggestion: the status queries of the promotion wait ran out of the order of the life of a run, so a run that moved on between two queries could fall between them.
-- `132942b` asks for `requested`, `pending`, `waiting`, `queued`, and `in_progress` in that order, so a run that moves on shows in the later query (D-1202).
-- The review gate faults on RG 4 and RG 5 until review round 3 writes the new record.
-
-### The state of the build
-
-- Local build, format, and STE are clean. The workflow tests pass.
-- The remote head before this push is `cd04546`.
-
-### What is in flight
-
-- The Gitar pass of this push, then `make codex-review PR=89`, round 3 of the review.
-- After the merge: `make night-watch-install` on the Mac, and one test message through `notify.yml`.
-
-### Traps and gotchas
-
-- `notify.yml`, `night-promote.yml`, and the facts action first run from `main`, after the merge (F-37).
-- P2-1 counts one round. A third open round of one finding stops the loop (D-929).
-
-### The questions that block progress
-
-None for PR-108. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Run the Gitar poll. When every check except `review-gate` is green, run `make codex-review PR=89` in the background.

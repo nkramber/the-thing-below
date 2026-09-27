@@ -1,4 +1,38 @@
 # Session handoff archive
+## Session 354: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-108, round 7. Repository: the-thing-below. Branch: `feat/pr-108-night-recovery`. PR: #89. Role: author. Base: `a8ba710`.
+
+### What this session did, and why
+
+- Gitar approved `cd04546` with one suggestion: the status queries of the promotion wait ran out of the order of the life of a run, so a run that moved on between two queries could fall between them.
+- `132942b` asks for `requested`, `pending`, `waiting`, `queued`, and `in_progress` in that order, so a run that moves on shows in the later query (D-1202).
+- The review gate faults on RG 4 and RG 5 until review round 3 writes the new record.
+
+### The state of the build
+
+- Local build, format, and STE are clean. The workflow tests pass.
+- The remote head before this push is `cd04546`.
+
+### What is in flight
+
+- The Gitar pass of this push, then `make codex-review PR=89`, round 3 of the review.
+- After the merge: `make night-watch-install` on the Mac, and one test message through `notify.yml`.
+
+### Traps and gotchas
+
+- `notify.yml`, `night-promote.yml`, and the facts action first run from `main`, after the merge (F-37).
+- P2-1 counts one round. A third open round of one finding stops the loop (D-929).
+
+### The questions that block progress
+
+None for PR-108. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Run the Gitar poll. When every check except `review-gate` is green, run `make codex-review PR=89` in the background.
+
 ## Session 353: 2026-09-27, Claude Code
 
 Author: Claude Code
