@@ -1,4 +1,43 @@
 # Session handoff archive
+## Session 344: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-49, round 1. Repository: the-thing-below. Branch: `feat/pr-49-night-gate`. PR: the one PR-49 intent, with no GitHub number before the push. Role: author. Base: `defedf6`.
+
+### What this session did, and why
+
+- The owner answered OQ-81, OQ-82, and OQ-84 (D-1188 to D-1190), the night counts (D-1191), and the join of `night-gate` to the protection of `main` (D-1192). G-22 now counts the 48 hours from the last push.
+- The session built the night: the workflow `night`, the `night` command, the night record, the `night-gate` command, and the workflow `night-gate` on `pull_request_target`. The runbook is `docs/runbooks/night.md`.
+- A measure found F-155: the `bots` command kept each run record, 5.8 GB at 20,000 runs. The bot totals keep none now, and 60,000 runs held 182 MB.
+- The owner added two battle screen changes to this PR (D-1193): one list of forms with the cost in the message box (D-1195), and a letter on each enemy of a kind that a fight holds twice (D-1194).
+- The owner set ability power, AP, for PR-107 right after PR-49 (D-1196 to D-1199). OQ-252 blocks PR-107.
+- The session corrected two slips of PR-15 on owner approval: the resolution lines of OQ-74 and OQ-80, and a stray `\n` in F-154.
+- The owner note: the first item of PR-35 settles OQ-251, the node map of D-113 or a walkable overworld in the style of Final Fantasy VI, with OQ-122. Each later transitional prompt names OQ-251 until PR-35 starts.
+
+### The state of the build
+
+- The remote head of `main` is `defedf6`. The branch holds the night commit and the UI commit, and it goes to origin with this entry.
+- `make verify` passed on the UI commit on this machine.
+
+### What is in flight
+
+- The screen-test job fails on the frames of the battle menu until the session commits the CI captures as the new baselines (D-733).
+- The Gitar pass, then `make codex-review`.
+
+### Traps and gotchas
+
+- `make sheet` with no fixture fails: the contact sheet passes 65,535 rows. `make sheet FIXTURE=battle` works.
+- The live night gate cannot run on this PR (F-37, D-500). After the merge, the session runs the first night on `main` and then requires the check (D-1192).
+- The night counts come from one bot job. A slower rate needs a new measure (G-14).
+
+### The questions that block progress
+
+None for PR-49. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Push, open the PR, commit the CI captures of the changed battle frames as baselines, and answer the Gitar pass.
+
 ## Session 343: 2026-09-26, Claude Code
 
 Author: Claude Code
