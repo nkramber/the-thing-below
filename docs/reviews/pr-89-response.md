@@ -22,6 +22,20 @@ The `codex-review` command stopped after the record landed: the record names hea
 
 None.
 
+## Round 2
+
+The review of `4779565` closed P1-1 and gave `Changes required` with one new finding.
+
+### P2-1: The promotion wait can miss an older open run
+
+Disposition: full merit.
+
+Evidence: the wait read one page of 50 runs, newest first. An open run older than 50 later runs then fell outside the page. The later runs wait for it, so the case needs 50 later runs that stopped on the limit of a stalled queue. The case is rare, and the correction is small.
+
+Correction: the wait now asks the API for each open status on its own: `queued`, `in_progress`, `waiting`, `requested`, and `pending`. Each query reads every page, and the open runs are few, so the pages stay short. The ids go through one file, and `sort -n -u` gives the set.
+
+Regression check: `NightWorkflowTests.EachPushKeepsItsPromotionRunInTheOrderOfThePushes` asserts the query of each open status with `--paginate`. It fails on `4779565`.
+
 ## Final head
 
-The head of this round follows the push of the correction and this response.
+The head of each round follows the push of its correction and of this response.

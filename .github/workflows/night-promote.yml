@@ -55,8 +55,14 @@ jobs:
           end=$(( $(date +%s) + 900 ))
           last=""
           while :; do
-            earlier=$(gh api "repos/$REPO/actions/workflows/night-promote.yml/runs?per_page=50" \
-              --jq "[.workflow_runs[] | select(.status != \"completed\" and .id < $RUN_ID) | .id] | join(\" \")")
+            # Each open status gets its own query with every page, so an old open run past the
+            # newest page still counts. The open runs are few, so the pages stay short.
+            : > "$RUNNER_TEMP/open-runs.txt"
+            for status in queued in_progress waiting requested pending; do
+              gh api --paginate "repos/$REPO/actions/workflows/night-promote.yml/runs?status=$status&per_page=100" \
+                --jq ".workflow_runs[] | select(.id < $RUN_ID) | .id" >> "$RUNNER_TEMP/open-runs.txt"
+            done
+            earlier=$(sort -n -u "$RUNNER_TEMP/open-runs.txt" | paste -s -d " " -)
             if [ -z "$earlier" ]; then echo "No earlier promotion run is open."; break; fi
             if [ "$earlier" != "$last" ]; then last="$earlier"; end=$(( $(date +%s) + 900 )); fi
             if [ "$(date +%s)" -ge "$end" ]; then

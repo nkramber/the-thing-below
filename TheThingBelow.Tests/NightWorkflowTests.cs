@@ -175,13 +175,16 @@ public sealed class NightWorkflowTests
     {
         // P1-1 of the review of PR #89: a concurrency group keeps one pending run, and a new run
         // cancels it, so a push lost its promotion. Each run now waits for each earlier run.
+        // P2-1: the wait reads each open status with every page, so an old open run counts too.
         string[] lines = Lines(PromotePath);
         int wait = Array.FindIndex(lines, line => line.Contains("- name: Wait for each earlier promotion run", StringComparison.Ordinal));
         int facts = Array.FindIndex(lines, line => line.Contains("uses: ./.github/actions/night-facts", StringComparison.Ordinal));
 
         Assert.DoesNotContain("concurrency:", lines);
         Assert.True(wait > 0 && wait < facts, "The wait for the earlier runs comes before the read of the facts.");
-        Assert.Contains("select(.status != \\\"completed\\\" and .id < $RUN_ID)", Text(PromotePath), StringComparison.Ordinal);
+        Assert.Contains("select(.id < $RUN_ID)", Text(PromotePath), StringComparison.Ordinal);
+        Assert.Contains("--paginate \"repos/$REPO/actions/workflows/night-promote.yml/runs?status=$status&per_page=100\"", Text(PromotePath), StringComparison.Ordinal);
+        Assert.Contains("for status in queued in_progress waiting requested pending; do", Text(PromotePath), StringComparison.Ordinal);
         Assert.Contains("if [ \"$earlier\" != \"$last\" ]; then last=\"$earlier\"; end=", Text(PromotePath), StringComparison.Ordinal);
     }
 
