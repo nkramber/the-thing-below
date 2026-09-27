@@ -1,3 +1,38 @@
+## Session 375: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-35, round 1. Repository: the-thing-below. Branch: `feat/pr-35-region-map`. PR: the PR of this branch. Role: author. Base: `9d1d73f`.
+
+### What this session did, and why
+
+- The owner answered OQ-251 and OQ-122: a walkable overworld at the scale of Final Fantasy VI replaces the node map (D-1242 to D-1258). D-113 is superseded, and D-37, D-224, D-430, and D-543 are revised in part.
+- PR-35 builds the overworld: the map kind, four tile kinds, the entrance, the gate with its notice, the exit marker, and the autosave on the entry (D-1243, D-1246, D-1255 to D-1257). The fixture overworld joins the fixture dungeon and the fixture hub.
+- PR-109 (the invisible encounters) and PR-110 (the overworld of region one) join Phase 2 (D-1248, D-1254).
+- Each bot policy has its own tick budget: greedy 13,665, random 2,349. The greedy counts of CI and the night job are halved (D-1259, D-1260). OQ-254 holds the wipe loop of the greedy bot.
+- The greedy path now crosses no exit or entrance except its target, with a regression test.
+
+### The state of the build
+
+- Every test passes on this machine except the three new baselines of the `overworld` capture, which CI renders (D-733). The simulation version is 37.
+- The author read each frame of `make sheet FIXTURE=overworld`.
+
+### What is in flight
+
+- The first push, CI, the baselines from the `screen-test` artifact, and the Gitar pass. Then `make codex-review`.
+
+### Traps and gotchas
+
+- The rats trigger of the hub sits on (18,10), and the capture walks cross row 5. The hub exit sits on (18,6) to stay off both.
+- The greedy bot can loop on a wipe after a save at the waystone with a hurt party. About one dungeon run in five plays its whole budget (OQ-254). The owner first chose a reset on a reload, and the session measured it, found no gain, and removed it (D-1260).
+
+### The questions that block progress
+
+None for PR-35.
+
+### The next concrete action
+
+Push, open the PR, commit the three `overworld` baselines from the CI artifact, and run the Gitar poll of the `gitar-review` skill.
+
 ## Session 374: 2026-09-27, Claude Code
 
 Author: Claude Code
@@ -291,36 +326,3 @@ None for PR-16. OQ-251 blocks PR-35.
 ### The next concrete action
 
 Wait for the Gitar poll and the checks of the correction, then run `make codex-review PR=91` in the background.
-
-## Session 365: 2026-09-27, Codex
-
-Author: Codex
-Session: review PR #91 (PR-16). Repository: the-thing-below. Branch: `review/pr-91`, which tracks `origin/feat/pr-16-dungeon-parts`. Role: reviewer. Base: `78b0d24`.
-
-### What this session did, and why
-
-- Reviewed effective head `6a9eb1a` and found a save-resume gap between the patrol values and the memory of a map (D-555, D-1111).
-- Recorded P2-1 in `docs/reviews/pr-91.md`. The memory can mark a patrol dead while resume starts it alive after content drift.
-- Gitar approved the head and made a CI-analysis claim about RG 3. The author answered each CI-analysis claim (D-964).
-
-### The state of the build
-
-- `make verify` passes locally, including 4,194 tests, bots, smoke, lint, identity, content, atlas, and STE.
-- CI run `36338585597` passes each required leg except `review-gate`, which faults because the head has no review record. The remote head before this metadata commit is `6a9eb1a`.
-
-### What is in flight
-
-- This review record and handoff entry need one metadata commit and a push to `feat/pr-16-dungeon-parts`.
-- The review verdict is `Changes required` until the save-resume gap is fixed and reviewed.
-
-### Traps and gotchas
-
-- `MapState.Resume` restores patrol values without the memory of the map. A later content revision can activate a patrol that the memory holds as dead.
-
-### The questions that block progress
-
-None for PR-16. OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Fix P2-1, add its regression test, and run the PR checks.

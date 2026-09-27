@@ -49,16 +49,19 @@ The battle screen lands in PR-10. Until then, the console takes the turn of a ch
 6. After a win or a flee, the map runs again when the log shows every event (D-522).
 7. After a wipe, the run starts again from its start, because PR-16 adds the reload of a wipe (D-231, D-776).
 
-## A hub before the region map
+## The hub and the overworld
 
-The region map lands in PR-35. Until then, the console moves the party to a hub (D-1133).
+The run starts in the fixture dungeon. The exit of the dungeon leads to the fixture overworld, and the mark of the inn there leads to the hub (D-1216, D-1243). The console can also move the party to a map (D-1133).
 
-1. Open the console, and type `goto map.fixture_hub`. The party stands on the spawn point of the hub, and the autosave writes (D-224, D-1132).
-2. Face an NPC or the waystone, and press confirm. The window of its service opens (D-1131).
-3. Pick Rest to restore the party, or Save to write the slot save (D-1132).
-4. Type `gold 250` to give the party gold. The keeper asks a price for a rest (D-1156, D-1162).
-5. Face the trader in the north-east of the yard, and press confirm. The shop window opens (D-1149).
-6. Type `goto map.fixture_dungeon` to return to the dungeon. The dungeon forgets its walked tiles and its dead enemies until PR-35.
+1. Walk to the way up in the north of the dungeon. The party stands on the overworld beside the mark of the cut, and the autosave writes (D-1246, D-1255).
+2. Walk east to the mark of the inn, and step onto it. The party stands on the spawn point of the hub, and the autosave writes (D-224, D-1132).
+3. As a short path, open the console and type `goto map.fixture_hub`. The party stands on the spawn point of the hub (D-1133).
+4. Face an NPC or the waystone, and press confirm. The window of its service opens (D-1131).
+5. Pick Rest to restore the party, or Save to write the slot save (D-1132).
+6. Type `gold 250` to give the party gold. The keeper asks a price for a rest (D-1156, D-1162).
+7. Face the trader in the north-east of the yard, and press confirm. The shop window opens (D-1149).
+8. Step onto the exit on the east wall of the yard. The party stands on the overworld beside the mark of the inn.
+9. Face the barricade of the north pass, and press confirm. The notice of the closed gate shows, until the party beat the rats of the inn (D-1257).
 
 ## The Steam Deck
 

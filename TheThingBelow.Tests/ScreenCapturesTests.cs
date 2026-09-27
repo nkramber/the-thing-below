@@ -179,6 +179,17 @@ public sealed class ScreenCapturesTests
         "hub-fill-1080.png",
     ];
 
+    /// <summary>
+    /// The captures of the fixture overworld after the debug command `goto`: at 1x, at the screen of
+    /// the Steam Deck, and at 1080 rows (exit test 8 of PR-35, D-1133, G-19).
+    /// </summary>
+    private static readonly string[] OverworldNames =
+    [
+        "overworld-1x.png",
+        "overworld-fill-800.png",
+        "overworld-fill-1080.png",
+    ];
+
     /// <summary>The captures of the story scene of the fixture hub: the line, the choice, and the pause (exit tests 2 and 7 of PR-36).</summary>
     private static readonly string[] SceneNames =
     [
@@ -235,7 +246,8 @@ public sealed class ScreenCapturesTests
         // PR-65 adds the buy list, the count, the sale list, and the equip step of the shop window at both body sizes
         // to the menu names (D-1158, D-1165, D-1167).
         // PR-36 adds the dialogue box with a portrait, the choices, and the pause of a story scene (exit tests 2 and 7).
-        Assert.Equal(10 + 34 + 1 + 19 + 3 + 14 + 2 + 11 + 1 + 1 + MenuNames.Length + SmallBodyNames.Length + HubNames.Length + SceneNames.Length + DeckAndCrashNames.Length, FileNames().Count);
+        // PR-35 adds the fixture overworld at 1x, at the screen of the Steam Deck, and at 1080 rows (exit test 8).
+        Assert.Equal(10 + 34 + 1 + 19 + 3 + 14 + 2 + 11 + 1 + 1 + MenuNames.Length + SmallBodyNames.Length + HubNames.Length + OverworldNames.Length + SceneNames.Length + DeckAndCrashNames.Length, FileNames().Count);
     }
 
     [Fact]
@@ -356,7 +368,7 @@ public sealed class ScreenCapturesTests
             }
         }
 
-        Assert.Equal(["hub-fill-800.png", "map-fill-800.png", "battle-menu-fill-800.png"], deck);
+        Assert.Equal(["hub-fill-800.png", "overworld-fill-800.png", "map-fill-800.png", "battle-menu-fill-800.png"], deck);
     }
 
     [Fact]
@@ -545,6 +557,11 @@ public sealed class ScreenCapturesTests
         }
 
         foreach (string name in HubNames)
+        {
+            names.Add(name);
+        }
+
+        foreach (string name in OverworldNames)
         {
             names.Add(name);
         }

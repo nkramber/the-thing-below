@@ -837,3 +837,6 @@ How to file a question (D-19, D-24):
     - Yes, with the paths of a docs-only PR, the recommendation. The gate keeps one path set, and a commit of metadata needs no night of 55 minutes.
     - Yes, with the skip set of D-943. The review and the night then share one rule, and the gate holds two path sets.
     - No. Each push needs its own night, and a PR with its own night then passes only on a green night of `main`.
+254. **OQ-254. The wipe loop of the greedy bot.** A greedy run can save at the waystone of the fixture hub with a hurt party. The rats then wipe the party, and the reload puts it back at the waystone. The rats trigger lies nearer than the rest (D-1260). About one dungeon run in five then plays its whole budget. Does the greedy bot rest first with a hurt party, or does the careful policy of PR-90 take that job? Raised 2026-09-27. Blocks no PR yet.
+    - The careful policy of PR-90 rests when hurt, the recommendation. The greedy bot stays simple, and PR-90 measures the rest rule with its balance metrics.
+    - The greedy bot rests first below half health. Fewer greedy runs play the whole budget, and the counts can grow again. The greedy bot then holds a second rule of play.

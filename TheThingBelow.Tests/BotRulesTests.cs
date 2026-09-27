@@ -12,7 +12,7 @@ namespace TheThingBelow.Tests;
 public sealed class BotRulesTests
 {
     private const string Valid = """
-        { "comment": "c", "start_maps": ["map.a", "map.b"], "goal_flag": "flag.goal", "tick_budget": 900 }
+        { "comment": "c", "start_maps": ["map.a", "map.b"], "goal_flag": "flag.goal", "greedy_tick_budget": 900, "random_tick_budget": 300 }
         """;
 
     [Fact]
@@ -24,7 +24,8 @@ public sealed class BotRulesTests
         Assert.Equal("map.a", rules.StartMaps[0].Value);
         Assert.Equal("map.b", rules.StartMaps[1].Value);
         Assert.Equal("flag.goal", rules.GoalFlag.Value);
-        Assert.Equal(900, rules.TickBudget);
+        Assert.Equal(900, rules.GreedyBudget);
+        Assert.Equal(300, rules.RandomBudget);
     }
 
     [Theory]
@@ -39,12 +40,13 @@ public sealed class BotRulesTests
     }
 
     [Theory]
-    [InlineData("""{ "comment": "c", "start_maps": ["map.a"], "goal_flag": "flag.goal" }""", "tick_budget")]
-    [InlineData("""{ "comment": "c", "start_maps": ["map.a"], "tick_budget": 9 }""", "goal_flag")]
-    [InlineData("""{ "comment": "c", "goal_flag": "flag.goal", "tick_budget": 9 }""", "start_maps")]
-    [InlineData("""{ "comment": "c", "start_maps": [], "goal_flag": "flag.goal", "tick_budget": 9 }""", "start_maps")]
-    [InlineData("""{ "comment": "c", "start_maps": ["map.a"], "goal_flag": "flag.goal", "tick_budget": 0 }""", "tick_budget")]
-    [InlineData("""{ "comment": "c", "start_maps": ["map.a"], "goal_flag": "flag.goal", "tick_budget": 9, "extra": 1 }""", "extra")]
+    [InlineData("""{ "comment": "c", "start_maps": ["map.a"], "goal_flag": "flag.goal", "random_tick_budget": 9 }""", "greedy_tick_budget")]
+    [InlineData("""{ "comment": "c", "start_maps": ["map.a"], "goal_flag": "flag.goal", "greedy_tick_budget": 9 }""", "random_tick_budget")]
+    [InlineData("""{ "comment": "c", "start_maps": ["map.a"], "greedy_tick_budget": 9, "random_tick_budget": 9 }""", "goal_flag")]
+    [InlineData("""{ "comment": "c", "goal_flag": "flag.goal", "greedy_tick_budget": 9, "random_tick_budget": 9 }""", "start_maps")]
+    [InlineData("""{ "comment": "c", "start_maps": [], "goal_flag": "flag.goal", "greedy_tick_budget": 9, "random_tick_budget": 9 }""", "start_maps")]
+    [InlineData("""{ "comment": "c", "start_maps": ["map.a"], "goal_flag": "flag.goal", "greedy_tick_budget": 9, "random_tick_budget": 0 }""", "random_tick_budget")]
+    [InlineData("""{ "comment": "c", "start_maps": ["map.a"], "goal_flag": "flag.goal", "greedy_tick_budget": 9, "random_tick_budget": 9, "extra": 1 }""", "extra")]
     public void TheReaderRefusesAnAbsentEmptyOrUnknownField(string text, string field)
     {
         ContentException fault = Assert.Throws<ContentException>(() => Read(text));

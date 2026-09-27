@@ -6,7 +6,7 @@ namespace TheThingBelow.Core.Logging;
 /// </summary>
 /// <remarks>
 /// PR-7 and each later PR that logs add the name of the subsystem that it writes, such as the
-/// battle or the region map. Core holds every name, because Game and the tools read the same
+/// battle or the overworld. Core holds every name, because Game and the tools read the same
 /// set (D-179, D-494).
 /// </remarks>
 public static class LogSubsystems

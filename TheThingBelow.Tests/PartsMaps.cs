@@ -116,7 +116,7 @@ public static class PartsMaps
     public static GameMap FixtureDungeonToRoom { get; } = TestMaps.Of(
         "fixture-dungeon-to-room.json",
         File.ReadAllText(RepositoryRoot.PathTo("content/rules/maps/fixture-dungeon.json"))
-            .Replace("\"to\": \"map.fixture_hub\"", "\"to\": \"map.test_room\"", StringComparison.Ordinal)
+            .Replace("\"to\": \"map.fixture_overworld\", \"arrive\": \"marker.fixture_overworld_cut\"", "\"to\": \"map.test_room\"", StringComparison.Ordinal)
             .Replace("\"reopen\": [\"flag.fixture_hub_yes\"]", "\"reopen\": []", StringComparison.Ordinal));
 
     /// <summary>Starts a run on the vault with the room of its exit, with the story content of the tests.</summary>

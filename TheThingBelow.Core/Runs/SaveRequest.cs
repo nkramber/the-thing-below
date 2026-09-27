@@ -13,7 +13,7 @@ public enum SaveRequestKind
     /// <summary>The slot save, which the save service of a hub writes (D-1132).</summary>
     Slot,
 
-    /// <summary>The autosave, which the entry to a hub writes (D-224, D-1132).</summary>
+    /// <summary>The autosave, which the entry to a hub or to the overworld writes (D-224, D-1132, D-1246).</summary>
     Autosave,
 }
 

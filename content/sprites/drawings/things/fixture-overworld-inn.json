@@ -1,0 +1,48 @@
+{
+ "id": "drawing.fixture_overworld_inn",
+ "page": "map_sprites",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "entrance.fixture_overworld_inn", "use": "map" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    ".........................QQ.....",
+    "..........................QQ....",
+    "...........................Q....",
+    "........................kk......",
+    ".......................kggk.....",
+    ".......................kDDk.....",
+    "................kkkkkkkkDDk.....",
+    "...............keeeeeeEEDDk.....",
+    ".....kkkkk....keeeeeeeeEDDk.....",
+    "....keeEEEk...keeeeeeeeEEEk.....",
+    "...keeeeEEEk.keeeeeeeeeeEEEk....",
+    "...keeeeEEEk.keeeeeeeeeeEEEk....",
+    "..keeeeeeEEEkeeeeeeeeeeeeEEEk...",
+    "..kEEHEEHEEHkEEHEEHEEHEEHEEHk...",
+    ".kHHHHHHHHHHHHHHHHHHHHHHHHHHHk..",
+    ".kKKKKKKKKKKKKKKKKKKKKKKKKKKKk..",
+    "..ktbbbbbbbbktbbbbbbbkbbbbbbk...",
+    "..ktBBBBBBBbktBBBBBBBGBBBBBbk...",
+    "..ktbBkjkBbbktbBBbBBbgBbBBbbk...",
+    "..ktBBjAjBBbktBBkjkBBBBkkkBbk...",
+    "..ktbBkJkBbbktbBjAjBbBBkbkbbk...",
+    "..ktBBBBBBBbktBBkJkBBBBkbkBbk...",
+    "..ktbBBbBBbbktbBBbBBbBBkbkbbk...",
+    "...kkkkkkkkkktBBBBBBBBBkbkBbk...",
+    "............ktbBBbBBbBBkbkbbk...",
+    ".............kkkkkkkkkkkkkkk....",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................"
+   ]
+  }
+ ]
+}

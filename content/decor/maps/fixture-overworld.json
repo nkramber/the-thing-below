@@ -1,0 +1,6 @@
+{
+ "comment": "The decor pieces of the fixture overworld (D-844). No rule reads a piece, so this file stays out of the content hash (D-495). The terrain tiles and the marks of the places draw the overworld, and PR-110 dresses the overworld of region one.",
+ "map": "map.fixture_overworld",
+ "pieces": [],
+ "shafts": []
+}

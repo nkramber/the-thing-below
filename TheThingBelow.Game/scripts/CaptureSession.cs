@@ -291,7 +291,7 @@ public sealed partial class CaptureSession : Node
         }
 
         // A capture runs whole ticks, so it reads no part of a tick (D-782, D-820).
-        this.walkMap!.ShowParty(run.Party, 0, run.Tick, run.TorchHeld, run.TheftCarried);
+        this.walkMap!.ShowParty(run.Party, 0, run.Tick, run.TorchHeld, run.TheftCarried, run.Flags);
         this.walkMap.ShowWeather(run.Tick, seek: true);
     }
 
@@ -336,7 +336,7 @@ public sealed partial class CaptureSession : Node
         foreach (string action in ScreenCaptures.PitRoute)
         {
             this.StepOnce(open, action);
-            drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld, open.TheftCarried);
+            drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld, open.TheftCarried, open.Flags);
         }
 
         if (fade)
@@ -345,7 +345,7 @@ public sealed partial class CaptureSession : Node
             for (int tick = 0; tick <= ScreenCaptures.DarkFadeTicks; tick += 1)
             {
                 this.RunTicks(open, 1);
-                drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld, open.TheftCarried);
+                drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld, open.TheftCarried, open.Flags);
             }
 
             if (open.TorchHeld || !drawn.ShowsAFade)
@@ -355,7 +355,7 @@ public sealed partial class CaptureSession : Node
             }
         }
 
-        drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld, open.TheftCarried);
+        drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld, open.TheftCarried, open.Flags);
         drawn.ShowWeather(open.Tick, seek: true);
     }
 
@@ -410,7 +410,7 @@ public sealed partial class CaptureSession : Node
 
         MapScreen drawn = MapFixture.Build(built, @base, open, this.content, seekParticles: true);
         new MapHud(built, @base).Show(open.State.Characters, open.State.WorldTick, hidden: false);
-        drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld, open.TheftCarried);
+        drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld, open.TheftCarried, open.Flags);
         drawn.ShowWeather(open.Tick, seek: true);
     }
 
@@ -443,7 +443,7 @@ public sealed partial class CaptureSession : Node
         GoToHub(open);
         MapScreen drawn = MapFixture.Follow(first, built, @base, open, this.content);
         this.RunTicks(open, ScreenCaptures.HubTicks);
-        drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld, open.TheftCarried);
+        drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld, open.TheftCarried, open.Flags);
         drawn.ShowWeather(open.Tick, seek: true);
     }
 
@@ -489,7 +489,7 @@ public sealed partial class CaptureSession : Node
             play.Follow(open);
         }
 
-        drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld, open.TheftCarried, play, open.State.Story);
+        drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld, open.TheftCarried, open.Flags, play, open.State.Story);
         drawn.ShowWeather(open.Tick, seek: true);
         box.Show(play, hidden: false);
         pause.Show(open.State.Story.Paused);
@@ -526,11 +526,22 @@ public sealed partial class CaptureSession : Node
     /// <param name="run">The run, on a map with no battle, no story scene, and no open menu.</param>
     /// <exception cref="ArgumentNullException">The run is null (T-2).</exception>
     /// <exception cref="InvalidOperationException">The tick wrote an error, or the party stands on another map after it (T-2).</exception>
-    public static void GoToHub(GameRun run)
+    public static void GoToHub(GameRun run) => GoToMap(run, ScreenCaptures.HubMap);
+
+    /// <summary>
+    /// Types the debug command `goto` with the id of one map, and runs the tick that applies it
+    /// (D-1133). The captures of the hub and of the overworld take this path.
+    /// </summary>
+    /// <param name="run">The run, on a map with no battle, no story scene, and no open menu.</param>
+    /// <param name="map">The id of the map, such as `map.fixture_hub`.</param>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="InvalidOperationException">The tick wrote an error, or the party stands on another map after it (T-2).</exception>
+    public static void GoToMap(GameRun run, string map)
     {
         ArgumentNullException.ThrowIfNull(run);
+        ArgumentNullException.ThrowIfNull(map);
 
-        _ = DebugSeam.Run($"{ScreenCaptures.GoToCommand} {ScreenCaptures.HubMap}", () => run.State, run.Queue);
+        _ = DebugSeam.Run($"{ScreenCaptures.GoToCommand} {map}", () => run.State, run.Queue);
         foreach (LogEntry entry in run.Advance(OneTickSeconds))
         {
             if (entry.Level == LogLevel.Error)
@@ -539,11 +550,27 @@ public sealed partial class CaptureSession : Node
             }
         }
 
-        if (string.CompareOrdinal(run.Party.Map.Id.Value, ScreenCaptures.HubMap) != 0)
+        if (string.CompareOrdinal(run.Party.Map.Id.Value, map) != 0)
         {
             throw new InvalidOperationException(
-                $"The command '{ScreenCaptures.GoToCommand} {ScreenCaptures.HubMap}' left the party on the map '{run.Party.Map.Id.Value}' at tick {run.Tick} (D-1133, T-2).");
+                $"The command '{ScreenCaptures.GoToCommand} {map}' left the party on the map '{run.Party.Map.Id.Value}' at tick {run.Tick} (D-1133, T-2).");
         }
+    }
+
+    /// <summary>
+    /// Builds the running screen on the fixture overworld: the run starts on the first map, and the
+    /// debug command `goto` puts the party on the spawn point of the overworld (exit test 8 of PR-35,
+    /// D-1133). The map on screen follows the party by the path of a play session.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The command put the party on no overworld, or a tick wrote an error (T-2).</exception>
+    private void BuildOverworld(FrameRoot built, UiBase @base)
+    {
+        GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
+        MapScreen first = MapFixture.Build(built, @base, open, this.content, seekParticles: true);
+        GoToMap(open, ScreenCaptures.OverworldMap);
+        MapScreen drawn = MapFixture.Follow(first, built, @base, open, this.content);
+        drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld, open.TheftCarried, open.Flags);
+        drawn.ShowWeather(open.Tick, seek: true);
     }
 
     /// <summary>
@@ -894,6 +921,12 @@ public sealed partial class CaptureSession : Node
             return;
         }
 
+        if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.OverworldFixture) == 0)
+        {
+            this.BuildOverworld(built, @base);
+            return;
+        }
+
         if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.SceneFixture) == 0)
         {
             this.BuildScene(built, @base, capture);
@@ -972,7 +1005,7 @@ public sealed partial class CaptureSession : Node
         // The map stays visible beside the main list, so each particle takes the tick of the run and
         // never the clock of the engine, and two sessions draw the same pixels (D-172, T-7).
         MapScreen drawn = MapFixture.Build(built, @base, open, this.content, seekParticles: true);
-        drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld, open.TheftCarried);
+        drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld, open.TheftCarried, open.Flags);
         drawn.ShowWeather(open.Tick, seek: true);
         if (string.CompareOrdinal(frame, ScreenCaptures.MenuMapFrame) == 0)
         {
@@ -1065,7 +1098,7 @@ public sealed partial class CaptureSession : Node
         this.RunTicks(open, typing ? ScreenCaptures.NoticeTypeTicks : ScreenCaptures.NoticeHoldTicks);
 
         MapScreen drawn = MapFixture.Build(built, @base, open, this.content, seekParticles: true);
-        drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld, open.TheftCarried);
+        drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld, open.TheftCarried, open.Flags);
         drawn.ShowWeather(open.Tick, seek: true);
         NoticeFrame shown = open.NoticeAt(TextSpeeds.CharactersPerSecond(FixtureSettings.Access.Text)) ?? throw new InvalidOperationException(
             $"The capture '{capture.FileName}' shows no notice at tick {open.Tick}, and the console posted one (D-994, T-2).");

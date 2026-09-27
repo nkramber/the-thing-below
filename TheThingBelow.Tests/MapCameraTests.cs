@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using TheThingBelow.Core.Maps;
+using TheThingBelow.Core.Story;
 using Xunit;
 
 namespace TheThingBelow.Tests;
@@ -84,7 +85,7 @@ public sealed class MapCameraTests
         party.Want(StepDirection.East);
         for (int tick = 0; tick <= MapRules.TicksPerStep; tick += 1)
         {
-            party.Advance();
+            party.Advance(FlagSet.Empty());
             Assert.Equal((x, y), Place(party));
         }
     }
@@ -134,7 +135,7 @@ public sealed class MapCameraTests
         MapState party = MapState.Enter(TestMaps.Large);
         int start = LeadX(party);
         party.Want(StepDirection.East);
-        party.Advance();
+        party.Advance(FlagSet.Empty());
 
         int last = start;
         for (int tick = 1; tick <= MapRules.TicksPerStep; tick += 1)
@@ -143,7 +144,7 @@ public sealed class MapCameraTests
             Assert.True(now >= last, $"The lead moved back at tick {tick} (D-203).");
             Assert.True(now - start <= TilePixels, $"The lead passed the next tile at tick {tick} (D-203).");
             last = now;
-            party.Advance();
+            party.Advance(FlagSet.Empty());
         }
 
         Assert.Equal(start + TilePixels, LeadX(party));

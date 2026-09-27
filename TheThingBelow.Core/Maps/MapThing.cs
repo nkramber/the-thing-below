@@ -1,5 +1,6 @@
 using System;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Story;
 
 namespace TheThingBelow.Core.Maps;
 
@@ -9,6 +10,7 @@ namespace TheThingBelow.Core.Maps;
 /// author, for the review, and for the content hash (D-528). PR-16 adds the rules that open a
 /// door, a lock, and a chest, the save of a save point, and the exit (D-1131, D-1216). PR-64 adds
 /// the rules that show, fire, and disarm a trap (D-1226, D-1228). A service point holds a service of a hub (D-1142).
+/// PR-35 adds the entrance and the gate of the overworld (D-1243).
 /// </remarks>
 public enum MapThingKind
 {
@@ -48,7 +50,24 @@ public enum MapThingKind
 
     /// <summary>The exit of a map, which enters the map that it names when the party steps onto it (D-1216).</summary>
     Exit,
+
+    /// <summary>
+    /// The entrance of a place on the overworld, which enters the map of that place when the party
+    /// steps onto it (D-1243). The party arrives on the spawn point of that map.
+    /// </summary>
+    Entrance,
+
+    /// <summary>
+    /// A gate of the overworld, which the lead passes only while its condition holds (D-1243). A
+    /// confirm at a closed gate posts its notice (D-1257).
+    /// </summary>
+    Gate,
 }
+
+/// <summary>The condition and the notice of one gate of the overworld (D-1243, D-1257).</summary>
+/// <param name="Condition">The condition of the PR-68 form, which opens the gate while it holds (D-543).</param>
+/// <param name="Notice">The notice that a confirm at the closed gate posts (D-1257).</param>
+public sealed record MapGate(Condition Condition, ContentId Notice);
 
 /// <summary>One thing on one tile of a map (D-528).</summary>
 /// <param name="Id">The permanent content id of the thing (D-166, D-646).</param>
@@ -62,10 +81,15 @@ public enum MapThingKind
 /// The key item that opens this lock, or no value (D-1219). A story lock names one, and a
 /// pickable lock can name one. Every other kind holds no value.
 /// </param>
-/// <param name="To">The map that this exit enters (D-1216). Every other kind holds no value.</param>
+/// <param name="To">The map that this exit or this entrance enters (D-1216, D-1243). Every other kind holds no value.</param>
 /// <param name="Contents">The entries and the gold of this chest (D-1220). Every other kind holds no value.</param>
 /// <param name="Harm">What this trap does when it fires (D-1226). Every other kind holds no value.</param>
-public sealed record MapThing(ContentId Id, MapThingKind Kind, TilePoint At, bool Pickable, ContentId? Key, ContentId? To, ChestContents? Contents, TrapHarm? Harm);
+/// <param name="Arrive">
+/// The marker of the overworld where the party arrives through this exit (D-1255). An exit to an
+/// overworld names one, and every other thing holds no value.
+/// </param>
+/// <param name="Gate">The condition and the notice of this gate (D-1243). Every other kind holds no value.</param>
+public sealed record MapThing(ContentId Id, MapThingKind Kind, TilePoint At, bool Pickable, ContentId? Key, ContentId? To, ChestContents? Contents, TrapHarm? Harm, ContentId? Arrive, MapGate? Gate);
 
 /// <summary>The names of the thing kinds, and the tile that each kind sits on (D-528).</summary>
 public static class MapThingKinds
@@ -82,10 +106,12 @@ public static class MapThingKinds
         MapThingKind.Marker,
         MapThingKind.ServicePoint,
         MapThingKind.Exit,
+        MapThingKind.Entrance,
+        MapThingKind.Gate,
     ];
 
     /// <summary>The names of every kind, for the error of an unknown name (T-2).</summary>
-    public const string EveryName = "door, lock, chest, trap, save_point, spawn_point, marker, service_point, exit";
+    public const string EveryName = "door, lock, chest, trap, save_point, spawn_point, marker, service_point, exit, entrance, gate";
 
     /// <summary>Gives the kind of one name.</summary>
     /// <param name="name">The name, such as `save_point`.</param>
@@ -124,29 +150,45 @@ public static class MapThingKinds
         MapThingKind.Marker => "marker",
         MapThingKind.ServicePoint => "service_point",
         MapThingKind.Exit => "exit",
+        MapThingKind.Entrance => "entrance",
+        MapThingKind.Gate => "gate",
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no map thing kind (D-528)"),
     };
 
-    /// <summary>Gives the one tile kind that a thing of this kind sits on (D-528, T-2).</summary>
+    /// <summary>The ground of every thing that sits on open ground, for the error of a wrong tile (T-2).</summary>
+    public const string OpenGroundNames = "floor or grass";
+
+    /// <summary>Tells whether a thing of this kind can sit on a tile of this kind (D-528, D-1256, T-2).</summary>
     /// <param name="kind">The kind of the thing.</param>
-    /// <returns>The kind of the tile under the thing.</returns>
+    /// <param name="tile">The kind of the tile under the thing.</param>
+    /// <returns>True for a door or a lock in a doorway, and for every other thing on floor or grass.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The value names no kind (T-2).</exception>
     /// <remarks>
     /// A door and a lock stand in a doorway, because a doorway is the gap in a wall that
-    /// holds them. Every other thing sits on open ground. A thing on a tile of another kind
-    /// fails the load of the map, and the message names the map, the tile, and the kind.
+    /// holds them. Every other thing sits on open ground: the floor of a place, or the grass of
+    /// the overworld (D-1256). A thing on a tile of another kind fails the load of the map, and
+    /// the message names the map, the tile, and the kind.
     /// </remarks>
-    public static TileKind TileOf(MapThingKind kind) => kind switch
+    public static bool CanSitOn(MapThingKind kind, TileKind tile) => kind switch
     {
-        MapThingKind.Door => TileKind.Doorway,
-        MapThingKind.Lock => TileKind.Doorway,
-        MapThingKind.Chest => TileKind.Floor,
-        MapThingKind.Trap => TileKind.Floor,
-        MapThingKind.SavePoint => TileKind.Floor,
-        MapThingKind.SpawnPoint => TileKind.Floor,
-        MapThingKind.Marker => TileKind.Floor,
-        MapThingKind.ServicePoint => TileKind.Floor,
-        MapThingKind.Exit => TileKind.Floor,
+        MapThingKind.Door => tile == TileKind.Doorway,
+        MapThingKind.Lock => tile == TileKind.Doorway,
+        MapThingKind.Chest or MapThingKind.Trap or MapThingKind.SavePoint or MapThingKind.SpawnPoint
+            or MapThingKind.Marker or MapThingKind.ServicePoint or MapThingKind.Exit or MapThingKind.Entrance
+            or MapThingKind.Gate => tile == TileKind.Floor || tile == TileKind.Grass,
+        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no map thing kind (D-528)"),
+    };
+
+    /// <summary>Gives the name of the ground that a thing of this kind sits on, for an error (T-2).</summary>
+    /// <param name="kind">The kind of the thing.</param>
+    /// <returns>The name, such as `doorway`.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The value names no kind (T-2).</exception>
+    public static string GroundNameOf(MapThingKind kind) => kind switch
+    {
+        MapThingKind.Door or MapThingKind.Lock => TileKinds.NameOf(TileKind.Doorway),
+        MapThingKind.Chest or MapThingKind.Trap or MapThingKind.SavePoint or MapThingKind.SpawnPoint
+            or MapThingKind.Marker or MapThingKind.ServicePoint or MapThingKind.Exit or MapThingKind.Entrance
+            or MapThingKind.Gate => OpenGroundNames,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no map thing kind (D-528)"),
     };
 
@@ -159,7 +201,8 @@ public static class MapThingKinds
     /// them reads <see cref="MapRules.CanEnter(GameMap, TilePoint)"/>. The lead faces a solid thing and confirms it
     /// (D-1131). An open door takes the step of the lead alone, through `MapState`, so no patrol
     /// and no NPC walks through a door (D-1142). A lock shares the tile of its door, and the door
-    /// blocks it.
+    /// blocks it. A gate is not solid: the lead reads its condition through `MapState`, and no NPC
+    /// steps onto a tile with a thing (D-1243).
     /// </remarks>
     public static bool IsSolid(MapThingKind kind) => kind switch
     {
@@ -172,6 +215,8 @@ public static class MapThingKinds
         MapThingKind.Marker => false,
         MapThingKind.ServicePoint => true,
         MapThingKind.Exit => false,
+        MapThingKind.Entrance => false,
+        MapThingKind.Gate => false,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no map thing kind (D-528)"),
     };
 }

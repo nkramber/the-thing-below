@@ -25,19 +25,30 @@ public sealed class BotRunTests : IDisposable
 
         Assert.Equal(BotEnd.Complete, result.End);
         Assert.Equal(result.Played, result.GoalPlayed);
-        Assert.True(result.Played < Content.Value.Bots.TickBudget, $"The run took {result.Played} ticks of the budget of {Content.Value.Bots.TickBudget}.");
+        Assert.True(result.Played < Content.Value.Bots.GreedyBudget, $"The run took {result.Played} ticks of the budget of {Content.Value.Bots.GreedyBudget}.");
         Assert.Contains(result.Battles, battle => battle.Outcome == Core.Battles.BattleOutcome.Won);
     }
 
     [Fact]
-    public void AGreedyRunInTheDungeonEndsAsBudget()
+    public void AGreedyRunInTheDungeonCrossesTheOverworldToTheGoalFlag()
     {
-        // D-1185: the dungeon holds no goal until PR-35 links the maps, so the run plays its budget.
+        // Exit test 9 of PR-35 (D-1185, D-1243): an even seed starts in the dungeon, and the only
+        // way to the rats of the hub is the exit, the overworld, and the entrance of the inn.
         BotResult result = this.Play(2, new GreedyPolicy());
 
+        Assert.Equal(BotEnd.Complete, result.End);
+        Assert.Equal(result.Played, result.GoalPlayed);
+        Assert.True(result.Played < Content.Value.Bots.GreedyBudget, $"The run took {result.Played} ticks of the budget of {Content.Value.Bots.GreedyBudget}.");
+    }
+
+    [Fact]
+    public void ARandomRunEndsAsBudgetOnItsOwnBudget()
+    {
+        // D-1259: each policy has its own budget, and a random run seldom reaches the goal.
+        BotResult result = this.Play(2, new RandomPolicy(2));
+
         Assert.Equal(BotEnd.Budget, result.End);
-        Assert.Equal(Content.Value.Bots.TickBudget, result.Played);
-        Assert.Null(result.GoalPlayed);
+        Assert.Equal(Content.Value.Bots.RandomBudget, result.Played);
     }
 
     [Fact]

@@ -345,7 +345,7 @@ public sealed class GameMapTests
     public void AServicePointADoorAChestAndASavePointAreTheSolidThings()
     {
         // D-1142, D-1222: PR-16 adds the door, the chest, and the save point to the solid things.
-        Assert.Equal(TileKind.Floor, MapThingKinds.TileOf(MapThingKind.ServicePoint));
+        Assert.True(MapThingKinds.CanSitOn(MapThingKind.ServicePoint, TileKind.Floor));
         Assert.Equal("service_point", MapThingKinds.NameOf(MapThingKind.ServicePoint));
         foreach (MapThingKind kind in MapThingKinds.All)
         {

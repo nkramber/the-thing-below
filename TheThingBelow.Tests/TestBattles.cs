@@ -458,7 +458,8 @@ internal static class TestBattles
      "comment": "The bot rules of the tests.",
      "start_maps": ["map.test"],
      "goal_flag": "flag.test_marrek_side",
-     "tick_budget": 600
+     "greedy_tick_budget": 600,
+     "random_tick_budget": 600
     }
     """;
 

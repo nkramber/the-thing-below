@@ -177,7 +177,7 @@ public partial class Boot : Node
             this.FollowBattleScreen();
             if (this.battle is null)
             {
-                this.map?.ShowParty(this.run.Party, this.run.DrawnTickPart, this.run.Tick, this.run.TorchHeld, this.run.TheftCarried, this.scenePlay, this.run.State.Story);
+                this.map?.ShowParty(this.run.Party, this.run.DrawnTickPart, this.run.Tick, this.run.TorchHeld, this.run.TheftCarried, this.run.Flags, this.scenePlay, this.run.State.Story);
                 this.map?.ShowWeather(this.run.Tick, seek: false);
             }
 
@@ -2529,7 +2529,7 @@ public partial class Boot : Node
         UiBase ui = UiBase.Load(loaded, loaded.Style.SmallBody);
         var drawn = new MapScreen();
         drawn.Build(GameAtlas.Load(loaded.Atlas), ui.Theme, party, loaded, loaded.Effects.Ambient.WeatherOf(lit.Id), loaded.Light.Passes);
-        drawn.ShowParty(party, 0, session.Tick, torchHeld: false, theftCarried: false);
+        drawn.ShowParty(party, 0, session.Tick, torchHeld: false, theftCarried: false, flags: session.Flags);
         string sprites = drawn.DescribeSprites(party);
         drawn.QueueFree();
         return sprites;
@@ -2556,14 +2556,14 @@ public partial class Boot : Node
     /// <exception cref="InvalidOperationException">The light or the torch in the hand draws in the wrong state (T-2).</exception>
     private static string CheckTorchDraw(MapScreen drawn, GameRun session)
     {
-        drawn.ShowParty(session.Party, 0, session.Tick, torchHeld: false, theftCarried: false);
+        drawn.ShowParty(session.Party, 0, session.Tick, torchHeld: false, theftCarried: false, flags: session.Flags);
         if (drawn.CarriedLightOn || drawn.LeadHoldsTorch)
         {
             throw new InvalidOperationException(
                 $"The torch is put away, and the carried light draws {drawn.CarriedLightOn} and the torch in the hand draws {drawn.LeadHoldsTorch} (D-1064, T-2).");
         }
 
-        drawn.ShowParty(session.Party, 0, session.Tick, torchHeld: true, theftCarried: false);
+        drawn.ShowParty(session.Party, 0, session.Tick, torchHeld: true, theftCarried: false, flags: session.Flags);
         if (!drawn.CarriedLightOn || !drawn.LeadHoldsTorch)
         {
             throw new InvalidOperationException(
@@ -2629,7 +2629,7 @@ public partial class Boot : Node
         }
 
         // The checks of the weather and of each torch run inside this call (F-97, F-98).
-        drawn.ShowParty(walked.Party, 0, walked.Tick, walked.TorchHeld, walked.TheftCarried);
+        drawn.ShowParty(walked.Party, 0, walked.Tick, walked.TorchHeld, walked.TheftCarried, walked.Flags);
         drawn.ShowWeather(walked.Tick, seek: false);
         string weather = drawn.DescribeWeather();
         CameraPlace view = MapCamera.Of(walked.Party, FrameRoot.WorldWidth, FrameRoot.WorldHeight, 0);
@@ -2727,7 +2727,7 @@ public partial class Boot : Node
         for (int tick = 0; tick < WalkTicks; tick += 1)
         {
             this.WriteLog(walked.Advance(SmokeFrameSeconds));
-            drawn.ShowParty(walked.Party, 0, walked.Tick, walked.TorchHeld, walked.TheftCarried);
+            drawn.ShowParty(walked.Party, 0, walked.Tick, walked.TorchHeld, walked.TheftCarried, walked.Flags);
         }
 
         int moved = 0;
@@ -2746,7 +2746,7 @@ public partial class Boot : Node
         for (int tick = 0; tick < ScreenCaptures.TicksOfOneStep; tick += 1)
         {
             this.WriteLog(walked.Advance(SmokeFrameSeconds));
-            drawn.ShowParty(walked.Party, 0, walked.Tick, walked.TorchHeld, walked.TheftCarried);
+            drawn.ShowParty(walked.Party, 0, walked.Tick, walked.TorchHeld, walked.TheftCarried, walked.Flags);
         }
 
         if (walked.Party.Stepping is not null || walked.Party.LeadAt == walked.Party.Map.Spawn)

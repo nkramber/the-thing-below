@@ -169,7 +169,7 @@ Built by PR-16. Phase file: `phase-2-first-playable.md`.
 - A Theft drill on one of the three who fight opens a lock that the map marks as pickable. A story lock always needs its key (D-386).
 - A key is a key item on the Keyring, and it stays in the pack after it opens a lock (D-1219).
 - A chest over the stack limit keeps what the party cannot carry, and the save records what remains (D-385).
-- The exit of the dungeon enters the map that it names. The fixture exit leads to the fixture hub until PR-35 builds the overworld (D-1216, D-1242).
+- The exit of the dungeon enters the map that it names. PR-35 leads the fixture exit to the fixture overworld, onto the marker beside the cut (D-1216, D-1255).
 - A bot run that wipes reloads and continues, and a two-character party can still reach the exit (the exit tests of PR-16).
 
 > *In plain English:* dungeons gain their chests, doors, keys, and waystones. A thief can pick some locks, and the story keeps its own doors shut until you find the key.

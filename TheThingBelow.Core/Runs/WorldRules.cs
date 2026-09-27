@@ -100,7 +100,7 @@ public static class WorldRules
             log.Add(EncounterEntry(state, "the beat of a mark ended and an encounter started"));
         }
 
-        PartyStep step = party.Advance();
+        PartyStep step = party.Advance(state.Story.Flags);
         AddPartyEntries(state, party, step, log);
 
         // A story scene that starts on the tile holds the patrols still from this tick (D-1009).
@@ -123,10 +123,17 @@ public static class WorldRules
         }
 
         // The exit enters the map that it names on the arrival, before a step into an enemy of the
-        // same tick, and that step starts no encounter (D-1216).
+        // same tick, and that step starts no encounter (D-1216). An entrance of the overworld takes
+        // the same rule, and no map holds both kinds (D-1243).
         if (step.Arrived && party.Map.ExitAt(step.At) is MapThing exit)
         {
             ExitRules.Leave(state, exit, step.Bumped, log);
+            return;
+        }
+
+        if (step.Arrived && party.Map.EntranceAt(step.At) is MapThing entrance)
+        {
+            ExitRules.Leave(state, entrance, step.Bumped, log);
             return;
         }
 

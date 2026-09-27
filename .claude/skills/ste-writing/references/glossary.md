@@ -306,4 +306,4 @@ Bot terms from PR-15 of 2026-09-26:
 | accepted intent | an intent of the player that the state takes on the next tick, as the query of Core lists it (D-1179) | legal move, valid action, allowed input |
 | softlock | a state where no accepted intent changes the state other than the tick (D-1179) | dead end, stuck state, hang |
 | goal flag | the story flag that ends a bot run as complete (D-1181) | win flag, end flag |
-| tick budget | the count of played ticks after which a bot run with no other end ends as budget (D-1184) | time limit, step cap |
+| tick budget | the count of played ticks after which a bot run with no other end ends as budget. Each policy has its own (D-1184, D-1259) | time limit, step cap |

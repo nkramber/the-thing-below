@@ -402,6 +402,10 @@
    "text": "The low inn"
   },
   {
+   "id": "label.fixture_overworld",
+   "text": "The high country"
+  },
+  {
    "id": "label.lamp",
    "text": "Tin lamp"
   },
@@ -980,6 +984,10 @@
   {
    "id": "notice.fixture_drip",
    "text": "Water drips somewhere ahead."
+  },
+  {
+   "id": "notice.fixture_gate_shut",
+   "text": "The way is shut."
   },
   {
    "id": "notice.fixture_mark",

@@ -2,7 +2,7 @@
  "comment": "The place of every frame in the atlas (D-666). The atlas command of Tools writes this file and each page beside it, and no session edits either one by hand (D-107). A page holds one kind of drawing, and a tile page is a strict grid of 32 by 32 cells (D-667). Run the command again after a change to a drawing file.",
  "pages": [
   { "kind": "tiles", "number": 1, "width": 2048, "height": 32 },
-  { "kind": "map_sprites", "number": 1, "width": 576, "height": 32 },
+  { "kind": "map_sprites", "number": 1, "width": 704, "height": 32 },
   { "kind": "battle_sprites", "number": 1, "width": 160, "height": 64 },
   { "kind": "portraits", "number": 1, "width": 192, "height": 64 },
   { "kind": "ui", "number": 1, "width": 480, "height": 32 },
@@ -46,6 +46,30 @@
    ]
   },
   {
+   "id": "drawing.tile_forest",
+   "page": "tiles",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "tile.forest", "use": "map" }
+   ],
+   "frames": [
+    { "x": 96, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.tile_grass",
+   "page": "tiles",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "tile.grass", "use": "map" }
+   ],
+   "frames": [
+    { "x": 128, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
    "id": "drawing.tile_ice",
    "page": "tiles",
    "width": 32,
@@ -54,7 +78,19 @@
     { "content": "tile.ice", "use": "map" }
    ],
    "frames": [
-    { "x": 96, "y": 0, "ticks": 0 }
+    { "x": 160, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.tile_mountain",
+   "page": "tiles",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "tile.mountain", "use": "map" }
+   ],
+   "frames": [
+    { "x": 192, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -66,7 +102,7 @@
     { "content": "tile.snow", "use": "map" }
    ],
    "frames": [
-    { "x": 128, "y": 0, "ticks": 0 }
+    { "x": 224, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -78,7 +114,19 @@
     { "content": "tile.wall", "use": "map" }
    ],
    "frames": [
-    { "x": 160, "y": 0, "ticks": 0 }
+    { "x": 256, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.tile_water",
+   "page": "tiles",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "tile.water", "use": "map" }
+   ],
+   "frames": [
+    { "x": 288, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -218,7 +266,8 @@
    "width": 32,
    "height": 32,
    "draws": [
-    { "content": "exit.fixture_dungeon_way_up", "use": "map" }
+    { "content": "exit.fixture_dungeon_way_up", "use": "map" },
+    { "content": "exit.fixture_hub_way_out", "use": "map" }
    ],
    "frames": [
     { "x": 320, "y": 0, "ticks": 0 }
@@ -239,6 +288,54 @@
    ]
   },
   {
+   "id": "drawing.fixture_overworld_cut",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "entrance.fixture_overworld_cut", "use": "map" }
+   ],
+   "frames": [
+    { "x": 384, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.fixture_overworld_gate",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "gate.fixture_overworld_pass", "use": "map" }
+   ],
+   "frames": [
+    { "x": 416, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.fixture_overworld_gate_open",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "gate.fixture_overworld_pass", "use": "map_open" }
+   ],
+   "frames": [
+    { "x": 448, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.fixture_overworld_inn",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "entrance.fixture_overworld_inn", "use": "map" }
+   ],
+   "frames": [
+    { "x": 480, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
    "id": "drawing.fixture_trap",
    "page": "map_sprites",
    "width": 32,
@@ -249,7 +346,7 @@
     { "content": "trap.fixture_dungeon_alarm", "use": "map" }
    ],
    "frames": [
-    { "x": 384, "y": 0, "ticks": 0 }
+    { "x": 512, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -263,7 +360,7 @@
     { "content": "trap.fixture_dungeon_alarm", "use": "map_open" }
    ],
    "frames": [
-    { "x": 416, "y": 0, "ticks": 0 }
+    { "x": 544, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -276,7 +373,7 @@
     { "content": "save_point.fixture_dungeon_camp", "use": "map" }
    ],
    "frames": [
-    { "x": 448, "y": 0, "ticks": 0 }
+    { "x": 576, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -288,7 +385,7 @@
     { "content": "cast.marrek", "use": "map_front" }
    ],
    "frames": [
-    { "x": 480, "y": 0, "ticks": 0 }
+    { "x": 608, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -300,7 +397,7 @@
     { "content": "cast.marrek", "use": "map_torch" }
    ],
    "frames": [
-    { "x": 512, "y": 0, "ticks": 0 }
+    { "x": 640, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -313,7 +410,7 @@
     { "content": "npc.fixture_hub_barmaid", "use": "map_front" }
    ],
    "frames": [
-    { "x": 544, "y": 0, "ticks": 0 }
+    { "x": 672, "y": 0, "ticks": 0 }
    ]
   },
   {

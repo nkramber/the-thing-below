@@ -1,0 +1,48 @@
+{
+ "id": "drawing.tile_forest",
+ "page": "tiles",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "tile.forest", "use": "map" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "nnnn6nnnnnnnnnnEnnnnnnnnnn6nnnnn",
+    "nnn6N5nnnnnnnnEN5nnnnnnnn6N5nnnn",
+    "nnnNN5nnnnnnnnNN5nnnnnnnnNN5nnnn",
+    "nn6NN55nnnnnn6NN55nnnnnn6NN55nnn",
+    "nnNNN55nnnnnnNNN55nnnnnnNNN55nnn",
+    "nnnNN5nnnnnnnnNN5nnnnnnnnNN5nnnn",
+    "nn6NN55nnnnnn6NN55nnnnnn6NN55nnn",
+    "nNNNN555nnnnNNNN555nnnnNNNN555nn",
+    "nNNNN555nnnnNNNN555nnnnNNNN555nn",
+    "6NNNN5555nn6NNNN5555nn6NNNN5555n",
+    "n55555nnn6nn55555nnn6nn55555nnnE",
+    "5nnnnnnn6N5nnnnnnnn6N5nnnnnnnnEN",
+    "5nnnnnnnNN5nnnnnnnnNN5nnnnnnnnNN",
+    "55nnnnn6NN55nnnnnn6NN55nnnnnn6NN",
+    "55nnnnnNNN55nnnnnnNNN55nnnnnnNNN",
+    "5nnnnnnnNN5nnnnnnnnNN5nnnnnnnnNN",
+    "55nnnnn6NN55nnnnnn6NN55nnnnnn6NN",
+    "555nnnNNNN555nnnnNNNN555nnnnNNNN",
+    "555nnnNNNN555nnnnNNNN555nnnnNNNN",
+    "5555n6NNNN5555nn6NNNN5555nn6NNNN",
+    "5nnnnn55555nnnnnn55555nnnnnn5555",
+    "nnnnnnEnnnnnnnnnn6nnnnnnnnnn6nnn",
+    "nnnnnEN5nnnnnnnn6N5nnnnnnnn6N5nn",
+    "nnnnnNN5nnnnnnnnNN5nnnnnnnnNN5nn",
+    "nnnn6NN55nnnnnn6NN55nnnnnn6NN55n",
+    "nnnnNNN55nnnnnnNNN55nnnnnnNNN55n",
+    "nnnnnNN5nnnnnnnnNN5nnnnnnnnNN5nn",
+    "nnnn6NN55nnnnnn6NN55nnnnnn6NN55n",
+    "nnnNNNN555nnnnNNNN555nnnnNNNN555",
+    "nnnNNNN555nnnnNNNN555nnnnNNNN555",
+    "5n6NNNN5555nn6NNNN5555nn6NNNN555",
+    "nnn55555nnnnnn55555nnnnnn55555nn"
+   ]
+  }
+ ]
+}

@@ -1,4 +1,37 @@
 # Session handoff archive
+## Session 365: 2026-09-27, Codex
+
+Author: Codex
+Session: review PR #91 (PR-16). Repository: the-thing-below. Branch: `review/pr-91`, which tracks `origin/feat/pr-16-dungeon-parts`. Role: reviewer. Base: `78b0d24`.
+
+### What this session did, and why
+
+- Reviewed effective head `6a9eb1a` and found a save-resume gap between the patrol values and the memory of a map (D-555, D-1111).
+- Recorded P2-1 in `docs/reviews/pr-91.md`. The memory can mark a patrol dead while resume starts it alive after content drift.
+- Gitar approved the head and made a CI-analysis claim about RG 3. The author answered each CI-analysis claim (D-964).
+
+### The state of the build
+
+- `make verify` passes locally, including 4,194 tests, bots, smoke, lint, identity, content, atlas, and STE.
+- CI run `36338585597` passes each required leg except `review-gate`, which faults because the head has no review record. The remote head before this metadata commit is `6a9eb1a`.
+
+### What is in flight
+
+- This review record and handoff entry need one metadata commit and a push to `feat/pr-16-dungeon-parts`.
+- The review verdict is `Changes required` until the save-resume gap is fixed and reviewed.
+
+### Traps and gotchas
+
+- `MapState.Resume` restores patrol values without the memory of the map. A later content revision can activate a patrol that the memory holds as dead.
+
+### The questions that block progress
+
+None for PR-16. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Fix P2-1, add its regression test, and run the PR checks.
+
 ## Session 364: 2026-09-27, Claude Code
 
 Author: Claude Code

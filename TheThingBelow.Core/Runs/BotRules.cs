@@ -8,7 +8,8 @@ namespace TheThingBelow.Core.Runs;
 
 /// <summary>
 /// The bot rules file: the start maps of the bot runs, the story flag that ends a bot run as
-/// complete, and the tick budget of a bot run (D-1181, D-1184, D-1185). The file is `content/rules/bots.json`.
+/// complete, and the tick budget of a run of each policy (D-1181, D-1184, D-1185, D-1259). The file
+/// is `content/rules/bots.json`.
 /// </summary>
 /// <remarks>
 /// No rule of the game reads the file. The headless runner of Tools reads it, and Core holds its
@@ -20,12 +21,19 @@ public sealed class BotRules
     /// <summary>The path of the file under the content folder (D-1181).</summary>
     public const string Path = "rules/bots.json";
 
-    private BotRules(string file, IReadOnlyList<ContentId> startMaps, ContentId goalFlag, long tickBudget)
+    /// <summary>The field of the budget of a greedy run (D-1259).</summary>
+    public const string GreedyBudgetField = "greedy_tick_budget";
+
+    /// <summary>The field of the budget of a random run (D-1259).</summary>
+    public const string RandomBudgetField = "random_tick_budget";
+
+    private BotRules(string file, IReadOnlyList<ContentId> startMaps, ContentId goalFlag, long greedyBudget, long randomBudget)
     {
         this.File = file;
         this.StartMaps = startMaps;
         this.GoalFlag = goalFlag;
-        this.TickBudget = tickBudget;
+        this.GreedyBudget = greedyBudget;
+        this.RandomBudget = randomBudget;
     }
 
     /// <summary>The path of the file, for an error (T-2).</summary>
@@ -37,10 +45,19 @@ public sealed class BotRules
     /// <summary>The story flag that ends a bot run as complete when it is on (D-1181).</summary>
     public ContentId GoalFlag { get; }
 
-    /// <summary>The count of ticks after which a bot run with no other end ends as budget (D-1184).</summary>
-    public long TickBudget { get; }
+    /// <summary>
+    /// The count of ticks after which a greedy run with no other end ends as budget: three times the
+    /// longest greedy run to the goal (D-1184, D-1259).
+    /// </summary>
+    public long GreedyBudget { get; }
 
-    /// <summary>Reads the bot rules file, and refuses a budget below one tick (T-2).</summary>
+    /// <summary>
+    /// The count of ticks after which a random run with no other end ends as budget (D-1259). A random
+    /// run seldom reaches the goal, so its budget bounds the time of the bot job alone.
+    /// </summary>
+    public long RandomBudget { get; }
+
+    /// <summary>Reads the bot rules file, and refuses each budget below one tick (T-2).</summary>
     /// <param name="bytes">The bytes of the file, as UTF-8.</param>
     /// <param name="file">The path of the file, for an error.</param>
     /// <returns>The rules.</returns>
@@ -51,7 +68,8 @@ public sealed class BotRules
         string? comment = null;
         List<ContentId>? starts = null;
         ContentId? goal = null;
-        long? budget = null;
+        long? greedyBudget = null;
+        long? randomBudget = null;
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
         {
@@ -66,8 +84,11 @@ public sealed class BotRules
                 case "goal_flag":
                     goal = reader.ReadContentId(FlagList.Kind);
                     break;
-                case "tick_budget":
-                    budget = reader.ReadLong();
+                case GreedyBudgetField:
+                    greedyBudget = reader.ReadLong();
+                    break;
+                case RandomBudgetField:
+                    randomBudget = reader.ReadLong();
                     break;
                 default:
                     throw reader.UnknownField(field);
@@ -75,11 +96,8 @@ public sealed class BotRules
         }
 
         _ = reader.Require(comment, depth, "comment");
-        long readBudget = reader.RequireValue(budget, depth, "tick_budget");
-        if (readBudget < 1)
-        {
-            throw reader.RefuseField(depth, "tick_budget", $"the budget is {readBudget} ticks, and a bot run takes one tick at least (D-1184)");
-        }
+        long readGreedy = RequireBudget(ref reader, greedyBudget, depth, GreedyBudgetField);
+        long readRandom = RequireBudget(ref reader, randomBudget, depth, RandomBudgetField);
 
         List<ContentId> readStarts = reader.Require(starts, depth, "start_maps");
         if (readStarts.Count == 0)
@@ -87,7 +105,7 @@ public sealed class BotRules
             throw reader.RefuseField(depth, "start_maps", "the list is empty, and a bot run starts on one map at least (D-1185)");
         }
 
-        var rules = new BotRules(file, readStarts, reader.Require(goal, depth, "goal_flag"), readBudget);
+        var rules = new BotRules(file, readStarts, reader.Require(goal, depth, "goal_flag"), readGreedy, readRandom);
         reader.ReadFileEnd();
         return rules;
     }
@@ -124,6 +142,18 @@ public sealed class BotRules
         ArgumentNullException.ThrowIfNull(flags);
 
         flags.RequireDeclared(this.GoalFlag, this.File, "goal_flag");
+    }
+
+    /// <summary>Gives one budget, and refuses an absent budget or a budget below one tick (D-1184, T-2).</summary>
+    private static long RequireBudget(ref ContentReader reader, long? budget, int depth, string field)
+    {
+        long read = reader.RequireValue(budget, depth, field);
+        if (read < 1)
+        {
+            throw reader.RefuseField(depth, field, $"the budget is {read} ticks, and a bot run takes one tick at least (D-1184)");
+        }
+
+        return read;
     }
 
     private static List<ContentId> ReadStartMaps(ref ContentReader reader)
