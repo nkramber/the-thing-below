@@ -1,0 +1,48 @@
+{
+ "id": "drawing.marrek_face",
+ "page": "ui",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "character.marrek", "use": "face" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................................",
+    "................................",
+    "...........kkkkkkkkkk...........",
+    ".........kktBBBBBBBbbkk.........",
+    "........ktttBBBBBBBBBbbk........",
+    ".......kttBBBBBBBBBBBBbbk.......",
+    ".......ktBBBBBBBBBBBBBbbk.......",
+    "......kbbbbbbbbbbbbbbbbbbk......",
+    ".......kBttttttttttttttBk.......",
+    ".......kBtSSsssssssss@tbk.......",
+    ".......kBSss@@ssss@@s@tbk.......",
+    ".......kBSsskksssskks@tbk.......",
+    ".......kBSssssssssssss@bk.......",
+    ".......kBSssssss@sssss@bk.......",
+    ".......kBSssssst@sssss@bk.......",
+    ".......kBSsssssssssss@@bk.......",
+    ".......kBSssss@@@@sss@@bk.......",
+    "........kSsssssssssss@@k........",
+    ".........kSsssssssss@@k.........",
+    "..........k@sssssss@@k..........",
+    "...........k@@ssss@@k...........",
+    "........krRRRRRRRRRRRRrk........",
+    "......kkbXXXxxxxxRRRRRbbkk......",
+    "...kbb333ttXXxxRRtttttBBBBbbk...",
+    "..kb3333tttXxtttttttBBBBBBbbbk..",
+    "..kb3333tttXxtttotttttBBBBBbbk..",
+    ".kbb3333tttXxttttttttttBBBBBbbk.",
+    ".kb33333tttttttttottttBBBBBBbbk.",
+    ".kb33333ttttttttttttttBBBBBBbbk.",
+    ".kbb3333tttttttttttttBBBBBBbbbk.",
+    ".kb33333ttttttttttttttBBBBBBbbk.",
+    ".kb33333ttttttttttttttBBBBBBbbk."
+   ]
+  }
+ ]
+}

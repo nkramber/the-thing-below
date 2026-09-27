@@ -152,10 +152,10 @@ Built by PR-62. Phase file: `phase-2-first-playable.md`.
 
 ### 7.7 The map HUD and notices
 
-Built by PR-7 and PR-62. Phase file: `phase-2-first-playable.md`.
+Built by PR-62 and PR-64. PR-7 builds no HUD (D-721). Phase file: `phase-2-first-playable.md`.
 
-- The HUD stays minimal. A health mark shows at the edge for a hurt or a down character, and nothing else (D-212).
-- A status that lasts on the map gets a mark too (D-390).
+- The HUD stays minimal. The top-left corner holds a face, a health bar, and the status icons of each character who fights (D-212, D-1237, D-1239).
+- The block shows while a character who fights lacks health, is down, or holds a lasting status (D-390, D-1237). Otherwise it fades out.
 - No sun or moon mark shows the time of day, because the story sets it and it never changes under the player (D-442, D-445).
 - A notice slides in at the top edge, types out, holds, and fades, and the game continues (D-221, D-994). Confirm never skips it (D-996).
 - A notice counts the ticks of the world, so it hides and waits under a menu (D-995).

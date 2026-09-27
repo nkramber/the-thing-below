@@ -29,6 +29,15 @@ public static class TileIds
     /// <summary>The id of a doorway.</summary>
     public static readonly ContentId Doorway = ContentId.Parse("tile.doorway", Source, nameof(Doorway));
 
+    /// <summary>The id of deep snow (D-1233).</summary>
+    public static readonly ContentId Snow = ContentId.Parse("tile.snow", Source, nameof(Snow));
+
+    /// <summary>The id of ice (D-1232).</summary>
+    public static readonly ContentId Ice = ContentId.Parse("tile.ice", Source, nameof(Ice));
+
+    /// <summary>The id of ground under bad air (D-1235).</summary>
+    public static readonly ContentId BadAir = ContentId.Parse("tile.bad_air", Source, nameof(BadAir));
+
     /// <summary>Gives the content id of one tile kind (D-519).</summary>
     /// <param name="kind">The kind of the tile.</param>
     /// <returns>The id that the drawing of that kind names.</returns>
@@ -38,6 +47,9 @@ public static class TileIds
         TileKind.Floor => Floor,
         TileKind.Wall => Wall,
         TileKind.Doorway => Doorway,
+        TileKind.Snow => Snow,
+        TileKind.Ice => Ice,
+        TileKind.BadAir => BadAir,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no tile kind (D-528)"),
     };
 }

@@ -823,6 +823,21 @@ public sealed class PartyState
         }
     }
 
+    /// <summary>Tells whether a character who fights stands (D-36, D-397).</summary>
+    /// <returns>True when a character of <see cref="Members"/> is not down. The reserve never counts.</returns>
+    public bool AnyStands()
+    {
+        foreach (PartyMember member in this.members)
+        {
+            if (!member.Down)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /// <summary>
     /// The rest at a hub: each character of the party and of the reserve gets full health and
     /// full AP, a down character stands again, and poison, blind, and silence end (D-36, D-390,

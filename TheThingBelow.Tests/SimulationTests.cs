@@ -307,7 +307,7 @@ public sealed class SimulationTests
 
     [Theory]
     [InlineData(-1)]
-    [InlineData(MapRules.TicksPerStep)]
+    [InlineData(MapRules.SnowStepTicks)]
     public void ASnapshotWithStepTicksOutsideTheirRangeIsAnError(int ticks)
     {
         Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);

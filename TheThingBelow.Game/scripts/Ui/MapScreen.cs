@@ -5,6 +5,7 @@ using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Effects;
 using TheThingBelow.Core.Light;
 using TheThingBelow.Core.Maps;
+using TheThingBelow.Core.Runs;
 using TheThingBelow.Core.Story;
 
 namespace TheThingBelow.Game.Ui;
@@ -115,6 +116,9 @@ public partial class MapScreen : Node2D
     // The open look of each door and each chest, in the order of the points, or null for a thing
     // with one look (D-1223). The closed look is the texture that the sprite starts with.
     private Texture2D?[] pointOpen = [];
+
+    // True for each trap that the rule of D-1228 hides now, which the check of the sprites passes.
+    private bool[] pointHidden = [];
     private Texture2D[] pointShut = [];
     private Node2D mark = null!;
     private PointLight2D carriedGround = null!;
@@ -215,12 +219,17 @@ public partial class MapScreen : Node2D
         this.pointSprites = new Sprite2D[this.points.Length];
         this.pointShut = new Texture2D[this.points.Length];
         this.pointOpen = new Texture2D?[this.points.Length];
+        this.pointHidden = new bool[this.points.Length];
         for (int index = 0; index < this.points.Length; index += 1)
         {
             this.pointSprites[index] = PointSprite(atlas, this.points[index]);
             this.pointShut[index] = this.pointSprites[index].Texture;
             this.pointOpen[index] = OpenTexture(atlas, this.points[index]);
-            this.pointSprites[index].AddChild(FeetShadow(this.pointSprites[index], WorldLights.FigureShadows));
+            // A trap lies flat in the floor, so it casts no shadow of a figure (D-1238).
+            if (this.points[index].Kind != MapThingKind.Trap)
+            {
+                this.pointSprites[index].AddChild(FeetShadow(this.pointSprites[index], WorldLights.FigureShadows));
+            }
             this.AddChild(this.pointSprites[index]);
         }
 
@@ -243,6 +252,7 @@ public partial class MapScreen : Node2D
     /// <param name="tickPart">The part of the next tick that the frame reached, from 0 to 999 (D-820).</param>
     /// <param name="tick">The tick of the run, which each fade of the dark counts (D-1062).</param>
     /// <param name="torchHeld">True while the party holds the torch out (D-1064).</param>
+    /// <param name="theftCarried">True when a character who fights and stands carries a Theft drill, so a trap near the lead shows (D-1228).</param>
     /// <param name="scene">The story scene on screen, which walks its actors and holds the view, or no value on the walk (D-1012, D-1013).</param>
     /// <param name="story">The story state, whose shown actors draw, or no value on the walk (D-1006).</param>
     /// <exception cref="ArgumentNullException">The party is null (T-2).</exception>
@@ -252,7 +262,7 @@ public partial class MapScreen : Node2D
     /// Every value is a whole art pixel of the world viewport, so no sprite draws between
     /// two pixels and no Godot snap setting is on (D-715).
     /// </remarks>
-    public void ShowParty(MapState party, int tickPart, long tick, bool torchHeld, ScenePlay? scene = null, StoryState? story = null)
+    public void ShowParty(MapState party, int tickPart, long tick, bool torchHeld, bool theftCarried, ScenePlay? scene = null, StoryState? story = null)
     {
         ArgumentNullException.ThrowIfNull(party);
         ArgumentOutOfRangeException.ThrowIfNegative(tick);
@@ -274,7 +284,7 @@ public partial class MapScreen : Node2D
         this.carriedFlame.MoveTo(carriedAt);
         this.ShowEnemies(party, tickPart, tick, torchHeld);
         this.ShowNpcs(party, tickPart, tick, scene);
-        this.ShowPoints(party, tickPart, tick);
+        this.ShowPoints(party, tickPart, tick, theftCarried);
         this.ShowActors(story?.Actors ?? [], scene);
 
         CameraPlace view = scene?.View ?? MapCamera.Of(party, FrameRoot.WorldWidth, FrameRoot.WorldHeight, tickPart);
@@ -706,9 +716,11 @@ public partial class MapScreen : Node2D
 
     /// <summary>
     /// Shows each drawn thing on its tile, with the fade of the dark (D-814, D-1062, D-1142). A door
-    /// that the party opened and a chest that it opened take their open look (D-555, D-1223).
+    /// that the party opened and a chest that it opened take their open look (D-555, D-1223). A spent
+    /// trap takes its sprung look, a trap that shows takes its armed look, and a hidden trap draws
+    /// nothing (D-1228, D-1238).
     /// </summary>
-    private void ShowPoints(MapState party, int tickPart, long tick)
+    private void ShowPoints(MapState party, int tickPart, long tick, bool theftCarried)
     {
         int leadX = MapCamera.LeadX(party, tickPart);
         int leadY = MapCamera.LeadY(party, tickPart);
@@ -725,6 +737,13 @@ public partial class MapScreen : Node2D
                 share = this.fade.ShareOf(slot, clear, SightFade.Reach(leadX, leadY, x, y, 1), tick);
             }
 
+            MapThing point = this.points[index];
+            this.pointHidden[index] = point.Kind == MapThingKind.Trap && !party.Place.IsSpent(point.Id) && !TrapRules.Shows(party, theftCarried, point);
+            if (this.pointHidden[index])
+            {
+                share = 0;
+            }
+
             this.pointSprites[index].Texture = this.pointOpen[index] is Texture2D open && IsOpen(party.Place, this.points[index])
                 ? open
                 : this.pointShut[index];
@@ -732,11 +751,12 @@ public partial class MapScreen : Node2D
         }
     }
 
-    /// <summary>Tells whether the party opened a door or a chest, from the memory of the map (D-555).</summary>
+    /// <summary>Tells whether the party opened a door or a chest, or spent a trap, from the memory of the map (D-555, D-1229).</summary>
     private static bool IsOpen(PlaceState place, MapThing thing) => thing.Kind switch
     {
         MapThingKind.Door => place.IsOpen(thing.Id),
         MapThingKind.Chest => place.LeftIn(thing.Id) is not null,
+        MapThingKind.Trap => place.IsSpent(thing.Id),
         _ => false,
     };
 
@@ -825,8 +845,8 @@ public partial class MapScreen : Node2D
 
     /// <summary>
     /// Gives each thing of a map that draws a sprite, in the order of the map file: each service
-    /// point, save point, door, chest, and exit (D-1142, D-1223). A lock draws as its door, and a
-    /// trap, a spawn point, and a marker draw nothing.
+    /// point, save point, door, chest, trap, and exit (D-1142, D-1223, D-1238). A lock draws as its
+    /// door, and a spawn point and a marker draw nothing. A hidden trap takes no share of the fade.
     /// </summary>
     private static MapThing[] DrawnThingsOf(GameMap map)
     {
@@ -844,19 +864,19 @@ public partial class MapScreen : Node2D
 
     /// <summary>Tells whether a thing of one kind draws a sprite on the map (D-1142, D-1223).</summary>
     /// <param name="kind">The kind of the thing.</param>
-    /// <returns>True for a service point, a save point, a door, a chest, and an exit.</returns>
+    /// <returns>True for a service point, a save point, a door, a chest, a trap, and an exit.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The value names no kind (T-2).</exception>
     public static bool Draws(MapThingKind kind) => kind switch
     {
-        MapThingKind.ServicePoint or MapThingKind.SavePoint or MapThingKind.Door or MapThingKind.Chest or MapThingKind.Exit => true,
-        MapThingKind.Lock or MapThingKind.Trap or MapThingKind.SpawnPoint or MapThingKind.Marker => false,
+        MapThingKind.ServicePoint or MapThingKind.SavePoint or MapThingKind.Door or MapThingKind.Chest or MapThingKind.Trap or MapThingKind.Exit => true,
+        MapThingKind.Lock or MapThingKind.SpawnPoint or MapThingKind.Marker => false,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "The value names no map thing kind (D-528, T-2)."),
     };
 
     /// <summary>Tells whether a thing of one kind takes an open look beside its closed look (D-1223).</summary>
     /// <param name="kind">The kind of the thing.</param>
-    /// <returns>True for a door and a chest.</returns>
-    public static bool HasOpenLook(MapThingKind kind) => kind is MapThingKind.Door or MapThingKind.Chest;
+    /// <returns>True for a door, a chest, and a trap, whose open look is its sprung look (D-1238).</returns>
+    public static bool HasOpenLook(MapThingKind kind) => kind is MapThingKind.Door or MapThingKind.Chest or MapThingKind.Trap;
 
     /// <summary>Gives the open look of a door or a chest, or no value for a thing with one look (D-1223).</summary>
     /// <exception cref="ContentException">The atlas holds no open drawing of a door or a chest (T-2).</exception>
@@ -892,6 +912,9 @@ public partial class MapScreen : Node2D
             Centered = false,
             Offset = new Vector2(0, -entry.Height),
             LightMask = WorldLights.FigureItems,
+
+            // A trap lies flat in the floor, so it draws over the ground and under each figure (D-1238).
+            ZIndex = point.Kind == MapThingKind.Trap ? GroundZIndex : 0,
         };
     }
 
@@ -1063,7 +1086,7 @@ public partial class MapScreen : Node2D
 
     /// <summary>
     /// Reads the sprite of each NPC and each drawn thing back, and fails when one holds no
-    /// picture, or when one hides on a map that is not dark (T-2, D-814, F-45).
+    /// picture, or when one hides on a map that is not dark. A hidden trap passes (T-2, D-814, D-1228, F-45).
     /// </summary>
     /// <returns>The count of those sprites that draw.</returns>
     private int CheckOtherFigures(MapState party)
@@ -1087,8 +1110,8 @@ public partial class MapScreen : Node2D
         {
             CheckSprite(this.pointSprites[index], $"the thing '{this.points[index].Id.Value}'");
             Refuse(
-                !party.Map.Dark && !this.pointSprites[index].Visible,
-                $"the thing '{this.points[index].Id.Value}' draws no sprite on a map that is not dark (D-814)");
+                !party.Map.Dark && !this.pointSprites[index].Visible && !this.pointHidden[index],
+                $"the thing '{this.points[index].Id.Value}' draws no sprite on a map that is not dark, and no rule hides it (D-814, D-1228)");
             drawn += this.pointSprites[index].Visible ? 1 : 0;
         }
 

@@ -2,13 +2,25 @@
  "comment": "The place of every frame in the atlas (D-666). The atlas command of Tools writes this file and each page beside it, and no session edits either one by hand (D-107). A page holds one kind of drawing, and a tile page is a strict grid of 32 by 32 cells (D-667). Run the command again after a change to a drawing file.",
  "pages": [
   { "kind": "tiles", "number": 1, "width": 2048, "height": 32 },
-  { "kind": "map_sprites", "number": 1, "width": 512, "height": 32 },
+  { "kind": "map_sprites", "number": 1, "width": 576, "height": 32 },
   { "kind": "battle_sprites", "number": 1, "width": 160, "height": 64 },
   { "kind": "portraits", "number": 1, "width": 192, "height": 64 },
-  { "kind": "ui", "number": 1, "width": 320, "height": 24 },
+  { "kind": "ui", "number": 1, "width": 480, "height": 32 },
   { "kind": "pieces", "number": 1, "width": 192, "height": 64 }
  ],
  "drawings": [
+  {
+   "id": "drawing.tile_bad_air",
+   "page": "tiles",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "tile.bad_air", "use": "map" }
+   ],
+   "frames": [
+    { "x": 0, "y": 0, "ticks": 0 }
+   ]
+  },
   {
    "id": "drawing.tile_doorway",
    "page": "tiles",
@@ -18,7 +30,7 @@
     { "content": "tile.doorway", "use": "map" }
    ],
    "frames": [
-    { "x": 0, "y": 0, "ticks": 0 }
+    { "x": 32, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -30,7 +42,31 @@
     { "content": "tile.floor", "use": "map" }
    ],
    "frames": [
-    { "x": 32, "y": 0, "ticks": 0 }
+    { "x": 64, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.tile_ice",
+   "page": "tiles",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "tile.ice", "use": "map" }
+   ],
+   "frames": [
+    { "x": 96, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.tile_snow",
+   "page": "tiles",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "tile.snow", "use": "map" }
+   ],
+   "frames": [
+    { "x": 128, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -42,7 +78,7 @@
     { "content": "tile.wall", "use": "map" }
    ],
    "frames": [
-    { "x": 64, "y": 0, "ticks": 0 }
+    { "x": 160, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -203,6 +239,34 @@
    ]
   },
   {
+   "id": "drawing.fixture_trap",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "trap.fixture_dungeon_pit", "use": "map" },
+    { "content": "trap.fixture_dungeon_needle", "use": "map" },
+    { "content": "trap.fixture_dungeon_alarm", "use": "map" }
+   ],
+   "frames": [
+    { "x": 384, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.fixture_trap_spent",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "trap.fixture_dungeon_pit", "use": "map_open" },
+    { "content": "trap.fixture_dungeon_needle", "use": "map_open" },
+    { "content": "trap.fixture_dungeon_alarm", "use": "map_open" }
+   ],
+   "frames": [
+    { "x": 416, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
    "id": "drawing.fixture_waystone",
    "page": "map_sprites",
    "width": 32,
@@ -212,7 +276,7 @@
     { "content": "save_point.fixture_dungeon_camp", "use": "map" }
    ],
    "frames": [
-    { "x": 384, "y": 0, "ticks": 0 }
+    { "x": 448, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -224,7 +288,7 @@
     { "content": "cast.marrek", "use": "map_front" }
    ],
    "frames": [
-    { "x": 416, "y": 0, "ticks": 0 }
+    { "x": 480, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -236,7 +300,7 @@
     { "content": "cast.marrek", "use": "map_torch" }
    ],
    "frames": [
-    { "x": 448, "y": 0, "ticks": 0 }
+    { "x": 512, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -249,7 +313,7 @@
     { "content": "npc.fixture_hub_barmaid", "use": "map_front" }
    ],
    "frames": [
-    { "x": 480, "y": 0, "ticks": 0 }
+    { "x": 544, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -337,6 +401,42 @@
    ]
   },
   {
+   "id": "drawing.bergit_face",
+   "page": "ui",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "character.bergit", "use": "face" }
+   ],
+   "frames": [
+    { "x": 0, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.dagvar_face",
+   "page": "ui",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "character.dagvar", "use": "face" }
+   ],
+   "frames": [
+    { "x": 32, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.elio_face",
+   "page": "ui",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "character.elio", "use": "face" }
+   ],
+   "frames": [
+    { "x": 64, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
    "id": "drawing.icon_element_dark",
    "page": "ui",
    "width": 16,
@@ -345,7 +445,7 @@
     { "content": "element.dark", "use": "icon" }
    ],
    "frames": [
-    { "x": 0, "y": 0, "ticks": 0 }
+    { "x": 96, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -357,7 +457,7 @@
     { "content": "element.earth", "use": "icon" }
    ],
    "frames": [
-    { "x": 16, "y": 0, "ticks": 0 }
+    { "x": 112, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -369,7 +469,7 @@
     { "content": "element.fire", "use": "icon" }
    ],
    "frames": [
-    { "x": 32, "y": 0, "ticks": 0 }
+    { "x": 128, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -381,7 +481,7 @@
     { "content": "element.holy", "use": "icon" }
    ],
    "frames": [
-    { "x": 48, "y": 0, "ticks": 0 }
+    { "x": 144, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -393,7 +493,7 @@
     { "content": "element.ice", "use": "icon" }
    ],
    "frames": [
-    { "x": 64, "y": 0, "ticks": 0 }
+    { "x": 160, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -405,7 +505,7 @@
     { "content": "element.lightning", "use": "icon" }
    ],
    "frames": [
-    { "x": 80, "y": 0, "ticks": 0 }
+    { "x": 176, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -417,7 +517,7 @@
     { "content": "element.water", "use": "icon" }
    ],
    "frames": [
-    { "x": 96, "y": 0, "ticks": 0 }
+    { "x": 192, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -429,7 +529,7 @@
     { "content": "element.wind", "use": "icon" }
    ],
    "frames": [
-    { "x": 112, "y": 0, "ticks": 0 }
+    { "x": 208, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -441,7 +541,7 @@
     { "content": "status.bleed", "use": "icon" }
    ],
    "frames": [
-    { "x": 128, "y": 0, "ticks": 0 }
+    { "x": 224, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -453,7 +553,7 @@
     { "content": "status.blind", "use": "icon" }
    ],
    "frames": [
-    { "x": 144, "y": 0, "ticks": 0 }
+    { "x": 240, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -465,7 +565,7 @@
     { "content": "status.haste", "use": "icon" }
    ],
    "frames": [
-    { "x": 160, "y": 0, "ticks": 0 }
+    { "x": 256, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -477,7 +577,7 @@
     { "content": "status.poison", "use": "icon" }
    ],
    "frames": [
-    { "x": 176, "y": 0, "ticks": 0 }
+    { "x": 272, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -489,7 +589,7 @@
     { "content": "status.regen", "use": "icon" }
    ],
    "frames": [
-    { "x": 192, "y": 0, "ticks": 0 }
+    { "x": 288, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -501,7 +601,7 @@
     { "content": "status.shell", "use": "icon" }
    ],
    "frames": [
-    { "x": 208, "y": 0, "ticks": 0 }
+    { "x": 304, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -513,7 +613,7 @@
     { "content": "status.silence", "use": "icon" }
    ],
    "frames": [
-    { "x": 224, "y": 0, "ticks": 0 }
+    { "x": 320, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -525,7 +625,7 @@
     { "content": "status.sleep", "use": "icon" }
    ],
    "frames": [
-    { "x": 240, "y": 0, "ticks": 0 }
+    { "x": 336, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -537,7 +637,7 @@
     { "content": "status.slow", "use": "icon" }
    ],
    "frames": [
-    { "x": 256, "y": 0, "ticks": 0 }
+    { "x": 352, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -549,7 +649,31 @@
     { "content": "status.stun", "use": "icon" }
    ],
    "frames": [
-    { "x": 272, "y": 0, "ticks": 0 }
+    { "x": 368, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.marrek_face",
+   "page": "ui",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "character.marrek", "use": "face" }
+   ],
+   "frames": [
+    { "x": 384, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.ottild_face",
+   "page": "ui",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "character.ottild", "use": "face" }
+   ],
+   "frames": [
+    { "x": 416, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -561,7 +685,7 @@
     { "content": "ui.pointer", "use": "pointer" }
    ],
    "frames": [
-    { "x": 288, "y": 0, "ticks": 0 }
+    { "x": 448, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -573,7 +697,7 @@
     { "content": "ui.window", "use": "frame" }
    ],
    "frames": [
-    { "x": 296, "y": 0, "ticks": 0 }
+    { "x": 456, "y": 0, "ticks": 0 }
    ]
   },
   {

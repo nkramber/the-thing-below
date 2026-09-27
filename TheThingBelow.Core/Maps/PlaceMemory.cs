@@ -36,7 +36,7 @@ public sealed class PlaceMemory
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
     /// <exception cref="ArgumentException">
     /// Two values name one map or one thing, a count is below 1, or a snapshot of this build names
-    /// a map, an enemy, a door, a chest, or a thing of a chest that the content lacks (T-2).
+    /// a map, an enemy, a door, a chest, a thing of a chest, or a trap that the content lacks (T-2).
     /// </exception>
     /// <remarks>
     /// A save of another build drops each value that the content of this build no longer holds,
@@ -152,6 +152,15 @@ public sealed class PlaceMemory
             if (Keeps(thing is null, map, chest.Chest, "the map holds no such chest", source, drift))
             {
                 place.Keep(chest.Chest, LeftOf(map, thing!, chest, source, drift));
+            }
+        }
+
+        foreach (ContentId trap in value.Spent)
+        {
+            Refuse(place.IsSpent(trap), source, $"the memory of '{map.Id.Value}' holds the spent trap '{trap.Value}' two times");
+            if (Keeps(!map.HoldsThing(trap, MapThingKind.Trap), map, trap, "the map holds no such trap", source, drift))
+            {
+                place.Spend(trap);
             }
         }
 

@@ -8,7 +8,7 @@ namespace TheThingBelow.Core.Maps;
 /// The map file holds every thing that a rule reads, so one file holds each place for the
 /// author, for the review, and for the content hash (D-528). PR-16 adds the rules that open a
 /// door, a lock, and a chest, the save of a save point, and the exit (D-1131, D-1216). PR-64 adds
-/// the rule that fires a trap. A service point holds a service of a hub (D-1142).
+/// the rules that show, fire, and disarm a trap (D-1226, D-1228). A service point holds a service of a hub (D-1142).
 /// </remarks>
 public enum MapThingKind
 {
@@ -21,7 +21,10 @@ public enum MapThingKind
     /// <summary>A chest with entries and gold that the party takes (D-1220).</summary>
     Chest,
 
-    /// <summary>A trap, which a Theft drill reveals and disarms (D-386).</summary>
+    /// <summary>
+    /// A trap, which fires one time when the lead steps onto it (D-1226, D-1229). A Theft drill shows
+    /// it near the lead, and a confirm then disarms it (D-386, D-1228).
+    /// </summary>
     Trap,
 
     /// <summary>
@@ -61,7 +64,8 @@ public enum MapThingKind
 /// </param>
 /// <param name="To">The map that this exit enters (D-1216). Every other kind holds no value.</param>
 /// <param name="Contents">The entries and the gold of this chest (D-1220). Every other kind holds no value.</param>
-public sealed record MapThing(ContentId Id, MapThingKind Kind, TilePoint At, bool Pickable, ContentId? Key, ContentId? To, ChestContents? Contents);
+/// <param name="Harm">What this trap does when it fires (D-1226). Every other kind holds no value.</param>
+public sealed record MapThing(ContentId Id, MapThingKind Kind, TilePoint At, bool Pickable, ContentId? Key, ContentId? To, ChestContents? Contents, TrapHarm? Harm);
 
 /// <summary>The names of the thing kinds, and the tile that each kind sits on (D-528).</summary>
 public static class MapThingKinds

@@ -141,6 +141,41 @@ public sealed class MapDrawCoverageTests
     }
 
     [Fact]
+    public void EachCharacterOfTheCheckoutHasAFaceForTheMapHud()
+    {
+        // D-1239: the HUD draws the face of each character who fights, so each character takes one.
+        List<string> missing = [];
+        foreach (Core.Battles.CharacterRecord character in Content.Value.Battle.Fixture.Characters)
+        {
+            if (!Content.Value.Atlas.Draws(character.Id, "face"))
+            {
+                missing.Add(character.Id.Value);
+            }
+        }
+
+        Assert.True(missing.Count == 0, $"These characters have no 'face' drawing in the atlas (D-519, D-1239): {string.Join(", ", missing)}.");
+    }
+
+    [Fact]
+    public void EachTrapOfEachMapHasAnArmedLookAndASprungLook()
+    {
+        // D-1238: a trap that shows draws its armed look, and a spent trap its sprung look.
+        List<string> missing = [];
+        foreach (GameMap map in Content.Value.Maps)
+        {
+            foreach (MapThing thing in map.Things)
+            {
+                if (thing.Kind == MapThingKind.Trap && (!Content.Value.Atlas.Draws(thing.Id, "map") || !Content.Value.Atlas.Draws(thing.Id, "map_open")))
+                {
+                    missing.Add(thing.Id.Value);
+                }
+            }
+        }
+
+        Assert.True(missing.Count == 0, $"These traps lack the 'map' or the 'map_open' drawing (D-519, D-1238): {string.Join(", ", missing)}.");
+    }
+
+    [Fact]
     public void EachTileKindHasATileDrawing()
     {
         foreach (TileKind kind in Enum.GetValues<TileKind>())

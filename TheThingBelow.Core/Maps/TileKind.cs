@@ -17,6 +17,15 @@ public enum TileKind
 
     /// <summary>The gap in a wall that holds a door or a lock. The party walks it, and sight passes.</summary>
     Doorway,
+
+    /// <summary>Deep snow. A step of the party that starts on it or enters it takes double time (D-1233).</summary>
+    Snow,
+
+    /// <summary>Ice. The lead slides over it until the next tile is not ice or blocks the step (D-1232).</summary>
+    Ice,
+
+    /// <summary>Ground under bad air, which hurts each character who fights while the lead stands in it (D-1235).</summary>
+    BadAir,
 }
 
 /// <summary>The character, the step rule, and the sight rule of each tile kind (D-515, D-528).</summary>
@@ -35,8 +44,17 @@ public static class TileKinds
     /// <summary>A doorway, as a terrain row writes it.</summary>
     public const char DoorwayCharacter = '+';
 
+    /// <summary>Deep snow, as a terrain row writes it (D-1233).</summary>
+    public const char SnowCharacter = '*';
+
+    /// <summary>Ice, as a terrain row writes it (D-1232).</summary>
+    public const char IceCharacter = '=';
+
+    /// <summary>Ground under bad air, as a terrain row writes it (D-1235).</summary>
+    public const char BadAirCharacter = '~';
+
     /// <summary>The characters of every kind, for the error of an unknown character (T-2).</summary>
-    public const string EveryCharacter = ".#+";
+    public const string EveryCharacter = ".#+*=~";
 
     /// <summary>Gives the kind of one character of a terrain row.</summary>
     /// <param name="character">The character, such as `#`.</param>
@@ -55,6 +73,15 @@ public static class TileKinds
             case DoorwayCharacter:
                 kind = TileKind.Doorway;
                 return true;
+            case SnowCharacter:
+                kind = TileKind.Snow;
+                return true;
+            case IceCharacter:
+                kind = TileKind.Ice;
+                return true;
+            case BadAirCharacter:
+                kind = TileKind.BadAir;
+                return true;
             default:
                 kind = TileKind.Floor;
                 return false;
@@ -70,6 +97,9 @@ public static class TileKinds
         TileKind.Floor => FloorCharacter,
         TileKind.Wall => WallCharacter,
         TileKind.Doorway => DoorwayCharacter,
+        TileKind.Snow => SnowCharacter,
+        TileKind.Ice => IceCharacter,
+        TileKind.BadAir => BadAirCharacter,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no tile kind (D-528)"),
     };
 
@@ -82,6 +112,9 @@ public static class TileKinds
         TileKind.Floor => "floor",
         TileKind.Wall => "wall",
         TileKind.Doorway => "doorway",
+        TileKind.Snow => "snow",
+        TileKind.Ice => "ice",
+        TileKind.BadAir => "bad_air",
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no tile kind (D-528)"),
     };
 
@@ -94,6 +127,9 @@ public static class TileKinds
         TileKind.Floor => true,
         TileKind.Wall => false,
         TileKind.Doorway => true,
+        TileKind.Snow => true,
+        TileKind.Ice => true,
+        TileKind.BadAir => true,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no tile kind (D-528)"),
     };
 
@@ -110,6 +146,9 @@ public static class TileKinds
         TileKind.Floor => false,
         TileKind.Wall => true,
         TileKind.Doorway => false,
+        TileKind.Snow => false,
+        TileKind.Ice => false,
+        TileKind.BadAir => false,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no tile kind (D-528)"),
     };
 }

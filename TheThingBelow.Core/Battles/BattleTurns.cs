@@ -87,6 +87,37 @@ public static class BattleTurns
         RunUntilCharacter(state, battle, log);
     }
 
+    /// <summary>
+    /// Starts the battle of an encounter trap, in which the enemies act first, and runs each enemy
+    /// turn before the first turn of a character (D-265, D-770, D-1231). No patrol of the map takes
+    /// part, so the battle names the trap in place of a patrol.
+    /// </summary>
+    /// <param name="state">The run, which holds no battle and no encounter.</param>
+    /// <param name="trap">The id of the trap, which the memory of the map already holds as spent (D-1229).</param>
+    /// <param name="group">The enemy group of the trap.</param>
+    /// <param name="log">The log entries of this tick (D-179).</param>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="SimulationException">A battle or an encounter already runs, or no character who fights stands (T-2, D-1105).</exception>
+    public static void BeginTrap(RunState state, ContentId trap, ContentId group, List<LogEntry> log)
+    {
+        ArgumentNullException.ThrowIfNull(state);
+        ArgumentNullException.ThrowIfNull(trap);
+        ArgumentNullException.ThrowIfNull(group);
+        ArgumentNullException.ThrowIfNull(log);
+
+        RunContext context = state.Context($"battle/begin/{trap.Value}");
+        if (state.Battle is not null || state.Party.Patrols.Encounter is not null)
+        {
+            throw new SimulationException("a start of the battle of a trap, and a battle or an encounter already runs (D-531, D-1231)", context);
+        }
+
+        Battle battle = Battle.Start(state.BattleContent, new MapEncounter(trap, group, EncounterSide.Enemy), state.Characters, context);
+        state.SetBattle(battle);
+        state.AddEvent(new BattleEvent(BattleEventKind.Started, new BattleTarget(BattleSide.Enemy, 0), null, 0));
+        log.Add(Entry(state, LogLevel.Info, "a battle of a trap started", [new LogField("group", battle.Group.Id.Value), new LogField("trap", trap.Value)]));
+        RunUntilCharacter(state, battle, log);
+    }
+
     /// <summary>Resolves the choice of the character whose turn it is, then each enemy turn up to the next turn of a character (D-532).</summary>
     /// <param name="state">The run.</param>
     /// <param name="choice">The choice.</param>
@@ -299,6 +330,19 @@ public static class BattleTurns
                 LogLevel.Info,
                 "the battle of a story scene ended and the story scene goes on",
                 [new LogField("scene", battle.Enemy.Value), new LogField("outcome", Battle.OutcomeName(battle.Outcome))]));
+            return;
+        }
+
+        if (battle.FromTrap)
+        {
+            // A battle of a trap has no patrol. The trap is spent since it fired, won or fled, and
+            // no grace time follows a flee, because no enemy stays on the map (D-1229, D-1231).
+            state.SetBattle(null);
+            log.Add(Entry(
+                state,
+                LogLevel.Info,
+                "the battle of a trap ended and the map runs again",
+                [new LogField("trap", battle.Enemy.Value), new LogField("outcome", Battle.OutcomeName(battle.Outcome))]));
             return;
         }
 

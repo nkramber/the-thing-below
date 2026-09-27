@@ -52,7 +52,7 @@ public static class MapFixture
         frame.World.AddChild(drawn);
         drawn.Frame = frame;
         drawn.Build(@base.Atlas, @base.Theme, party, content, ambient ?? content.Effects.Ambient.WeatherOf(party.Map.Id), passes);
-        drawn.ShowParty(party, 0, run.Tick, run.TorchHeld);
+        drawn.ShowParty(party, 0, run.Tick, run.TorchHeld, run.TheftCarried);
         drawn.SeekParticles = seekParticles;
         drawn.ShowWeather(0, seekParticles);
         return drawn;

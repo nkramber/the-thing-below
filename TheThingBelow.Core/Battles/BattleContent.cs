@@ -284,6 +284,18 @@ public sealed class BattleContent
                     $"the patrol takes the size '{EnemySizes.NameOf(patrol.Size)}', and the largest enemy of the group '{patrol.Group.Value}' is '{largest.Id.Value}' with the size '{EnemySizes.NameOf(largest.Size)}' (D-754, D-788)");
             }
         }
+
+        // An encounter trap draws no body on the map, so its group takes no size check (D-1231).
+        foreach (MapThing thing in map.Things)
+        {
+            if (thing.Harm?.Group is ContentId trapGroup && region.Find(trapGroup) is null)
+            {
+                throw ContentException.ForField(
+                    map.File,
+                    thing.Id.Value,
+                    $"the encounter trap names the group '{trapGroup.Value}', and '{region.File}' of the region '{map.Region.Value}' holds no such group (D-957, D-1231)");
+            }
+        }
     }
 
     /// <summary>

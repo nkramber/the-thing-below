@@ -22,6 +22,58 @@ public static class MapRules
     public const int TicksPerStep = 16;
 
     /// <summary>
+    /// The count of world ticks of one step of the party that starts on deep snow or enters it
+    /// (D-1233). Double time keeps the even slide: each tick moves the lead by 1 art pixel (D-821).
+    /// </summary>
+    public const int SnowStepTicks = 32;
+
+    /// <summary>
+    /// The count of world ticks between two harms of poison on the map or of bad air (D-1234,
+    /// D-1235). The loop runs 60 ticks a second, so each harm comes once a second.
+    /// </summary>
+    /// <remarks>
+    /// The harm comes on each world tick whose count divides by this number, so a snapshot needs
+    /// no clock of its own, and a replay harms on the same tick (T-7). An open menu stops the
+    /// count of world ticks, so no harm comes under a menu (D-650).
+    /// </remarks>
+    public const int HarmTicks = 60;
+
+    /// <summary>
+    /// The count of steps from the lead within which a trap shows, when a character who fights
+    /// and stands carries a Theft drill (D-1228). The count is the steps of a walk around no wall:
+    /// the columns apart plus the rows apart (D-716).
+    /// </summary>
+    public const int TrapShowRange = 2;
+
+    /// <summary>Gives the count of world ticks of one step of the party (D-164, D-1233).</summary>
+    /// <param name="map">The map.</param>
+    /// <param name="from">The tile that the step starts on.</param>
+    /// <param name="direction">The direction of the step.</param>
+    /// <returns><see cref="SnowStepTicks"/> when the start tile or the next tile is deep snow, and <see cref="TicksPerStep"/> in every other case.</returns>
+    /// <exception cref="ArgumentNullException">The map is null (T-2).</exception>
+    /// <remarks>
+    /// The count comes from the map and the step alone, so a snapshot holds no length of a step,
+    /// and Game reads the same count for its slide (D-203). A next tile off the map counts as no
+    /// snow, and no step goes there.
+    /// </remarks>
+    public static int PartyStepTicks(GameMap map, TilePoint from, StepDirection direction)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+
+        TilePoint to = from.Step(direction);
+        bool snow = (map.Holds(from) && map.TileAt(from) == TileKind.Snow) || (map.Holds(to) && map.TileAt(to) == TileKind.Snow);
+        return snow ? SnowStepTicks : TicksPerStep;
+    }
+
+    /// <summary>Gives the count of steps between two tiles on a walk around no wall (D-716, D-1228).</summary>
+    /// <param name="one">The first tile.</param>
+    /// <param name="other">The second tile.</param>
+    /// <returns>The columns apart plus the rows apart.</returns>
+    /// <exception cref="OverflowException">A count passes the range of an `int` (T-2).</exception>
+    public static int StepsApart(TilePoint one, TilePoint other) =>
+        checked(Math.Abs(checked(one.X - other.X)) + Math.Abs(checked(one.Y - other.Y)));
+
+    /// <summary>
     /// The counts of world ticks that one step of an enemy can take (D-742, D-821). Each count
     /// divides the tile of 32 art pixels or is a multiple of it, so each tick moves the sprite
     /// by 2 pixels, by 1 pixel, or by 1 pixel every other tick. None is faster than the party.

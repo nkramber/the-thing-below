@@ -119,11 +119,12 @@ public sealed class HubRestTests
         HubWalks.Face(run, StepDirection.South);
     }
 
-    /// <summary>Hurts one character: 1 health, no AP, and poison, blind, and silence (D-390).</summary>
+    /// <summary>Hurts one character: half health, no AP, and poison, blind, and silence (D-390).</summary>
     private static CharacterValues Hurt(CharacterValues stored) =>
         stored with
         {
-            Health = 1,
+            // Poison hurts on the walk to the keeper (D-1234), so half health keeps each one up.
+            Health = stored.Health / 2,
             Statuses = [StatusKind.Poison, StatusKind.Blind, StatusKind.Silence],
             Growth = (stored.Growth ?? throw new InvalidOperationException("The stored character holds no growth.")) with { Ap = 0 },
         };

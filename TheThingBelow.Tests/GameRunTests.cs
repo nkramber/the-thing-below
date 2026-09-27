@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using TheThingBelow.Core;
+using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Maps;
@@ -265,6 +266,39 @@ public sealed class GameRunTests
 
         Assert.Equal(0, reloaded.Tick);
         Assert.Empty(log);
+    }
+
+    [Fact]
+    public void AWipeOnTheMapHoldsTheRunForItsViewAndThenIsReadyToReload()
+    {
+        // D-225, D-397, D-1234: poison downs the only fighter on the map. The run then steps the
+        // simulation no more, and the wipe view counts its ticks until the host reloads.
+        Run played = Run.Start();
+        SaveDocument save = played.Save();
+        PartySnapshot party = save.Snapshot.Characters!;
+        CharacterValues dying = party.Characters[0] with { Health = 1, Statuses = [StatusKind.Poison] };
+        SaveDocument poisoned = save with { Snapshot = save.Snapshot with { Characters = party with { Characters = [dying] } } };
+        Run run = Run.Reload(poisoned, null, Seed, []);
+
+        for (int frame = 0; frame < 2 * MapRules.HarmTicks && !run.State.MapWiped; frame += 1)
+        {
+            run.Advance(OneTick);
+        }
+
+        Assert.True(run.State.MapWiped);
+        Assert.False(run.WipeReady);
+        long world = run.State.WorldTick;
+        int lines = run.RecordedLines;
+
+        for (int frame = 0; frame < 200 && !run.WipeReady; frame += 1)
+        {
+            run.Advance(OneTick);
+        }
+
+        Assert.True(run.WipeReady);
+        Assert.True(run.MapWipeTicks >= 150, $"The wipe view held {run.MapWipeTicks} ticks.");
+        Assert.Equal(world, run.State.WorldTick);
+        Assert.Equal(lines, run.RecordedLines);
     }
 
     [Fact]
@@ -706,6 +740,12 @@ public sealed class GameRunTests
 
         public object? NoticeAt(int charactersPerSecond) =>
             this.instance.GetType().GetMethod("NoticeAt")!.Invoke(this.instance, [charactersPerSecond]);
+
+        public bool WipeReady => (bool)(this.instance.GetType().GetProperty("WipeReady")!.GetValue(this.instance)
+            ?? throw new InvalidOperationException("The wipe gate has no value (T-2)."));
+
+        public int MapWipeTicks => (int)(this.instance.GetType().GetProperty("MapWipeTicks")!.GetValue(this.instance)
+            ?? throw new InvalidOperationException("The run holds no count of wipe ticks (T-2)."));
 
         public int RecordedLines => (int)(this.instance.GetType().GetProperty("RecordedLines")!.GetValue(this.instance)
             ?? throw new InvalidOperationException("The run holds no count of recorded lines (T-2)."));

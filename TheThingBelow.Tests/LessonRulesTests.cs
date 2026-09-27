@@ -351,6 +351,21 @@ public sealed class LessonRulesTests
     }
 
     [Fact]
+    public void TheSilenceOfATrapStopsARiteFromTheMenu()
+    {
+        // Exit test 5 of PR-64 (D-393, D-1230): the dust of the hall silences Marrek, and the menu
+        // then refuses the purge. A rest at a hub cures it, which HubRestTests proves (D-390).
+        BattleContent content = TestBattles.WithLessonFiles(fixture: WithStartLessons("\"lesson.fixture_purge\", \"lesson.fixture_salve\""), exact: true);
+        Simulation run = Start(content, TrapMaps.Hall, party => party);
+        TrapMaps.WalkTo(run, TrapMaps.Dust.X);
+        Assert.Contains(StatusKind.Silence, run.State.Characters.Members[0].Statuses);
+
+        run.Step([Intent.OfPlayer(IntentIds.OpenMenu)]);
+
+        Assert.Contains("who holds silence", LessonRules.RefusalOfMenuCast(run.State, 0, Purge, 0, 0), StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void AStrikeAClosedMenuAndADownTargetEachRefuseACastFromTheMenu()
     {
         Simulation run = Start(TestBattles.WithLessonFiles(fixture: WithStartLessons("\"lesson.fixture_purge\", \"lesson.fixture_cinder\"")), TestMaps.Room, party => party);

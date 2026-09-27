@@ -53,6 +53,12 @@ public static class AcceptedIntents
             return accepted;
         }
 
+        // A wipe on the map takes no intent until Game reloads the newer save (D-397).
+        if (state.MapWiped)
+        {
+            return accepted;
+        }
+
         if (state.MenuOpen)
         {
             AddMenu(state, accepted);

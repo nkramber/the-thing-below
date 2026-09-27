@@ -123,6 +123,7 @@ Built by PR-34, and drawn by the content PRs. Phase files: every phase file.
 | Standing enemy on the map | One, two, or three tiles square | One frame that flips | D-108, D-207 |
 | Enemy in battle | 32 by 32 for a common enemy, 64 by 64 for an elite, and 96 by 96 or larger for a boss | Common enemies flip. Elites and bosses have a few frames | D-189, D-236 |
 | Portrait | 64 by 64 | One expression | D-109, D-234 |
+| Face of the map HUD | 32 by 32 | One | D-1237, D-1239 |
 | Piece of a large picture | Set by the format of PR-55 | One | D-516, D-518 |
 | Window frame | 48 by 48, which Game draws as nine parts that stretch | One | D-220, `area-ui-input.md` |
 | Icon for an element or a status | 16 by 16 | One | D-214, `area-ui-input.md` |
@@ -132,7 +133,7 @@ Built by PR-34, and drawn by the content PRs. Phase files: every phase file.
 - A custom shader that writes `NORMAL_MAP` gets no such correction (the external facts above). Section 7.6 of `area-effects.md` keeps each shader on a lit sprite away from `NORMAL_MAP`.
 - Each sprite, tile, and piece has a normal map. A portrait, an icon, and a window frame have none, because they never take scene light (D-183, D-210, D-516).
 
-> *In plain English:* tiles and characters are 32 pixels square, faces are 64, and big enemies are larger. A character that faces left is the same drawing turned over, and the light still falls on the correct side.
+> *In plain English:* tiles, characters, and the faces of the map HUD are 32 pixels square, portraits are 64, and big enemies are larger. A character that faces left is the same drawing turned over, and the light still falls on the correct side.
 
 ### 7.5 Large pictures
 

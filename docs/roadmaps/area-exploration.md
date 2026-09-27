@@ -179,12 +179,14 @@ Built by PR-16. Phase file: `phase-2-first-playable.md`.
 Built by PR-64. Phase file: `phase-2-first-playable.md`.
 
 - PR-64 builds the traps and the hazards of D-41, apart from the parts of PR-16 (D-529).
-- A Theft drill reveals and disarms a trap (D-386). OQ-119 holds what each trap does.
-- OQ-120 holds which hazards region one holds.
+- A trap deals damage, puts a status, or starts an encounter, and it fires one time (D-1226, D-1229 to D-1231).
+- A Theft drill shows a trap near the lead, and a confirm disarms it (D-386, D-1228).
+- Region one holds three hazards: deep snow slows a step, ice slides the lead, and bad air hurts each second (D-1227, D-1232, D-1233, D-1235).
 - Poison, blind, and silence last past a battle, until a cure or a rest at a hub (D-390).
-- Poison ticks on the map and can down a character (D-392). Blind does nothing outside battle, and silence stops a rite from the menu (D-393).
-- When poison downs every character who fights, the party wipes, even with a healthy reserve (D-336, D-397).
+- Poison hurts each second on the map, the reserve included, and it can down a character (D-392, D-1234, D-1236). Blind does nothing outside battle, and silence stops a rite from the menu (D-393).
+- When a trap, the bad air, or poison downs every character who fights, the party wipes, even with a healthy reserve (D-336, D-397).
 - Property tests over one thousand seeds prove each rule, and the bots play the maps of the first playable (D-64).
+- The map HUD shows a face, a health bar, and the status icons of each character who fights, at the top left (D-1237, D-1239).
 
 > *In plain English:* the dungeon itself can hurt you. Poison still hurts while you walk, and a party can go down between fights.
 
@@ -334,8 +336,8 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 The register is `docs/questions.md` (D-19). These questions block exploration PRs, and each PR asks its questions when it starts (D-487):
 
 - OQ-115: how a large enemy holds its tiles and sorts on screen. Blocks PR-8.
-- OQ-119: what a trap does, and what a Theft drill does to it. Blocks PR-64.
-- OQ-120: the hazards of region one. Blocks PR-64.
+- OQ-119: what a trap does, and what a Theft drill does to it. Resolved by D-1226 and D-1228 to D-1231.
+- OQ-120: the hazards of region one. Resolved by D-1227 and D-1232 to D-1235.
 - OQ-121: the prices, the buy-back, and the stock of a shop. Resolved by D-1149 to D-1155.
 - OQ-122: the format of the region map, and the cost of a route. Blocks PR-35.
 - OQ-123: how the player finds a secret. Blocks PR-21.

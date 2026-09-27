@@ -1,5 +1,5 @@
 {
- "comment": "Each one-line notice that a rule can post, and whether it lands in the notice log of the menu (D-221, D-983). The log field is required, so the writer marks each notice. The line of a notice lives in the string table under the id of the notice (G-7). PR-62 holds two fixture notices, one of each kind, which the debug console posts (D-989). PR-14 adds the notices of the services of a hub: a closed service, a rest, and a save (D-1131, D-1132). PR-16 moves the save to the save point and adds the notices of the door and the chest. A notice of a chest names a thing in the singular or a count, so it never logs (D-1221, D-1224). The task and the key item of later PRs add their own notices here.",
+ "comment": "Each one-line notice that a rule can post, and whether it lands in the notice log of the menu (D-221, D-983). The log field is required, so the writer marks each notice. The line of a notice lives in the string table under the id of the notice (G-7). PR-62 holds two fixture notices, one of each kind, which the debug console posts (D-989). PR-14 adds the notices of the services of a hub: a closed service, a rest, and a save (D-1131, D-1132). PR-16 moves the save to the save point and adds the notices of the door and the chest. PR-64 adds the notices of a trap and of a character that the map downs, which logs (D-1226, D-1234). A notice of a chest names a thing in the singular or a count, so it never logs (D-1221, D-1224). The task and the key item of later PRs add their own notices here.",
  "notices": [
   { "id": "notice.fixture_mark", "log": true },
   { "id": "notice.fixture_drip", "log": false },
@@ -12,6 +12,12 @@
   { "id": "notice.chest_found", "log": false },
   { "id": "notice.chest_gold", "log": false },
   { "id": "notice.chest_left", "log": false },
-  { "id": "notice.chest_empty", "log": false }
+  { "id": "notice.chest_empty", "log": false },
+  { "id": "notice.trap_damage", "log": false },
+  { "id": "notice.trap_poison", "log": false },
+  { "id": "notice.trap_blind", "log": false },
+  { "id": "notice.trap_silence", "log": false },
+  { "id": "notice.trap_disarmed", "log": false },
+  { "id": "notice.fell_on_map", "log": true }
  ]
 }

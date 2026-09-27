@@ -117,7 +117,8 @@ public sealed class BotRun
     /// <returns>The description of a softlock, or no value.</returns>
     private string? PlayTick()
     {
-        if (this.simulation.State.Battle is Battle { Outcome: BattleOutcome.Wiped })
+        // A battle wipe and a wipe on the map each reload the newer save, as Game does (D-397).
+        if (this.simulation.State.Battle is Battle { Outcome: BattleOutcome.Wiped } || this.simulation.State.MapWiped)
         {
             this.ReloadAfterWipe();
             return null;

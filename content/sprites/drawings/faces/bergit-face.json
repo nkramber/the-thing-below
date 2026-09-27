@@ -1,0 +1,48 @@
+{
+ "id": "drawing.bergit_face",
+ "page": "ui",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "character.bergit", "use": "face" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................................",
+    "................................",
+    ".............kkkkkk.............",
+    "...........kklGGGGgkk...........",
+    "..........klllGGGGGggk..........",
+    ".........kLllGGGGGGgggk.........",
+    "........kLllGGGGGGGGgggk........",
+    "........klllGGGGGGGGgggk........",
+    ".......kb1tttttttttttt1bk.......",
+    ".......kbSSsssssssssss@bk.......",
+    ".......kbSss@@ssss@@ss@bk.......",
+    ".......kbSsskksssskkss@bk.......",
+    ".......kbSssssssssssss@bk.......",
+    ".......kbSssssss@sssss@bk.......",
+    ".......kbSssssst@sssss@bk.......",
+    ".......kbbSssssssssss@bbk.......",
+    ".......kbbSsss@@@@ss@@bbk.......",
+    ".......kbbbSssssssss@bbbk.......",
+    ".......kbbbb@ssssss@bbbbk.......",
+    ".......kbbbbb@ssss@bbbbbk.......",
+    ".......kbbbdggggggggdbbbk.......",
+    "....kklGGdIIIIIIIIIIIIdGggkk....",
+    "..kklllGGgd2CCCccccIIdGGgggdkk..",
+    ".kklllGGggd2CCCccccIIdGGgggddkk.",
+    ".kddddddddd2CCCccccIIdddddddddk.",
+    ".kdlGGgggdd2CCCccccIIddGGgggddk.",
+    ".kdlGGgggddOCCCccccIIddGGgggddk.",
+    ".kdlGGgggdd2CCCccccIIddGGgggddk.",
+    ".kdlGGgggdd2CCCccccIIddGGgggddk.",
+    ".kdlGGgggdd2CCCccccIIddGGgggddk.",
+    ".kdlGGgggdd2CCCccccIIddGGgggddk.",
+    ".kdlGGgggdd2CCCccccIIddGGgggddk."
+   ]
+  }
+ ]
+}

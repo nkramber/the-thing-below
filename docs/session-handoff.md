@@ -1,3 +1,202 @@
+## Session 374: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-64, round 4. Repository: the-thing-below. Branch: `feat/pr-64-traps-hazards`. PR: #92. Role: author. Base: `b7eb8bc`.
+
+### What this session did, and why
+
+- The repeat review approved the effective head `fe1c5ec7`: `Ready for owner merge`, with no open finding (T-4, D-17). The record is `docs/reviews/pr-92.md`, in `65b4053`.
+- Gitar approved `fe1c5ec7` with no thread. Each CI claim on RG 3 to RG 5 has its answer in a PR comment (D-964).
+
+### The state of the build
+
+- CI on `fe1c5ec7` passed each job except the review-gate, which the record now answers.
+- The remote head before this push is `65b4053`, the review record.
+
+### What is in flight
+
+- The checks and the Gitar pass of this metadata commit, then the merge question to the owner (D-933, D-942). The PR then waits for the auto-merge (D-930).
+
+### Traps and gotchas
+
+- The review commit adds a handoff entry of its own, so the author reads the top number again before each entry.
+
+### The questions that block progress
+
+None for PR-64. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Ask the owner to confirm the merge with the summary of D-942, then turn on the auto-merge (D-930).
+
+## Session 373: 2026-09-27, Codex
+
+Author: Codex
+Session: repeat review PR #92 (PR-64). Repository: the-thing-below. Branch: `review/pr-92`, tracking `origin/feat/pr-64-traps-hazards`. Role: reviewer. Base: `b7eb8bc`.
+
+### What this session did, and why
+
+- Re-reviewed the fix for P2-1 at effective head `fe1c5ec77e990e82d4f74510e51e07ed0e343926`.
+- The damage trap posts the down notice when one fighter falls and another stands. The wipe case posts no extra down notice (D-392, D-397, D-1241).
+- Updated `docs/reviews/pr-92.md` to close P2-1 and approve the effective head. The new down-notice test fails on `869cc599`.
+- Read the Gitar CI claim. The author answered both review-gate faults, and the log confirms them (D-964).
+
+### The state of the build
+
+- `TrapRulesTests` passed 19/19 on `fe1c5ec7`. The CI implementation checks passed on all three systems.
+- The remote implementation head is `fe1c5ec77e990e82d4f74510e51e07ed0e343926`. The review-gate check waits for this metadata commit.
+
+### What is in flight
+
+- Commit the review record and this handoff entry as one metadata commit. Push to `feat/pr-64-traps-hazards`, then verify the remote head and review-gate result.
+
+### Traps and gotchas
+
+- The full `make sheet` fails in the join, because the sheet passes 65535 rows. `make sheet FIXTURE=pit` joins one fixture.
+- The detached base test at `869cc599` used the two new tests. The down-notice test failed there, as required.
+
+### The questions that block progress
+
+None for PR-64. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Run `make where` and `make ste-check`. Commit the review record and handoff, push with `git push origin HEAD:feat/pr-64-traps-hazards`, then fetch and verify the PR head.
+
+## Session 372: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-64, round 3. Repository: the-thing-below. Branch: `feat/pr-64-traps-hazards`. PR: #92. Role: author. Base: `b7eb8bc`.
+
+### What this session did, and why
+
+- Gitar approved `869cc59` with no thread. A PR comment answers its RG 3 claim again (D-964).
+- The review of `869cc59` gave `Changes required` with one finding, P2-1: a damage trap that downs a fighter posted no notice of the down.
+- P2-1 has full merit. A damage trap now posts `notice.fell_on_map` after its own notice when a fighter goes down and the party does not wipe. Two tests of `TrapRulesTests` prove it, and the first fails on `869cc59`. `docs/reviews/pr-92-response.md` records the answer.
+
+### The state of the build
+
+- Local: the build, 4271 tests, format, det-lint, and the replay identity pass.
+- The remote head before this push is `33bca20`, the review record.
+
+### What is in flight
+
+- The CI and the Gitar pass of this push, then the repeat review with `make codex-review PR=92` (D-926).
+
+### Traps and gotchas
+
+- The full `make sheet` fails in the join, because the sheet passes 65535 rows. `make sheet FIXTURE=pit` joins one fixture.
+
+### The questions that block progress
+
+None for PR-64. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Wait for green CI and the Gitar pass on this head, then run `make codex-review PR=92` in the background.
+
+## Session 371: 2026-09-27, Codex
+
+Author: Codex
+Session: review PR #92 (PR-64). Repository: the-thing-below. Branch: `review/pr-92`, tracking `origin/feat/pr-64-traps-hazards`. Role: reviewer. Base: `b7eb8bc`.
+
+### What this session did, and why
+
+- Reviewed effective head `869cc599ee1c3c9e4fc4412a66f311af16b7788a`, the traps, hazards, map status effects, wipe, saves, and HUD (D-1226 to D-1241).
+- Inspected all 92 changed baseline frames in CI artifact `screen-captures`. No visual fault was found.
+- Wrote `docs/reviews/pr-92.md` with `Changes required` for the effective head. P2-1 finds a missing down notice when a damage trap downs a fighter but does not wipe the party.
+- Answered the review-gate evidence in the review record. RG 3 failed before publication because the record was absent (D-964).
+
+### The state of the build
+
+- Local `make verify` passed with 4,269 tests and no skips.
+- CI run 36347245729 passed each implementation job on the effective head. The review-gate result awaits the metadata commit.
+- The first remote metadata head was `0250ca3f9f982a46843da5d7120c7e531760b578`. The effective head remains `869cc599ee1c3c9e4fc4412a66f311af16b7788a`.
+
+### What is in flight
+
+- The author must correct P2-1. Then repeat the review of the new effective head (D-582).
+
+### Traps and gotchas
+
+- The review branch is `review/pr-92`; push with `git push origin HEAD:feat/pr-64-traps-hazards`.
+- The full `make sheet` join exceeds 65,535 rows. The CI capture artifact holds the frames.
+
+### The questions that block progress
+
+None for PR-64. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Wait for the author correction, then review its regression test and update this review record.
+
+## Session 370: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-64, round 2. Repository: the-thing-below. Branch: `feat/pr-64-traps-hazards`. PR: #92. Role: author. Base: `b7eb8bc`.
+
+### What this session did, and why
+
+- Gitar approved `8d652b0` with no thread. Its CI analysis named the RG 3 fault, which waits for the review record, and a PR comment answers it (D-964).
+- CI run 36346460741 passed each job except the screen-test job. The 91 changed frames show the snow, the ice, or the new `pit-trap-1x` frame. The two frames of the battle pointer change in 12 and 27 pixels, because the `ui` page grew with the faces.
+- This round commits the 92 baselines of the capture artifact of that run (D-733). The captures of the artifact match them.
+
+### The state of the build
+
+- The remote head before this push is `8d652b0`.
+
+### What is in flight
+
+- The CI of this push and its Gitar pass, then `make codex-review PR=92` (D-926).
+
+### Traps and gotchas
+
+- The full `make sheet` fails in the join, because the sheet passes 65535 rows. `make sheet FIXTURE=pit` joins one fixture.
+
+### The questions that block progress
+
+None for PR-64. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Wait for green CI and the Gitar pass on this head, then run `make codex-review PR=92` in the background.
+
+## Session 369: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-64, round 1. Repository: the-thing-below. Branch: `feat/pr-64-traps-hazards`. PR: the PR-64 intent, with no GitHub number before the push. Role: author. Base: `b7eb8bc`.
+
+### What this session did, and why
+
+- The owner answered OQ-119, OQ-120, and the batches of detail: D-1226 to D-1241, with the look of the ice and the text batch.
+- Core: a trap fires one time on the arrival of the lead: a share of full health, a lasting status, or a fight in which the enemies act first. The memory of the map keeps it spent (D-1226, D-1229 to D-1231). A Theft drill shows a trap at 2 steps, and a confirm disarms it (D-1228).
+- Core: deep snow doubles a step, and ice slides the lead until a stop. A load check proves that each field of ice has a way out (D-1232, D-1233).
+- Core: each 60 world ticks, poison hurts each poisoned character, the reserve included, and bad air hurts each fighter. A down of each fighter holds a wipe on the map (D-397, D-1234 to D-1236). Save format 19, simulation version 36.
+- Game: the map HUD at the top left, the trap looks, the drain of a wipe on the map, and the frame `pit-trap-1x`. The art holds 3 tiles, 2 trap looks, and 5 faces (D-1237 to D-1239).
+
+### The state of the build
+
+- Local: the build, 4269 tests, format, det-lint, content, identity, atlas, smoke, and the bots pass. `make sheet` wrote every frame, and its joined sheet passes the PNG height limit, so the session read the frames alone.
+- The remote head before this push is `b7eb8bc`, the base.
+
+### What is in flight
+
+- The first push, the PR, the Gitar poll, and the screen baselines from the capture artifact of CI.
+
+### Traps and gotchas
+
+- `RunState.MapWiped` comes from the party alone: no battle and no fighter who stands. A test that downs the only fighter on the map now meets a wipe, so two item tests take a partner.
+- The owner chose darker snow and ice (D-1240). The ice now sits in the dark, and the snow on a base of snow shade still reads pale.
+- The full `make sheet` fails in the join, because the sheet passes 65535 rows. `make sheet FIXTURE=pit` joins one fixture.
+
+### The questions that block progress
+
+None for PR-64. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Push, open the PR, run the Gitar poll, and then commit the baselines of CI.
+
 ## Session 368: 2026-09-27, Claude Code
 
 Author: Claude Code
@@ -125,202 +324,3 @@ None for PR-16. OQ-251 blocks PR-35.
 ### The next concrete action
 
 Fix P2-1, add its regression test, and run the PR checks.
-
-## Session 364: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-16, round 2. Repository: the-thing-below. Branch: `feat/pr-16-dungeon-parts`. PR: #91. Role: author. Base: `78b0d24`.
-
-### What this session did, and why
-
-- Gitar approved `7c0483b` with no thread. Its one CI claim, RG 3 of `review-gate`, has its answer in a PR comment: the review record comes with the cross-provider review (D-964).
-- CI run 36337887982 passed each leg but `screen-test` and `review-gate`. The author read the 45 changed captures and took them as the baseline: the form line of D-1209 with the space of the owner, the Items window with the key items, the map screen with the waystone and the exit, and the walk, scroll, and pit frames that now draw the waystone and the cache chest (D-733, D-784).
-
-### The state of the build
-
-- Each build, test, smoke, replay-identity, bots, det-lint, night-gate, and ste-check leg passed on `7c0483b`.
-- The remote head before this push is `7c0483b`.
-
-### What is in flight
-
-- The CI legs of the baseline commit, then `make codex-review PR=91`.
-
-### Traps and gotchas
-
-- The baseline commit changes screens alone, so it moves the effective head, and Gitar reviews it again.
-
-### The questions that block progress
-
-None for PR-16. OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Wait for the Gitar poll and the checks of the baseline commit, then run `make codex-review PR=91` in the background.
-
-## Session 363: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-16, round 1. Repository: the-thing-below. Branch: `feat/pr-16-dungeon-parts`. PR: PR-16, the GitHub number follows the push. Role: author. Base: `78b0d24`.
-
-### What this session did, and why
-
-- The owner answered the design of the dungeon parts: D-1216 to D-1225. The save point and the hub waystone merge into one kind that saves alone (D-1221). PR-19 takes the free rest (D-1218).
-- Core: solid doors, chests, and save points; the door and lock rule with the kept key and the Theft drill; the chest with the fallback and the kept rest; the exit; the memory of each map; the reopen flags; notices with values. Save format 18, and the simulation version 35.
-- Game: the art of the doors, the chests, and the exit; the save window of a save point; the Keyring in the Items window; the exit mark beside a walked tile.
-- The bots take doors, chests, save points, and the exit last. The owner approved one space between the AP cost and AP in the form line, with no record.
-
-### The state of the build
-
-- Local: `make build`, all 4,200 tests, `make format`, `make lint`, the STE check, `make bots`, and `make smoke` pass. The content hash and the identity file are rewritten.
-- The remote head before this push is `78b0d24`, the base.
-
-### What is in flight
-
-- The first push of PR-16, then the Gitar pass and the CI legs. The screen baselines change in CI: the menu items, the map screen, the hub, and the save window.
-
-### Traps and gotchas
-
-- The hall door moved from (11, 4) to (27, 6), so the battle walk and its captures keep their ticks.
-- A patrol sees a lead that touches it, diagonal tiles too, so a test map keeps each patrol off the paths.
-- `make sheet` writes no frame of 1080 rows on a screen smaller than that. The 1x frames are read.
-- Core refuses a list literal with elements, because it pulls in `System.Runtime.InteropServices`.
-
-### The questions that block progress
-
-None for PR-16. OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Open the PR, run the Gitar poll, take the CI screen baselines, and answer each Gitar item before `make codex-review`.
-
-## Session 362: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-107, round 5. Repository: the-thing-below. Branch: `feat/pr-107-ability-power`. PR: #90. Role: author. Base: `48ed83b`.
-
-### What this session did, and why
-
-- The cross-provider review approved the effective head `b9258bcf`: `Ready for owner merge`, with no open finding (T-4, D-17). The record is `docs/reviews/pr-90.md`, in `bac52b5` and `4e261f4`.
-- Gitar approved `b9258bcf` with its one finding closed. Each Gitar item has its answer: the thread in `818c593`, and the three CI claims on RG 3 in PR comments (D-964).
-- The PR description now marks the `docs/reviews/` row as Changed.
-
-### The state of the build
-
-- CI on `b9258bcf` passed each check except `review-gate`, which waited for the record.
-- The remote head before this push is `4e261f4`, the review record.
-
-### What is in flight
-
-- The checks of this metadata commit, then the merge question to the owner (D-933, D-942). The PR then waits for the auto-merge (D-930).
-
-### Traps and gotchas
-
-- The archive move of the review record dropped the title line of `docs/session-handoff-archive.md`. This commit puts it back. A move script that takes the first line as the title must check it.
-- The full `make sheet` fails to join past 65,535 rows, and `make sheet FIXTURE=menu` works. PR-107 changes no capture count.
-
-### The questions that block progress
-
-None for PR-107. OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Ask the owner to confirm the merge with the summary of D-942, then turn on the auto-merge (D-930).
-
-## Session 361: 2026-09-27, Codex
-
-Author: Codex
-Session: review PR #90 (PR-107). Repository: the-thing-below. Branch: `review/pr-90`, tracking `origin/feat/pr-107-ability-power`. Role: reviewer. Base: `48ed83b`.
-
-### What this session did, and why
-
-- Reviewed effective head `b9258bc` and traced AP combat regains, save migration, UI updates, and the gear line (D-1197 to D-1215).
-- Verified the Gitar finding fixed in `818c593`, its regression test, and the answered RG 3 claim (D-964).
-- Wrote `docs/reviews/pr-90.md` with `Ready for owner merge` for the effective head.
-
-### The state of the build
-
-- Local `make verify` passed, including 4,175 tests.
-- CI passed all jobs except `review-gate`, which reports RG 3 because the review record is not yet published.
-- The remote head before this metadata commit is `b9258bc`.
-
-### What is in flight
-
-- Push the review record and this handoff to `feat/pr-107-ability-power`, then verify the remote head and review-gate result.
-
-### Traps and gotchas
-
-- The review branch is `review/pr-90`; push with `git push origin HEAD:feat/pr-107-ability-power`.
-- The session moves session 351 to the archive to keep 10 entries in the handoff (D-18, D-607).
-
-### The questions that block progress
-
-None for PR-107. OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Run `make where`, commit the review record and handoff together, push to the PR branch, fetch, and verify the remote head with `gh pr view`.
-
-## Session 360: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-107, round 4. Repository: the-thing-below. Branch: `feat/pr-107-ability-power`. PR: #90. Role: author. Base: `48ed83b`.
-
-### What this session did, and why
-
-- Gitar approved `3e990d3` with no new finding.
-- The screen-test job of CI run 36303234544 named four captures: `menu-gear-1x`, `menu-gear-fill-1080`, `menu-gear-pack-1x`, and `menu-gear-pack-fill-1080`. Each shows "Marrek - Level 1" with one space on each side of the hyphen, and no other change. This round commits them as the new baseline (D-733, D-1214).
-
-### The state of the build
-
-- CI on `3e990d3` passed each check except `screen-test`, for the four frames above, and `review-gate`, for RG 3 alone.
-- The remote head before this push is `3e990d3`.
-
-### What is in flight
-
-- The Gitar pass of this push, then `make codex-review PR=90` when every check but `review-gate` is green.
-
-### Traps and gotchas
-
-- The full `make sheet` fails to join past 65,535 rows, and `make sheet FIXTURE=menu` works. PR-107 changes no capture count.
-
-### The questions that block progress
-
-None for PR-107. OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Run the Gitar poll, wait for green CI, and start the cross-provider review with `make codex-review PR=90`.
-
-## Session 359: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-107, round 3. Repository: the-thing-below. Branch: `feat/pr-107-ability-power`. PR: #90. Role: author. Base: `48ed83b`.
-
-### What this session did, and why
-
-- The owner asked why the gear window put more space before the hyphen of "Marrek - Level 1" than after it. The three fixed columns of D-1170 caused it: a name of 10 cells, then a hyphen of 3 cells.
-- The owner chose one string (D-1214) and put the fix in PR-107 with a waiver of G-8 for this PR alone (D-1215). `menu.gear_who` reads "{name} - Level {level}", and `menu.dash` is gone. `GearView` takes the string table, as `LessonsView` does.
-- `MenuLayoutTests.TheLineOfTheCharacterInTheGearWindowIsOneStringThatFits` holds the text and the fit. The local capture `menu-gear-fill-1080` shows "Marrek - Level 1".
-- Gitar approved `f72a2fc`, with its one finding closed and its CI claim on RG 3 answered on the PR.
-
-### The state of the build
-
-- CI on `f72a2fc` passed each check except `review-gate`, for RG 3 alone.
-- Local: build, 4,175 tests, format, and det-lint pass. The content hash does not change, because the strings are outside `content/rules/`.
-- The remote head before this push is `f72a2fc`.
-
-### What is in flight
-
-- The screen-test job fails on the gear captures, and its artifact gives the new baselines (D-733). Then the Gitar pass, and `make codex-review PR=90`.
-
-### Traps and gotchas
-
-- `make sheet FIXTURE=menu` joins its sheet, and the full `make sheet` fails to join past 65,535 rows. PR-107 changes no capture count.
-
-### The questions that block progress
-
-None for PR-107. OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Take the gear baselines from the capture artifact of CI, push them, run the Gitar poll, and then start the cross-provider review.

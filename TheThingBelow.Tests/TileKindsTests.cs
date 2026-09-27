@@ -11,6 +11,9 @@ public sealed class TileKindsTests
     [InlineData('.', TileKind.Floor)]
     [InlineData('#', TileKind.Wall)]
     [InlineData('+', TileKind.Doorway)]
+    [InlineData('*', TileKind.Snow)]
+    [InlineData('=', TileKind.Ice)]
+    [InlineData('~', TileKind.BadAir)]
     public void ACharacterOfATerrainRowNamesItsKind(char character, TileKind kind)
     {
         Assert.True(TileKinds.TryOf(character, out TileKind found));
@@ -21,14 +24,14 @@ public sealed class TileKindsTests
     [Fact]
     public void AnotherCharacterNamesNoKind()
     {
-        Assert.False(TileKinds.TryOf('~', out _));
+        Assert.False(TileKinds.TryOf('?', out _));
     }
 
     [Fact]
     public void EveryKindIsInTheCharacterList()
     {
         // The error of an unknown character names this list, so a new kind joins it (T-2).
-        foreach (TileKind kind in new[] { TileKind.Floor, TileKind.Wall, TileKind.Doorway })
+        foreach (TileKind kind in Enum.GetValues<TileKind>())
         {
             Assert.Contains(TileKinds.CharacterOf(kind), TileKinds.EveryCharacter);
         }
@@ -38,6 +41,9 @@ public sealed class TileKindsTests
     [InlineData(TileKind.Floor, true, false)]
     [InlineData(TileKind.Wall, false, true)]
     [InlineData(TileKind.Doorway, true, false)]
+    [InlineData(TileKind.Snow, true, false)]
+    [InlineData(TileKind.Ice, true, false)]
+    [InlineData(TileKind.BadAir, true, false)]
     public void EachKindGivesItsStepRuleAndItsSightRule(TileKind kind, bool walk, bool stopsSight)
     {
         Assert.Equal(walk, TileKinds.CanWalk(kind));
@@ -58,6 +64,9 @@ public sealed class TileKindsTests
     [InlineData(TileKind.Floor, "tile.floor")]
     [InlineData(TileKind.Wall, "tile.wall")]
     [InlineData(TileKind.Doorway, "tile.doorway")]
+    [InlineData(TileKind.Snow, "tile.snow")]
+    [InlineData(TileKind.Ice, "tile.ice")]
+    [InlineData(TileKind.BadAir, "tile.bad_air")]
     public void EachKindNamesTheContentIdOfItsDrawing(TileKind kind, string id)
     {
         // D-519: an art file names the content ids that it draws, and a rule file names no

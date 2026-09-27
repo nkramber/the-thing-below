@@ -104,6 +104,8 @@ public partial class Boot : Node
     private BattleScreen? battle;
     private MenuHost? menus;
     private NoticeBox? noticeBox;
+    private MapHud? mapHud;
+    private MapWipeView? mapWipe;
     private PauseView? pause;
     private DialogueBox? dialogue;
     private ScenePlay? scenePlay;
@@ -175,7 +177,7 @@ public partial class Boot : Node
             this.FollowBattleScreen();
             if (this.battle is null)
             {
-                this.map?.ShowParty(this.run.Party, this.run.DrawnTickPart, this.run.Tick, this.run.TorchHeld, this.scenePlay, this.run.State.Story);
+                this.map?.ShowParty(this.run.Party, this.run.DrawnTickPart, this.run.Tick, this.run.TorchHeld, this.run.TheftCarried, this.scenePlay, this.run.State.Story);
                 this.map?.ShowWeather(this.run.Tick, seek: false);
             }
 
@@ -248,9 +250,32 @@ public partial class Boot : Node
         }
     }
 
+    /// <summary>Draws the drain of a wipe on the map from the ticks since the wipe (D-225, D-397).</summary>
+    /// <param name="open">The run.</param>
+    /// <exception cref="InvalidOperationException">The run wiped on the map, and the session built no frame or no UI base (T-2).</exception>
+    private void ShowMapWipe(GameRun open)
+    {
+        if (!open.MapWiped)
+        {
+            return;
+        }
+
+        if (this.mapWipe is null)
+        {
+            FrameRoot built = this.frame ?? throw new InvalidOperationException(
+                $"The party wiped on the map at tick {open.Tick}, and the session built no frame (T-2).");
+            UiBase shown = this.ui ?? throw new InvalidOperationException(
+                $"The party wiped on the map at tick {open.Tick}, and the session built no UI base (T-2).");
+            this.mapWipe = new MapWipeView(built, shown);
+        }
+
+        this.mapWipe.Show(open.MapWipeTicks);
+    }
+
     /// <summary>
-    /// Draws each open window of the menu from the state of the run, and the notice box at the
-    /// tick of the world. The notice box hides under a menu, and it waits with the world (D-221, D-995).
+    /// Draws each open window of the menu from the state of the run, the notice box at the tick of
+    /// the world, the map HUD, and the drain of a wipe on the map. The notice box hides under a menu,
+    /// and it waits with the world (D-221, D-995, D-1237).
     /// </summary>
     /// <param name="open">The run.</param>
     /// <exception cref="InvalidOperationException">The session read no settings (T-2).</exception>
@@ -261,6 +286,10 @@ public partial class Boot : Node
 
         this.menus?.Show();
         this.noticeBox?.Show(open.NoticeAt(TextSpeeds.CharactersPerSecond(chosen.Access.Text)), open.MenuOpen);
+
+        // The HUD hides under a menu, a battle, and a story scene, which each cover the map (D-1237).
+        this.mapHud?.Show(open.State.Characters, open.State.WorldTick, open.MenuOpen || this.battle is not null || this.scenePlay is not null);
+        this.ShowMapWipe(open);
     }
 
     /// <summary>
@@ -520,6 +549,7 @@ public partial class Boot : Node
         // The capture session of the screen-test job builds the same map (D-172, D-734).
         this.map = MapFixture.Build(built, built_ui, open, loaded);
         this.noticeBox = new NoticeBox(built, built_ui);
+        this.mapHud = new MapHud(built, built_ui);
         this.dialogue = new DialogueBox(built, built_ui);
         this.pause = new PauseView(built, built_ui);
 
@@ -685,6 +715,8 @@ public partial class Boot : Node
         this.battle = null;
         this.noticeBox = null;
         this.dialogue = null;
+        this.mapHud = null;
+        this.mapWipe = null;
         this.pause = null;
         this.console = null;
         this.settingsNotice = null;
@@ -2497,7 +2529,7 @@ public partial class Boot : Node
         UiBase ui = UiBase.Load(loaded, loaded.Style.SmallBody);
         var drawn = new MapScreen();
         drawn.Build(GameAtlas.Load(loaded.Atlas), ui.Theme, party, loaded, loaded.Effects.Ambient.WeatherOf(lit.Id), loaded.Light.Passes);
-        drawn.ShowParty(party, 0, session.Tick, torchHeld: false);
+        drawn.ShowParty(party, 0, session.Tick, torchHeld: false, theftCarried: false);
         string sprites = drawn.DescribeSprites(party);
         drawn.QueueFree();
         return sprites;
@@ -2524,14 +2556,14 @@ public partial class Boot : Node
     /// <exception cref="InvalidOperationException">The light or the torch in the hand draws in the wrong state (T-2).</exception>
     private static string CheckTorchDraw(MapScreen drawn, GameRun session)
     {
-        drawn.ShowParty(session.Party, 0, session.Tick, torchHeld: false);
+        drawn.ShowParty(session.Party, 0, session.Tick, torchHeld: false, theftCarried: false);
         if (drawn.CarriedLightOn || drawn.LeadHoldsTorch)
         {
             throw new InvalidOperationException(
                 $"The torch is put away, and the carried light draws {drawn.CarriedLightOn} and the torch in the hand draws {drawn.LeadHoldsTorch} (D-1064, T-2).");
         }
 
-        drawn.ShowParty(session.Party, 0, session.Tick, torchHeld: true);
+        drawn.ShowParty(session.Party, 0, session.Tick, torchHeld: true, theftCarried: false);
         if (!drawn.CarriedLightOn || !drawn.LeadHoldsTorch)
         {
             throw new InvalidOperationException(
@@ -2597,7 +2629,7 @@ public partial class Boot : Node
         }
 
         // The checks of the weather and of each torch run inside this call (F-97, F-98).
-        drawn.ShowParty(walked.Party, 0, walked.Tick, walked.TorchHeld);
+        drawn.ShowParty(walked.Party, 0, walked.Tick, walked.TorchHeld, walked.TheftCarried);
         drawn.ShowWeather(walked.Tick, seek: false);
         string weather = drawn.DescribeWeather();
         CameraPlace view = MapCamera.Of(walked.Party, FrameRoot.WorldWidth, FrameRoot.WorldHeight, 0);
@@ -2695,7 +2727,7 @@ public partial class Boot : Node
         for (int tick = 0; tick < WalkTicks; tick += 1)
         {
             this.WriteLog(walked.Advance(SmokeFrameSeconds));
-            drawn.ShowParty(walked.Party, 0, walked.Tick, walked.TorchHeld);
+            drawn.ShowParty(walked.Party, 0, walked.Tick, walked.TorchHeld, walked.TheftCarried);
         }
 
         int moved = 0;
@@ -2714,7 +2746,7 @@ public partial class Boot : Node
         for (int tick = 0; tick < ScreenCaptures.TicksOfOneStep; tick += 1)
         {
             this.WriteLog(walked.Advance(SmokeFrameSeconds));
-            drawn.ShowParty(walked.Party, 0, walked.Tick, walked.TorchHeld);
+            drawn.ShowParty(walked.Party, 0, walked.Tick, walked.TorchHeld, walked.TheftCarried);
         }
 
         if (walked.Party.Stepping is not null || walked.Party.LeadAt == walked.Party.Map.Spawn)

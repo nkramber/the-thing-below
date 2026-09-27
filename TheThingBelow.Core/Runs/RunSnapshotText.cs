@@ -456,6 +456,16 @@ public static class RunSnapshotText
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
     public static RunSnapshot ReadFormatSeventeen(ref ContentReader reader) => ReadLine(ref reader, 17, null);
 
+    /// <summary>
+    /// Reads a snapshot of save format 18, whose memory of a map holds no spent trap (D-1229). Each
+    /// trap of such a save stays armed.
+    /// </summary>
+    /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <returns>The snapshot, with no spent trap.</returns>
+    /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
+    /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
+    public static RunSnapshot ReadFormatEighteen(ref ContentReader reader) => ReadLine(ref reader, 18, null);
+
     private static RunSnapshot ReadLine(ref ContentReader reader, int format, ulong? seed)
     {
         long? tick = null;
@@ -524,7 +534,7 @@ public static class RunSnapshotText
                     throw reader.Refuse(
                         $"the snapshot of save format {format} holds the memory of a map, and that format predates it (D-555)");
                 case "places":
-                    places = ReadPlaces(ref reader);
+                    places = ReadPlaces(ref reader, format);
                     break;
                 case "streams":
                     streams = ReadStreams(ref reader);
@@ -720,9 +730,9 @@ public static class RunSnapshotText
     }
 
     /// <summary>
-    /// Writes the memory of each map that holds something (D-385, D-555). This build writes save
-    /// format 18, so the field is always present, and it holds an empty array before the first kill,
-    /// the first open door, and the first opened chest.
+    /// Writes the memory of each map that holds something (D-385, D-555, D-1229). This build writes
+    /// save format 19, so the field is always present, and it holds an empty array before the first
+    /// kill, the first open door, the first opened chest, and the first spent trap.
     /// </summary>
     private static void WritePlaces(Utf8JsonWriter writer, IReadOnlyList<PlaceValues>? places)
     {
@@ -759,6 +769,7 @@ public static class RunSnapshotText
             }
 
             writer.WriteEndArray();
+            WriteIds(writer, "spent", place.Spent);
             writer.WriteEndObject();
         }
 
@@ -776,8 +787,11 @@ public static class RunSnapshotText
         writer.WriteEndArray();
     }
 
-    /// <summary>Reads the memory of each map. The resume checks each value against the maps of this build (D-555, T-2).</summary>
-    private static List<PlaceValues> ReadPlaces(ref ContentReader reader)
+    /// <summary>
+    /// Reads the memory of each map. The resume checks each value against the maps of this build
+    /// (D-555, T-2). Save format 18 holds no spent trap, so each trap of such a save stays armed (D-1229).
+    /// </summary>
+    private static List<PlaceValues> ReadPlaces(ref ContentReader reader, int format)
     {
         List<PlaceValues> places = [];
         int depth = reader.ReadArrayStart();
@@ -787,6 +801,7 @@ public static class RunSnapshotText
             List<ContentId>? dead = null;
             List<ContentId>? doors = null;
             List<ChestValues>? chests = null;
+            List<ContentId>? spent = null;
             int fields = reader.ReadObjectStart();
             while (reader.ReadNextField(fields, out string field))
             {
@@ -804,6 +819,11 @@ public static class RunSnapshotText
                     case "chests":
                         chests = ReadChests(ref reader);
                         break;
+                    case "spent" when format < 19:
+                        throw reader.Refuse($"the memory of a map in save format {format} holds spent traps, and that format predates them (D-1229)");
+                    case "spent":
+                        spent = ReadIds(ref reader, MapThingKinds.NameOf(MapThingKind.Trap));
+                        break;
                     default:
                         throw reader.UnknownField(field);
                 }
@@ -813,7 +833,8 @@ public static class RunSnapshotText
                 reader.Require(map, fields, "map"),
                 reader.Require(dead, fields, "dead"),
                 reader.Require(doors, fields, "doors"),
-                reader.Require(chests, fields, "chests")));
+                reader.Require(chests, fields, "chests"),
+                format >= 19 ? reader.Require(spent, fields, "spent") : []));
         }
 
         return places;

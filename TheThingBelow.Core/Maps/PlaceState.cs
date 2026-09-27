@@ -20,15 +20,16 @@ public sealed record ChestValues(ContentId Chest, IReadOnlyList<ChestLeft> Left)
 /// <param name="Dead">The id of each killed enemy, in ordinal order (G-4).</param>
 /// <param name="Doors">The id of each open door, in ordinal order.</param>
 /// <param name="Chests">Each opened chest, in the ordinal order of its id.</param>
-public sealed record PlaceValues(ContentId Map, IReadOnlyList<ContentId> Dead, IReadOnlyList<ContentId> Doors, IReadOnlyList<ChestValues> Chests);
+/// <param name="Spent">The id of each trap that fired or that the lead disarmed, in ordinal order (D-1229).</param>
+public sealed record PlaceValues(ContentId Map, IReadOnlyList<ContentId> Dead, IReadOnlyList<ContentId> Doors, IReadOnlyList<ChestValues> Chests, IReadOnlyList<ContentId> Spent);
 
 /// <summary>
-/// The memory of one map, which lasts past the exit: each killed enemy, each open door, and what
-/// stays in each opened chest (D-385, D-555).
+/// The memory of one map, which lasts past the exit: each killed enemy, each open door, what
+/// stays in each opened chest, and each spent trap (D-385, D-555, D-1229).
 /// </summary>
 /// <remarks>
-/// Nothing resets until a story event reopens the place, and a reopen brings back the killed
-/// enemies alone (D-555). An open door and an opened chest stay as they are. Each list sits in
+/// Nothing resets until a story event reopens the place. A reopen brings back the killed enemies
+/// and arms each spent trap again (D-555, D-1229). An open door and an opened chest stay as they are. Each list sits in
 /// the ordinal order of its ids, so the snapshot and the hash never depend on the order of the
 /// events (G-4).
 /// <para>
@@ -41,6 +42,7 @@ public sealed class PlaceState
     private readonly SortedDictionary<string, ContentId> dead = new(StringComparer.Ordinal);
     private readonly SortedDictionary<string, ContentId> doors = new(StringComparer.Ordinal);
     private readonly SortedDictionary<string, ChestValues> chests = new(StringComparer.Ordinal);
+    private readonly SortedDictionary<string, ContentId> spent = new(StringComparer.Ordinal);
 
     /// <summary>Makes the empty memory of one map.</summary>
     /// <param name="map">The id of the map.</param>
@@ -55,8 +57,8 @@ public sealed class PlaceState
     /// <summary>The id of the map.</summary>
     public ContentId Map { get; }
 
-    /// <summary>True when the memory holds no dead enemy, no open door, and no opened chest.</summary>
-    public bool IsEmpty => this.dead.Count == 0 && this.doors.Count == 0 && this.chests.Count == 0;
+    /// <summary>True when the memory holds no dead enemy, no open door, no opened chest, and no spent trap.</summary>
+    public bool IsEmpty => this.dead.Count == 0 && this.doors.Count == 0 && this.chests.Count == 0 && this.spent.Count == 0;
 
     /// <summary>Tells whether one enemy of the map is dead (D-555).</summary>
     /// <param name="enemy">The id of the enemy.</param>
@@ -67,6 +69,11 @@ public sealed class PlaceState
     /// <param name="door">The id of the door.</param>
     /// <returns>True when the party opened it.</returns>
     public bool IsOpen(ContentId door) => this.doors.ContainsKey(door.Value);
+
+    /// <summary>Tells whether one trap of the map is spent (D-1229).</summary>
+    /// <param name="trap">The id of the trap.</param>
+    /// <returns>True when the trap fired or the lead disarmed it, and no story event reopened the place since.</returns>
+    public bool IsSpent(ContentId trap) => this.spent.ContainsKey(trap.Value);
 
     /// <summary>Gives what stays in one chest, or no value when the party never opened it (D-385).</summary>
     /// <param name="chest">The id of the chest.</param>
@@ -96,6 +103,17 @@ public sealed class PlaceState
         }
     }
 
+    /// <summary>Notes one trap that fired or that the lead disarmed (D-1229).</summary>
+    /// <param name="trap">The id of the trap.</param>
+    /// <exception cref="InvalidOperationException">The trap is already spent (T-2).</exception>
+    public void Spend(ContentId trap)
+    {
+        if (!this.spent.TryAdd(trap.Value, trap))
+        {
+            throw new InvalidOperationException($"The trap '{trap.Value}' of the map '{this.Map.Value}' was spent two times, and a spent trap never fires (D-1229, T-2).");
+        }
+    }
+
     /// <summary>Notes what stays in one chest after the party opened it (D-385).</summary>
     /// <param name="chest">The id of the chest.</param>
     /// <param name="left">What stays, in the order of the chest entries.</param>
@@ -112,12 +130,13 @@ public sealed class PlaceState
         this.chests[chest.Value] = new ChestValues(chest, kept);
     }
 
-    /// <summary>Brings back each killed enemy of the map at the next entry (D-555).</summary>
+    /// <summary>Brings back each killed enemy of the map at the next entry, and arms each spent trap again (D-555, D-1229).</summary>
     /// <returns>The count of enemies that come back.</returns>
     public int Reopen()
     {
         int count = this.dead.Count;
         this.dead.Clear();
+        this.spent.Clear();
         return count;
     }
 
@@ -143,7 +162,13 @@ public sealed class PlaceState
             chests.Add(chest);
         }
 
-        return new PlaceValues(this.Map, dead, doors, chests);
+        List<ContentId> spent = [];
+        foreach (ContentId trap in this.spent.Values)
+        {
+            spent.Add(trap);
+        }
+
+        return new PlaceValues(this.Map, dead, doors, chests, spent);
     }
 
     /// <summary>Adds every value of this memory to the state hash, in the order of <see cref="Values"/> (G-5).</summary>
@@ -176,6 +201,12 @@ public sealed class PlaceState
                 hasher.AddText(left.Thing.Value);
                 hasher.AddInt32(left.Count);
             }
+        }
+
+        hasher.AddInt32(this.spent.Count);
+        foreach (string trap in this.spent.Keys)
+        {
+            hasher.AddText(trap);
         }
     }
 }

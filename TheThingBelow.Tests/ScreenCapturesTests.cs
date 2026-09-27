@@ -226,6 +226,7 @@ public sealed class ScreenCapturesTests
         // D-1030, D-1031, D-1032).
         // PR-13 adds the gear window, its pack list, and the item window to the menu names (D-44, D-1048).
         // PR-91 adds the pit room with an enemy inside the fade of the dark (D-1062, exit test 8 of PR-91).
+        // PR-64 adds the pit room with the pit that a Theft drill shows and the HUD of a hurt party (D-1228, D-1237).
         // PR-106 adds each window and each part of a fight at the body of 24, the screen of the
         // Steam Deck, and the message of a crash (G-19, G-28, P3-26).
         // PR-14 adds the fixture hub at 1x, at the screen of the Steam Deck, and at 1080 rows
@@ -234,7 +235,7 @@ public sealed class ScreenCapturesTests
         // PR-65 adds the buy list, the count, the sale list, and the equip step of the shop window at both body sizes
         // to the menu names (D-1158, D-1165, D-1167).
         // PR-36 adds the dialogue box with a portrait, the choices, and the pause of a story scene (exit tests 2 and 7).
-        Assert.Equal(10 + 34 + 1 + 19 + 3 + 14 + 2 + 11 + 1 + MenuNames.Length + SmallBodyNames.Length + HubNames.Length + SceneNames.Length + DeckAndCrashNames.Length, FileNames().Count);
+        Assert.Equal(10 + 34 + 1 + 19 + 3 + 14 + 2 + 11 + 1 + 1 + MenuNames.Length + SmallBodyNames.Length + HubNames.Length + SceneNames.Length + DeckAndCrashNames.Length, FileNames().Count);
     }
 
     [Fact]

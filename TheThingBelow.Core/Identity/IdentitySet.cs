@@ -598,6 +598,8 @@ public static partial class IdentitySet
      "aptitude_bonus": 2500,
      "hit_regain": 500,
      "fall_regain": 1000,
+     "map_poison_share": 100,
+     "bad_air_share": 200,
      "level_experience": [0, 20, 60, 120, 200, 300, 420, 560, 720, 900, 1100, 1320, 1560, 1820, 2100, 2400, 2720, 3060, 3420, 3800, 4200, 4620, 5060, 5520, 6000, 6500, 7020, 7560, 8120, 8700, 9300, 9920, 10560, 11220, 11900, 12600, 13320, 14060, 14820, 15600],
      "lesson_slot_levels": [5, 12, 20, 30]
     }
