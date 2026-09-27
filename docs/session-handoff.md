@@ -1,3 +1,38 @@
+## Session 371: 2026-09-27, Codex
+
+Author: Codex
+Session: review PR #92 (PR-64). Repository: the-thing-below. Branch: `review/pr-92`, tracking `origin/feat/pr-64-traps-hazards`. Role: reviewer. Base: `b7eb8bc`.
+
+### What this session did, and why
+
+- Reviewed effective head `869cc599ee1c3c9e4fc4412a66f311af16b7788a`, the traps, hazards, map status effects, wipe, saves, and HUD (D-1226 to D-1241).
+- Inspected all 92 changed baseline frames in CI artifact `screen-captures`. No visual fault was found.
+- Wrote `docs/reviews/pr-92.md` with `Changes required` for the effective head. P2-1 finds a missing down notice when a damage trap downs a fighter but does not wipe the party.
+- Answered the review-gate evidence in the review record. RG 3 failed before publication because the record was absent (D-964).
+
+### The state of the build
+
+- Local `make verify` passed with 4,269 tests and no skips.
+- CI run 36347245729 passed each implementation job on the effective head. The review-gate result awaits the metadata commit.
+- The remote head before this metadata commit is `869cc599ee1c3c9e4fc4412a66f311af16b7788a`.
+
+### What is in flight
+
+- Commit and push the review record and this entry to `feat/pr-64-traps-hazards`, then verify the remote head and fresh review-gate result.
+
+### Traps and gotchas
+
+- The review branch is `review/pr-92`; push with `git push origin HEAD:feat/pr-64-traps-hazards`.
+- The full `make sheet` join exceeds 65,535 rows. The CI capture artifact holds the frames.
+
+### The questions that block progress
+
+None for PR-64. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Run `make where`, run the text gate, commit the review record and handoff together, and push to the PR branch.
+
 ## Session 370: 2026-09-27, Claude Code
 
 Author: Claude Code
@@ -292,37 +327,3 @@ None for PR-107. OQ-251 blocks PR-35.
 ### The next concrete action
 
 Ask the owner to confirm the merge with the summary of D-942, then turn on the auto-merge (D-930).
-
-## Session 361: 2026-09-27, Codex
-
-Author: Codex
-Session: review PR #90 (PR-107). Repository: the-thing-below. Branch: `review/pr-90`, tracking `origin/feat/pr-107-ability-power`. Role: reviewer. Base: `48ed83b`.
-
-### What this session did, and why
-
-- Reviewed effective head `b9258bc` and traced AP combat regains, save migration, UI updates, and the gear line (D-1197 to D-1215).
-- Verified the Gitar finding fixed in `818c593`, its regression test, and the answered RG 3 claim (D-964).
-- Wrote `docs/reviews/pr-90.md` with `Ready for owner merge` for the effective head.
-
-### The state of the build
-
-- Local `make verify` passed, including 4,175 tests.
-- CI passed all jobs except `review-gate`, which reports RG 3 because the review record is not yet published.
-- The remote head before this metadata commit is `b9258bc`.
-
-### What is in flight
-
-- Push the review record and this handoff to `feat/pr-107-ability-power`, then verify the remote head and review-gate result.
-
-### Traps and gotchas
-
-- The review branch is `review/pr-90`; push with `git push origin HEAD:feat/pr-107-ability-power`.
-- The session moves session 351 to the archive to keep 10 entries in the handoff (D-18, D-607).
-
-### The questions that block progress
-
-None for PR-107. OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Run `make where`, commit the review record and handoff together, push to the PR branch, fetch, and verify the remote head with `gh pr view`.
