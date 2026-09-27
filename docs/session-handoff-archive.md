@@ -1,4 +1,38 @@
 # Session handoff archive
+## Session 355: 2026-09-27, Codex
+
+Author: Codex
+Session: repeat review PR #89 (PR-108). Repository: the-thing-below. Branch: `review/pr-89`, which tracks `origin/feat/pr-108-night-recovery`. Role: reviewer. Base: `a8ba710`.
+
+### What this session did, and why
+
+- Reviewed effective head `132942b` and verified P2-1: the promotion wait reads all pages and queries statuses in lifecycle order (D-1202, T-3).
+- Gitar confirmed all four code findings closed. The latest CI-analysis claim names RG 4 and RG 5 from the prior review record, and this record updates that head and verdict (D-964).
+- Updated the review record for `132942b`. No in-scope finding remains.
+
+### The state of the build
+
+- `NightWorkflowTests` passes 17/17. CI run `36299379234` passes build, test, and format on each leg, bots, smoke, replay identity, screen test, det-lint, and STE. Night-gate run `36299379312` passes.
+- The remote head before this metadata commit is `2bb095b`. Review-gate run `36299379320` reads the prior record and faults only on RG 4 and RG 5.
+
+### What is in flight
+
+- This review record and entry need one metadata commit and a push to `feat/pr-108-night-recovery`.
+- The PR waits for the new review-gate result, then for the owner merge (D-930).
+
+### Traps and gotchas
+
+- The workflow and test changes in this round do not change the screen.
+- `notify.yml`, `night-promote.yml`, and the facts action first run from `main`, after the merge (F-37).
+
+### The questions that block progress
+
+None for PR-108. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Commit and push this review record and entry together. Then verify the new review-gate result and the remote head.
+
 ## Session 354: 2026-09-27, Claude Code
 
 Author: Claude Code
