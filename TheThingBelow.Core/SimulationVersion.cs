@@ -121,6 +121,12 @@ public static class SimulationVersion
     /// save service of a hub is gone (D-1221). An arrival on an exit enters its map (D-1216). The memory of each map keeps
     /// each killed enemy, each open door, and each chest past the exit, and the state hash holds it. A flag of the reopen
     /// list of a map brings its killed enemies back at the next entry (D-555).
+    /// PR-64 raised it to 36. A trap fires one time when the lead steps onto it: a share of full health, a status that
+    /// lasts, or a fight in which the enemies act first, and the memory of the map keeps it spent (D-1226, D-1229 to
+    /// D-1231). A trap shows near the lead while a standing fighter carries a Theft drill, and a confirm disarms it
+    /// (D-1228). A step on deep snow takes 32 ticks, and the lead slides over ice (D-1232, D-1233). Each 60 world ticks,
+    /// poison hurts each poisoned character and bad air hurts each fighter, and a down of each fighter on the map wipes
+    /// the party (D-397, D-1234 to D-1236).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number
@@ -129,5 +135,5 @@ public static class SimulationVersion
     /// hash differs from this build takes the drift rules of D-1111 and D-1112. A change of this
     /// number also changes the expected hashes of the identity file (D-504).
     /// </remarks>
-    public const int Current = 35;
+    public const int Current = 36;
 }

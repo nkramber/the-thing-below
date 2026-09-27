@@ -52,7 +52,7 @@ public sealed class ItemUseTests
         Assert.Equal(marrek.Stats.Ap, marrek.Ap);
         Assert.Equal([StatusKind.Blind], marrek.Statuses);
 
-        Simulation down = InMenu(stored => stored with { Health = 0, Statuses = [] });
+        Simulation down = InMenuWithPartner(stored => stored with { Health = 0, Statuses = [] });
         Stock(down, Root);
         down.Step([Intent.OfMenuItem(Root, 0)]);
         Assert.Equal(25, down.State.Characters.Members[0].Health);
@@ -81,7 +81,7 @@ public sealed class ItemUseTests
     [Fact]
     public void TheItemWindowRefusesAHealOnADownCharacterAndAnItemThePackLacks()
     {
-        Simulation run = InMenu(marrek => marrek with { Health = 0, Statuses = [] });
+        Simulation run = InMenuWithPartner(marrek => marrek with { Health = 0, Statuses = [] });
 
         Assert.Contains("who is down", ItemRules.RefusalOfMenuUse(run.State, Draught, 0), StringComparison.Ordinal);
         Assert.Contains("the pack holds none", ItemRules.RefusalOfMenuUse(run.State, Tonic, 0), StringComparison.Ordinal);
@@ -176,6 +176,17 @@ public sealed class ItemUseTests
     private static Simulation InMenu(Func<CharacterValues, CharacterValues> change)
     {
         Simulation run = TestParty.Start(Seed, change);
+        run.Step([Intent.OfPlayer(IntentIds.OpenMenu)]);
+        return run;
+    }
+
+    /// <summary>
+    /// Opens the menu of a party of two, with a change of the stored values of Marrek. A down of each
+    /// character who fights is a wipe on the map (D-397), so a down Marrek needs a partner who stands.
+    /// </summary>
+    private static Simulation InMenuWithPartner(Func<CharacterValues, CharacterValues> change)
+    {
+        Simulation run = TestParty.StartEach(Seed, (slot, stored) => slot == 0 ? change(stored) : stored, TestBattles.WithParty(2));
         run.Step([Intent.OfPlayer(IntentIds.OpenMenu)]);
         return run;
     }

@@ -81,7 +81,7 @@ public static class MapCamera
     {
         ArgumentNullException.ThrowIfNull(party);
 
-        return SlideOf(party.LeadAt.X, AcrossOf(party.Stepping), party.StepTicks, MapRules.TicksPerStep, tickPart);
+        return SlideOf(party.LeadAt.X, AcrossOf(party.Stepping), party.StepTicks, party.StepLength, tickPart);
     }
 
     /// <summary>
@@ -96,7 +96,7 @@ public static class MapCamera
     {
         ArgumentNullException.ThrowIfNull(party);
 
-        return SlideOf(party.LeadAt.Y, DownOf(party.Stepping), party.StepTicks, MapRules.TicksPerStep, tickPart);
+        return SlideOf(party.LeadAt.Y, DownOf(party.Stepping), party.StepTicks, party.StepLength, tickPart);
     }
 
     /// <summary>

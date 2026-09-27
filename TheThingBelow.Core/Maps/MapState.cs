@@ -73,10 +73,16 @@ public sealed class MapState
     public StepDirection? Stepping { get; private set; }
 
     /// <summary>
-    /// The count of ticks of the step that runs, from 0 to <see cref="MapRules.TicksPerStep"/>
-    /// minus one. The value is zero while the lead stands.
+    /// The count of ticks of the step that runs, from 0 to the length of the step minus one, which
+    /// <see cref="MapRules.PartyStepTicks"/> gives (D-1233). The value is zero while the lead stands.
     /// </summary>
     public int StepTicks { get; private set; }
+
+    /// <summary>
+    /// The count of ticks of the step that runs, which <see cref="MapRules.PartyStepTicks"/> gives, or
+    /// <see cref="MapRules.TicksPerStep"/> while the lead stands (D-1233). Game slides the lead over it (D-203).
+    /// </summary>
+    public int StepLength => this.Stepping is StepDirection direction ? MapRules.PartyStepTicks(this.Map, this.LeadAt, direction) : MapRules.TicksPerStep;
 
     /// <summary>Every tile that the party walked on this map (D-567).</summary>
     public WalkedTiles Walked { get; }
@@ -264,13 +270,14 @@ public sealed class MapState
             stepping is null && stepTicks != 0,
             source,
             $"the lead stands on no step, and the step ticks are {stepTicks}");
-        Refuse(
-            stepping is not null && (stepTicks < 0 || stepTicks >= MapRules.TicksPerStep),
-            source,
-            $"the step ticks are {stepTicks}, and the range of a step is 0 to {MapRules.TicksPerStep - 1}");
-
         if (stepping is StepDirection direction)
         {
+            int length = MapRules.PartyStepTicks(map, leadAt, direction);
+            Refuse(
+                stepTicks < 0 || stepTicks >= length,
+                source,
+                $"the step ticks are {stepTicks}, and the range of this step is 0 to {length - 1} (D-1233)");
+
             TilePoint target = leadAt.Step(direction);
             Refuse(
                 !MapRules.CanEnter(map, place, target),
@@ -434,6 +441,7 @@ public sealed class MapState
         StepDirection? started = null;
         ContentId? bumped = null;
         bool arrived = false;
+        StepDirection? slid = null;
 
         if (this.Patrols.Encounter is not null)
         {
@@ -444,9 +452,10 @@ public sealed class MapState
         if (this.Stepping is StepDirection running)
         {
             this.StepTicks = checked(this.StepTicks + 1);
-            if (this.StepTicks >= MapRules.TicksPerStep)
+            if (this.StepTicks >= this.StepLength)
             {
                 this.LeadAt = this.LeadAt.Step(running);
+                slid = this.Map.TileAt(this.LeadAt) == TileKind.Ice ? running : null;
                 this.Walked.Mark(this.LeadAt);
                 this.Stepping = null;
                 this.StepTicks = 0;
@@ -458,7 +467,10 @@ public sealed class MapState
         // A beat that ended waits for the lead to stand still, and the encounter starts on the
         // next tick, so the lead starts no new step here (D-1094).
         bool encounterDue = this.Patrols.Mark is SightMark { TicksLeft: 0 };
-        if (this.Stepping is null && !encounterDue && this.wanted is StepDirection next)
+        // On ice the lead keeps the direction of its step, and the player cannot turn or stop. A
+        // slide that meets a tile that takes no step stops, and the lead stands on the ice (D-1232).
+        StepDirection? chosen = slid ?? this.wanted;
+        if (this.Stepping is null && !encounterDue && chosen is StepDirection next)
         {
             // The lead turns whether or not it can move, so a push against a wall turns it
             // and the player reads the direction of the party from the sprite (D-207).
@@ -519,6 +531,16 @@ public sealed class MapState
         this.StepTicks = 0;
         this.wanted = null;
         this.Npcs.HoldStill();
+    }
+
+    /// <summary>
+    /// Ends the step that the lead started on the tick of its arrival, so the lead stands on the
+    /// tile of a trap while the fight of the trap runs (D-1231). The NPCs walk on.
+    /// </summary>
+    internal void EndStep()
+    {
+        this.Stepping = null;
+        this.StepTicks = 0;
     }
 
     /// <summary>Moves the lead one tile in a move step of a story scene, and marks the tile walked (D-567, D-1012).</summary>

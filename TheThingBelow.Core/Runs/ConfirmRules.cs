@@ -18,7 +18,8 @@ namespace TheThingBelow.Core.Runs;
 /// With no NPC there, the first thing of the tile that a confirm reads decides: a service point
 /// opens its service (D-1142), a save point opens the save window (D-1221), a chest gives what it
 /// holds (D-1220), and a door or its lock opens when the rules of the lock let it (D-386, D-1219).
-/// A trap, a spawn point, a marker, and an exit take no confirm.
+/// A trap that shows takes the disarm of a Theft drill (D-1228). A hidden trap, a spent trap, a
+/// spawn point, a marker, and an exit take no confirm.
 /// </para>
 /// <para>
 /// The world step calls this rule once in a tick, only while the lead stands and no battle, no
@@ -70,6 +71,15 @@ public static class ConfirmRules
                 case MapThingKind.SavePoint:
                     return SavePointRules.Open(state, thing, log);
                 case MapThingKind.Trap:
+                    // A trap that shows takes the disarm. A hidden or a spent trap takes no
+                    // confirm, so the confirm reads on (D-1228).
+                    if (TrapRules.Shows(state, thing))
+                    {
+                        TrapRules.Disarm(state, thing, log);
+                        return false;
+                    }
+
+                    break;
                 case MapThingKind.SpawnPoint:
                 case MapThingKind.Marker:
                 case MapThingKind.Exit:

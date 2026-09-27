@@ -1,0 +1,48 @@
+{
+ "id": "drawing.dagvar_face",
+ "page": "ui",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "character.dagvar", "use": "face" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "...............kk...............",
+    "..............kmPk..............",
+    ".............kmPP!k.............",
+    "............kmmPPP!k............",
+    "...........kmmPPPP!!k...........",
+    "..........kmmPPPPPP!!k..........",
+    ".........kmmPPPPPPPP!!k.........",
+    "........kmmPPPPPPPPP!!!k........",
+    ".......kmPpppppppppppp!!k.......",
+    ".......kmPpp@@@@@@@@pp!!k.......",
+    ".......kmPp@bb@@@@bb@p!!k.......",
+    ".......kmPp@kk@@@@kk@p!!k.......",
+    ".......kmPp@ssssssss@p!!k.......",
+    ".......kmPp@ssss@sss@p!!k.......",
+    ".......kmPp@sbbbbbbs@p!!k.......",
+    ".......kmPpbtBbkkbBbbp!!k.......",
+    ".......kmPpbtBBbbBBbbp!!k.......",
+    "......kmmPppbtBBBbbbpp!!!k......",
+    ".....kmmmPpppbtBbbbpppP!!!k.....",
+    "....kmmmPPppppbbbbppppPP!!!k....",
+    "...kmmmmPPPPPppbbppPPPPP!!!!k...",
+    "..kmmmmmPPPPPPPOOPPPPPP!!!!!!k..",
+    "..kmmmmmPPPPPP!uu!PPPPP!!!!!!k..",
+    ".kmmmmmmPPPPPP!UU!PPPPPP!!!!!!k.",
+    ".kmmmmmmPPPP!PPPPPPPP!PP!!!!!!k.",
+    ".kmmmmmmPPPP!PPPPPPPP!PP!!!!!!k.",
+    ".kmmmmmmPPPP!PPPPPPPP!PP!!!!!!k.",
+    ".kmmmmmmPPPP!PPPPPPPP!PP!!!!!!k.",
+    ".kmmmmmmPPPP!PPPPPPPP!PP!!!!!!k.",
+    ".kmmmmmmPPPP!PPPPPPPP!PP!!!!!!k.",
+    ".kmmmmmmPPPP!PPPPPPPP!PP!!!!!!k.",
+    ".kmmmmmmPPPP!PPPPPPPP!PP!!!!!!k."
+   ]
+  }
+ ]
+}

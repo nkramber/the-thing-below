@@ -1,0 +1,48 @@
+{
+ "id": "drawing.ottild_face",
+ "page": "ui",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "character.ottild", "use": "face" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................................",
+    "................................",
+    "...........kkkkkkkkkk...........",
+    ".........kkvvNNNNNNnnkk.........",
+    "........kvvvNNNNNNNNnnnk........",
+    ".......kvvvNNNNNNNNNNnnnk.......",
+    ".......kvvNNbbbbbbbbNNnnk.......",
+    ".......kvNbbBtttttttBbNnk.......",
+    ".......kvNbBttttttttBbNnk.......",
+    ".......kvNbBSSssssssBbNnk.......",
+    ".......kvNbS@@ssss@@sbNnk.......",
+    ".......kvNbSkksssskksbNnk.......",
+    ".......kvNbSsssssssstbNnk.......",
+    ".......kvNbSssss@ssstbNnk.......",
+    ".......kvNbSssst@ssstbNnk.......",
+    ".......kvNbSsssssssstbNnk.......",
+    ".......kvNbSssss@@@stbNnk.......",
+    ".......kvNnnbSsssstbnnNnk.......",
+    "......kvNlGGGGggggDDDDdNnk......",
+    ".....kvvNDGGGgggggDDDDdNnnk.....",
+    "...kkvvvNddDDDDDDDDDDddNnnnkk...",
+    "..kvvvvvNNnnnnnnnnnnnnnnNNnnnk..",
+    ".kvvvvvNNNn333ttttBBBnNNNnnnnnk.",
+    ".kvvvvvNNNn333ttttBBBnNNNnnnnnk.",
+    ".kvvvvvNNNn333ttttBBBnNNNnnnnnk.",
+    ".kvvvvvNNNn333ttttBBBnNNNnnnnnk.",
+    ".kvvvvvNNNn333ttttBBBnNNNnnnnnk.",
+    ".kvvvvvNNNn333ttttBBBnNNNnnnnnk.",
+    ".kvvvvvNNNnbbbbOObbbbnNNNnnnnnk.",
+    ".kvvvvvNNNn333ttttBBBnNNNnnnnnk.",
+    ".kvvvvvNNNn333ttttBBBnNNNnnnnnk.",
+    ".kvvvvvNNNn333ttttBBBnNNNnnnnnk."
+   ]
+  }
+ ]
+}

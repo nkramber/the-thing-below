@@ -150,9 +150,9 @@ public sealed record RunSnapshot(
             $"the world tick is {this.WorldTick}, and the tick is {this.Tick}, which is lower");
         this.CheckMap(source);
         Refuse(
-            this.Battle is not null && (this.Characters is null || (this.Map?.Encounter is null && !this.StoryWaitsForBattle())),
+            this.Battle is not null && (this.Characters is null || (this.Map?.Encounter is null && !this.StoryWaitsForBattle() && !this.BattleOfTrap())),
             source,
-            "it holds a battle with no party, or with no encounter and no story scene that waits for it, and a battle needs a party and one of the two (D-531, D-998)");
+            "it holds a battle with no party, or with no encounter, no story scene that waits for it, and no trap, and a battle needs a party and one of the three (D-531, D-998, D-1231)");
         Refuse(
             this.Notices is not null && this.Notices.Count > NoticeLog.MostEntries,
             source,
@@ -204,9 +204,9 @@ public sealed record RunSnapshot(
             source,
             $"the lead stands on no step, and the step ticks are {map.StepTicks}");
         Refuse(
-            map.Stepping is not null && (map.StepTicks < 0 || map.StepTicks >= MapRules.TicksPerStep),
+            map.Stepping is not null && (map.StepTicks < 0 || map.StepTicks >= MapRules.SnowStepTicks),
             source,
-            $"the step ticks are {map.StepTicks}, and the range of a step is 0 to {MapRules.TicksPerStep - 1}");
+            $"the step ticks are {map.StepTicks}, and the range of the longest step is 0 to {MapRules.SnowStepTicks - 1}. The resume of the map checks the length of this step (D-1233)");
         Refuse(map.Walked.Count == 0, source, "the walked tiles hold no row, and a map holds at least one");
 
         // The values of one enemy take their full check in `MapPatrols.Resume`, which holds
@@ -237,6 +237,9 @@ public sealed record RunSnapshot(
 
     /// <summary>Tells whether a story scene waits for the battle of its start battle step (D-998).</summary>
     private bool StoryWaitsForBattle() => this.Story?.Scene?.Phase == ScenePhase.Battle;
+
+    /// <summary>True when the battle names a trap. The resume of the run checks the trap on its map (D-1231).</summary>
+    private bool BattleOfTrap() => this.Battle is BattleValues battle && string.CompareOrdinal(battle.Enemy.Kind, MapThingKinds.NameOf(MapThingKind.Trap)) == 0;
 
     private static void Refuse(bool broken, string source, string reason)
     {

@@ -142,6 +142,9 @@ public sealed class GameRun
     /// <summary>True while the party holds the torch out, which the carried light and the torch in the hand follow (D-847, D-1064).</summary>
     public bool TorchHeld => this.simulation.State.Characters.TorchHeld;
 
+    /// <summary>True when a character who fights and stands carries a Theft drill, so a trap near the lead shows (D-386, D-1228).</summary>
+    public bool TheftCarried => DoorRules.CarriesTheft(this.simulation.State);
+
     /// <summary>
     /// True when the party holds the torch out for the next tick, with the queued intents of
     /// this frame applied (D-1064), as <see cref="MenuOpenNextTick"/> reads the menu.
@@ -330,11 +333,21 @@ public sealed class GameRun
         return menu ? Intent.OfPlayer(IntentIds.OpenMenu) : null;
     }
 
-    /// <summary>True when the screen has played the events of a wipe, and the host reloads (D-397, D-776).</summary>
+    /// <summary>
+    /// True when the screen has played the events of a battle wipe, or the view of a wipe on the map
+    /// held its ticks, and the host reloads (D-225, D-397, D-776).
+    /// </summary>
     public bool WipeReady =>
-        this.EventsPlayed
+        (this.EventsPlayed
         && this.simulation.State.Battle is Battle battle
-        && battle.Outcome == BattleOutcome.Wiped;
+        && battle.Outcome == BattleOutcome.Wiped)
+        || (this.simulation.State.MapWiped && this.MapWipeTicks >= MapWipeView.HoldTicks);
+
+    /// <summary>True when a trap, the bad air, or poison downed each character who fights on the map (D-397).</summary>
+    public bool MapWiped => this.simulation.State.MapWiped;
+
+    /// <summary>The count of loop ticks since a wipe on the map, which the wipe view shows (D-225).</summary>
+    public int MapWipeTicks { get; private set; }
 
     /// <summary>True when the queue is empty and the last event played all its ticks (D-532, D-829).</summary>
     private bool EventsPlayed => this.events.Empty && this.PlayedOut;
@@ -543,6 +556,14 @@ public sealed class GameRun
         List<LogEntry> log = [];
         for (int step = 0; step < ticks; step += 1)
         {
+            // A wipe on the map holds the run, and the simulation takes no tick and no intent until the
+            // host reloads (D-397). The wipe view counts these ticks instead (D-225).
+            if (this.simulation.State.MapWiped)
+            {
+                this.MapWipeTicks = checked(this.MapWipeTicks + 1);
+                continue;
+            }
+
             List<Intent> intents = step == 0 ? [.. this.queued] : [];
             if (heldStep?.Invoke() is Intent held)
             {

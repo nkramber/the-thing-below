@@ -215,11 +215,11 @@ public sealed class GameMapTests
         ContentException error = Assert.Throws<ContentException>(
             () => TestMaps.Of("odd.json", Map(terrain: """
               "######",
-              "#..~.#",
+              "#..?.#",
               "######"
             """)));
 
-        Assert.Contains("'~'", error.Message, StringComparison.Ordinal);
+        Assert.Contains("'?'", error.Message, StringComparison.Ordinal);
         Assert.Contains("(3, 1)", error.Message, StringComparison.Ordinal);
     }
 

@@ -1,0 +1,48 @@
+{
+ "id": "drawing.elio_face",
+ "page": "ui",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "character.elio", "use": "face" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................................",
+    "................................",
+    "...........kkkkkkkkkk...........",
+    ".........kk##yyyyyy33kk.........",
+    "........k###yyyyyyyy333k........",
+    ".......k###yyyyyyyyyy333k.......",
+    ".......k#yyyyyyyyyyyyy33k.......",
+    ".......k#yyyyy#yyyyyyy33k.......",
+    ".......k#yy3yyy3yyyy3y33k.......",
+    ".......k#y3SSSSSSSSSss33k.......",
+    ".......k#ySSttSSSSttSsy3k.......",
+    ".......k#ySSkkSSSSkkSsy3k.......",
+    ".......k#ySSSSSSSSSSSsy3k.......",
+    ".......k#ySSSSSSsSSSSsy3k.......",
+    ".......k#ySSSSStsSSSSsy3k.......",
+    ".......k#ySSSSSSSSSSssy3k.......",
+    ".......k#ySSSSSttSSSssy3k.......",
+    ".......k#yy3SSSSSSSs3y33k.......",
+    "........k#yy3SSSSSs3yy3k........",
+    ".........ktt3SSSSss3ttk.........",
+    "..........koOOOOOOOOok..........",
+    ".......kkGG#yLLLLLL#yGGkk.......",
+    ".....kkGwwwwLLLOOLLLllllGkk.....",
+    "...kGwwwwwLLLLL#yXXxxRRRllGGk...",
+    "..kGwwwwwwLLLLL#yXXxxRRRlllGGk..",
+    ".kGwwwwwwwLLLLL#yXXxxRRRllllGGk.",
+    ".kGwwwwwwwLLLLL#yXXxxRRRllllGGk.",
+    ".kGwwwwwwwLLLLL#yXXxxRRRllllGGk.",
+    ".kGwwwwwwwLLLLL#yXXxxRRRllllGGk.",
+    ".kGwwwwwwwLLLLL#yXXxxRRRllllGGk.",
+    ".kGwwwwwwwLLLLL#yXXxxRRRllllGGk.",
+    ".kGwwwwwwwLLLLL#yXXxxRRRllllGGk."
+   ]
+  }
+ ]
+}

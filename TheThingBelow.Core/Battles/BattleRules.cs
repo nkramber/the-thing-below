@@ -88,6 +88,8 @@ public sealed class BattleRules
         "aptitude_bonus",
         "hit_regain",
         "fall_regain",
+        "map_poison_share",
+        "bad_air_share",
     ];
 
     private BattleRules(SortedDictionary<string, int> numbers, IReadOnlyList<int> levelExperience, IReadOnlyList<int> slotLevels)
@@ -139,6 +141,8 @@ public sealed class BattleRules
         this.AptitudeBonus = numbers["aptitude_bonus"];
         this.HitRegain = numbers["hit_regain"];
         this.FallRegain = numbers["fall_regain"];
+        this.MapPoisonShare = numbers["map_poison_share"];
+        this.BadAirShare = numbers["bad_air_share"];
         this.LessonSlotLevels = slotLevels;
     }
 
@@ -288,6 +292,12 @@ public sealed class BattleRules
 
     /// <summary>The share of full AP that a fall of an enemy gives each character who is not down, rounded down, at least 1 (D-1198).</summary>
     public int FallRegain { get; }
+
+    /// <summary>The share of full health that poison takes from each poisoned character at each harm on the map (D-1234).</summary>
+    public int MapPoisonShare { get; }
+
+    /// <summary>The share of full health that bad air takes from each character who fights at each harm (D-1235).</summary>
+    public int BadAirShare { get; }
 
     /// <summary>Gives the count of lesson slots of a character at one level (D-356, D-1018).</summary>
     /// <param name="level">The character level, from 1 to <see cref="StatCurve.HighestLevel"/>.</param>
@@ -466,6 +476,8 @@ public sealed class BattleRules
         // refuses it, and no rate turns a regain off (T-2).
         CheckRange(numbers, file, "hit_regain", 1, BasisPoints.One);
         CheckRange(numbers, file, "fall_regain", 1, BasisPoints.One);
+        CheckRange(numbers, file, "map_poison_share", 1, BasisPoints.One);
+        CheckRange(numbers, file, "bad_air_share", 1, BasisPoints.One);
     }
 
     /// <summary>Refuses a slot count at the highest level above the one bound of the snapshot (D-1018).</summary>

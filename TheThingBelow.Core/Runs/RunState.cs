@@ -117,6 +117,18 @@ public sealed class RunState
     /// <summary>The battle that runs, or that ended and waits for the screen, or no value (D-522, D-531).</summary>
     public Battle? Battle { get; private set; }
 
+    /// <summary>
+    /// True when no battle runs and each character who fights is down: a trap, the bad air, or
+    /// poison downed the party on the map (D-397, D-1230, D-1234, D-1235). The run then takes no
+    /// intent and the world stands still, and Game reloads the newer save, as after a battle wipe.
+    /// </summary>
+    /// <remarks>
+    /// The value comes from the party alone, so the snapshot holds no field for it. No other path
+    /// downs each character who fights outside a battle: a swap never brings in a downed character
+    /// (D-1134), and a battle wipe keeps its battle until the reload (D-397).
+    /// </remarks>
+    public bool MapWiped => this.Battle is null && !this.Characters.AnyStands();
+
     /// <summary>The notice file of this build, which the rule of a notice reads (D-983, D-989).</summary>
     public NoticeList Notices { get; }
 
@@ -408,6 +420,23 @@ public sealed class RunState
         if (storyWaits)
         {
             throw new ArgumentException($"The snapshot holds a story scene that waits for its battle, and the battle is one of the map enemy '{stored.Enemy.Value}' (T-2, D-999).", nameof(snapshot));
+        }
+
+        // The battle of an encounter trap names the trap. The trap fired, so the memory holds it
+        // spent, and no encounter of a patrol runs beside it (D-1229, D-1231).
+        if (string.CompareOrdinal(stored.Enemy.Kind, MapThingKinds.NameOf(MapThingKind.Trap)) == 0)
+        {
+            if (party.Map.ThingOf(stored.Enemy, MapThingKind.Trap)?.Harm is not TrapHarm { Kind: TrapHarmKind.Encounter, Group: ContentId group }
+                || string.CompareOrdinal(group.Value, stored.Group.Value) != 0
+                || !party.Place.IsSpent(stored.Enemy)
+                || party.Patrols.Encounter is not null)
+            {
+                throw new ArgumentException(
+                    $"The snapshot holds a battle of the trap '{stored.Enemy.Value}' and the group '{stored.Group.Value}', and its map holds no spent encounter trap of both, or an encounter of a patrol runs too (T-2, D-1231).",
+                    nameof(snapshot));
+            }
+
+            return Battle.Resume(battleContent, stored, characters, "this run");
         }
 
         if (party.Patrols.Encounter is not MapEncounter encounter

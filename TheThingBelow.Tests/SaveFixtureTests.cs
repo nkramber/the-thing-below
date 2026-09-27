@@ -617,6 +617,44 @@ public sealed class SaveFixtureTests
     }
 
     [Fact]
+    public void TheStoredSaveOfFormatNineteenHoldsTheSpentTrapsOfTheHall()
+    {
+        // PR-64 wrote format 19 from the hall of the traps: the blade and the needle fired, so the
+        // memory holds both spent, and each of the three who fight holds poison (D-1229, D-1230).
+        SaveDocument save = ReadFormat(19);
+        Simulation run = Simulation.Resume(save.Header.Seed, save.Snapshot, TrapMaps.Hall, TestParty.FourContent, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
+
+        Assert.Equal(36, save.Header.SimulationVersion);
+        PlaceValues place = Assert.Single(save.Snapshot.Places!);
+        Assert.Equal(["trap.test_hall_blade", "trap.test_hall_needle"], HubWalks.Values(place.Spent));
+        Assert.True(run.State.Party.Place.IsSpent(TrapMaps.TrapOf(TrapMaps.Needle)));
+        Assert.False(run.State.Party.Place.IsSpent(TrapMaps.TrapOf(TrapMaps.Dust)));
+        foreach (PartyMember member in run.State.Characters.Members)
+        {
+            Assert.Equal([StatusKind.Poison], member.Statuses);
+        }
+
+        Assert.Equal(RunSnapshotText.Write(save.Snapshot), RunSnapshotText.Write(run.Snapshot()));
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatEighteenHoldsNoSpentTrap()
+    {
+        // D-1229: format 18 predates the spent traps, so its memory holds none, and a field of that
+        // name in a save of format 18 fails the read.
+        SaveDocument save = ReadFormat(18);
+        Assert.Empty(Assert.Single(save.Snapshot.Places!).Spent);
+
+        string[] lines = File.ReadAllText(PathOfFormat(18)).Split('\n');
+        string snapshot = lines[1].Replace("\"chests\":[", "\"spent\":[],\"chests\":[", StringComparison.Ordinal);
+        string header = System.Text.RegularExpressions.Regex.Replace(lines[0], "\"checksum\":\"[0-9a-f]+\"", $"\"checksum\":\"{SaveText.ChecksumOf(snapshot)}\"");
+        string text = string.Join('\n', [header, snapshot, .. lines[2..]]);
+
+        Exception error = Assert.ThrowsAny<Exception>(() => SaveText.Read(text, PathOfFormat(18)));
+        Assert.Contains("D-1229", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void TheStoredSaveOfFormatSeventeenStartsTheMemoryWithNoPlace()
     {
         // D-555: format 17 holds no memory of a map, and the hub of its run holds no dead enemy.
@@ -886,7 +924,7 @@ public sealed class SaveFixtureTests
         }
 
         dead.Sort((one, other) => string.CompareOrdinal(one.Value, other.Value));
-        return dead.Count == 0 ? [] : [new PlaceValues(map!.Map, dead, [], [])];
+        return dead.Count == 0 ? [] : [new PlaceValues(map!.Map, dead, [], [], [])];
     }
 
     /// <summary>Gives the story values that a resume of a snapshot before format 14 writes: the step id of the index (D-1112).</summary>

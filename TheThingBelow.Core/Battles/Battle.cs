@@ -207,11 +207,14 @@ public sealed class Battle
         this.Outcome = BattleOutcome.Running;
     }
 
-    /// <summary>The id of the map enemy of the encounter (D-749), or of the story scene whose start battle step started the battle (D-998).</summary>
+    /// <summary>The id of the map enemy of the encounter (D-749), of the story scene whose start battle step started the battle (D-998), or of the trap that started it (D-1231).</summary>
     public ContentId Enemy { get; }
 
     /// <summary>True when a start battle step of a story scene started the battle, which no party flees (D-998, D-1008).</summary>
     public bool FromStoryScene => string.CompareOrdinal(this.Enemy.Kind, StoryScene.Kind) == 0;
+
+    /// <summary>True when an encounter trap started the battle, which names the trap in place of a patrol (D-1231).</summary>
+    public bool FromTrap => string.CompareOrdinal(this.Enemy.Kind, MapThingKinds.NameOf(MapThingKind.Trap)) == 0;
 
     /// <summary>The group (D-766).</summary>
     public GroupRecord Group { get; }

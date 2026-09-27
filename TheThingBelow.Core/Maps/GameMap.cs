@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Story;
 
@@ -164,12 +165,17 @@ public sealed class GameMap
     /// <returns>The exit, or no value when the tile holds none.</returns>
     public MapThing? ExitAt(TilePoint at) => this.ThingOfKindAt(at, MapThingKind.Exit);
 
-    /// <summary>Tells whether this map holds one thing of one kind (D-528).</summary>
+    /// <summary>Finds the trap on one tile (D-1226).</summary>
+    /// <param name="at">The tile, which can lie outside the map.</param>
+    /// <returns>The trap, or no value when the tile holds none.</returns>
+    public MapThing? TrapAt(TilePoint at) => this.ThingOfKindAt(at, MapThingKind.Trap);
+
+    /// <summary>Finds one thing of one kind by its id (D-528).</summary>
     /// <param name="id">The id of the thing.</param>
     /// <param name="kind">The kind that the thing must take.</param>
-    /// <returns>True when a thing of the map takes the id and the kind.</returns>
+    /// <returns>The thing, or no value when no thing of the map takes the id and the kind.</returns>
     /// <exception cref="ArgumentNullException">The id is null (T-2).</exception>
-    public bool HoldsThing(ContentId id, MapThingKind kind)
+    public MapThing? ThingOf(ContentId id, MapThingKind kind)
     {
         ArgumentNullException.ThrowIfNull(id);
 
@@ -177,12 +183,19 @@ public sealed class GameMap
         {
             if (thing.Kind == kind && string.CompareOrdinal(thing.Id.Value, id.Value) == 0)
             {
-                return true;
+                return thing;
             }
         }
 
-        return false;
+        return null;
     }
+
+    /// <summary>Tells whether this map holds one thing of one kind (D-528).</summary>
+    /// <param name="id">The id of the thing.</param>
+    /// <param name="kind">The kind that the thing must take.</param>
+    /// <returns>True when a thing of the map takes the id and the kind.</returns>
+    /// <exception cref="ArgumentNullException">The id is null (T-2).</exception>
+    public bool HoldsThing(ContentId id, MapThingKind kind) => this.ThingOf(id, kind) is not null;
 
     /// <summary>Tells whether this map places one enemy (D-738).</summary>
     /// <param name="id">The id of the enemy.</param>
@@ -482,6 +495,10 @@ public sealed class GameMap
         ContentId? to = null;
         List<ChestEntry>? contents = null;
         int? gold = null;
+        string? harm = null;
+        int? share = null;
+        string? status = null;
+        ContentId? group = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -515,6 +532,18 @@ public sealed class GameMap
                 case ChestContents.GoldField:
                     gold = reader.ReadInt();
                     break;
+                case TrapHarm.HarmField:
+                    harm = reader.ReadString();
+                    break;
+                case TrapHarm.ShareField:
+                    share = reader.ReadInt();
+                    break;
+                case TrapHarm.StatusField:
+                    status = reader.ReadString();
+                    break;
+                case TrapHarm.GroupField:
+                    group = reader.ReadContentId(Patrol.GroupKind);
+                    break;
                 default:
                     throw reader.UnknownField(field);
             }
@@ -529,7 +558,8 @@ public sealed class GameMap
             key,
             to,
             contents,
-            gold);
+            gold,
+            new TrapLine(harm, share, status, group));
     }
 
     private static GameMap Build(
@@ -571,6 +601,11 @@ public sealed class GameMap
         NpcLayout.Check(ref reader, map);
         CheckServices(ref reader, map);
         CheckTriggers(ref reader, map);
+        if (IceFields.FaultOf(map) is string ice)
+        {
+            throw reader.Refuse(ice);
+        }
+
         return map;
     }
 
@@ -672,7 +707,7 @@ public sealed class GameMap
             }
 
             ContentId? key = LockKeyOf(ref reader, line, kind);
-            things[index] = new MapThing(line.Id, kind, at, line.Pickable ?? false, key, ExitTargetOf(ref reader, line, kind), ChestOf(ref reader, line, kind));
+            things[index] = new MapThing(line.Id, kind, at, line.Pickable ?? false, key, ExitTargetOf(ref reader, line, kind), ChestOf(ref reader, line, kind), TrapHarmOf(ref reader, line, kind));
         }
 
         RefuseRepeatedId(ref reader, things);
@@ -761,6 +796,71 @@ public sealed class GameMap
         }
 
         return contents;
+    }
+
+    /// <summary>
+    /// Reads the harm of a trap. A trap names its harm and the one value of that harm: a share, a
+    /// status, or a group. No other thing holds a trap field (D-1226, D-1230, D-1231, T-2).
+    /// </summary>
+    /// <remarks>The content set checks that the group of an encounter trap lies in the group file of the region of the map (D-957).</remarks>
+    private static TrapHarm? TrapHarmOf(ref ContentReader reader, ThingLine line, MapThingKind kind)
+    {
+        TrapLine trap = line.Trap;
+        if (kind != MapThingKind.Trap)
+        {
+            if (!trap.IsEmpty)
+            {
+                throw reader.Refuse($"the thing '{line.Id.Value}' is a {MapThingKinds.NameOf(kind)} and it holds a field of a trap: '{TrapHarm.HarmField}', '{TrapHarm.ShareField}', '{TrapHarm.StatusField}', or '{TrapHarm.GroupField}' (D-1226)");
+            }
+
+            return null;
+        }
+
+        string name = trap.Harm
+            ?? throw reader.Refuse($"the trap '{line.Id.Value}' holds no field '{TrapHarm.HarmField}', and each trap names one of {TrapHarm.EveryName} (D-1226)");
+        if (!TrapHarm.TryKindOf(name, out TrapHarmKind harm))
+        {
+            throw reader.Refuse($"the trap '{line.Id.Value}' names the harm '{name}', and a trap takes one of {TrapHarm.EveryName} (D-1226)");
+        }
+
+        string wanted = harm switch
+        {
+            TrapHarmKind.Damage => TrapHarm.ShareField,
+            TrapHarmKind.Status => TrapHarm.StatusField,
+            _ => TrapHarm.GroupField,
+        };
+        if ((trap.Share is not null && harm != TrapHarmKind.Damage)
+            || (trap.Status is not null && harm != TrapHarmKind.Status)
+            || (trap.Group is not null && harm != TrapHarmKind.Encounter))
+        {
+            throw reader.Refuse($"the trap '{line.Id.Value}' takes the harm '{name}', which holds the field '{wanted}' alone (D-1226)");
+        }
+
+        switch (harm)
+        {
+            case TrapHarmKind.Damage:
+                int share = trap.Share
+                    ?? throw reader.Refuse($"the damage trap '{line.Id.Value}' holds no field '{TrapHarm.ShareField}' (D-1230)");
+                if (share < 1 || share > BasisPoints.One)
+                {
+                    throw reader.Refuse($"the damage trap '{line.Id.Value}' takes the share {share}, and a share lies from 1 to {BasisPoints.One} basis points (D-1230)");
+                }
+
+                return TrapHarm.Damage(share);
+            case TrapHarmKind.Status:
+                string status = trap.Status
+                    ?? throw reader.Refuse($"the status trap '{line.Id.Value}' holds no field '{TrapHarm.StatusField}' (D-1230)");
+                if (!Statuses.TryOf(status, out StatusKind parsed) || !Statuses.Lasts(parsed))
+                {
+                    throw reader.Refuse($"the status trap '{line.Id.Value}' names the status '{status}', and a trap puts poison, blind, or silence (D-390, D-1230)");
+                }
+
+                return TrapHarm.Put(parsed);
+            default:
+                ContentId group = trap.Group
+                    ?? throw reader.Refuse($"the encounter trap '{line.Id.Value}' holds no field '{TrapHarm.GroupField}' (D-1231)");
+                return TrapHarm.Ambush(group);
+        }
     }
 
     private static void RefuseRepeatedId(ref ContentReader reader, MapThing[] things)
@@ -967,5 +1067,11 @@ public sealed class GameMap
         return null;
     }
 
-    private sealed record ThingLine(ContentId Id, string Kind, int X, int Y, bool? Pickable, string? Key, ContentId? To, List<ChestEntry>? Contents, int? Gold);
+    private sealed record ThingLine(ContentId Id, string Kind, int X, int Y, bool? Pickable, string? Key, ContentId? To, List<ChestEntry>? Contents, int? Gold, TrapLine Trap);
+
+    /// <summary>The trap fields of one thing line, each absent when the line does not write it (D-1226).</summary>
+    private sealed record TrapLine(string? Harm, int? Share, string? Status, ContentId? Group)
+    {
+        public bool IsEmpty => this.Harm is null && this.Share is null && this.Status is null && this.Group is null;
+    }
 }

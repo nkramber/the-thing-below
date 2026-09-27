@@ -531,7 +531,9 @@ public sealed class BattleTurnsTests
     [Fact]
     public void AStepIntoAGroupWithEveryCharacterDownFailsWithTheGroup()
     {
-        // D-1105, P3-1: a fight with no standing character never reaches the turn of a character.
+        // D-1105, P3-1: a fight with no standing character never reaches the turn of a character. From
+        // PR-64, such a party holds a wipe on the map first, so the step itself takes the refusal of
+        // D-397, and the start of the fight keeps its own refusal.
         GameMap map = BattleRuns.Map("group.one");
         RunSnapshot start = Simulation.Start(Seed, map, TestBattles.Exact, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None).Snapshot();
         PartySnapshot party = start.Characters!;
@@ -543,7 +545,12 @@ public sealed class BattleTurnsTests
 
         Simulation run = Simulation.Resume(Seed, start with { Characters = party with { Characters = down } }, map, TestBattles.Exact, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
 
-        SimulationException error = Assert.Throws<SimulationException>(() => run.Step([Intent.OfPlayer(IntentIds.MoveEast)]));
+        Assert.True(run.State.MapWiped);
+        SimulationException wiped = Assert.Throws<SimulationException>(() => run.Step([Intent.OfPlayer(IntentIds.MoveEast)]));
+        Assert.Contains("D-397", wiped.Message, StringComparison.Ordinal);
+
+        MapEncounter encounter = new(map.Patrols[0].Id, map.Patrols[0].Group, EncounterSide.None);
+        SimulationException error = Assert.Throws<SimulationException>(() => Battle.Start(TestBattles.Exact, encounter, run.State.Characters, run.State.Context("test")));
 
         Assert.Contains("group.one", error.Message, StringComparison.Ordinal);
         Assert.Contains("no character of the party stands", error.Message, StringComparison.Ordinal);

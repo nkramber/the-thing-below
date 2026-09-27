@@ -341,6 +341,15 @@ public sealed class Simulation
                 context);
         }
 
+        // A wipe on the map holds the run until Game reloads the newer save, as a battle wipe does
+        // (D-397). Game sends no intent of the player from the tick of the wipe.
+        if (this.State.MapWiped)
+        {
+            throw new SimulationException(
+                $"the intent '{intent.Action.Value}' after each character who fights went down on the map, and the newer save reloads (D-397)",
+                context);
+        }
+
         if (intent.Target is not null || intent.Item is not null || intent.Option is not null || intent.Lesson is not null || intent.Actor is not null)
         {
             RefuseOutsideBattle(intent, context);

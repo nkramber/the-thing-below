@@ -93,6 +93,10 @@ public static class SaveFormat
     /// open door, and what stays in each opened chest (D-385, D-555). A save of an older format
     /// starts the memory with the dead enemies of the map that the party stands on.
     /// </para>
+    /// <para>
+    /// PR-64 raised it to 19. The memory of each map gained its spent traps (D-1229). A save of an
+    /// older format holds each trap armed.
+    /// </para>
     /// </remarks>
-    public const int Current = 18;
+    public const int Current = 19;
 }

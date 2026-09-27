@@ -486,6 +486,10 @@
    "text": "You came up out of the pit. My brother went down it a week ago."
   },
   {
+   "id": "map.wiped",
+   "text": "Nobody gets up."
+  },
+  {
    "id": "menu.aptitude_hidden",
    "text": "—"
   },
@@ -970,6 +974,10 @@
    "text": "The lock gives."
   },
   {
+   "id": "notice.fell_on_map",
+   "text": "One of you does not get up."
+  },
+  {
    "id": "notice.fixture_drip",
    "text": "Water drips somewhere ahead."
   },
@@ -988,6 +996,26 @@
   {
    "id": "notice.service_closed",
    "text": "Not now."
+  },
+  {
+   "id": "notice.trap_blind",
+   "text": "Powder in the eyes."
+  },
+  {
+   "id": "notice.trap_damage",
+   "text": "A trap springs."
+  },
+  {
+   "id": "notice.trap_disarmed",
+   "text": "The wire is cut."
+  },
+  {
+   "id": "notice.trap_poison",
+   "text": "A needle in the boot. It burns."
+  },
+  {
+   "id": "notice.trap_silence",
+   "text": "Sour dust. Throats close."
   },
   {
    "id": "pause.title",

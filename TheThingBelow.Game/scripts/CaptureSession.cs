@@ -9,6 +9,7 @@ using TheThingBelow.Core.Light;
 using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
+using TheThingBelow.Core.Saves;
 using TheThingBelow.Game.Ui;
 using TheThingBelow.Storage;
 
@@ -290,7 +291,7 @@ public sealed partial class CaptureSession : Node
         }
 
         // A capture runs whole ticks, so it reads no part of a tick (D-782, D-820).
-        this.walkMap!.ShowParty(run.Party, 0, run.Tick, run.TorchHeld);
+        this.walkMap!.ShowParty(run.Party, 0, run.Tick, run.TorchHeld, run.TheftCarried);
         this.walkMap.ShowWeather(run.Tick, seek: true);
     }
 
@@ -318,6 +319,12 @@ public sealed partial class CaptureSession : Node
     /// </exception>
     private void BuildPitRoom(FrameRoot built, UiBase @base, ScreenCapture capture)
     {
+        if (string.CompareOrdinal(capture.Frame, ScreenCaptures.PitTrapFrame) == 0)
+        {
+            this.BuildPitTrap(built, @base, capture);
+            return;
+        }
+
         bool fade = string.CompareOrdinal(capture.Frame, ScreenCaptures.PitTorchFrame) == 0;
         GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
         if (fade)
@@ -329,7 +336,7 @@ public sealed partial class CaptureSession : Node
         foreach (string action in ScreenCaptures.PitRoute)
         {
             this.StepOnce(open, action);
-            drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld);
+            drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld, open.TheftCarried);
         }
 
         if (fade)
@@ -338,7 +345,7 @@ public sealed partial class CaptureSession : Node
             for (int tick = 0; tick <= ScreenCaptures.DarkFadeTicks; tick += 1)
             {
                 this.RunTicks(open, 1);
-                drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld);
+                drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld, open.TheftCarried);
             }
 
             if (open.TorchHeld || !drawn.ShowsAFade)
@@ -348,8 +355,78 @@ public sealed partial class CaptureSession : Node
             }
         }
 
-        drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld);
+        drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld, open.TheftCarried);
         drawn.ShowWeather(open.Tick, seek: true);
+    }
+
+    /// <summary>
+    /// Builds the frame of the traps and the hazards: a save of the start of the run, with the lead
+    /// two steps north-west of the pit, Marrek hurt and poisoned, and the Theft drill of the fixture
+    /// in his last slot. The pit then shows, and the map HUD shows (D-1228, D-1237, D-1238).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The run carries no Theft drill, or the pit does not show (T-2).</exception>
+    private void BuildPitTrap(FrameRoot built, UiBase @base, ScreenCapture capture)
+    {
+        GameRun start = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
+        SaveDocument save = start.Save();
+        RunSnapshot snapshot = save.Snapshot;
+        MapSnapshot map = snapshot.Map ?? throw new InvalidOperationException(
+            $"The capture '{capture.FileName}' starts from a snapshot with no map (T-2).");
+        PartySnapshot party = snapshot.Characters ?? throw new InvalidOperationException(
+            $"The capture '{capture.FileName}' starts from a snapshot with no party (T-2).");
+
+        var lead = new TilePoint(ScreenCaptures.PitTrapLead.X, ScreenCaptures.PitTrapLead.Y);
+        List<string> walked = [.. map.Walked];
+        char[] row = walked[lead.Y].ToCharArray();
+        row[lead.X] = 'x';
+        walked[lead.Y] = new string(row);
+
+        CharacterValues marrek = party.Characters[0];
+        LessonValues lessons = marrek.Lessons ?? throw new InvalidOperationException(
+            $"The capture '{capture.FileName}' starts from a snapshot whose first character holds no lessons (T-2).");
+        ContentId pilfer = ContentId.Parse("lesson.fixture_pilfer", "capture", "theft");
+        ContentId?[] slots = [.. lessons.Slots];
+        slots[^1] = pilfer;
+
+        // A carried lesson holds its points, in the ordinal order of the lesson ids (D-361).
+        List<LessonPoints> points = [.. lessons.Points, new LessonPoints(pilfer, 0)];
+        points.Sort((one, other) => string.CompareOrdinal(one.Lesson.Value, other.Lesson.Value));
+        CharacterValues hurt = marrek with { Health = marrek.Health * 3 / 5, Statuses = [StatusKind.Poison], Lessons = new LessonValues(slots, points) };
+        List<CharacterValues> characters = [.. party.Characters];
+        characters[0] = hurt;
+        RunSnapshot placed = snapshot with
+        {
+            Map = map with { LeadX = lead.X, LeadY = lead.Y, Facing = StepDirection.South, Walked = walked },
+            Characters = party with { Characters = characters, LessonPack = PackWithout(party.LessonPack, pilfer) },
+        };
+
+        GameRun open = GameRun.Reload(this.content, save with { Snapshot = placed }, null, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages, []);
+        MapThing pit = open.Party.Map.TrapAt(lead.Step(StepDirection.East).Step(StepDirection.South))
+            ?? throw new InvalidOperationException($"The capture '{capture.FileName}' finds no trap south-east of {lead} (T-2, D-1238).");
+        if (!TrapRules.Shows(open.State, pit))
+        {
+            throw new InvalidOperationException($"The capture '{capture.FileName}' shows no trap at {pit.At}, so the frame proves nothing (T-2, D-1228).");
+        }
+
+        MapScreen drawn = MapFixture.Build(built, @base, open, this.content, seekParticles: true);
+        new MapHud(built, @base).Show(open.State.Characters, open.State.WorldTick, hidden: false);
+        drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld, open.TheftCarried);
+        drawn.ShowWeather(open.Tick, seek: true);
+    }
+
+    /// <summary>Gives the lesson pack with one lesson taken out, because a carried lesson leaves the pack (D-1024).</summary>
+    private static List<ContentId> PackWithout(IReadOnlyList<ContentId>? pack, ContentId lesson)
+    {
+        List<ContentId> kept = [];
+        foreach (ContentId owned in pack ?? [])
+        {
+            if (string.CompareOrdinal(owned.Value, lesson.Value) != 0)
+            {
+                kept.Add(owned);
+            }
+        }
+
+        return kept;
     }
 
     /// <summary>
@@ -366,7 +443,7 @@ public sealed partial class CaptureSession : Node
         GoToHub(open);
         MapScreen drawn = MapFixture.Follow(first, built, @base, open, this.content);
         this.RunTicks(open, ScreenCaptures.HubTicks);
-        drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld);
+        drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld, open.TheftCarried);
         drawn.ShowWeather(open.Tick, seek: true);
     }
 
@@ -412,7 +489,7 @@ public sealed partial class CaptureSession : Node
             play.Follow(open);
         }
 
-        drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld, play, open.State.Story);
+        drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld, open.TheftCarried, play, open.State.Story);
         drawn.ShowWeather(open.Tick, seek: true);
         box.Show(play, hidden: false);
         pause.Show(open.State.Story.Paused);
@@ -895,7 +972,7 @@ public sealed partial class CaptureSession : Node
         // The map stays visible beside the main list, so each particle takes the tick of the run and
         // never the clock of the engine, and two sessions draw the same pixels (D-172, T-7).
         MapScreen drawn = MapFixture.Build(built, @base, open, this.content, seekParticles: true);
-        drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld);
+        drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld, open.TheftCarried);
         drawn.ShowWeather(open.Tick, seek: true);
         if (string.CompareOrdinal(frame, ScreenCaptures.MenuMapFrame) == 0)
         {
@@ -988,7 +1065,7 @@ public sealed partial class CaptureSession : Node
         this.RunTicks(open, typing ? ScreenCaptures.NoticeTypeTicks : ScreenCaptures.NoticeHoldTicks);
 
         MapScreen drawn = MapFixture.Build(built, @base, open, this.content, seekParticles: true);
-        drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld);
+        drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld, open.TheftCarried);
         drawn.ShowWeather(open.Tick, seek: true);
         NoticeFrame shown = open.NoticeAt(TextSpeeds.CharactersPerSecond(FixtureSettings.Access.Text)) ?? throw new InvalidOperationException(
             $"The capture '{capture.FileName}' shows no notice at tick {open.Tick}, and the console posted one (D-994, T-2).");

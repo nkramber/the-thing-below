@@ -19,9 +19,10 @@ namespace TheThingBelow.Core.Runs;
 /// The map runs in real time, so each enemy and each NPC walks here on the same tick, whether
 /// or not the player moves (D-162, D-1137).
 /// <para>
-/// The tick runs in one fixed order: the beat of a mark, the party, the exit, the encounter of a
-/// step into a body, the NPCs, the confirm, and then the enemies and the sight (D-168, D-1131,
-/// D-1137, D-1216). An encounter
+/// The tick runs in one fixed order: the harm of poison and bad air, the beat of a mark, the party,
+/// the exit, the trap, the encounter of a step into a body, the NPCs, the confirm, and then the
+/// enemies and the sight (D-168, D-1131, D-1137, D-1216, D-1226, D-1234). A wipe on the map holds the
+/// run from the tick of the last down (D-397). An encounter
 /// starts its battle on the same tick. While the encounter runs, no map system ticks, so the
 /// patrols, the NPCs, and the grace time all stand still (D-531). A snapshot of save format 3
 /// can hold an encounter with no battle, and the next world step starts that battle (D-765).
@@ -57,6 +58,12 @@ public static class WorldRules
         ArgumentNullException.ThrowIfNull(state);
         ArgumentNullException.ThrowIfNull(log);
 
+        // A wipe on the map holds the whole run until Game reloads the newer save (D-397).
+        if (state.MapWiped)
+        {
+            return;
+        }
+
         state.CountWorldTick();
 
         // A battle holds the map still until the wait intent of Game ends it (D-522, D-531).
@@ -79,6 +86,14 @@ public static class WorldRules
 
         MapState party = state.Party;
         MapPatrols patrols = party.Patrols;
+
+        // Poison and bad air hurt once each second of the world, and a wipe holds the run from
+        // this tick (D-397, D-1234, D-1235).
+        MapHarmRules.Tick(state, log);
+        if (state.MapWiped)
+        {
+            return;
+        }
 
         if (patrols.Encounter is null && patrols.CountBeat(party))
         {
@@ -113,6 +128,18 @@ public static class WorldRules
         {
             ExitRules.Leave(state, exit, step.Bumped, log);
             return;
+        }
+
+        // A trap fires on the arrival, after the exit, because no tile holds both. An encounter trap
+        // starts its fight on this tick, and a step into an enemy of the same tick starts no
+        // encounter. A harm that downs each character who fights holds the run from this tick
+        // (D-397, D-1226, D-1231).
+        if (step.Arrived && party.Map.TrapAt(step.At) is MapThing trap)
+        {
+            if (TrapRules.Fire(state, trap, log) || state.MapWiped)
+            {
+                return;
+            }
         }
 
         if (step.Bumped is ContentId bumped)

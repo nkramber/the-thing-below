@@ -69,6 +69,8 @@ internal static class TestBattles
      "aptitude_bonus": 2500,
      "hit_regain": 500,
      "fall_regain": 1000,
+     "map_poison_share": 100,
+     "bad_air_share": 200,
      "level_experience": [0, 20, 60, 120, 200, 300, 420, 560, 720, 900, 1100, 1320, 1560, 1820, 2100, 2400, 2720, 3060, 3420, 3800, 4200, 4620, 5060, 5520, 6000, 6500, 7020, 7560, 8120, 8700, 9300, 9920, 10560, 11220, 11900, 12600, 13320, 14060, 14820, 15600],
      "lesson_slot_levels": [5, 12, 20, 30]
     }
@@ -426,13 +428,19 @@ internal static class TestBattles
       { "id": "notice.chest_found", "log": false },
       { "id": "notice.chest_gold", "log": false },
       { "id": "notice.chest_left", "log": false },
-      { "id": "notice.chest_empty", "log": false }
+      { "id": "notice.chest_empty", "log": false },
+      { "id": "notice.trap_damage", "log": false },
+      { "id": "notice.trap_poison", "log": false },
+      { "id": "notice.trap_blind", "log": false },
+      { "id": "notice.trap_silence", "log": false },
+      { "id": "notice.trap_disarmed", "log": false },
+      { "id": "notice.fell_on_map", "log": true }
      ]
     }
     """;
 
     /// <summary>The string entries of the notices of <see cref="NoticesFile"/>, for the string table of a test content set (G-7).</summary>
-    public const string NoticeStrings = """{ "id": "notice.chest_empty", "text": "Empty." }, { "id": "notice.chest_found", "text": "Found {thing}." }, { "id": "notice.chest_gold", "text": "Found {count} gold." }, { "id": "notice.chest_left", "text": "No room for {thing}." }, { "id": "notice.door_key", "text": "The key turns." }, { "id": "notice.door_locked", "text": "Locked." }, { "id": "notice.door_picked", "text": "The lock gives." }, { "id": "notice.rested", "text": "Rested." }, { "id": "notice.saved", "text": "Saved." }, { "id": "notice.service_closed", "text": "Closed." }, { "id": "notice.test_kept", "text": "A kept line." }, { "id": "notice.test_plain", "text": "A plain line." }""";
+    public const string NoticeStrings = """{ "id": "notice.chest_empty", "text": "Empty." }, { "id": "notice.chest_found", "text": "Found {thing}." }, { "id": "notice.chest_gold", "text": "Found {count} gold." }, { "id": "notice.chest_left", "text": "No room for {thing}." }, { "id": "notice.door_key", "text": "The key turns." }, { "id": "notice.door_locked", "text": "Locked." }, { "id": "notice.door_picked", "text": "The lock gives." }, { "id": "notice.fell_on_map", "text": "One of you does not get up." }, { "id": "notice.rested", "text": "Rested." }, { "id": "notice.saved", "text": "Saved." }, { "id": "notice.service_closed", "text": "Closed." }, { "id": "notice.trap_blind", "text": "Powder in the eyes." }, { "id": "notice.trap_damage", "text": "A trap springs." }, { "id": "notice.trap_disarmed", "text": "The wire is cut." }, { "id": "notice.trap_poison", "text": "A needle in the boot. It burns." }, { "id": "notice.trap_silence", "text": "Sour dust. Throats close." }, { "id": "notice.test_kept", "text": "A kept line." }, { "id": "notice.test_plain", "text": "A plain line." }""";
 
     /// <summary>The notice file of the tests, as a run reads it (D-989).</summary>
     public static readonly NoticeList Notices = NoticeList.Read(Encoding.UTF8.GetBytes(NoticesFile), NoticeList.Path);

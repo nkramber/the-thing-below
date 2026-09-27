@@ -107,7 +107,7 @@ public sealed class StorySnapshotTests
 
         ArgumentException error = Assert.Throws<ArgumentException>(() => TestStory.Resume(Seed, broken));
 
-        Assert.Contains("no encounter and no story scene that waits for it", error.Message, StringComparison.Ordinal);
+        Assert.Contains("no encounter, no story scene that waits for it, and no trap", error.Message, StringComparison.Ordinal);
     }
 
     [Fact]

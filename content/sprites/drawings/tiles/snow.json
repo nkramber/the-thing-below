@@ -1,0 +1,48 @@
+{
+ "id": "drawing.tile_snow",
+ "page": "tiles",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "tile.snow", "use": "map" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "eeeeeeeeeeeeeeeefeeeeeeeeeeeeeeE",
+    "eeeeeeeeeeeeeeeefeeeeeeeeeeeeeeE",
+    "eeeeeeeeeeeeeeeeeeeeeefeeeeeeeeE",
+    "eeeeeeeeEEEEEeEEEEEEeeeeeeeeeeeE",
+    "eeeeeeeeeEEEeeeEEEEeeeeeeweeeeeE",
+    "eeeeeeeeeeeeeeeeeefeeeeeeeeeeewE",
+    "eeeEEEEEEeeEEEEeeEEEEeeeeeeeeeeE",
+    "eeeeEEEEeeeeEEeeeeEEeeeeeeeeeefE",
+    "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeE",
+    "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeE",
+    "eeeeeeweeeeeeeeeeeeeeeeeeeeeeeeE",
+    "eeeeeeeeeeeeeeeeeeeeeeeeEEEEEEeE",
+    "eeeeeeeeeeeeeeeeeeeeeeeeeEEEEeeE",
+    "weeeeeeeEEEEeeeeeeeeeeeeweeeeeeE",
+    "eeeeeeeeeEEEEEeeeeeeeeeeeeeeeeeE",
+    "eeeeeeeeeeeeEeeeeeeeeeeeeeeewweE",
+    "eeeweeeeeeeeeeeeeeeeeeeeeeeeeeeE",
+    "eeeeeeeeeeeeeeeeeeeeeeeeweeeeeeE",
+    "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeE",
+    "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeE",
+    "eeeeeeeeeeeeeeeeeeeEEEEeeeeeeeeE",
+    "eeeeeeeeeeeeweeeeeeeEEeeeeeeeeeE",
+    "eeeeeeeeeeeeeeeeeeeeeeweeeeeeeeE",
+    "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeE",
+    "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeE",
+    "eeeeeeefeeeeeeeeeeeeeeeeeeeeeeeE",
+    "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeewE",
+    "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeE",
+    "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeE",
+    "eeeeeeeeeeweeeeeeeeeeeeeeeeeeeeE",
+    "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeE",
+    "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE"
+   ]
+  }
+ ]
+}

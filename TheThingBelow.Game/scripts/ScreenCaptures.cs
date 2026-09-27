@@ -100,6 +100,16 @@ public static class ScreenCaptures
     /// </summary>
     public const string PitTorchFrame = "torch-1x";
 
+    /// <summary>
+    /// The frame of the pit fixture with the traps and the hazards of PR-64: the lead stands two
+    /// steps from the pit with a Theft drill, so the pit shows, and Marrek is hurt and poisoned, so
+    /// the map HUD shows. The ice of the room lies in the frame too (D-1228, D-1237, D-1238).
+    /// </summary>
+    public const string PitTrapFrame = "trap-1x";
+
+    /// <summary>The tile of the lead in the frame of <see cref="PitTrapFrame"/>, two steps from the pit at (8, 18).</summary>
+    public static readonly (int X, int Y) PitTrapLead = (7, 17);
+
     /// <summary>The ticks from the put-away of the torch to the frame of <see cref="PitTorchFrame"/>, inside the range fade.</summary>
     public const int DarkFadeTicks = 40;
 
@@ -628,6 +638,11 @@ public static class ScreenCaptures
         // The same room with an enemy inside the fade of the dark, which the session proves (exit test 8 of PR-91, D-1062).
         captures.Add(new ScreenCapture(
             PitFixture, PitTorchFrame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
+
+        // The same room with the pit that a Theft drill shows, and the HUD of a hurt and poisoned
+        // party (D-1228, D-1237, D-1238).
+        captures.Add(new ScreenCapture(
+            PitFixture, PitTrapFrame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
 
         // The scroll fixture draws at 1x. Each frame holds one tick of a step south in the pit
         // room, where the view follows the lead (F-97).
