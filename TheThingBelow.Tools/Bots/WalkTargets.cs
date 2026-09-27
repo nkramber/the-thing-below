@@ -10,10 +10,10 @@ namespace TheThingBelow.Tools.Bots;
 /// <summary>How the greedy policy reaches a target (D-1183).</summary>
 public enum TargetReach
 {
-    /// <summary>The lead stands next to the target, faces it, and confirms: an NPC, a door, or a service.</summary>
+    /// <summary>The lead stands next to the target, faces it, and confirms: an NPC, a door, a chest, a save point, or a service.</summary>
     Confirm,
 
-    /// <summary>The lead steps onto the tile: the tile of a trigger of a story scene.</summary>
+    /// <summary>The lead steps onto the tile: the tile of a trigger of a story scene, or an exit.</summary>
     StandOn,
 
     /// <summary>The lead steps into the body from the next tile: the mark of an enemy.</summary>
@@ -24,7 +24,8 @@ public enum TargetReach
 /// <param name="Key">The id of the target, such as the NPC id, which the policy keeps when it reached the target.</param>
 /// <param name="At">The tile of the target.</param>
 /// <param name="Reach">How the lead reaches it.</param>
-public sealed record WalkTarget(string Key, TilePoint At, TargetReach Reach);
+/// <param name="Last">True for an exit, which the policy takes once it reached every other target, so a run explores the map before it leaves (D-1216).</param>
+public sealed record WalkTarget(string Key, TilePoint At, TargetReach Reach, bool Last = false);
 
 /// <summary>
 /// The targets of the walk of the greedy policy on the map of the party, and the shortest path to
@@ -35,8 +36,9 @@ public static class WalkTargets
     private static readonly StepDirection[] Directions = [StepDirection.North, StepDirection.South, StepDirection.East, StepDirection.West];
 
     /// <summary>
-    /// Gives each target of the map: each NPC, each door, each service point, each tile of a
-    /// trigger whose condition holds, and each enemy that lives, in that order (D-1183).
+    /// Gives each target of the map: each NPC, each shut door, each chest that the party never
+    /// opened, each save point and service point, each tile of a trigger whose condition holds,
+    /// each enemy that lives, and each exit, in that order (D-1183, D-1216, D-1221).
     /// </summary>
     /// <param name="state">The state of the run.</param>
     /// <returns>The targets.</returns>
@@ -53,7 +55,14 @@ public static class WalkTargets
 
         foreach (MapThing thing in party.Map.Things)
         {
-            if (thing.Kind is MapThingKind.Door or MapThingKind.ServicePoint)
+            bool confirms = thing.Kind switch
+            {
+                MapThingKind.Door => !party.Place.IsOpen(thing.Id),
+                MapThingKind.Chest => party.Place.LeftIn(thing.Id) is null,
+                MapThingKind.SavePoint or MapThingKind.ServicePoint => true,
+                _ => false,
+            };
+            if (confirms)
             {
                 targets.Add(new WalkTarget(thing.Id.Value, thing.At, TargetReach.Confirm));
             }
@@ -72,6 +81,14 @@ public static class WalkTargets
             if (!patrol.Dead)
             {
                 targets.Add(new WalkTarget(patrol.Patrol.Id.Value, patrol.At, TargetReach.Bump));
+            }
+        }
+
+        foreach (MapThing thing in party.Map.Things)
+        {
+            if (thing.Kind == MapThingKind.Exit)
+            {
+                targets.Add(new WalkTarget(thing.Id.Value, thing.At, TargetReach.StandOn, Last: true));
             }
         }
 
@@ -146,8 +163,9 @@ public static class WalkTargets
     private static bool Reaches(TilePoint at, WalkTarget target) =>
         target.Reach == TargetReach.StandOn ? at == target.At : Toward(at, target.At) is not null;
 
+    /// <summary>Tells whether the lead can step onto a tile, through each open door, with no NPC and no enemy on it (D-41).</summary>
     private static bool Walkable(MapState party, TilePoint at) =>
-        MapRules.CanEnter(party.Map, at)
+        party.CanStepOnto(at)
         && !party.Npcs.TryNpcAt(at, out _)
         && !party.Patrols.TryEnemyAt(at, out _);
 }

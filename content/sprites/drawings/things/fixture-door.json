@@ -1,0 +1,50 @@
+{
+ "id": "drawing.fixture_door",
+ "page": "map_sprites",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "door.fixture_dungeon_hall", "use": "map" },
+  { "content": "door.fixture_dungeon_store", "use": "map" },
+  { "content": "door.fixture_dungeon_vault", "use": "map" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "....kkkkkkkkkkkkkkkkkkkkkkkk....",
+    "....ktBBBBbBBBBbBBBBBbBBBBBk....",
+    "....ktBBBBbBBBBbBBBBBbBBBBBk....",
+    "....ktBBBBbBBBBbBBBBBbBBBBBk....",
+    "....ktBBBBbBBBBbBBBBBbBBBBBk....",
+    "....kGGGGGGGGGGGGGGGGGGGGGGk....",
+    "....kggkggggkgggggkgggggkggk....",
+    "....kggggggggggggggggggggggk....",
+    "....ktBBBBbBBBBbBBBBBbBBBBBk....",
+    "....ktBBBBbBBBBbBBBBBbBBBBBk....",
+    "....ktBBBBbBBBBbBBBBBbBBBBBk....",
+    "....ktBBBBbBBBBbBBBBBbBBBBBk....",
+    "....ktBBBBbBBBBbBBBBBbBBBBBk....",
+    "....ktBBBBbBBBBbBBBByOOBBBBk....",
+    "....ktBBBBbBBBBbBBBOgggOBBBk....",
+    "....ktBBBBbBBBBbBBBOgggOBBBk....",
+    "....ktBBBBbBBBBbBBBOBbBOBBBk....",
+    "....ktBBBBbBBBBbBBBOBbBOBBBk....",
+    "....ktBBBBbBBBBbBBBBOOOBBBBk....",
+    "....ktBBBBbBBBBbBBBBBbBBBBBk....",
+    "....ktBBBBbBBBBbBBBBBbBBBBBk....",
+    "....ktBBBBbBBBBbBBBBBbBBBBBk....",
+    "....ktBBBBbBBBBbBBBBBbBBBBBk....",
+    "....ktBBBBbBBBBbBBBBBbBBBBBk....",
+    "....kGGGGGGGGGGGGGGGGGGGGGGk....",
+    "....kggkggggkgggggkgggggkggk....",
+    "....kggggggggggggggggggggggk....",
+    "....ktBBBBbBBBBbBBBBBbBBBBBk....",
+    "....ktBBBBbBBBBbBBBBBbBBBBBk....",
+    "....ktBBBBbBBBBbBBBBBbBBBBBk....",
+    "....ktBBBBbBBBBbBBBBBbBBBBBk....",
+    "....kkkkkkkkkkkkkkkkkkkkkkkk...."
+   ]
+  }
+ ]
+}

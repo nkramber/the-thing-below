@@ -2,7 +2,7 @@
  "comment": "The place of every frame in the atlas (D-666). The atlas command of Tools writes this file and each page beside it, and no session edits either one by hand (D-107). A page holds one kind of drawing, and a tile page is a strict grid of 32 by 32 cells (D-667). Run the command again after a change to a drawing file.",
  "pages": [
   { "kind": "tiles", "number": 1, "width": 2048, "height": 32 },
-  { "kind": "map_sprites", "number": 1, "width": 352, "height": 32 },
+  { "kind": "map_sprites", "number": 1, "width": 512, "height": 32 },
   { "kind": "battle_sprites", "number": 1, "width": 160, "height": 64 },
   { "kind": "portraits", "number": 1, "width": 192, "height": 64 },
   { "kind": "ui", "number": 1, "width": 320, "height": 24 },
@@ -111,6 +111,32 @@
    ]
   },
   {
+   "id": "drawing.fixture_chest",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "chest.fixture_dungeon_store", "use": "map" },
+    { "content": "chest.fixture_dungeon_cache", "use": "map" }
+   ],
+   "frames": [
+    { "x": 160, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.fixture_chest_open",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "chest.fixture_dungeon_store", "use": "map_open" },
+    { "content": "chest.fixture_dungeon_cache", "use": "map_open" }
+   ],
+   "frames": [
+    { "x": 192, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
    "id": "drawing.fixture_dog_map_front",
    "page": "map_sprites",
    "width": 32,
@@ -119,7 +145,47 @@
     { "content": "npc.fixture_hub_dog", "use": "map_front" }
    ],
    "frames": [
-    { "x": 160, "y": 0, "ticks": 0 }
+    { "x": 224, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.fixture_door",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "door.fixture_dungeon_hall", "use": "map" },
+    { "content": "door.fixture_dungeon_store", "use": "map" },
+    { "content": "door.fixture_dungeon_vault", "use": "map" }
+   ],
+   "frames": [
+    { "x": 256, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.fixture_door_open",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "door.fixture_dungeon_hall", "use": "map_open" },
+    { "content": "door.fixture_dungeon_store", "use": "map_open" },
+    { "content": "door.fixture_dungeon_vault", "use": "map_open" }
+   ],
+   "frames": [
+    { "x": 288, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.fixture_exit",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "exit.fixture_dungeon_way_up", "use": "map" }
+   ],
+   "frames": [
+    { "x": 320, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -133,7 +199,7 @@
     { "content": "patrol.fixture_dungeon_deep", "use": "map_front" }
    ],
    "frames": [
-    { "x": 192, "y": 0, "ticks": 0 }
+    { "x": 352, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -142,10 +208,11 @@
    "width": 32,
    "height": 32,
    "draws": [
-    { "content": "service_point.fixture_hub_waystone", "use": "map" }
+    { "content": "save_point.fixture_hub_waystone", "use": "map" },
+    { "content": "save_point.fixture_dungeon_camp", "use": "map" }
    ],
    "frames": [
-    { "x": 224, "y": 0, "ticks": 0 }
+    { "x": 384, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -157,7 +224,7 @@
     { "content": "cast.marrek", "use": "map_front" }
    ],
    "frames": [
-    { "x": 256, "y": 0, "ticks": 0 }
+    { "x": 416, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -169,7 +236,7 @@
     { "content": "cast.marrek", "use": "map_torch" }
    ],
    "frames": [
-    { "x": 288, "y": 0, "ticks": 0 }
+    { "x": 448, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -182,7 +249,7 @@
     { "content": "npc.fixture_hub_barmaid", "use": "map_front" }
    ],
    "frames": [
-    { "x": 320, "y": 0, "ticks": 0 }
+    { "x": 480, "y": 0, "ticks": 0 }
    ]
   },
   {

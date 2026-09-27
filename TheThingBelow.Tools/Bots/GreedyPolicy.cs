@@ -93,7 +93,7 @@ public sealed class GreedyPolicy : IBotPolicy
         if (!this.served)
         {
             this.served = true;
-            if ((FirstOf(accepted, IntentIds.HubSave) ?? FirstOf(accepted, IntentIds.HubRest)) is Intent service)
+            if ((FirstOf(accepted, IntentIds.Save) ?? FirstOf(accepted, IntentIds.HubRest)) is Intent service)
             {
                 return service;
             }
@@ -134,9 +134,9 @@ public sealed class GreedyPolicy : IBotPolicy
         StepDirection facing = WalkTargets.Toward(party.LeadAt, nearest.At)
             ?? throw new InvalidOperationException($"the greedy policy stands at {party.LeadAt} and reaches '{nearest.Key}' at {nearest.At}, and the two tiles do not touch (T-2)");
 
-        // A step into an enemy bumps it, and a step onto a door that no rule makes solid yet walks
-        // onto it (D-747, D-1142). Either one reaches the target.
-        if (nearest.Reach == TargetReach.Bump || MapRules.CanEnter(party.Map, nearest.At))
+        // A step into an enemy bumps it, and a step onto a tile that takes the lead walks onto it
+        // (D-747, D-1142). Either one reaches the target.
+        if (nearest.Reach == TargetReach.Bump || party.CanStepOnto(nearest.At))
         {
             this.reached.Add(nearest.Key);
             return FirstOf(accepted, MoveOf(facing));
@@ -152,15 +152,25 @@ public sealed class GreedyPolicy : IBotPolicy
         return FirstOf(accepted, IntentIds.Confirm);
     }
 
-    /// <summary>Gives the target with the shortest path that the policy did not reach, and marks each target with no path as reached.</summary>
+    /// <summary>
+    /// Gives the target with the shortest path that the policy did not reach, and marks each target
+    /// with no path as reached. An exit counts once no other target is left (D-1216).
+    /// </summary>
     private WalkTarget? Nearest(MapState party, IReadOnlyList<WalkTarget> targets, out StepDirection? step)
+    {
+        WalkTarget? found = this.Nearest(party, targets, last: false, out step);
+        return found ?? this.Nearest(party, targets, last: true, out step);
+    }
+
+    /// <summary>Gives the target of one kind, an exit or any other, with the shortest path that the policy did not reach.</summary>
+    private WalkTarget? Nearest(MapState party, IReadOnlyList<WalkTarget> targets, bool last, out StepDirection? step)
     {
         WalkTarget? nearest = null;
         int shortest = int.MaxValue;
         step = null;
         foreach (WalkTarget target in targets)
         {
-            if (this.reached.Contains(target.Key))
+            if (target.Last != last || this.reached.Contains(target.Key))
             {
                 continue;
             }

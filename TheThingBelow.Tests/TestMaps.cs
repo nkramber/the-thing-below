@@ -29,7 +29,7 @@ public static class TestMaps
          "label": "label.test_room",
          "time": "day",
          "dark": false,
-         "kind": "dungeon", "npcs": [], "services": [],
+         "kind": "dungeon", "npcs": [], "services": [], "reopen": [],
          "terrain": [
           "############",
           "#..........#",
@@ -44,7 +44,7 @@ public static class TestMaps
          "things": [
           { "id": "spawn_point.test_room_start", "kind": "spawn_point", "x": 2, "y": 2 },
           { "id": "door.test_room_east", "kind": "door", "x": 11, "y": 4 },
-          { "id": "lock.test_room_east", "kind": "lock", "x": 11, "y": 4, "pickable": false }
+          { "id": "lock.test_room_east", "kind": "lock", "x": 11, "y": 4, "pickable": false, "key": "item.test_key" }
          ],
          "enemies": [], "triggers": []
         }
@@ -64,7 +64,7 @@ public static class TestMaps
          "label": "label.test_patrolled",
          "time": "day",
          "dark": false,
-         "kind": "dungeon", "npcs": [], "services": [],
+         "kind": "dungeon", "npcs": [], "services": [], "reopen": [],
          "terrain": [
           "################",
           "#..............#",
@@ -153,7 +153,7 @@ public static class TestMaps
     {
         var text = new StringBuilder();
         text.Append("{\n \"comment\": \"An open map for the tests of the camera.\",\n");
-        text.Append($" \"id\": \"{id}\",\n \"region\": \"region.test\",\n \"label\": \"{label}\",\n \"time\": \"day\",\n \"dark\": false,\n \"kind\": \"dungeon\", \"npcs\": [], \"services\": [],\n \"terrain\": [\n");
+        text.Append($" \"id\": \"{id}\",\n \"region\": \"region.test\",\n \"label\": \"{label}\",\n \"time\": \"day\",\n \"dark\": false,\n \"kind\": \"dungeon\", \"npcs\": [], \"services\": [], \"reopen\": [],\n \"terrain\": [\n");
         for (int row = 0; row < height; row += 1)
         {
             bool edge = row == 0 || row == height - 1;

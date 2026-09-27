@@ -24,7 +24,7 @@ Game terms from the roadmap interview of 2026-09-12:
 | lead | the one character whom story scenes center on (D-267) | hero, protagonist, main character |
 | ability | an action that a lesson gives (D-272, D-278) | skill, technique, move |
 | spell | an ability that a rite gives. It costs AP, as a drill does (D-275, D-1197) | magic, cast |
-| AP | ability power: the one pool of each character, which each form spends and which a rest, a save point, an item, and a fight restore (D-1197, D-1198) | MP, mana, magic points |
+| AP | ability power: the one pool of each character, which each form spends and which a rest, an item, and a fight restore (D-1197, D-1198, D-1221) | MP, mana, magic points |
 | party | the one to three characters in battle (D-31, D-336) | team, group |
 | reserve | the characters who wait outside the party (D-58) | bench, backup |
 | cast | the story characters who can join the party, eight in the whole game (D-33, D-299) | roster, heroes |
@@ -43,7 +43,7 @@ Game terms from the roadmap interview of 2026-09-12:
 | body | the tiles that one enemy holds: one, two by two, or three by three (D-206, D-737) | footprint, hitbox |
 | timeline | the visible turn order in battle (D-29) | queue, initiative |
 | turn | one action of one combatant on the timeline | move, when the text means one turn, and round |
-| save point | the place in a dungeon that saves the party (D-36, D-1134) | checkpoint, shrine, in documents |
+| save point | the solid thing on a hub or in a dungeon that opens the save window and restores nothing (D-36, D-1221, D-1222) | checkpoint, shrine, waystone, in documents |
 | down | the state of a fallen character (D-36) | dead, KO, unconscious |
 | push | the ticks that one action adds to the next turn of its user (D-376, D-768) | cooldown, recovery |
 | delay | the number of an action in content that a push reads, in ticks at speed 100 (D-757) | cost, speed cost |
@@ -71,6 +71,13 @@ Game terms from the roadmap interview of 2026-09-12:
 | stack limit | the most copies of one item or one piece of gear that the party owns, worn copies included (D-1038, D-1039) | stack size, max stack, cap |
 | used-up item | an item that one use spends, such as a draught (D-384) | consumable |
 | key item | an item with a stack limit of 1 that a use never spends, such as the torch (D-848, D-1038, D-1065) | unique item, quest item |
+| Keyring | the entry of the key items that holds each key of a lock (D-1219) | key ring, key chain |
+| story lock | a lock that its key alone opens, and no Theft drill (D-386, D-1219) | key lock, plot lock |
+| pickable lock | a lock that a Theft drill of a standing character of the party opens (D-386) | weak lock, easy lock |
+| chest entry | one item, piece of gear, or lesson of a chest, with its count (D-1220) | chest slot, loot line |
+| memory of a map | the killed enemies, the open doors, and what stays in each chest of one map, which lasts past the exit (D-555) | map state, map save, persistence |
+| exit | the thing of a map whose tile enters the map that it names (D-1216) | door out, warp, portal |
+| reopen | the story event that brings the killed enemies of a place back at the next entry (D-555) | respawn, reset |
 | held out | the state of the torch in the hand, which is always lit (D-1064) | lit, when the text means this state, and torch on |
 | put away | the state of the torch in the pack, with no light (D-1064) | put out, unlit, extinguished |
 | dark map | a map whose file sets the `dark` field, where the sight of the party hides each thing past it (D-1062) | dark area, unlit map |
@@ -237,7 +244,7 @@ UI and input terms from the roadmaps PR of 2026-09-16:
 | task window | a window of the menu that the main list opens, such as the party window or the status window (D-211) | submenu, page |
 | notice box | the box at the top edge of the frame that shows one notice (D-221, D-994) | banner, toast |
 | notice log | the newest notices that content marks to log, and the menu window that lists them (D-983 to D-987) | journal, history, message log |
-| dungeon map screen | the menu screen that draws each tile that the party walked, with its doors and its save points (D-567, D-982) | minimap, automap |
+| dungeon map screen | the menu screen that draws each tile that the party walked, with the doors, the save points, and the exits on those tiles or beside them (D-567, D-982, D-1225) | minimap, automap |
 
 Story terms from the roadmaps PR of 2026-09-16:
 

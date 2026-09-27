@@ -19,7 +19,7 @@ public sealed class NoticeBox
     private readonly Control layer;
     private readonly Label line;
     private readonly FrameBox box;
-    private ContentId? shown;
+    private long? shown;
 
     /// <summary>Builds the notice box over the frame, hidden.</summary>
     /// <param name="frame">The frame, whose UI layer takes the notice box.</param>
@@ -59,10 +59,12 @@ public sealed class NoticeBox
             return;
         }
 
-        if (this.shown is null || string.CompareOrdinal(this.shown.Value, frame.Notice.Value) != 0)
+        // Two notices can share an id with other values, such as two finds of a chest, so the
+        // box puts the line again for each new notice of the queue (D-1224).
+        if (this.shown != frame.Serial)
         {
-            this.ui.Text.Put(this.line, frame.Notice);
-            this.shown = frame.Notice;
+            this.ui.Text.Put(this.line, frame.Notice, frame.Values);
+            this.shown = frame.Serial;
         }
 
         this.line.VisibleCharacters = frame.Characters;

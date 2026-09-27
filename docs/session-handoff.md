@@ -1,3 +1,198 @@
+## Session 368: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-16, round 4. Repository: the-thing-below. Branch: `feat/pr-16-dungeon-parts`. PR: #91. Role: author. Base: `78b0d24`.
+
+### What this session did, and why
+
+- The repeat review approved the effective head `9ad7f4b0`: `Ready for owner merge`, with no open finding (T-4, D-17). The record is `docs/reviews/pr-91.md`, in `3df2092`.
+- Gitar approved `9ad7f4b0` and the review commit with no thread. Each CI claim on RG 3 to RG 5 has its answer in a PR comment (D-964).
+
+### The state of the build
+
+- CI run 36340357804 on `9ad7f4b0` passed each leg. The `review-gate` run 36341304057 passed on `3df2092`.
+- The remote head before this push is `3df2092`, the review record.
+
+### What is in flight
+
+- The checks of this metadata commit, then the merge question to the owner (D-933, D-942). The PR then waits for the auto-merge (D-930).
+
+### Traps and gotchas
+
+- The review commit adds a handoff entry of its own, so the author reads the top number again before each entry.
+
+### The questions that block progress
+
+None for PR-16. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Ask the owner to confirm the merge with the summary of D-942, then turn on the auto-merge (D-930).
+
+## Session 367: 2026-09-27, Codex
+
+Author: Codex
+Session: review PR #91 (PR-16), round 2. Repository: the-thing-below. Branch: `review/pr-91`, which tracks `origin/feat/pr-16-dungeon-parts`. Role: reviewer. Base: `78b0d24`.
+
+### What this session did, and why
+
+- Re-reviewed effective head `9ad7f4b` and verified the fix for P2-1. The resume keeps a newly placed enemy dead when map memory holds it dead (D-555, D-1111).
+- Updated `docs/reviews/pr-91.md` to close P2-1 and approve the effective head. The new regression test fails on the prior head.
+
+### The state of the build
+
+- `make verify` passed locally, with 4,196 tests, format, lint, STE, identity, bots, content, atlas, and smoke.
+- CI passed each required leg except `review-gate`, which still read the old review record. The remote head before this metadata commit is `9ad7f4b`.
+
+### What is in flight
+
+- The review record and this entry need one metadata commit and a push to `feat/pr-16-dungeon-parts`.
+- The CI checks of that metadata commit then need verification.
+
+### Traps and gotchas
+
+- The metadata commit does not change effective head `9ad7f4b`.
+- The Gitar CI claim names RG 4 and RG 5 from the old review record. The author answered that claim in a PR comment (D-964).
+
+### The questions that block progress
+
+None for PR-16. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Commit the review record and this entry together, push to the PR branch, then verify the remote head and checks.
+
+## Session 366: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-16, round 3. Repository: the-thing-below. Branch: `feat/pr-16-dungeon-parts`. PR: #91. Role: author. Base: `78b0d24`.
+
+### What this session did, and why
+
+- Gitar approved `6a9eb1ae` with no thread. Its CI claim, RG 3, has its answer in a PR comment (D-964).
+- The cross-provider review of `6a9eb1ae` gave `Changes required` with P2-1: a resume of another build could revive an enemy that the memory of the map holds dead. The finding has full merit. `MapPatrols.Resume` now reads the memory, and a snapshot of this build with such an enemy alive refuses the load (D-555, D-1111). The answer is `docs/reviews/pr-91-response.md`.
+
+### The state of the build
+
+- `make verify` passed at the correction: 4,196 tests, format, lint, STE, identity, bots, content, atlas, and smoke.
+- The remote head before this push is `dce3ed8`, the review record.
+
+### What is in flight
+
+- The Gitar pass and the CI legs of the correction, then `make codex-review PR=91` again.
+
+### Traps and gotchas
+
+- The map memory is the source of a dead enemy on each resume. The stored enemy values still give its place.
+
+### The questions that block progress
+
+None for PR-16. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Wait for the Gitar poll and the checks of the correction, then run `make codex-review PR=91` in the background.
+
+## Session 365: 2026-09-27, Codex
+
+Author: Codex
+Session: review PR #91 (PR-16). Repository: the-thing-below. Branch: `review/pr-91`, which tracks `origin/feat/pr-16-dungeon-parts`. Role: reviewer. Base: `78b0d24`.
+
+### What this session did, and why
+
+- Reviewed effective head `6a9eb1a` and found a save-resume gap between the patrol values and the memory of a map (D-555, D-1111).
+- Recorded P2-1 in `docs/reviews/pr-91.md`. The memory can mark a patrol dead while resume starts it alive after content drift.
+- Gitar approved the head and made a CI-analysis claim about RG 3. The author answered each CI-analysis claim (D-964).
+
+### The state of the build
+
+- `make verify` passes locally, including 4,194 tests, bots, smoke, lint, identity, content, atlas, and STE.
+- CI run `36338585597` passes each required leg except `review-gate`, which faults because the head has no review record. The remote head before this metadata commit is `6a9eb1a`.
+
+### What is in flight
+
+- This review record and handoff entry need one metadata commit and a push to `feat/pr-16-dungeon-parts`.
+- The review verdict is `Changes required` until the save-resume gap is fixed and reviewed.
+
+### Traps and gotchas
+
+- `MapState.Resume` restores patrol values without the memory of the map. A later content revision can activate a patrol that the memory holds as dead.
+
+### The questions that block progress
+
+None for PR-16. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Fix P2-1, add its regression test, and run the PR checks.
+
+## Session 364: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-16, round 2. Repository: the-thing-below. Branch: `feat/pr-16-dungeon-parts`. PR: #91. Role: author. Base: `78b0d24`.
+
+### What this session did, and why
+
+- Gitar approved `7c0483b` with no thread. Its one CI claim, RG 3 of `review-gate`, has its answer in a PR comment: the review record comes with the cross-provider review (D-964).
+- CI run 36337887982 passed each leg but `screen-test` and `review-gate`. The author read the 45 changed captures and took them as the baseline: the form line of D-1209 with the space of the owner, the Items window with the key items, the map screen with the waystone and the exit, and the walk, scroll, and pit frames that now draw the waystone and the cache chest (D-733, D-784).
+
+### The state of the build
+
+- Each build, test, smoke, replay-identity, bots, det-lint, night-gate, and ste-check leg passed on `7c0483b`.
+- The remote head before this push is `7c0483b`.
+
+### What is in flight
+
+- The CI legs of the baseline commit, then `make codex-review PR=91`.
+
+### Traps and gotchas
+
+- The baseline commit changes screens alone, so it moves the effective head, and Gitar reviews it again.
+
+### The questions that block progress
+
+None for PR-16. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Wait for the Gitar poll and the checks of the baseline commit, then run `make codex-review PR=91` in the background.
+
+## Session 363: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-16, round 1. Repository: the-thing-below. Branch: `feat/pr-16-dungeon-parts`. PR: PR-16, the GitHub number follows the push. Role: author. Base: `78b0d24`.
+
+### What this session did, and why
+
+- The owner answered the design of the dungeon parts: D-1216 to D-1225. The save point and the hub waystone merge into one kind that saves alone (D-1221). PR-19 takes the free rest (D-1218).
+- Core: solid doors, chests, and save points; the door and lock rule with the kept key and the Theft drill; the chest with the fallback and the kept rest; the exit; the memory of each map; the reopen flags; notices with values. Save format 18, and the simulation version 35.
+- Game: the art of the doors, the chests, and the exit; the save window of a save point; the Keyring in the Items window; the exit mark beside a walked tile.
+- The bots take doors, chests, save points, and the exit last. The owner approved one space between the AP cost and AP in the form line, with no record.
+
+### The state of the build
+
+- Local: `make build`, all 4,200 tests, `make format`, `make lint`, the STE check, `make bots`, and `make smoke` pass. The content hash and the identity file are rewritten.
+- The remote head before this push is `78b0d24`, the base.
+
+### What is in flight
+
+- The first push of PR-16, then the Gitar pass and the CI legs. The screen baselines change in CI: the menu items, the map screen, the hub, and the save window.
+
+### Traps and gotchas
+
+- The hall door moved from (11, 4) to (27, 6), so the battle walk and its captures keep their ticks.
+- A patrol sees a lead that touches it, diagonal tiles too, so a test map keeps each patrol off the paths.
+- `make sheet` writes no frame of 1080 rows on a screen smaller than that. The 1x frames are read.
+- Core refuses a list literal with elements, because it pulls in `System.Runtime.InteropServices`.
+
+### The questions that block progress
+
+None for PR-16. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Open the PR, run the Gitar poll, take the CI screen baselines, and answer each Gitar item before `make codex-review`.
+
 ## Session 362: 2026-09-27, Claude Code
 
 Author: Claude Code
@@ -129,208 +324,3 @@ None for PR-107. OQ-251 blocks PR-35.
 ### The next concrete action
 
 Take the gear baselines from the capture artifact of CI, push them, run the Gitar poll, and then start the cross-provider review.
-
-## Session 358: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-107, round 2. Repository: the-thing-below. Branch: `feat/pr-107-ability-power`. PR: #90. Role: author. Base: `48ed83b`.
-
-### What this session did, and why
-
-- Gitar approved `5a107ae` with one finding: a regain rate of 0 still gave 1 AP through the floor. `818c593` makes the rules file refuse a rate of 0, with regression rows in `BattleFixtureTests`. Gitar offered an early return in `Regain`. The load refusal is better, because a 0 that loads and does nothing is a silent fault (T-2).
-- The Gitar CI claim on `review-gate` is RG 3 alone: no review record yet. It needs no fix.
-- The screen-test job of CI run 36302235212 named 31 captures. Each one shows AP in place of MP. `battle-lessons-1x` and `battle-lessons-fill-1080` also show "2AP - A hard cut at the front row.", because Hew now costs AP. This round commits the 31 files as the new baseline (D-733).
-
-### The state of the build
-
-- CI on `5a107ae` passed each check except `screen-test`, for the frames above, and `review-gate`, for RG 3.
-- The remote head before this push is `5a107ae`.
-
-### What is in flight
-
-- The Gitar pass of this push, then `make codex-review PR=90` when every check but `review-gate` is green.
-
-### Traps and gotchas
-
-- `make sheet` captures each frame, then fails to join the sheet: the joined image passes 65,535 rows. PR-107 changes no capture, so the fault was on `main` before it.
-
-### The questions that block progress
-
-None for PR-107. OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Answer the Gitar thread with `818c593`, run the Gitar poll, and then start the cross-provider review.
-
-## Session 357: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-107. Repository: the-thing-below. Branch: `feat/pr-107-ability-power`. PR: the one PR of PR-107. Role: author. Base: `48ed83b`.
-
-### What this session did, and why
-
-- The owner answered OQ-252 and three new questions: both regains from one blow (D-1210), no message for a regain (D-1211), Bolt and Pilfer at 2 AP (D-1212), and a floor of 1 AP for each form (D-1213).
-- Ability power, AP, replaces MP in Core, content, Game, Tools, and the string table (D-1197). The fixture costs follow D-1199 and D-1212.
-- A fall of an enemy gives each character who is not down 10% of full AP. A basic attack that hits gives the attacker 5%, before the fall regain (D-1198, D-1210). The rules file holds `hit_regain` and `fall_regain`. A silent `Regain` event keeps the AP bar true (D-1211).
-- Save format 17 names the pool `ap`, and formats 7 to 16 read `mp` as AP. The fixture `format-17.json` comes from the resumed run of format 16. The simulation version is 34, and the identity file and the content hash are new.
-- `AbilityPowerTests` holds exit tests 1 to 4, the rule of D-1210, the cap at full AP, and a loop of 1,000 seeds. `SaveFixtureTests` holds exit test 5.
-- The design doc, five area files, the phase files of Phase 2 and Phase 4, the glossary, and the `game-text-style` skill say AP.
-
-### The state of the build
-
-- Local: build, 4,169 tests, format, det-lint, the STE check, the content hash, and the identity file pass.
-- The remote head before this push is `48ed83b`, the merge of PR-108.
-
-### What is in flight
-
-- The first push, the PR, and the Gitar pass. The screen-test job fails on the frames that show AP, and its artifact gives the new baselines (D-733).
-
-### Traps and gotchas
-
-- The string `battle.form_entry_free` is now `battle.form_name`: the battle list shows the name alone, and no form is free (D-1195, D-1213).
-- `SnapshotLines.AsFormatSixteen` of Tests renames `ap` to `mp`, and each older converter calls it.
-- A regain at full AP adds no event. A test that counts events must expect none there.
-- `make sheet` captures each frame, then fails to join the sheet: the joined image passes 65,535 rows. PR-107 changes no capture, so the fault was on `main` before it. Read the frames in `artifacts/captures/`.
-
-### The questions that block progress
-
-None for PR-107. OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Push, open the PR, run the Gitar poll, and then take the screen baselines from the capture artifact of CI.
-
-## Session 356: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-108, round 8. Repository: the-thing-below. Branch: `feat/pr-108-night-recovery`. PR: #89. Role: author. Base: `a8ba710`.
-
-### What this session did, and why
-
-- Review round 3 approved the effective head `132942b`: `Ready for owner merge`, with P1-1 and P2-1 fixed (T-4, D-17).
-- Gitar approved `2bb095b` with its four findings closed, and each Gitar item has its answer (D-964).
-- The Gitar pass had four findings with merit, answered in `1521218`, `9944c29`, `4779565`, and `132942b`. The review had two, answered in `cdc3ed7` and `8179c98`.
-
-### The state of the build
-
-- CI on `2bb095b` passed each check except `review-gate`, which waited for the record of round 3.
-- The remote head before this push is `0ac3061`, the review record of round 3.
-
-### What is in flight
-
-- The checks of this metadata commit, then the merge question to the owner (D-933, D-942).
-- After the merge: `make night-watch-install` on the Mac, one test message through `notify.yml`, and the transitional prompt.
-
-### Traps and gotchas
-
-- `notify.yml`, `night-promote.yml`, and the facts action first run from `main`, after the merge (F-37).
-
-### The questions that block progress
-
-None for PR-108. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Ask the owner to confirm the merge with the summary of D-942, then turn on the auto-merge (D-930).
-
-## Session 355: 2026-09-27, Codex
-
-Author: Codex
-Session: repeat review PR #89 (PR-108). Repository: the-thing-below. Branch: `review/pr-89`, which tracks `origin/feat/pr-108-night-recovery`. Role: reviewer. Base: `a8ba710`.
-
-### What this session did, and why
-
-- Reviewed effective head `132942b` and verified P2-1: the promotion wait reads all pages and queries statuses in lifecycle order (D-1202, T-3).
-- Gitar confirmed all four code findings closed. The latest CI-analysis claim names RG 4 and RG 5 from the prior review record, and this record updates that head and verdict (D-964).
-- Updated the review record for `132942b`. No in-scope finding remains.
-
-### The state of the build
-
-- `NightWorkflowTests` passes 17/17. CI run `36299379234` passes build, test, and format on each leg, bots, smoke, replay identity, screen test, det-lint, and STE. Night-gate run `36299379312` passes.
-- The remote head before this metadata commit is `2bb095b`. Review-gate run `36299379320` reads the prior record and faults only on RG 4 and RG 5.
-
-### What is in flight
-
-- This review record and entry need one metadata commit and a push to `feat/pr-108-night-recovery`.
-- The PR waits for the new review-gate result, then for the owner merge (D-930).
-
-### Traps and gotchas
-
-- The workflow and test changes in this round do not change the screen.
-- `notify.yml`, `night-promote.yml`, and the facts action first run from `main`, after the merge (F-37).
-
-### The questions that block progress
-
-None for PR-108. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Commit and push this review record and entry together. Then verify the new review-gate result and the remote head.
-
-## Session 354: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-108, round 7. Repository: the-thing-below. Branch: `feat/pr-108-night-recovery`. PR: #89. Role: author. Base: `a8ba710`.
-
-### What this session did, and why
-
-- Gitar approved `cd04546` with one suggestion: the status queries of the promotion wait ran out of the order of the life of a run, so a run that moved on between two queries could fall between them.
-- `132942b` asks for `requested`, `pending`, `waiting`, `queued`, and `in_progress` in that order, so a run that moves on shows in the later query (D-1202).
-- The review gate faults on RG 4 and RG 5 until review round 3 writes the new record.
-
-### The state of the build
-
-- Local build, format, and STE are clean. The workflow tests pass.
-- The remote head before this push is `cd04546`.
-
-### What is in flight
-
-- The Gitar pass of this push, then `make codex-review PR=89`, round 3 of the review.
-- After the merge: `make night-watch-install` on the Mac, and one test message through `notify.yml`.
-
-### Traps and gotchas
-
-- `notify.yml`, `night-promote.yml`, and the facts action first run from `main`, after the merge (F-37).
-- P2-1 counts one round. A third open round of one finding stops the loop (D-929).
-
-### The questions that block progress
-
-None for PR-108. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Run the Gitar poll. When every check except `review-gate` is green, run `make codex-review PR=89` in the background.
-
-## Session 353: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-108, round 6. Repository: the-thing-below. Branch: `feat/pr-108-night-recovery`. PR: #89. Role: author. Base: `a8ba710`.
-
-### What this session did, and why
-
-- Review round 2 of `4779565` closed P1-1 and gave `Changes required` with P2-1: the promotion wait read one page of 50 runs, so an old open run could fall outside it.
-- `8179c98` asks the API for each open status with every page, and the ids go through one sorted file (D-1202). `docs/reviews/pr-89-response.md` holds the answer, with full merit.
-- Gitar approved `548969b` with its three findings closed.
-
-### The state of the build
-
-- Local build, format, and STE are clean. The workflow tests pass.
-- The remote head before this push is `74c5dca`, the review metadata of round 2.
-
-### What is in flight
-
-- The Gitar pass of this push, then `make codex-review PR=89`, round 3 of the review.
-- After the merge: `make night-watch-install` on the Mac, and one test message through `notify.yml`.
-
-### Traps and gotchas
-
-- `notify.yml`, `night-promote.yml`, and the facts action first run from `main`, after the merge (F-37).
-- P1-1 is closed. P2-1 counts one round. A third open round of one finding stops the loop (D-929).
-
-### The questions that block progress
-
-None for PR-108. OQ-252 blocks PR-107, and OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Run the Gitar poll. When every check except `review-gate` is green, run `make codex-review PR=89` in the background.

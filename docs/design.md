@@ -162,6 +162,12 @@ The shop window takes a count, and it shows the change of each fighter for a pie
 
 2026-09-27 ability power pass: PR-107 puts ability power, AP, in place of MP as the one pool of each character. Each form costs at least 1 AP, a drill too (D-1197, D-1199, D-1212, D-1213). A fall of an enemy gives each character who is not down 10% of full AP. A basic attack that hits gives the attacker 5%. One blow can give both, and no message shows a regain (D-1198, D-1210, D-1211).
 
+2026-09-27 dungeon parts pass: PR-16 builds the doors, the locks, the keys, the chests, the save points, and the exit. A key is a key item on the Keyring, and it stays after it opens its lock (D-1219). A chest lists its entries and its gold, and a lesson entry names its fallback item (D-1220). One save point kind serves each map, and it saves alone, because a fight restores AP (D-1221, D-1222). The exit enters the map that it names, the fixture hub until PR-35, and it restores nothing (D-1216, D-1217).
+
+2026-09-27 free rest pass: PR-19 builds the free rest of a poor and hurt party (D-1218). A chest names each copy in its own notice (D-1224).
+
+2026-09-27 dungeon map pass: the map screen marks a door, a save point, or an exit beside a walked tile. A shut door and a save point are solid (D-1225).
+
 External facts, each with the date of its check:
 
 - The GitHub repository `nkramber/the-thing-below` is public. Its name changed from the working title on 2026-09-14 (D-410). Source: `gh repo view`, run 2026-09-14.
@@ -365,7 +371,7 @@ Status: ✅ done (code merged, or "doc" for a document-only correction) · 🔧 
 | F-7 | D-36 leaves a fallen character down until a hub, and a three-character party (D-31) then fights with two. No decision balances the short-handed party | 2026-09-12 | ⚠ D-58 gives a reserve, and D-1134 lets the party swap anywhere outside a fight. Binds PR-14 and M-4 |
 | F-8 | D-42 empties a caster's MP across a dungeon, and no decision gives a job a no-MP action | 2026-09-12 | ⚠ Binds PR-9 and PR-12. D-359 gives every character a basic attack with no MP cost |
 | F-9 | D-48 sets the floor at 120 by 40, and a default macOS Terminal window is 80 by 24 | 2026-09-12 | ✅ doc. D-80 superseded D-48, D-103 superseded D-80, D-228 superseded D-103, and D-98 ended the terminal, so PR-7 has no size message |
-| F-10 | D-62 puts the run record in the save, and a record grows without bound over 20 to 40 hours (D-30) | 2026-09-12 | ✅ PR-6 wrote the compaction rule: the record takes a new snapshot at each save, and it drops every intent before it (D-651). ⚠ No save called it before PR-105. `GameRun.Save` calls it now, and PR-16 calls that at each save (D-1115). A held walk adds about 15 MB of record each hour until then |
+| F-10 | D-62 puts the run record in the save, and a record grows without bound over 20 to 40 hours (D-30) | 2026-09-12 | ✅ PR-6 wrote the compaction rule: the record takes a new snapshot at each save, and it drops every intent before it (D-651). ⚠ No save called it before PR-105. `GameRun.Save` calls it now, at the save of a hub and at each save point of PR-16 (D-1115, D-1221). |
 | F-11 | The interim checker read an HTML comment as prose. A fixture comment with a semicolon, a modal, a passive, and 30 words raised four findings. The automated pass of PR #1 found it | 2026-09-12 | ✅ PR-2. The command removes a one-line comment, and the rule MD 1 fails a comment across lines |
 | F-12 | The session wrote in `CLAUDE.md`, the PR template, the skill, and OQ-1 that gitar was absent, on no evidence. The pass ran on PR #1 within a minute | 2026-09-12 | ✅ doc. D-66. Every claim about a tool needs a check |
 | F-13 | The first interview fixed the language before the medium. Two pivots in one day, D-78 and D-98, reopened 30 decisions | 2026-09-12 | ✅ doc. D-99. L-14 |

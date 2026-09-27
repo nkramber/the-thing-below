@@ -158,7 +158,7 @@ public sealed class TorchRulesTests
          "label": "label.dark_hall",
          "time": "night",
          "dark": true,
-         "kind": "dungeon", "npcs": [], "services": [],
+         "kind": "dungeon", "npcs": [], "services": [], "reopen": [],
          "terrain": [
           "################",
           "#..............#",
@@ -193,7 +193,7 @@ public sealed class TorchRulesTests
         // P3-18 (D-1065): the load names the kind of the torch, and no press waits to meet it.
         BattleContent content = TestBattles.Content;
         string items = TestBattles.ItemsFile.Replace(
-            "{ \"id\": \"item.torch\", \"kind\": \"key\", \"limit\": 1 }",
+            "{ \"id\": \"item.torch\", \"kind\": \"key\", \"limit\": 1, \"ring\": false }",
             "{ \"id\": \"item.torch\", \"kind\": \"heal\", \"limit\": 3, \"delay\": 60, \"value\": 10, \"amount\": 10 }",
             StringComparison.Ordinal);
         ItemList list = ItemList.Read(System.Text.Encoding.UTF8.GetBytes(items), ItemList.Path);

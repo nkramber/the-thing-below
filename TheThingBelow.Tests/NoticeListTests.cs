@@ -15,7 +15,7 @@ public sealed class NoticeListTests
     {
         NoticeList list = Read(TestBattles.NoticesFile);
 
-        Assert.Equal(["notice.test_kept", "notice.test_plain", "notice.service_closed", "notice.rested", "notice.saved"], IdsOf(list));
+        Assert.Equal(["notice.test_kept", "notice.test_plain", "notice.service_closed", "notice.rested", "notice.saved", "notice.door_locked", "notice.door_key", "notice.door_picked", "notice.chest_found", "notice.chest_gold", "notice.chest_left", "notice.chest_empty"], IdsOf(list));
         Assert.True(list.Notice(TestBattles.KeptNotice).Logs);
         Assert.False(list.Notice(TestBattles.PlainNotice).Logs);
     }

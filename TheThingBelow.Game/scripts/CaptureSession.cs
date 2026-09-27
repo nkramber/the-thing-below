@@ -475,15 +475,15 @@ public sealed partial class CaptureSession : Node
     /// host, so the rules open the service on the tick of the confirm.
     /// </summary>
     /// <exception cref="InvalidOperationException">An NPC stopped a step, so the lead stands elsewhere, or a tick wrote an error (T-2).</exception>
-    private void ConfirmHost(GameRun run, ServiceKind kind)
+    private void ConfirmHost(GameRun run, MenuWindowKind window)
     {
         GoToHub(run);
-        (IReadOnlyList<string> route, TilePoint stand, StepDirection facing) = kind switch
+        (IReadOnlyList<string> route, TilePoint stand, StepDirection facing) = window switch
         {
-            ServiceKind.Rest => (ScreenCaptures.KeeperRoute, ScreenCaptures.KeeperStand, StepDirection.North),
-            ServiceKind.Save => (ScreenCaptures.WaystoneRoute, ScreenCaptures.WaystoneStand, StepDirection.East),
-            ServiceKind.Shop => (ScreenCaptures.TraderRoute, ScreenCaptures.TraderStand, StepDirection.North),
-            _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "The fixture hub holds no host of such a service (T-2)."),
+            MenuWindowKind.Rest => (ScreenCaptures.KeeperRoute, ScreenCaptures.KeeperStand, StepDirection.North),
+            MenuWindowKind.Save => (ScreenCaptures.WaystoneRoute, ScreenCaptures.WaystoneStand, StepDirection.East),
+            MenuWindowKind.Shop => (ScreenCaptures.TraderRoute, ScreenCaptures.TraderStand, StepDirection.North),
+            _ => throw new ArgumentOutOfRangeException(nameof(window), window, "The fixture hub holds no host of such a window (T-2)."),
         };
         foreach (string action in route)
         {
@@ -494,7 +494,7 @@ public sealed partial class CaptureSession : Node
         if (run.Party.LeadAt != stand || run.Party.Facing != facing)
         {
             throw new InvalidOperationException(
-                $"The route to the {ServiceKinds.NameOf(kind)} service ended at {run.Party.LeadAt} facing {run.Party.Facing} at tick {run.Tick}, and the host needs {stand} facing {facing} (D-1131, T-2).");
+                $"The route to the host of the {window} window ended at {run.Party.LeadAt} facing {run.Party.Facing} at tick {run.Tick}, and the host needs {stand} facing {facing} (D-1131, T-2).");
         }
 
         run.Queue(run.IntentOf(InputActions.Confirm));
@@ -502,18 +502,19 @@ public sealed partial class CaptureSession : Node
     }
 
     /// <summary>
-    /// Opens the window of the one service that the confirm opened, through the menu host, as the
-    /// play session does after a tick (D-1131, D-1132).
+    /// Opens the window of the one service or the one save point that the confirm opened, through
+    /// the menu host, as the play session does after a tick (D-1131, D-1132, D-1221).
     /// </summary>
-    /// <returns>The host, whose view on top is the window of the service.</returns>
-    /// <exception cref="InvalidOperationException">The confirm opened no service, or more than one (T-2).</exception>
+    /// <returns>The host, whose view on top is the window of the service or the save window.</returns>
+    /// <exception cref="InvalidOperationException">The confirm opened no window, or more than one (T-2).</exception>
     private static MenuHost OpenService(FrameRoot built, UiBase @base, GameRun run, ContentSet content)
     {
         IReadOnlyList<MapService> opened = run.TakeOpenedServices();
-        if (opened.Count != 1)
+        IReadOnlyList<ContentId> points = run.TakeOpenedSavePoints();
+        if (opened.Count + points.Count != 1)
         {
             throw new InvalidOperationException(
-                $"The confirm at tick {run.Tick} opened {opened.Count} services, and the capture of a service window needs one (D-1131, T-2).");
+                $"The confirm at tick {run.Tick} opened {opened.Count} services and {points.Count} save points, and the capture of a window needs one (D-1131, D-1221, T-2).");
         }
 
         var host = new MenuHost(
@@ -524,7 +525,15 @@ public sealed partial class CaptureSession : Node
             () => FixtureSettings,
             _ => throw new InvalidOperationException("The capture of a service window closed a settings screen, and it opens none (T-2)."),
             RefuseErrors);
-        host.OpenService(opened[0]);
+        if (points.Count == 1)
+        {
+            host.OpenSavePoint(points[0]);
+        }
+        else
+        {
+            host.OpenService(opened[0]);
+        }
+
         return host;
     }
 
@@ -871,16 +880,16 @@ public sealed partial class CaptureSession : Node
 
         // The window of a hub service opens by the path of a play session: the lead walks to the host,
         // faces it, and confirms, and the rules open the service (D-1131, D-1132, D-1149).
-        ServiceKind? serviceKind = frame switch
+        MenuWindowKind? serviceWindow = frame switch
         {
-            ScreenCaptures.MenuRestFrame => ServiceKind.Rest,
-            ScreenCaptures.MenuSaveFrame => ServiceKind.Save,
-            ScreenCaptures.MenuShopBuyFrame or ScreenCaptures.MenuShopCountFrame or ScreenCaptures.MenuShopSellFrame or ScreenCaptures.MenuShopEquipFrame or ScreenCaptures.MenuShopWhoFrame => ServiceKind.Shop,
+            ScreenCaptures.MenuRestFrame => MenuWindowKind.Rest,
+            ScreenCaptures.MenuSaveFrame => MenuWindowKind.Save,
+            ScreenCaptures.MenuShopBuyFrame or ScreenCaptures.MenuShopCountFrame or ScreenCaptures.MenuShopSellFrame or ScreenCaptures.MenuShopEquipFrame or ScreenCaptures.MenuShopWhoFrame => MenuWindowKind.Shop,
             _ => null,
         };
-        if (serviceKind is ServiceKind kind)
+        if (serviceWindow is MenuWindowKind hosted)
         {
-            this.ConfirmHost(open, kind);
+            this.ConfirmHost(open, hosted);
         }
 
         // The map stays visible beside the main list, so each particle takes the tick of the run and
@@ -894,10 +903,10 @@ public sealed partial class CaptureSession : Node
             return;
         }
 
-        if (serviceKind is ServiceKind opened)
+        if (serviceWindow is MenuWindowKind opened)
         {
             MenuHost host = OpenService(built, @base, open, this.content);
-            if (opened == ServiceKind.Shop)
+            if (opened == MenuWindowKind.Shop)
             {
                 this.StageShop(host, open, frame);
             }

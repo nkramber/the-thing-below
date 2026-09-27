@@ -15,7 +15,7 @@ public sealed class MapServiceTests
     [Fact]
     public void AHubReadsAServiceOnAnNpcAndAServiceOnAServicePoint()
     {
-        GameMap map = HubMaps.Inn;
+        GameMap map = HubMaps.Beds;
 
         Assert.Equal(MapKind.Hub, map.Kind);
         Assert.Equal(2, map.Services.Count);
@@ -25,19 +25,19 @@ public sealed class MapServiceTests
         Assert.Null(rest.Thing);
         Assert.Equal("npc.hub_keeper", rest.Host.Value);
         Assert.Equal(ConditionKind.Always, rest.Condition.Kind);
-        MapService save = map.Services[1];
-        Assert.Equal(("service.hub_save", ServiceKind.Save), (save.Id.Value, save.Kind));
-        Assert.Null(save.Npc);
-        Assert.Equal("service_point.hub_bed", save.Thing?.Value);
+        MapService bed = map.Services[1];
+        Assert.Equal(("service.hub_bed_rest", ServiceKind.Rest), (bed.Id.Value, bed.Kind));
+        Assert.Null(bed.Npc);
+        Assert.Equal("service_point.hub_bed", bed.Thing?.Value);
     }
 
     [Fact]
     public void AHostGivesItsServiceAndAnyOtherIdGivesNone()
     {
-        GameMap map = HubMaps.Inn;
+        GameMap map = HubMaps.Beds;
 
         Assert.Equal("service.hub_rest", map.ServiceOn(Id("npc.hub_keeper"))?.Id.Value);
-        Assert.Equal("service.hub_save", map.ServiceOn(Id("service_point.hub_bed"))?.Id.Value);
+        Assert.Equal("service.hub_bed_rest", map.ServiceOn(Id("service_point.hub_bed"))?.Id.Value);
         Assert.Null(map.ServiceOn(Id("spawn_point.hub_test_start")));
     }
 
@@ -63,7 +63,7 @@ public sealed class MapServiceTests
 
         Assert.Contains("hub-test.json", error.Message, StringComparison.Ordinal);
         Assert.Contains("service.hub_smith", error.Message, StringComparison.Ordinal);
-        Assert.Contains("the kind 'smith', and a service takes one of rest, save, shop", error.Message, StringComparison.Ordinal);
+        Assert.Contains("the kind 'smith', and a service takes one of rest, shop", error.Message, StringComparison.Ordinal);
     }
 
     [Theory]
@@ -75,19 +75,19 @@ public sealed class MapServiceTests
     [InlineData("""{ "id": "service.a", "kind": "rest", "price": 0, "npc": "npc.hub_keeper", "cost": 5, "condition": { "always": true } }""", "an unknown field")]
     [InlineData("""{ "id": "service.a", "kind": "rest", "npc": "npc.hub_keeper", "condition": { "always": true } }""", "the field is absent, and the rest 'service.a' needs it")]
     [InlineData("""{ "id": "service.a", "kind": "rest", "price": -1, "npc": "npc.hub_keeper", "condition": { "always": true } }""", "takes the price -1, and a price is 0 or more")]
-    [InlineData("""{ "id": "service.a", "kind": "save", "price": 5, "npc": "npc.hub_keeper", "condition": { "always": true } }""", "the save 'service.a' takes no field 'price', which a rest alone reads")]
+    [InlineData("""{ "id": "service.a", "kind": "save", "npc": "npc.hub_keeper", "condition": { "always": true } }""", "the kind 'save', and a service takes one of rest, shop")]
     [InlineData("""{ "id": "service.a", "kind": "shop", "npc": "npc.hub_keeper", "condition": { "always": true } }""", "the field is absent, and the shop 'service.a' needs it")]
     [InlineData("""{ "id": "service.a", "kind": "rest", "price": 0, "shop": "shop.test_store", "npc": "npc.hub_keeper", "condition": { "always": true } }""", "the rest 'service.a' takes no field 'shop', which a shop alone reads")]
     [InlineData("""{ "id": "npc.a", "kind": "rest", "price": 0, "npc": "npc.hub_keeper", "condition": { "always": true } }""", "entries of the kind 'service'")]
     [InlineData("""{ "id": "service.a", "kind": "rest", "price": 0, "npc": "npc.hub_cook", "condition": { "always": true } }""", "sits on the NPC 'npc.hub_cook', and this map places no such NPC")]
     [InlineData("""{ "id": "service.a", "kind": "rest", "price": 0, "thing": "service_point.hub_well", "condition": { "always": true } }""", "sits on the thing 'service_point.hub_well', and this map holds no such thing")]
     [InlineData("""{ "id": "service.a", "kind": "rest", "price": 0, "thing": "marker.hub_corner", "condition": { "always": true } }""", "which is a marker, and a thing that holds a service is a service point")]
-    [InlineData("""{ "id": "service.a", "kind": "rest", "price": 0, "npc": "npc.hub_keeper", "condition": { "always": true } }, { "id": "service.b", "kind": "save", "npc": "npc.hub_keeper", "condition": { "always": true } }""", "the services 'service.a' and 'service.b' sit on 'npc.hub_keeper', and one host holds one service")]
-    [InlineData("""{ "id": "service.a", "kind": "rest", "price": 0, "npc": "npc.hub_keeper", "condition": { "always": true } }, { "id": "service.a", "kind": "save", "thing": "service_point.hub_bed", "condition": { "always": true } }""", "two services of this map take the id 'service.a'")]
+    [InlineData("""{ "id": "service.a", "kind": "rest", "price": 0, "npc": "npc.hub_keeper", "condition": { "always": true } }, { "id": "service.b", "kind": "rest", "price": 0, "npc": "npc.hub_keeper", "condition": { "always": true } }""", "the services 'service.a' and 'service.b' sit on 'npc.hub_keeper', and one host holds one service")]
+    [InlineData("""{ "id": "service.a", "kind": "rest", "price": 0, "npc": "npc.hub_keeper", "condition": { "always": true } }, { "id": "service.a", "kind": "rest", "price": 0, "thing": "service_point.hub_bed", "condition": { "always": true } }""", "two services of this map take the id 'service.a'")]
     public void AMalformedServiceFailsWithTheFileAndTheReason(string services, string reason)
     {
-        // The bed of the map holds the save, so each case adds it beside the services of the case.
-        string withBed = services.Contains("service_point.hub_bed", StringComparison.Ordinal) ? services : $"{services}, {HubMaps.SaveOnBed}";
+        // The bed of the map holds a rest, so each case adds it beside the services of the case.
+        string withBed = services.Contains("service_point.hub_bed", StringComparison.Ordinal) ? services : $"{services}, {HubMaps.RestOnBed}";
 
         ContentException error = Assert.Throws<ContentException>(
             () => HubMaps.Of(npcs: HubMaps.Keeper, services: withBed, things: $"{HubMaps.Bed}, {HubMaps.Marker}"));
@@ -128,7 +128,7 @@ public sealed class MapServiceTests
 
     [Theory]
     [InlineData(ServiceKind.Rest, "rest")]
-    [InlineData(ServiceKind.Save, "save")]
+    [InlineData(ServiceKind.Shop, "shop")]
     public void EachKindReadsBackItsName(ServiceKind kind, string name)
     {
         Assert.Equal(name, ServiceKinds.NameOf(kind));

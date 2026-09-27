@@ -46,9 +46,11 @@ public sealed class MapState
         int stepTicks,
         WalkedTiles walked,
         MapPatrols patrols,
-        MapNpcs npcs)
+        MapNpcs npcs,
+        PlaceState place)
     {
         this.Map = map;
+        this.Place = place;
         this.LeadAt = leadAt;
         this.Facing = facing;
         this.Stepping = stepping;
@@ -85,17 +87,38 @@ public sealed class MapState
     /// <summary>Every NPC of the map, which is solid and walks on the NPC stream (D-1137, D-1139).</summary>
     public MapNpcs Npcs { get; }
 
-    /// <summary>Puts the party on a map at its spawn point (D-528).</summary>
+    /// <summary>
+    /// The memory of the map: each killed enemy, each open door, and what stays in each chest
+    /// (D-385, D-555). The run holds it, so it lasts past the exit.
+    /// </summary>
+    public PlaceState Place { get; }
+
+    /// <summary>Puts the party on a map at its spawn point, with a map that the run never changed (D-528).</summary>
     /// <param name="map">The map to enter.</param>
-    /// <returns>The state, with the spawn tile walked.</returns>
+    /// <returns>The state, with the spawn tile walked, each enemy alive, and each door shut.</returns>
     /// <exception cref="ArgumentNullException">The map is null (T-2).</exception>
     public static MapState Enter(GameMap map)
     {
         ArgumentNullException.ThrowIfNull(map);
 
+        return Enter(map, new PlaceState(map.Id));
+    }
+
+    /// <summary>Puts the party on a map at its spawn point, with the memory of the map (D-528, D-555).</summary>
+    /// <param name="map">The map to enter.</param>
+    /// <param name="place">The memory of the map, which the run holds.</param>
+    /// <returns>The state, with the spawn tile walked, and each enemy that the memory holds as dead left dead.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="ArgumentException">The memory is the memory of another map (T-2).</exception>
+    public static MapState Enter(GameMap map, PlaceState place)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+        ArgumentNullException.ThrowIfNull(place);
+        RequirePlaceOf(map, place);
+
         var walked = WalkedTiles.Empty(map.Width, map.Height);
         walked.Mark(map.Spawn);
-        return new MapState(map, map.Spawn, StepDirection.South, null, 0, walked, MapPatrols.Enter(map), MapNpcs.Enter(map));
+        return new MapState(map, map.Spawn, StepDirection.South, null, 0, walked, MapPatrols.Enter(map, place), MapNpcs.Enter(map), place);
     }
 
     /// <summary>Puts the party back on a map from the values of a snapshot (D-166, D-651).</summary>
@@ -132,6 +155,38 @@ public sealed class MapState
 
     /// <summary>
     /// Puts the party back on a map from the values of a snapshot that this build or another
+    /// build wrote, with a map that the run never changed (D-166, D-651, D-1111).
+    /// </summary>
+    /// <param name="map">The map of the snapshot, which the content set of this build holds.</param>
+    /// <param name="lead">The tile, the facing, and the step of the lead.</param>
+    /// <param name="walked">The walked tiles of the snapshot.</param>
+    /// <param name="enemies">The stored values of each enemy, or no value on a snapshot of save format 2 (D-654, D-750).</param>
+    /// <param name="mark">The mark of a sight of the snapshot, or no value (D-745).</param>
+    /// <param name="encounter">The encounter of the snapshot, or no value (D-749).</param>
+    /// <param name="npcs">The stored values of each NPC, or no value on a snapshot before save format 15 (D-1137).</param>
+    /// <param name="source">What the values came from, such as `the save`, for an error (T-2).</param>
+    /// <param name="drift">The build of the snapshot, and the log of each change (D-1111).</param>
+    /// <returns>The state.</returns>
+    /// <exception cref="ArgumentNullException">The map, the record, the source, or the drift is null (T-2).</exception>
+    /// <exception cref="ArgumentException">A value describes no state of a party on this map (T-2).</exception>
+    public static MapState Resume(
+        GameMap map,
+        LeadValues lead,
+        WalkedTiles walked,
+        IReadOnlyList<PatrolValues>? enemies,
+        SightMark? mark,
+        MapEncounter? encounter,
+        IReadOnlyList<NpcValues>? npcs,
+        string source,
+        ResumeDrift drift)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+
+        return Resume(map, lead, walked, enemies, mark, encounter, npcs, new PlaceState(map.Id), source, drift);
+    }
+
+    /// <summary>
+    /// Puts the party back on a map from the values of a snapshot that this build or another
     /// build wrote (D-166, D-651, D-1111).
     /// </summary>
     /// <param name="map">The map of the snapshot, which the content set of this build holds.</param>
@@ -141,11 +196,12 @@ public sealed class MapState
     /// <param name="mark">The mark of a sight of the snapshot, or no value (D-745).</param>
     /// <param name="encounter">The encounter of the snapshot, or no value (D-749).</param>
     /// <param name="npcs">The stored values of each NPC, or no value on a snapshot before save format 15, whose NPCs start on their start tiles (D-1137).</param>
+    /// <param name="place">The memory of the map, which the run holds (D-555). A snapshot before save format 18 leaves each enemy of the stored values dead or alive, as the values give.</param>
     /// <param name="source">What the values came from, such as `the save`, for an error (T-2).</param>
     /// <param name="drift">The build of the snapshot, and the log of each change (D-1111).</param>
     /// <returns>The state.</returns>
-    /// <exception cref="ArgumentNullException">The map, the record, the source, or the drift is null (T-2).</exception>
-    /// <exception cref="ArgumentException">A value describes no state of a party on this map (T-2).</exception>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="ArgumentException">A value describes no state of a party on this map, or the memory is the memory of another map (T-2).</exception>
     /// <remarks>
     /// A snapshot of another build can follow an edit of the map (D-1111). The walked tiles
     /// take the size of the map of this build. A lead off the map, on a tile that takes no
@@ -161,23 +217,26 @@ public sealed class MapState
         SightMark? mark,
         MapEncounter? encounter,
         IReadOnlyList<NpcValues>? npcs,
+        PlaceState place,
         string source,
         ResumeDrift drift)
     {
         ArgumentNullException.ThrowIfNull(map);
         ArgumentNullException.ThrowIfNull(lead);
         ArgumentNullException.ThrowIfNull(walked);
+        ArgumentNullException.ThrowIfNull(place);
         ArgumentException.ThrowIfNullOrEmpty(source);
         ArgumentNullException.ThrowIfNull(drift);
+        RequirePlaceOf(map, place);
 
         MapPatrols patrols = enemies is null
-            ? MapPatrols.Enter(map)
-            : MapPatrols.Resume(map, enemies, mark, encounter, source, drift);
+            ? MapPatrols.Enter(map, place)
+            : MapPatrols.Resume(map, enemies, mark, encounter, place, source, drift);
         MapNpcs mapNpcs = MapNpcs.Resume(map, npcs, patrols, source, drift);
         if (drift.Adjusts)
         {
             walked = FitWalked(map, walked, drift);
-            lead = FitLead(map, lead, walked, patrols, mapNpcs, drift);
+            lead = FitLead(map, place, lead, walked, patrols, mapNpcs, drift);
         }
 
         TilePoint leadAt = lead.At;
@@ -190,9 +249,9 @@ public sealed class MapState
             source,
             $"the lead stands at {leadAt}, which is a {TileKinds.NameOf(map.TileAt(leadAt))} tile");
         Refuse(
-            map.HoldsSolidThing(leadAt),
+            !MapRules.CanEnter(map, place, leadAt),
             source,
-            $"the lead stands at {leadAt}, which holds a solid thing (D-1142)");
+            $"the lead stands at {leadAt}, which holds a solid thing, and no open door (D-1142)");
         Refuse(
             walked.Width != map.Width || walked.Height != map.Height,
             source,
@@ -214,7 +273,7 @@ public sealed class MapState
         {
             TilePoint target = leadAt.Step(direction);
             Refuse(
-                !MapRules.CanEnter(map, target),
+                !MapRules.CanEnter(map, place, target),
                 source,
                 $"the lead steps {StepDirections.NameOf(direction)} from {leadAt}, and the tile {target} takes no step");
         }
@@ -239,8 +298,13 @@ public sealed class MapState
                 $"the lead stands at {leadAt} or steps from it, and the NPC '{person!.Npc.Id.Value}' at {person.At} holds that tile (D-1139)");
         }
 
-        return new MapState(map, leadAt, lead.Facing, stepping, stepTicks, walked, patrols, mapNpcs);
+        return new MapState(map, leadAt, lead.Facing, stepping, stepTicks, walked, patrols, mapNpcs, place);
     }
+
+    /// <summary>Tells whether the lead can step onto one tile of this map, through each door that the party opened (D-41).</summary>
+    /// <param name="at">The tile, which can lie outside the map.</param>
+    /// <returns>True when the tile takes the step of the lead.</returns>
+    public bool CanStepOnto(TilePoint at) => MapRules.CanEnter(this.Map, this.Place, at);
 
     /// <summary>Gives the walked tiles the size of the map of this build, and logs a change (D-1111).</summary>
     private static WalkedTiles FitWalked(GameMap map, WalkedTiles walked, ResumeDrift drift)
@@ -261,7 +325,7 @@ public sealed class MapState
     /// Moves a lead that the map of this build no longer holds to the spawn point, and ends a
     /// step into a tile that takes no step. Each change logs a warning (D-1111).
     /// </summary>
-    private static LeadValues FitLead(GameMap map, LeadValues lead, WalkedTiles walked, MapPatrols patrols, MapNpcs npcs, ResumeDrift drift)
+    private static LeadValues FitLead(GameMap map, PlaceState place, LeadValues lead, WalkedTiles walked, MapPatrols patrols, MapNpcs npcs, ResumeDrift drift)
     {
         string? reason = null;
         if (!map.Holds(lead.At))
@@ -272,7 +336,7 @@ public sealed class MapState
         {
             reason = "the tile of the lead takes no step in the map of this build";
         }
-        else if (map.HoldsSolidThing(lead.At))
+        else if (!MapRules.CanEnter(map, place, lead.At))
         {
             reason = "a solid thing of this build holds the tile of the lead";
         }
@@ -295,7 +359,7 @@ public sealed class MapState
             return new LeadValues(map.Spawn, lead.Facing, null, 0);
         }
 
-        if (lead.Stepping is StepDirection direction && (!MapRules.CanEnter(map, lead.At.Step(direction)) || npcs.TryNpcAt(lead.At.Step(direction), out _)))
+        if (lead.Stepping is StepDirection direction && (!MapRules.CanEnter(map, place, lead.At.Step(direction)) || npcs.TryNpcAt(lead.At.Step(direction), out _)))
         {
             drift.Note(
                 LogSubsystems.World,
@@ -413,7 +477,7 @@ public sealed class MapState
             }
             // An NPC is solid, so a step into one turns the lead alone, with no bump and no
             // encounter (D-1139).
-            else if (MapRules.CanEnter(this.Map, target) && !this.Npcs.TryNpcAt(target, out _))
+            else if (this.CanStepOnto(target) && !this.Npcs.TryNpcAt(target, out _))
             {
                 this.Stepping = next;
                 this.StepTicks = 0;
@@ -498,6 +562,14 @@ public sealed class MapState
         if (broken)
         {
             throw new ArgumentException($"The map state of {source} is not a state of a run: {reason} (T-2).", nameof(source));
+        }
+    }
+
+    private static void RequirePlaceOf(GameMap map, PlaceState place)
+    {
+        if (string.CompareOrdinal(map.Id.Value, place.Map.Value) != 0)
+        {
+            throw new ArgumentException($"The memory of the map '{place.Map.Value}' went to the map '{map.Id.Value}', and each map reads its own memory (D-555, T-2).", nameof(place));
         }
     }
 }

@@ -9,9 +9,13 @@ namespace TheThingBelow.Core.Battles;
 /// <param name="Limit">The most copies that the party owns (D-1038, D-1039).</param>
 public abstract record ItemRecord(ContentId Id, int Limit);
 
-/// <summary>An item with a stack limit of 1 that a use never spends, such as the torch (D-848, D-1038).</summary>
+/// <summary>An item with a stack limit of 1 that a use never spends, such as the torch or a key (D-848, D-1038, D-1219).</summary>
 /// <param name="Id">The id, of the kind `item`.</param>
-public sealed record KeyItem(ContentId Id) : ItemRecord(Id, 1);
+/// <param name="OnRing">
+/// True for a key that opens a lock. The Items window puts it on the Keyring, and it stays in the
+/// pack after it opens its lock (D-1219). The torch and each other key item hold false.
+/// </param>
+public sealed record KeyItem(ContentId Id, bool OnRing) : ItemRecord(Id, 1);
 
 /// <summary>An item that one use spends: a heal, a restore, a cure, or a revive (D-384, D-1046).</summary>
 /// <param name="Id">The id, of the kind `item`.</param>
@@ -208,6 +212,7 @@ public sealed class ItemList
         int? value = null;
         int? amount = null;
         List<StatusKind>? statuses = null;
+        bool? ring = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -235,6 +240,9 @@ public sealed class ItemList
                 case "statuses":
                     statuses = AbilityList.ReadStatuses(ref reader);
                     break;
+                case "ring":
+                    ring = reader.ReadBoolean();
+                    break;
                 default:
                     throw reader.UnknownField(field);
             }
@@ -254,7 +262,7 @@ public sealed class ItemList
             RefusePresent(ref reader, depth, value is not null, "value", readId, KeyName);
             RefusePresent(ref reader, depth, amount is not null, "amount", readId, KeyName);
             RefusePresent(ref reader, depth, statuses is not null, "statuses", readId, KeyName);
-            return new KeyItem(readId);
+            return new KeyItem(readId, reader.RequireValue(ring, depth, "ring"));
         }
 
         if (readLimit < LowestUsedUpLimit || readLimit > HighestUsedUpLimit)
@@ -262,6 +270,7 @@ public sealed class ItemList
             throw reader.RefuseField(depth, "limit", $"the limit {readLimit} of '{readId.Value}' is outside {LowestUsedUpLimit} to {HighestUsedUpLimit}, the range of a used-up item (D-1038)");
         }
 
+        RefusePresent(ref reader, depth, ring is not null, "ring", readId, readKind);
         int readDelay = reader.RequireInt(delay, depth, "delay");
         int readValue = reader.RequireInt(value, depth, "value");
         if (string.CompareOrdinal(readKind, CureName) == 0)

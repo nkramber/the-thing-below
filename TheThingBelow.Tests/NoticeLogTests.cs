@@ -26,7 +26,7 @@ public sealed class NoticeLogTests
 
         Post(run, TestBattles.KeptNotice);
 
-        NoticeRecord shown = Assert.Single(run.TakeNotices());
+        PostedNotice shown = Assert.Single(run.TakeNotices());
         Assert.Equal(TestBattles.KeptNotice.Value, shown.Id.Value);
         Assert.Equal(TestBattles.KeptNotice.Value, Assert.Single(run.State.NoticeLog.Entries).Value);
     }

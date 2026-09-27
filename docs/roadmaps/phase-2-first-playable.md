@@ -2163,49 +2163,52 @@ Area file: `area-exploration.md` section 7.8.
 
 **Scope.**
 
-- The treasure, the locked doors, and the keys (D-41).
-- The save points, which save the party (D-36). The party and the lessons swap anywhere outside a fight, so a save point marks no swap place (D-1050, D-1134).
-- The AP that a save point restores once for the place, and the health that it does not (D-389, D-555, D-1197).
-- The Theft drill that opens a lock that the map marks as pickable, where a story lock always needs its key (D-386).
+- The treasure, the locked doors, and the keys (D-41). A key is a key item, and the Items window holds the key items and the Keyring in a submenu (D-1219).
+- The save point on each map, the hub included, which opens the save window of PR-14 and restores nothing (D-36, D-1132, D-1221). It is solid, and it always draws the lit waystone (D-1222).
+- The party and the lessons swap anywhere outside a fight, so a save point marks no swap place (D-1050, D-1134).
+- The Theft drill that opens a lock that the map marks as pickable, where a story lock always needs its key (D-386, D-1219).
+- The chest and its entries, with the fallback item of an owned lesson and the gold of the chest (D-1024, D-1161, D-1220).
 - The chest that keeps what the party cannot carry (D-385).
-- The fallback item of a chest that holds an owned lesson (D-1024).
-- The gold of a chest, which adds to the gold of the party (D-1161).
-- The dungeon exit, which returns the party to the region map, and its mark on the dungeon map screen of PR-62 (D-567, D-993).
+- The notice of each copy that a chest gives or keeps, and of its gold (D-1224).
+- The dungeon exit, which enters the map that it names, and its mark on the dungeon map screen of PR-62 (D-567, D-993, D-1216). The exit restores nothing (D-1217).
+- The mark of a door, a save point, and an exit beside a walked tile. A shut door and a save point are solid (D-1225).
 - The killed enemy that stays dead until a story event reopens the place (D-555).
-- The save window of PR-14 at a save point (D-1132).
 - The chest, the door, and the save point on the confirm rule of PR-14 (D-1131).
+- The fixture drawings of the doors, the chests, and the exit (D-1223).
 
 **Out of scope.**
 
 - The traps, the hazards, and the statuses on the map (PR-64, D-529).
 - The puzzles and the secrets (PR-21).
 - The dungeon content of the first playable (PR-17).
+- The free rest of a poor and hurt party (PR-19, D-1218).
 
 **Exit tests.**
 
 1. A bot run that wipes reloads and continues (D-231).
 2. A two-character party after a down still reaches the exit of the fixture dungeon (F-7).
-3. A save point restores AP once for the place (D-555, D-1197).
-4. A second use restores none, after an exit and a return too (D-555).
+3. A save point opens the save window and restores no AP and no health (D-1221).
+4. The exit enters the map that it names, and it restores nothing (D-1216, D-1217).
 5. A Theft drill opens a pickable lock, and it never opens a story lock (D-386).
 6. A killed enemy stays dead after the party leaves the dungeon and returns (D-555).
-7. A story event that reopens a fixture place brings its enemies and its AP restore back (D-555).
-10. Each save point calls `GameRun.Save`, and the record after a save holds no intent before it (D-1115, D-1132).
+7. A story event that reopens a fixture place brings its enemies back (D-555).
+8. A key opens the lock that names it, and it stays on the Keyring (D-1219).
 9. A chest with an owned lesson gives its fallback item (D-1024).
-10. Each save point and each autosave calls `GameRun.Save`, and the record after a save holds no intent before it (D-1115).
+10. Each save point calls `GameRun.Save`, and the record after a save holds no intent before it (D-1115, D-1132).
 11. A save of an older build loads under the rules of D-1110 to D-1112.
 12. A wipe reloads a save of its own run alone (D-1114).
 13. A chest with gold adds its gold to the party, and the save holds the open chest (D-1161).
+14. A chest over the stack limit keeps the rest, and the save holds what remains (D-385).
 
 **Review focus.**
 
-- The reserve and the swap anywhere answer F-7, and the balance holds with fresh AP (D-356, D-1134, D-1197).
-- The exit to the region map waits for PR-35, and the PR states what it does until then.
-- The snapshot carries the open chests, the open doors, and the dead enemies.
+- The reserve and the swap anywhere answer F-7, and AP comes back in a fight (D-1134, D-1198).
+- The exit leads to the fixture hub until PR-35 points it at the region map (D-1216).
+- The snapshot carries the open chests, the open doors, and the dead enemies of each map.
 
 **Questions.** None. OQ-119 and OQ-120 block PR-64.
 
-> *In plain English:* the dungeon gains its chests, doors, keys, and resting stones. A thief can pick some locks, and the story keeps its own doors shut until you find the key.
+> *In plain English:* the dungeon gains its chests, doors, keys, and waystones. A thief can pick some locks, and the story keeps its own doors shut until you find the key.
 
 ### 7.49 PR-64: the traps, the hazards, and the statuses on the map
 
@@ -2256,6 +2259,7 @@ Area file: `area-exploration.md` section 7.13.
 - The region map screen of nodes and routes, where the party moves node to node (D-113).
 - The route that a story flag opens and closes, through the condition form of PR-68 (D-40, D-329, D-543).
 - The autosave on each arrival at a node (D-224).
+- The exit of each dungeon, which PR-16 points at the fixture hub, now enters the region map (D-1216).
 - The one track of the region map, and no sign of night (D-430, D-445).
 - One hub and one dungeon as the first nodes.
 - The layout of region one, which follows `docs/world/places.md` (D-250, D-255, D-371).

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
 
 namespace TheThingBelow.Game.Ui;
@@ -8,7 +7,7 @@ namespace TheThingBelow.Game.Ui;
 /// <summary>One choice of the window of a service (D-1131, D-1132).</summary>
 public enum ServiceOption
 {
-    /// <summary>The service itself: the rest of a rest service, or the save of a save service.</summary>
+    /// <summary>The service itself: the rest of a rest service, or the save of a save point.</summary>
     Use,
 
     /// <summary>The close of the window with no service.</summary>
@@ -16,8 +15,9 @@ public enum ServiceOption
 }
 
 /// <summary>
-/// The choices and the cursor of the window of a hub service: the rest or the save, and leave
-/// (D-390, D-1131, D-1132). The keyboard, the gamepad, and the mouse drive the one cursor (D-872).
+/// The choices and the cursor of the rest window of a hub service or of the save window of a save
+/// point: the rest or the save, and leave (D-390, D-1131, D-1132, D-1221). The keyboard, the
+/// gamepad, and the mouse drive the one cursor (D-872).
 /// </summary>
 /// <remarks>
 /// A confirm on the service gives its intent, and the window then closes the menu, so the record
@@ -32,22 +32,22 @@ public sealed class ServiceChoice
     private static readonly ServiceOption[] AllOptions = [ServiceOption.Use, ServiceOption.Leave];
 
     /// <summary>Opens the cursor on the service.</summary>
-    /// <param name="kind">The kind of the service that a confirm opened.</param>
+    /// <param name="window">The rest window or the save window that a confirm opened.</param>
     /// <param name="price">The gold of one rest for a rest, and no value for a save (D-1156).</param>
-    /// <exception cref="ArgumentOutOfRangeException">The value names no kind of service, or a rest holds no price or a save holds one (T-2).</exception>
-    public ServiceChoice(ServiceKind kind, int? price)
+    /// <exception cref="ArgumentOutOfRangeException">The window is not the rest window or the save window, or a rest holds no price or a save holds one (T-2).</exception>
+    public ServiceChoice(MenuWindowKind window, int? price)
     {
-        if (kind != ServiceKind.Rest && kind != ServiceKind.Save)
+        if (window != MenuWindowKind.Rest && window != MenuWindowKind.Save)
         {
-            throw new ArgumentOutOfRangeException(nameof(kind), kind, "The window opens for a rest service or a save service (D-1131, T-2).");
+            throw new ArgumentOutOfRangeException(nameof(window), window, "The choice serves the rest window and the save window (D-1131, D-1221, T-2).");
         }
 
-        if ((kind == ServiceKind.Rest) != (price is not null))
+        if ((window == MenuWindowKind.Rest) != (price is not null))
         {
             throw new ArgumentOutOfRangeException(nameof(price), price, "A rest takes a price, and a save takes none (D-1156, T-2).");
         }
 
-        this.Kind = kind;
+        this.Window = window;
         this.Price = price;
     }
 
@@ -62,8 +62,8 @@ public sealed class ServiceChoice
     /// <summary>Every choice, in the order of the window: the service, then leave.</summary>
     public static IReadOnlyList<ServiceOption> Options => AllOptions;
 
-    /// <summary>The kind of the service.</summary>
-    public ServiceKind Kind { get; }
+    /// <summary>The window: the rest window or the save window.</summary>
+    public MenuWindowKind Window { get; }
 
     /// <summary>The place of the choice under the cursor.</summary>
     public int Cursor { get; private set; }
@@ -98,7 +98,7 @@ public sealed class ServiceChoice
     }
 
     /// <summary>Confirms the choice under the cursor. Either choice closes the window and the menu after it.</summary>
-    /// <returns>The rest intent or the save intent of a hub on the service, or no value on leave.</returns>
+    /// <returns>The rest intent or the save intent on the service, or no value on leave.</returns>
     public Intent? Confirm()
     {
         if (this.Current == ServiceOption.Leave)
@@ -106,6 +106,6 @@ public sealed class ServiceChoice
             return null;
         }
 
-        return Intent.OfPlayer(this.Kind == ServiceKind.Rest ? IntentIds.HubRest : IntentIds.HubSave);
+        return Intent.OfPlayer(this.Window == MenuWindowKind.Rest ? IntentIds.HubRest : IntentIds.Save);
     }
 }

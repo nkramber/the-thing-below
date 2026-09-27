@@ -416,9 +416,10 @@ public static class ScreenCaptures
     ];
 
     /// <summary>
-    /// The steps of the map frame of the menu fixture: south into the save point at (9, 6), north,
-    /// and east through the door at (11, 4), so the map shows a walked save point and a walked door
-    /// (D-567, D-993).
+    /// The steps of the map frame of the menu fixture: south, east to the save point at (9, 6), which
+    /// is solid and turns the lead, north, east through the doorway at (11, 4), and north beside the
+    /// exit at (16, 2). The map shows the save point and the exit beside walked tiles (D-567, D-993,
+    /// D-1225).
     /// </summary>
     public static IReadOnlyList<string> DungeonRoute { get; } =
     [
@@ -426,6 +427,8 @@ public static class ScreenCaptures
         InputActions.StepEast, InputActions.StepEast, InputActions.StepEast, InputActions.StepEast, InputActions.StepEast,
         InputActions.StepNorth, InputActions.StepNorth,
         InputActions.StepEast, InputActions.StepEast, InputActions.StepEast,
+        InputActions.StepEast, InputActions.StepEast, InputActions.StepEast, InputActions.StepEast, InputActions.StepEast,
+        InputActions.StepNorth,
     ];
 
     /// <summary>The ticks of the still fixture that take a frame: one second apart (D-894).</summary>

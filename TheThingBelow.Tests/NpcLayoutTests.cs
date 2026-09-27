@@ -53,7 +53,7 @@ public sealed class NpcLayoutTests
         // D-1142: a service point is solid, so no range holds its tile.
         ContentException error = Assert.Throws<ContentException>(() => HubMaps.Of(
             npcs: $"{HubMaps.Keeper}, {HubMaps.Wanderer(x: 7, y: 1, areas: """{ "x": 7, "y": 1, "width": 2, "height": 1 }""")}",
-            services: $"{HubMaps.RestOnKeeper}, {HubMaps.SaveOnBed}",
+            services: $"{HubMaps.RestOnKeeper}, {HubMaps.RestOnBed}",
             things: HubMaps.Bed));
 
         Assert.Contains("its tile (8, 1) takes no step", error.Message, StringComparison.Ordinal);

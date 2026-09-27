@@ -1,0 +1,48 @@
+{
+ "id": "drawing.fixture_exit",
+ "page": "map_sprites",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "exit.fixture_dungeon_way_up", "use": "map" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "..kkkkkkkkkkkkkkkkkkkkkkkkkkkk..",
+    "..kHhhhhhhhhhhhhhhhhhhhhhhhhHk..",
+    "..kHhLLLLLLLLLLLLLLLLLLLLLLhHk..",
+    "..kHhLLLLLLLLLLLLLLLLLLLLLLhHk..",
+    "..kHhLLLLLLLLLLLLLLLLLLLLLLhHk..",
+    "..kHhDDDDDDDDDDDDDDDDDDDDDDhHk..",
+    "..kHhDDDDDDDDDDDDDDDDDDDDDDhHk..",
+    "..kHhDDDDDDDDDDDDDDDDDDDDDDhHk..",
+    "..kHhllllllllllllllllllllllhHk..",
+    "..kHhllllllllllllllllllllllhHk..",
+    "..kHhllllllllllllllllllllllhHk..",
+    "..kHhddddddddddddddddddddddhHk..",
+    "..kHhddddddddddddddddddddddhHk..",
+    "..kHhkkkkkkkkkkkkkkkkkkkkkkhHk..",
+    "..kHhllllllllllllllllllllllhHk..",
+    "..kHhllllllllllllllllllllllhHk..",
+    "..kHhllllllllllllllllllllllhHk..",
+    "..kHhddddddddddddddddddddddhHk..",
+    "..kHhddddddddddddddddddddddhHk..",
+    "..kHhkkkkkkkkkkkkkkkkkkkkkkhHk..",
+    "..kHhDDDDDDDDDDDDDDDDDDDDDDhHk..",
+    "..kHhDDDDDDDDDDDDDDDDDDDDDDhHk..",
+    "..kHhDDDDDDDDDDDDDDDDDDDDDDhHk..",
+    "..kHhKKKKKKKKKKKKKKKKKKKKKKhHk..",
+    "..kHhKKKKKKKKKKKKKKKKKKKKKKhHk..",
+    "..kHhkkkkkkkkkkkkkkkkkkkkkkhHk..",
+    "..kHhDDDDDDDDDDDDDDDDDDDDDDhHk..",
+    "..kHhDDDDDDDDDDDDDDDDDDDDDDhHk..",
+    "..kHhDDDDDDDDDDDDDDDDDDDDDDhHk..",
+    "..kHhKKKKKKKKKKKKKKKKKKKKKKhHk..",
+    "..kHhKKKKKKKKKKKKKKKKKKKKKKhHk..",
+    "..kkkkkkkkkkkkkkkkkkkkkkkkkkkk.."
+   ]
+  }
+ ]
+}

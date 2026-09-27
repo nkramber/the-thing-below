@@ -38,12 +38,13 @@ public sealed class RunState
 
     // The notices that a rule posted wait here until Game takes them. They are output, and not
     // state, so no snapshot and no hash reads them (D-168, D-221).
-    private readonly List<NoticeRecord> posted = [];
+    private readonly List<PostedNotice> posted = [];
 
     // The services that a confirm opened, and the saves that a rule asked for, wait here until
     // Game takes them. They are output, and not state, so no snapshot and no hash reads them
     // (D-168, D-1131, D-1132).
     private readonly List<MapService> opened = [];
+    private readonly List<ContentId> openedSavePoints = [];
     private readonly List<SaveRequestKind> saves = [];
 
     private RunState(
@@ -60,9 +61,11 @@ public sealed class RunState
         NoticeList notices,
         NoticeLog noticeLog,
         StoryState story,
-        ShopState shops)
+        ShopState shops,
+        PlaceMemory places)
     {
         this.Shops = shops;
+        this.Places = places;
         this.Maps = maps;
         this.Story = story;
         this.BattleContent = battleContent;
@@ -83,6 +86,9 @@ public sealed class RunState
 
     /// <summary>The stock that remains in each shop (D-1152).</summary>
     public ShopState Shops { get; }
+
+    /// <summary>The memory of each map: each killed enemy, each open door, and what stays in each chest (D-385, D-555).</summary>
+    public PlaceMemory Places { get; }
 
     /// <summary>The count of ticks since the start of the run (D-164, D-650).</summary>
     public long Tick { get; private set; }
@@ -167,6 +173,7 @@ public sealed class RunState
             streams[index] = RandomStreams.Open(seed, RandomStreams.All[index]);
         }
 
+        PlaceMemory places = PlaceMemory.Start();
         return new RunState(
             seed,
             streams,
@@ -174,14 +181,15 @@ public sealed class RunState
             false,
             0,
             maps,
-            MapState.Enter(map!),
+            MapState.Enter(map!, places.Of(map!.Id)),
             battleContent,
             PartyState.Start(battleContent),
             null,
             notices,
             NoticeLog.Empty(),
             StoryState.Start(story),
-            ShopState.Start());
+            ShopState.Start(),
+            places);
     }
 
     /// <summary>
@@ -214,7 +222,9 @@ public sealed class RunState
     /// snapshot before save format 8 holds no notice log, and its migration starts the log
     /// empty (D-985). A snapshot before save format 9 holds no story state, and its migration
     /// starts with no flag on, no story scene, and no entry to read, because a load is not an
-    /// entry to the map (D-1004).
+    /// entry to the map (D-1004). A snapshot before save format 18 holds no memory of a map, and
+    /// its migration starts the memory with the dead enemies of the map that the party stands on
+    /// (D-555).
     /// </remarks>
     public static RunState Resume(ulong seed, RunSnapshot snapshot, MapSet maps, BattleContent battleContent, NoticeList notices, StoryContent story, ResumeDrift drift)
     {
@@ -244,7 +254,13 @@ public sealed class RunState
                 Pcg32.FromSnapshot(position.State, position.Increment));
         }
 
-        MapState party = ResumeMap(snapshot, map, drift);
+        PlaceMemory places = PlaceMemory.Resume(maps, snapshot.Places, "this run", drift);
+        MapState party = ResumeMap(snapshot, map, places.Of(map.Id), drift);
+        if (snapshot.Places is null)
+        {
+            RememberDead(party);
+        }
+
         PartyState characters = ResumeCharacters(snapshot, battleContent);
         StoryState storyState = ResumeStory(snapshot, story, map, drift);
 
@@ -270,12 +286,30 @@ public sealed class RunState
             notices,
             snapshot.Notices is null ? NoticeLog.Empty() : NoticeLog.Resume(snapshot.Notices, notices, "this run"),
             storyState,
-            ShopState.Resume(battleContent.Shops, snapshot.Stock, "this run", drift));
+            ShopState.Resume(battleContent.Shops, snapshot.Stock, "this run", drift),
+            places);
+    }
+
+    /// <summary>
+    /// Starts the memory of a snapshot before save format 18 with the dead enemies of the map that
+    /// the party stands on, which its enemy values hold (D-555, D-750).
+    /// </summary>
+    private static void RememberDead(MapState party)
+    {
+        foreach (PatrolState patrol in party.Patrols.All)
+        {
+            if (patrol.Dead)
+            {
+                party.Place.MarkDead(patrol.Patrol.Id);
+            }
+        }
     }
 
     /// <summary>
     /// Checks the groups, the story scenes, and the services of every map of the set against the
-    /// content of this build (D-766, D-1004, D-1131).
+    /// content of this build (D-766, D-1004, D-1131). The load of the content set checks the chests,
+    /// the locks, the exits, and the reopen flags of each map, and a confirm at a chest names an
+    /// absent id with an error (D-555, D-1220, T-2).
     /// </summary>
     private static void RequireContentOf(MapSet maps, BattleContent battleContent, StoryContent story)
     {
@@ -287,11 +321,11 @@ public sealed class RunState
         }
     }
 
-    private static MapState ResumeMap(RunSnapshot snapshot, GameMap map, ResumeDrift drift)
+    private static MapState ResumeMap(RunSnapshot snapshot, GameMap map, PlaceState place, ResumeDrift drift)
     {
         if (snapshot.Map is null)
         {
-            return MapState.Enter(map);
+            return MapState.Enter(map, place);
         }
 
         MapSnapshot party = snapshot.Map;
@@ -308,6 +342,7 @@ public sealed class RunState
             party.Mark,
             party.Encounter,
             party.Npcs,
+            place,
             "this run",
             drift);
     }
@@ -436,7 +471,8 @@ public sealed class RunState
             this.NoticeLog.Values(),
             this.Story.Values(),
             ReadPositions(this.streams),
-            this.Shops.Values());
+            this.Shops.Values(),
+            this.Places.Values());
 
     /// <summary>Computes the state hash that a replay and the identity job compare (G-5).</summary>
     /// <returns>The hash of every value of this state.</returns>
@@ -460,6 +496,7 @@ public sealed class RunState
         this.NoticeLog.Hash(hasher);
         this.Story.Hash(hasher);
         this.Shops.Hash(hasher);
+        this.Places.Hash(hasher);
 
         foreach (RandomStream stream in this.streams)
         {
@@ -552,6 +589,15 @@ public sealed class RunState
         return taken;
     }
 
+    /// <summary>Takes every save point whose save window a confirm opened since the last take, in the order of the opens (D-1221).</summary>
+    /// <returns>The ids of the save points, which the run no longer holds. Game opens the save window of each one.</returns>
+    public IReadOnlyList<ContentId> TakeOpenedSavePoints()
+    {
+        ContentId[] taken = [.. this.openedSavePoints];
+        this.openedSavePoints.Clear();
+        return taken;
+    }
+
     /// <summary>Takes every save that a rule asked for since the last take, in the order of the asks (D-1132).</summary>
     /// <returns>The kinds of the saves, which the run no longer holds. Game writes each one through `GameRun.Save`.</returns>
     public IReadOnlyList<SaveRequestKind> TakeSaveRequests()
@@ -572,9 +618,9 @@ public sealed class RunState
 
     /// <summary>Takes every notice that a rule posted since the last take, in the order of the posts (D-221).</summary>
     /// <returns>The notices, which the run no longer holds.</returns>
-    public IReadOnlyList<NoticeRecord> TakeNotices()
+    public IReadOnlyList<PostedNotice> TakeNotices()
     {
-        NoticeRecord[] taken = [.. this.posted];
+        PostedNotice[] taken = [.. this.posted];
         this.posted.Clear();
         return taken;
     }
@@ -713,11 +759,12 @@ public sealed class RunState
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
     /// <exception cref="SimulationException"><see cref="RefusalOfEnter"/> gives a reason (T-2).</exception>
     /// <remarks>
-    /// The map that the party leaves keeps no memory: an entry again finds each tile unwalked, each
-    /// enemy alive on the start tile of its station, and each NPC on its start tile. PR-35 owns the
-    /// memory of each map (D-113). A step or a confirm that an intent of the same tick asked for
-    /// ends with the map that the party leaves, as a menu ends it (T-7). The save request is output
-    /// and not state, so Game writes the autosave after the tick (D-168, D-1132).
+    /// The memory of each map keeps each killed enemy dead, each open door open, and what stays in
+    /// each chest (D-385, D-555). An entry again finds each tile unwalked, each live enemy on the
+    /// start tile of its station, and each NPC on its start tile. A step or a confirm that an intent
+    /// of the same tick asked for ends with the map that the party leaves, as a menu ends it (T-7).
+    /// The save request is output and not state, so Game writes the autosave after the tick (D-168,
+    /// D-1132).
     /// </remarks>
     public void EnterMap(ContentId id, RunContext context)
     {
@@ -731,7 +778,7 @@ public sealed class RunState
 
         this.Maps.TryFind(id, out GameMap? map);
         GameMap entered = map!;
-        this.Party = MapState.Enter(entered);
+        this.Party = MapState.Enter(entered, this.Places.Of(entered.Id));
         this.Story.NoteEntry();
         if (entered.Kind == MapKind.Hub)
         {
@@ -740,7 +787,7 @@ public sealed class RunState
     }
 
     /// <summary>Holds one posted notice for Game, and adds it to the log when content marks it (D-221, D-983).</summary>
-    internal void AddNotice(NoticeRecord notice)
+    internal void AddNotice(PostedNotice notice)
     {
         this.posted.Add(notice);
         if (notice.Logs)
@@ -751,6 +798,9 @@ public sealed class RunState
 
     /// <summary>Holds one service that a confirm opened, for Game (D-1131).</summary>
     internal void AddOpenedService(MapService service) => this.opened.Add(service);
+
+    /// <summary>Holds one save point whose save window a confirm opened, for Game (D-1221).</summary>
+    internal void AddOpenedSavePoint(ContentId point) => this.openedSavePoints.Add(point);
 
     /// <summary>Holds one save that a rule asked for, for Game (D-1132).</summary>
     internal void RequestSave(SaveRequestKind kind) => this.saves.Add(kind);

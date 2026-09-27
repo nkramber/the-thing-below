@@ -335,7 +335,7 @@ public sealed class PatrolTests
              "label": "label.no_enemies",
              "time": "day",
              "dark": false,
-             "kind": "dungeon", "npcs": [], "services": [],
+             "kind": "dungeon", "npcs": [], "services": [], "reopen": [],
              "terrain": [ "###", "#.#", "###" ],
              "things": [
               { "id": "spawn_point.no_enemies_start", "kind": "spawn_point", "x": 1, "y": 1 }

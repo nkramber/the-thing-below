@@ -88,6 +88,11 @@ public static class SaveFormat
     /// PR-107 raised it to 17. Ability power replaced MP, and each character names its pool `ap` in
     /// place of `mp` (D-1197). A save of an older format loads the MP of each character as its AP.
     /// </para>
+    /// <para>
+    /// PR-16 raised it to 18. The snapshot gained the memory of each map: each killed enemy, each
+    /// open door, and what stays in each opened chest (D-385, D-555). A save of an older format
+    /// starts the memory with the dead enemies of the map that the party stands on.
+    /// </para>
     /// </remarks>
-    public const int Current = 17;
+    public const int Current = 18;
 }

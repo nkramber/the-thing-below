@@ -50,10 +50,11 @@ public sealed class BattleMessagesTests
     [Fact]
     public void TheFormLineTakesOneSpaceOnEachSideOfTheDash()
     {
-        // D-1209: "4AP - Fire on one foe, either row." The old line held two spaces on each side.
+        // D-1209: one space on each side of the dash, and the owner also asked for one space
+        // between the cost and AP: "4 AP - Fire on one foe, either row."
         StringTable strings = Content.Value.Strings;
 
-        Assert.Equal("{ap}AP - {text}", strings.Text(ContentId.Parse("battle.form_help", "test", "form help")));
+        Assert.Equal("{ap} AP - {text}", strings.Text(ContentId.Parse("battle.form_help", "test", "form help")));
     }
 
     [Fact]

@@ -28,7 +28,8 @@ namespace TheThingBelow.Core.Runs;
 /// <para>
 /// The rest intent and the save intent of a hub act at the open service of their kind (D-1131,
 /// D-1141). A save emits a save request, which Game takes with <see cref="TakeSaveRequests"/>,
-/// and a confirm that opens a service emits it for <see cref="TakeOpenedServices"/> (D-1132).
+/// a confirm that opens a service emits it for <see cref="TakeOpenedServices"/>, and a confirm at a
+/// save point emits it for <see cref="TakeOpenedSavePoints"/> (D-1132, D-1221).
 /// </para>
 /// <para>
 /// The row intent of the party window moves one character to the other row while a menu is
@@ -288,11 +289,15 @@ public sealed class Simulation
 
     /// <summary>Takes every notice that a rule posted since the last take, in the order of the posts (D-221).</summary>
     /// <returns>The notices. Game queues them and shows them in order (D-994).</returns>
-    public IReadOnlyList<NoticeRecord> TakeNotices() => this.State.TakeNotices();
+    public IReadOnlyList<PostedNotice> TakeNotices() => this.State.TakeNotices();
 
     /// <summary>Takes every service that a confirm opened since the last take (D-1131).</summary>
     /// <returns>The services, in the order of the opens. Game opens the window of each one.</returns>
     public IReadOnlyList<MapService> TakeOpenedServices() => this.State.TakeOpenedServices();
+
+    /// <summary>Takes every save point whose save window a confirm opened since the last take (D-1221).</summary>
+    /// <returns>The ids of the save points, in the order of the opens. Game opens the save window of each one.</returns>
+    public IReadOnlyList<ContentId> TakeOpenedSavePoints() => this.State.TakeOpenedSavePoints();
 
     /// <summary>Takes every save that a rule asked for since the last take (D-1132).</summary>
     /// <returns>The kinds of the saves, in the order of the asks. Game writes each one through `GameRun.Save`.</returns>
@@ -405,9 +410,9 @@ public sealed class Simulation
             return;
         }
 
-        if (Is(intent, IntentIds.HubSave))
+        if (Is(intent, IntentIds.Save))
         {
-            ServiceRules.Save(this.State, context, log);
+            SavePointRules.Save(this.State, context, log);
             return;
         }
 

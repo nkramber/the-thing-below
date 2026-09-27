@@ -184,6 +184,11 @@ public static class StoryRules
             LogLevel.Info,
             "the player picked an option of a story scene",
             [new LogField("scene", scene.Id.Value), LogField.OfNumber("option", option), new LogField("flag", flag.Value), new LogField("changed", changed ? "yes" : "no")]));
+        if (changed)
+        {
+            ReopenPlaces(state, flag, log);
+        }
+
         story.Next();
     }
 
@@ -294,6 +299,11 @@ public static class StoryRules
             case SetFlagStep set:
                 bool changed = story.Flags.TurnOn(set.Flag);
                 log.Add(Entry(state, LogLevel.Info, "a story scene set a flag", [new LogField("flag", set.Flag.Value), new LogField("changed", changed ? "yes" : "no")]));
+                if (changed)
+                {
+                    ReopenPlaces(state, set.Flag, log);
+                }
+
                 story.Next();
                 break;
             case JoinStep join:
@@ -450,4 +460,26 @@ public static class StoryRules
 
     private static LogEntry Entry(RunState state, LogLevel level, string message, IReadOnlyList<LogField> fields) =>
         new(level, message, state.Tick, LogSubsystems.Story, fields);
+
+    /// <summary>
+    /// Reopens each map of the run whose reopen list names a flag that just turned on: each killed
+    /// enemy of the map comes back at the next entry (D-555). A flag turns on one time, so a place
+    /// reopens one time for each of its flags.
+    /// </summary>
+    private static void ReopenPlaces(RunState state, ContentId flag, List<LogEntry> log)
+    {
+        foreach (GameMap map in state.Maps.All)
+        {
+            foreach (ContentId reopen in map.ReopenFlags)
+            {
+                if (string.CompareOrdinal(reopen.Value, flag.Value) != 0)
+                {
+                    continue;
+                }
+
+                int back = state.Places.Of(map.Id).Reopen();
+                log.Add(Entry(state, LogLevel.Info, "a story event reopened a place, and each killed enemy comes back at the next entry", [new LogField("map", map.Id.Value), new LogField("flag", flag.Value), LogField.OfNumber("enemies", back)]));
+            }
+        }
+    }
 }

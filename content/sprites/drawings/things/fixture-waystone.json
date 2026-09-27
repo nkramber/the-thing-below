@@ -4,7 +4,8 @@
  "width": 32,
  "height": 32,
  "draws": [
-  { "content": "service_point.fixture_hub_waystone", "use": "map" }
+  { "content": "save_point.fixture_hub_waystone", "use": "map" },
+  { "content": "save_point.fixture_dungeon_camp", "use": "map" }
  ],
  "frames": [
   {

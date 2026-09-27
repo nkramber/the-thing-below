@@ -35,7 +35,7 @@ namespace TheThingBelow.Game.Ui;
 /// what it stands before (D-737).
 /// </para>
 /// <para>
-/// Each NPC and each service point draws by the same rule as an enemy: at any distance on a
+/// Each NPC and each drawn thing draws by the same rule as an enemy: at any distance on a
 /// map that is not dark, and inside the sight of the party with the same fade on a dark map
 /// (D-814, D-1062). Each NPC slides between two tiles across the ticks of its own step (D-203,
 /// D-821). One code path draws a hub and a dungeon (D-112).
@@ -72,10 +72,13 @@ public partial class MapScreen : Node2D
     public const string TorchUse = "map_torch";
 
     /// <summary>
-    /// The use of the map drawing of a thing that has one view, such as a service point (D-519,
+    /// The use of the map drawing of a thing that has one view, such as a save point (D-519,
     /// D-1142). A decor piece and a tile take the same use.
     /// </summary>
     public const string ThingUse = LightContent.MapUse;
+
+    /// <summary>The use of the open drawing of a door or a chest (D-1223).</summary>
+    public const string OpenUse = "map_open";
 
     /// <summary>The role of the color of the mark of a sight, in the UI style file (D-527).</summary>
     public const string MarkRole = "text_warning";
@@ -108,6 +111,11 @@ public partial class MapScreen : Node2D
     private Sprite2D[] npcs = [];
     private MapThing[] points = [];
     private Sprite2D[] pointSprites = [];
+
+    // The open look of each door and each chest, in the order of the points, or null for a thing
+    // with one look (D-1223). The closed look is the texture that the sprite starts with.
+    private Texture2D?[] pointOpen = [];
+    private Texture2D[] pointShut = [];
     private Node2D mark = null!;
     private PointLight2D carriedGround = null!;
     private PointLight2D carriedFigures = null!;
@@ -140,7 +148,7 @@ public partial class MapScreen : Node2D
 
     /// <summary>
     /// Builds the tiles of one map, the sprite of the lead, one sprite for each enemy, each NPC,
-    /// and each service point, and the mark of a sight (D-208, D-738, D-1137, D-1142).
+    /// and each drawn thing, and the mark of a sight (D-208, D-738, D-1137, D-1142).
     /// </summary>
     /// <param name="atlas">The pages of the atlas, as textures (D-666).</param>
     /// <param name="theme">The theme, for the color of the mark (D-527).</param>
@@ -203,11 +211,15 @@ public partial class MapScreen : Node2D
             this.AddChild(this.npcs[index]);
         }
 
-        this.points = ServicePointsOf(party.Map);
+        this.points = DrawnThingsOf(party.Map);
         this.pointSprites = new Sprite2D[this.points.Length];
+        this.pointShut = new Texture2D[this.points.Length];
+        this.pointOpen = new Texture2D?[this.points.Length];
         for (int index = 0; index < this.points.Length; index += 1)
         {
             this.pointSprites[index] = PointSprite(atlas, this.points[index]);
+            this.pointShut[index] = this.pointSprites[index].Texture;
+            this.pointOpen[index] = OpenTexture(atlas, this.points[index]);
             this.pointSprites[index].AddChild(FeetShadow(this.pointSprites[index], WorldLights.FigureShadows));
             this.AddChild(this.pointSprites[index]);
         }
@@ -302,7 +314,7 @@ public partial class MapScreen : Node2D
     /// <summary>True while the lead draws with the torch in its hand (D-1066, D-1069).</summary>
     public bool LeadHoldsTorch => this.lead.Texture == this.leadTorch;
 
-    /// <summary>True when an enemy, an NPC, or a service point draws with a share between none and full, inside a fade of the dark (D-1062).</summary>
+    /// <summary>True when an enemy, an NPC, or a drawn thing draws with a share between none and full, inside a fade of the dark (D-1062).</summary>
     public bool ShowsAFade
     {
         get
@@ -692,7 +704,10 @@ public partial class MapScreen : Node2D
         }
     }
 
-    /// <summary>Shows each service point on its tile, with the fade of the dark (D-814, D-1062, D-1142).</summary>
+    /// <summary>
+    /// Shows each drawn thing on its tile, with the fade of the dark (D-814, D-1062, D-1142). A door
+    /// that the party opened and a chest that it opened take their open look (D-555, D-1223).
+    /// </summary>
     private void ShowPoints(MapState party, int tickPart, long tick)
     {
         int leadX = MapCamera.LeadX(party, tickPart);
@@ -710,11 +725,22 @@ public partial class MapScreen : Node2D
                 share = this.fade.ShareOf(slot, clear, SightFade.Reach(leadX, leadY, x, y, 1), tick);
             }
 
+            this.pointSprites[index].Texture = this.pointOpen[index] is Texture2D open && IsOpen(party.Place, this.points[index])
+                ? open
+                : this.pointShut[index];
             this.ShowFigure(this.pointSprites[index], slot, share, new Vector2(x, FeetOf(y, 1)));
         }
     }
 
-    /// <summary>Draws one NPC or one service point at a share of the fade, from its feet (F-94, D-737).</summary>
+    /// <summary>Tells whether the party opened a door or a chest, from the memory of the map (D-555).</summary>
+    private static bool IsOpen(PlaceState place, MapThing thing) => thing.Kind switch
+    {
+        MapThingKind.Door => place.IsOpen(thing.Id),
+        MapThingKind.Chest => place.LeftIn(thing.Id) is not null,
+        _ => false,
+    };
+
+    /// <summary>Draws one NPC or one drawn thing at a share of the fade, from its feet (F-94, D-737).</summary>
     /// <summary>
     /// Draws each cast member and scene-only NPC that a show step put on the map, and removes the
     /// sprite of each one that left (D-1006). A move step walks each one from the ticks (D-1012).
@@ -770,14 +796,14 @@ public partial class MapScreen : Node2D
     }
 
     /// <summary>
-    /// Tells for each enemy, each NPC, and each service point, in that order, whether a wall
+    /// Tells for each enemy, each NPC, and each drawn thing, in that order, whether a wall
     /// stands between it and the lead now (D-718, D-1062).
     /// </summary>
     private static bool[] ClearLines(MapState party)
     {
         IReadOnlyList<PatrolState> patrols = party.Patrols.All;
         IReadOnlyList<NpcState> people = party.Npcs.All;
-        MapThing[] points = ServicePointsOf(party.Map);
+        MapThing[] points = DrawnThingsOf(party.Map);
         bool[] clear = new bool[patrols.Count + people.Count + points.Length];
         for (int index = 0; index < patrols.Count; index += 1)
         {
@@ -797,13 +823,17 @@ public partial class MapScreen : Node2D
         return clear;
     }
 
-    /// <summary>Gives each service point of a map, in the order of the map file (D-1142).</summary>
-    private static MapThing[] ServicePointsOf(GameMap map)
+    /// <summary>
+    /// Gives each thing of a map that draws a sprite, in the order of the map file: each service
+    /// point, save point, door, chest, and exit (D-1142, D-1223). A lock draws as its door, and a
+    /// trap, a spawn point, and a marker draw nothing.
+    /// </summary>
+    private static MapThing[] DrawnThingsOf(GameMap map)
     {
         var points = new List<MapThing>();
         foreach (MapThing thing in map.Things)
         {
-            if (thing.Kind == MapThingKind.ServicePoint)
+            if (Draws(thing.Kind))
             {
                 points.Add(thing);
             }
@@ -812,9 +842,45 @@ public partial class MapScreen : Node2D
         return [.. points];
     }
 
+    /// <summary>Tells whether a thing of one kind draws a sprite on the map (D-1142, D-1223).</summary>
+    /// <param name="kind">The kind of the thing.</param>
+    /// <returns>True for a service point, a save point, a door, a chest, and an exit.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The value names no kind (T-2).</exception>
+    public static bool Draws(MapThingKind kind) => kind switch
+    {
+        MapThingKind.ServicePoint or MapThingKind.SavePoint or MapThingKind.Door or MapThingKind.Chest or MapThingKind.Exit => true,
+        MapThingKind.Lock or MapThingKind.Trap or MapThingKind.SpawnPoint or MapThingKind.Marker => false,
+        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "The value names no map thing kind (D-528, T-2)."),
+    };
+
+    /// <summary>Tells whether a thing of one kind takes an open look beside its closed look (D-1223).</summary>
+    /// <param name="kind">The kind of the thing.</param>
+    /// <returns>True for a door and a chest.</returns>
+    public static bool HasOpenLook(MapThingKind kind) => kind is MapThingKind.Door or MapThingKind.Chest;
+
+    /// <summary>Gives the open look of a door or a chest, or no value for a thing with one look (D-1223).</summary>
+    /// <exception cref="ContentException">The atlas holds no open drawing of a door or a chest (T-2).</exception>
+    private static Texture2D? OpenTexture(GameAtlas atlas, MapThing thing)
+    {
+        if (!HasOpenLook(thing.Kind))
+        {
+            return null;
+        }
+
+        AtlasEntry shut = atlas.Index.Entry(thing.Id, ThingUse);
+        AtlasEntry open = atlas.Index.Entry(thing.Id, OpenUse);
+        if (open.Width != shut.Width || open.Height != shut.Height)
+        {
+            throw new InvalidOperationException(
+                $"The open drawing of '{thing.Id.Value}' is {open.Width} by {open.Height}, and its closed drawing is {shut.Width} by {shut.Height}. One sprite shows both (T-2, D-1223).");
+        }
+
+        return atlas.Frame(open.Id, 0);
+    }
+
     /// <summary>
-    /// Builds the sprite of one service point from its drawing (D-519, D-1142). It sorts by its
-    /// feet as a figure does, so a figure north of it draws behind it (F-94, D-737).
+    /// Builds the sprite of one drawn thing from its drawing, in its closed look (D-519, D-1142).
+    /// It sorts by its feet as a figure does, so a figure north of it draws behind it (F-94, D-737).
     /// </summary>
     private static Sprite2D PointSprite(GameAtlas atlas, MapThing point)
     {
@@ -949,7 +1015,7 @@ public partial class MapScreen : Node2D
     }
 
     /// <summary>
-    /// Reads the sprite of the lead, each enemy, each NPC, and each service point back, and fails
+    /// Reads the sprite of the lead, each enemy, each NPC, and each drawn thing back, and fails
     /// when one of them holds no picture (T-2, F-45). A headless session draws nothing, so this check
     /// reads the nodes and never the pixels (F-23).
     /// </summary>
@@ -957,7 +1023,7 @@ public partial class MapScreen : Node2D
     /// <returns>The count of sprites of each kind, the count that draws, and the mark.</returns>
     /// <exception cref="ArgumentNullException">The party is null (T-2).</exception>
     /// <exception cref="InvalidOperationException">
-    /// A sprite holds no picture of 32 pixels or more, a live enemy, an NPC, or a service point
+    /// A sprite holds no picture of 32 pixels or more, a live enemy, an NPC, or a drawn thing
     /// draws no sprite on a map that is not dark, or the screen draws another map (T-2, D-814).
     /// </exception>
     /// <remarks>
@@ -992,11 +1058,11 @@ public partial class MapScreen : Node2D
         int people = this.CheckOtherFigures(party);
         string mark = this.mark.Visible ? "a mark" : "no mark";
         return $"the lead at {this.lead.Position}, {this.enemies.Length} enemies with {drawn} drawn, "
-            + $"{this.npcs.Length} NPCs and {this.points.Length} service points with {people} drawn, and {mark}";
+            + $"{this.npcs.Length} NPCs and {this.points.Length} things with {people} drawn, and {mark}";
     }
 
     /// <summary>
-    /// Reads the sprite of each NPC and each service point back, and fails when one holds no
+    /// Reads the sprite of each NPC and each drawn thing back, and fails when one holds no
     /// picture, or when one hides on a map that is not dark (T-2, D-814, F-45).
     /// </summary>
     /// <returns>The count of those sprites that draw.</returns>
@@ -1019,10 +1085,10 @@ public partial class MapScreen : Node2D
 
         for (int index = 0; index < this.pointSprites.Length; index += 1)
         {
-            CheckSprite(this.pointSprites[index], $"the service point '{this.points[index].Id.Value}'");
+            CheckSprite(this.pointSprites[index], $"the thing '{this.points[index].Id.Value}'");
             Refuse(
                 !party.Map.Dark && !this.pointSprites[index].Visible,
-                $"the service point '{this.points[index].Id.Value}' draws no sprite on a map that is not dark (D-814)");
+                $"the thing '{this.points[index].Id.Value}' draws no sprite on a map that is not dark (D-814)");
             drawn += this.pointSprites[index].Visible ? 1 : 0;
         }
 

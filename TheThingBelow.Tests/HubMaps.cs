@@ -8,8 +8,8 @@ namespace TheThingBelow.Tests;
 /// </summary>
 /// <remarks>
 /// The ground is a room of 10 by 8 tiles with a block of wall in the middle, as the room of
-/// <see cref="PatrolMaps"/>. The spawn point sits at (1, 1), and the bed, a service point, sits
-/// at (8, 1).
+/// <see cref="PatrolMaps"/>. The spawn point sits at (1, 1). The inn puts the waystone, a save
+/// point, at (8, 1), and a test of a service point puts the bed there (D-1142, D-1221).
 /// </remarks>
 public static class HubMaps
 {
@@ -25,11 +25,17 @@ public static class HubMaps
     /// <summary>The rest of the keeper, which no flag gates.</summary>
     public const string RestOnKeeper = """{ "id": "service.hub_rest", "kind": "rest", "price": 0, "npc": "npc.hub_keeper", "condition": { "always": true } }""";
 
-    /// <summary>The save of the bed, which no flag gates.</summary>
-    public const string SaveOnBed = """{ "id": "service.hub_save", "kind": "save", "thing": "service_point.hub_bed", "condition": { "always": true } }""";
+    /// <summary>The rest of the bed, a second rest service, which no flag gates.</summary>
+    public const string RestOnBed = """{ "id": "service.hub_bed_rest", "kind": "rest", "price": 0, "thing": "service_point.hub_bed", "condition": { "always": true } }""";
 
-    /// <summary>A hub with the keeper and the bed, and a service on each.</summary>
-    public static GameMap Inn => Of(npcs: Keeper, services: $"{RestOnKeeper}, {SaveOnBed}", things: Bed);
+    /// <summary>The waystone, a save point in the north-east corner, where the bed of a service test sits (D-1221).</summary>
+    public const string Waystone = """{ "id": "save_point.hub_waystone", "kind": "save_point", "x": 8, "y": 1 }""";
+
+    /// <summary>A hub with the keeper, who holds the rest, and the waystone, which saves (D-1221).</summary>
+    public static GameMap Inn => Of(npcs: Keeper, services: RestOnKeeper, things: Waystone);
+
+    /// <summary>A hub with the keeper and the bed, and a rest service on each (D-1142).</summary>
+    public static GameMap Beds => Of(npcs: Keeper, services: $"{RestOnKeeper}, {RestOnBed}", things: Bed);
 
     /// <summary>The store of the tests on the keeper, which no flag gates (D-1149).</summary>
     public const string ShopOnKeeper = """{ "id": "service.hub_shop", "kind": "shop", "shop": "shop.test_store", "npc": "npc.hub_keeper", "condition": { "always": true } }""";
@@ -122,6 +128,7 @@ public static class HubMaps
          "enemies": [{{enemies}}],
          "npcs": [{{npcs}}],
          "services": [{{services}}],
+         "reopen": [],
          "triggers": []
         }
         """;

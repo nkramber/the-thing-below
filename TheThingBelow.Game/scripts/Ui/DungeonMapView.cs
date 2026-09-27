@@ -53,6 +53,7 @@ public sealed class DungeonMapView : IMenuView
             [DungeonMapMark.Floor] = ui.Theme.ColorOf("map_floor"),
             [DungeonMapMark.Door] = ui.Theme.ColorOf("map_door"),
             [DungeonMapMark.SavePoint] = ui.Theme.ColorOf("map_save"),
+            [DungeonMapMark.Exit] = ui.Theme.ColorOf("map_exit"),
             [DungeonMapMark.Party] = ui.Theme.ColorOf("map_party"),
         };
 
@@ -128,6 +129,7 @@ public sealed class DungeonMapView : IMenuView
             (DungeonMapMark.Party, "menu.map_you"),
             (DungeonMapMark.Door, "menu.map_door"),
             (DungeonMapMark.SavePoint, "menu.map_waystone"),
+            (DungeonMapMark.Exit, "menu.map_exit"),
         ];
 
         int body = ui.Theme.BodySize;

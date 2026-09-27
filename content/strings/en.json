@@ -115,7 +115,7 @@
   },
   {
    "id": "battle.form_help",
-   "text": "{ap}AP - {text}"
+   "text": "{ap} AP - {text}"
   },
   {
    "id": "battle.form_name",
@@ -374,6 +374,10 @@
    "text": "Restores health. Bitter, and thick as tar."
   },
   {
+   "id": "item.fixture_iron_key",
+   "text": "Opens a door in the old cut. Heavy for its size."
+  },
+  {
    "id": "item.fixture_root",
    "text": "Stands a fallen ally up. It tastes of earth."
   },
@@ -554,6 +558,22 @@
    "text": "Items"
   },
   {
+   "id": "menu.key_items",
+   "text": "Key items"
+  },
+  {
+   "id": "menu.key_items_help",
+   "text": "Things that stay with you."
+  },
+  {
+   "id": "menu.keyring",
+   "text": "Keyring"
+  },
+  {
+   "id": "menu.keyring_help",
+   "text": "Each key you carry."
+  },
+  {
    "id": "menu.leave",
    "text": "Leave"
   },
@@ -628,6 +648,10 @@
   {
    "id": "menu.map_door",
    "text": "Door"
+  },
+  {
+   "id": "menu.map_exit",
+   "text": "Way out"
   },
   {
    "id": "menu.map_waystone",
@@ -870,6 +894,10 @@
    "text": "Stranger"
   },
   {
+   "id": "name.fixture_iron_key",
+   "text": "Iron key"
+  },
+  {
    "id": "name.fixture_pick",
    "text": "Pick"
   },
@@ -912,6 +940,34 @@
   {
    "id": "name.torch",
    "text": "Torch"
+  },
+  {
+   "id": "notice.chest_empty",
+   "text": "Empty."
+  },
+  {
+   "id": "notice.chest_found",
+   "text": "Found {thing}."
+  },
+  {
+   "id": "notice.chest_gold",
+   "text": "Found {count} gold."
+  },
+  {
+   "id": "notice.chest_left",
+   "text": "No room for {thing}."
+  },
+  {
+   "id": "notice.door_key",
+   "text": "The key turns."
+  },
+  {
+   "id": "notice.door_locked",
+   "text": "Locked."
+  },
+  {
+   "id": "notice.door_picked",
+   "text": "The lock gives."
   },
   {
    "id": "notice.fixture_drip",
@@ -1436,6 +1492,26 @@
   {
    "id": "settings.window_window",
    "text": "Window"
+  },
+  {
+   "id": "single.fixture_draught",
+   "text": "a draught"
+  },
+  {
+   "id": "single.fixture_iron_key",
+   "text": "an iron key"
+  },
+  {
+   "id": "single.fixture_pilfer",
+   "text": "a drill: Pilfer"
+  },
+  {
+   "id": "single.fixture_root",
+   "text": "a grave root"
+  },
+  {
+   "id": "single.fixture_tonic",
+   "text": "a tonic"
   },
   {
    "id": "status.bleed",

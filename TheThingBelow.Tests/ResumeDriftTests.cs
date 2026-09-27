@@ -52,8 +52,10 @@ public sealed class ResumeDriftTests
     /// <summary>
     /// The digest of every party rule number that a save depends on. A change of one refuses
     /// each save of the older content, so the patch that makes it ships a migration (D-1110).
+    /// PR-16 added the iron key, a new item with the limit 1. No older save holds it, so no save
+    /// of the older content breaks, and the digest took the new list with no migration.
     /// </summary>
-    private const string PartyRuleDigest = "465906ad26b50e7b1f35ad3dd515a0a27644183965b2a66a8debd0450c59f03a";
+    private const string PartyRuleDigest = "03b379b40a817def71d761c2986ab1561c9a935f2fe032258ea10ac45890ef01";
 
     [Fact]
     public void AnotherBuildPlacesANewEnemyOnItsStationAndLogsIt()
@@ -129,6 +131,39 @@ public sealed class ResumeDriftTests
             () => Resume(after, after.Spawn, MapPatrols.Enter(before).Values(), null, encounter, Other()));
 
         Assert.Contains("no enemy to end", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AnotherBuildKeepsANewlyPlacedEnemyDeadThatTheMemoryOfTheMapHoldsDead()
+    {
+        // P2-1 of the review of PR #91 (D-555, D-1111): the save lacks values for patrol.two, which
+        // the edited map now places, and the memory of the map holds it dead. It stays dead until
+        // a reopen, and a reopen and an entry bring it back.
+        GameMap before = PatrolMaps.Of(PatrolMaps.Enemy(stations: Route));
+        GameMap after = PatrolMaps.Of($"{PatrolMaps.Enemy(stations: Route)},\n{PatrolMaps.Enemy(id: "patrol.two", stations: EastPost)}");
+        var place = new PlaceState(after.Id);
+        place.MarkDead(Id("patrol.two"));
+        ResumeDrift drift = Other();
+
+        MapState party = ResumeWith(after, MapPatrols.Enter(before).Values(), place, drift);
+
+        Assert.True(party.Patrols.All[1].Dead);
+        Assert.Contains(drift.Entries, entry => entry.Message.Contains("stays dead", StringComparison.Ordinal));
+        place.Reopen();
+        Assert.False(MapState.Enter(after, place).Patrols.All[1].Dead);
+    }
+
+    [Fact]
+    public void ASnapshotOfThisBuildThatHoldsAliveAnEnemyThatTheMemoryHoldsDeadFails()
+    {
+        // P2-1 of the review of PR #91 (D-555, T-2): no rule of this build makes such a state.
+        GameMap map = PatrolMaps.Of(PatrolMaps.Enemy(stations: Route));
+        var place = new PlaceState(map.Id);
+        place.MarkDead(Id("patrol.one"));
+
+        ArgumentException error = Assert.Throws<ArgumentException>(() => ResumeWith(map, MapPatrols.Enter(map).Values(), place, This()));
+
+        Assert.Contains("holds it dead", error.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -406,6 +441,13 @@ public sealed class ResumeDriftTests
         }
     }
 
+    private static MapState ResumeWith(GameMap map, IReadOnlyList<PatrolValues> enemies, PlaceState place, ResumeDrift drift)
+    {
+        var walked = WalkedTiles.Empty(map.Width, map.Height);
+        walked.Mark(map.Spawn);
+        return MapState.Resume(map, new LeadValues(map.Spawn, StepDirection.South, null, 0), walked, enemies, null, null, null, place, "the test", drift);
+    }
+
     private static MapState Resume(GameMap map, TilePoint lead, IReadOnlyList<PatrolValues> enemies, SightMark? mark, MapEncounter? encounter, ResumeDrift drift)
     {
         WalkedTiles walked = WalkedTiles.Empty(map.Width, map.Height);
@@ -424,7 +466,7 @@ public sealed class ResumeDriftTests
          "label": "label.patrol_test",
          "time": "day",
          "dark": false,
-         "kind": "dungeon", "npcs": [], "services": [],
+         "kind": "dungeon", "npcs": [], "services": [], "reopen": [],
          "terrain": [
           "######",
           "#....#",

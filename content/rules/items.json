@@ -1,10 +1,11 @@
 {
- "comment": "The items (D-1038, D-1046). A used-up item holds a stack limit from 3 to 10, and a key item holds 1. A used-up item holds the value that a shop reads for a sale, and a key item holds none, because it never sells (D-1150, D-1154). A heal, a restore, and a revive give an amount, and a cure ends its statuses. The item rate of the battle rules cuts each amount in a fight (D-382). PR-13 moved the draught here from the battle fixture, and each id is permanent (D-166). The torch is a key item, and the torch rules find it by its id (D-1065). PR-30 tunes each number.",
+ "comment": "The items (D-1038, D-1046). A used-up item holds a stack limit from 3 to 10, and a key item holds 1. A used-up item holds the value that a shop reads for a sale, and a key item holds none, because it never sells (D-1150, D-1154). A heal, a restore, and a revive give an amount, and a cure ends its statuses. The item rate of the battle rules cuts each amount in a fight (D-382). PR-13 moved the draught here from the battle fixture, and each id is permanent (D-166). The torch is a key item, and the torch rules find it by its id (D-1065). A key item names whether it sits on the Keyring: a key that opens a lock does, and the torch does not (D-1219). PR-16 adds the iron key of the fixture dungeon. PR-30 tunes each number.",
  "items": [
   { "id": "item.fixture_draught", "kind": "heal", "limit": 5, "delay": 100, "value": 12, "amount": 30 },
   { "id": "item.fixture_tonic", "kind": "restore", "limit": 5, "delay": 100, "value": 20, "amount": 10 },
   { "id": "item.fixture_salts", "kind": "cure", "limit": 5, "delay": 90, "value": 15, "statuses": ["poison", "blind", "silence"] },
   { "id": "item.fixture_root", "kind": "revive", "limit": 3, "delay": 120, "value": 60, "amount": 25 },
-  { "id": "item.torch", "kind": "key", "limit": 1 }
+  { "id": "item.torch", "kind": "key", "limit": 1, "ring": false },
+  { "id": "item.fixture_iron_key", "kind": "key", "limit": 1, "ring": true }
  ]
 }

@@ -114,6 +114,13 @@ public static class SimulationVersion
     /// lesson costs at least 1 AP (D-1197, D-1213). An enemy that falls gives each character who is not down 10% of
     /// full AP, and a basic attack that hits gives the attacker 5%, each rounded down with a floor of 1 and a cap at
     /// full AP (D-1198, D-1210). The rules file holds the two rates, each from 1 to 10000, and a regain event carries each gain (D-1211).
+    /// PR-16 raised it to 35. A door, a chest, and a save point are solid. A confirm at a door opens it, or its lock with
+    /// its key or a Theft drill of a standing character of the party on a pickable lock (D-386, D-1219). A confirm at a
+    /// chest takes its gold, then each entry up to the stack limit, the fallback item of an owned lesson, and keeps the
+    /// rest (D-385, D-1024, D-1220). A confirm at a save point opens the save window, and the save restores nothing. The
+    /// save service of a hub is gone (D-1221). An arrival on an exit enters its map (D-1216). The memory of each map keeps
+    /// each killed enemy, each open door, and each chest past the exit, and the state hash holds it. A flag of the reopen
+    /// list of a map brings its killed enemies back at the next entry (D-555).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number
@@ -122,5 +129,5 @@ public static class SimulationVersion
     /// hash differs from this build takes the drift rules of D-1111 and D-1112. A change of this
     /// number also changes the expected hashes of the identity file (D-504).
     /// </remarks>
-    public const int Current = 34;
+    public const int Current = 35;
 }

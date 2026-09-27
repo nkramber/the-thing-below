@@ -10,7 +10,8 @@ namespace TheThingBelow.Game.Ui;
 
 /// <summary>
 /// The item window: the items of the pack, each with the owned count against its stack limit,
-/// and the target of a use outside a fight (D-382, D-1039, D-1046, D-1049).
+/// the key items and the Keyring in lists of their own, and the target of a use outside a fight
+/// (D-382, D-1039, D-1046, D-1049, D-1219).
 /// </summary>
 /// <remarks>
 /// The window makes one intent for each whole choice and never changes the run itself (D-493,
@@ -117,8 +118,14 @@ public sealed class ItemsView : IMenuView
     public void Show()
     {
         this.Cursor.Settle();
-        this.ui.Text.Put(this.caption, Id(this.Cursor.Stage == ItemStage.Item ? "menu.item_list" : "menu.item_target"));
-        this.quantity.Visible = this.Cursor.Stage == ItemStage.Item;
+        this.ui.Text.Put(this.caption, Id(this.Cursor.Stage switch
+        {
+            ItemStage.Item => "menu.item_list",
+            ItemStage.KeyItems => "menu.key_items",
+            ItemStage.Keyring => "menu.keyring",
+            _ => "menu.item_target",
+        }));
+        this.quantity.Visible = this.Cursor.Stage != ItemStage.Target;
 
         List<Entry> entries = this.Entries();
         int shown = this.lefts.Count;
@@ -128,7 +135,7 @@ public sealed class ItemsView : IMenuView
             int at = this.top + index;
             bool filled = at < entries.Count;
             this.lefts[index].Visible = filled;
-            this.rights[index].Visible = filled;
+            this.rights[index].Visible = filled && entries[at].Right is not null;
             if (!filled)
             {
                 continue;
@@ -136,7 +143,11 @@ public sealed class ItemsView : IMenuView
 
             Entry entry = entries[at];
             this.ui.Text.Put(this.lefts[index], entry.Left);
-            this.ui.Text.Put(this.rights[index], entry.Right, entry.RightValues);
+            if (entry.Right is ContentId right)
+            {
+                this.ui.Text.Put(this.rights[index], right, entry.RightValues);
+            }
+
             Color? color = at == this.Cursor.Cursor ? this.chosenColor : entry.Allowed ? null : this.dimColor;
             MenuNodes.Paint(this.lefts[index], color);
             MenuNodes.Paint(this.rights[index], color);
@@ -149,6 +160,8 @@ public sealed class ItemsView : IMenuView
     public void Free() => this.layer.QueueFree();
 
     private static ContentId Id(string value) => ContentId.Parse(value, StringTable.Path, nameof(ItemsView));
+
+    private static readonly IReadOnlyDictionary<string, string> NoValues = new Dictionary<string, string>(StringComparer.Ordinal);
 
     private static string Number(int value) => value.ToString(CultureInfo.InvariantCulture);
 
@@ -163,21 +176,26 @@ public sealed class ItemsView : IMenuView
         return values;
     }
 
-    /// <summary>Gives the entries of the list of the stage: each item with its owned count and limit, or each character with the value that the item restores.</summary>
+    /// <summary>
+    /// Gives the entries of the list of the stage: each item with its owned count and limit, and
+    /// the entry of the key items or of the Keyring, or each character with the value that the
+    /// item restores (D-1219).
+    /// </summary>
     private List<Entry> Entries()
     {
         var entries = new List<Entry>();
-        if (this.Cursor.Stage == ItemStage.Item)
+        if (this.Cursor.Stage != ItemStage.Target)
         {
-            IReadOnlyList<PackValues> items = this.Cursor.Items;
-            for (int index = 0; index < items.Count; index += 1)
+            IReadOnlyList<ItemLine> lines = this.Cursor.Lines;
+            for (int index = 0; index < lines.Count; index += 1)
             {
-                ItemRecord record = this.state.BattleContent.Item(items[index].Id);
-                entries.Add(new Entry(
-                    BattleMessages.NameIdOf(record.Id),
-                    Id("menu.item_count"),
-                    Values(("count", Number(this.state.Characters.OwnedCount(record.Id))), ("limit", Number(record.Limit))),
-                    this.Cursor.AllowsItem(index)));
+                entries.Add(lines[index] switch
+                {
+                    { Kind: ItemLineKind.KeyItems } => new Entry(Id("menu.key_items"), null, NoValues, true),
+                    { Kind: ItemLineKind.Keyring } => new Entry(Id("menu.keyring"), null, NoValues, true),
+                    { Entry: PackValues item } => this.ItemEntry(item, this.Cursor.AllowsItem(index)),
+                    _ => throw new InvalidOperationException($"The line {index} of the item window holds no item (T-2)."),
+                });
             }
 
             return entries;
@@ -197,7 +215,21 @@ public sealed class ItemsView : IMenuView
         return entries;
     }
 
-    /// <summary>Gives the last line: the line of the item under the cursor or of the chosen item, or a line for an empty pack.</summary>
+    /// <summary>One item with its owned count against its stack limit (D-1039).</summary>
+    private Entry ItemEntry(PackValues item, bool allowed)
+    {
+        ItemRecord record = this.state.BattleContent.Item(item.Id);
+        return new Entry(
+            BattleMessages.NameIdOf(record.Id),
+            Id("menu.item_count"),
+            Values(("count", Number(this.state.Characters.OwnedCount(record.Id))), ("limit", Number(record.Limit))),
+            allowed);
+    }
+
+    /// <summary>
+    /// Gives the last line: the line of the item under the cursor or of the chosen item, the line
+    /// of the entry of the key items or of the Keyring, or a line for an empty pack (D-1219).
+    /// </summary>
     private ContentId HelpId()
     {
         if (this.Cursor.Stage == ItemStage.Target)
@@ -205,8 +237,19 @@ public sealed class ItemsView : IMenuView
             return this.Cursor.Chosen!;
         }
 
-        IReadOnlyList<PackValues> items = this.Cursor.Items;
-        return items.Count == 0 ? Id("menu.item_none") : items[this.Cursor.Cursor].Id;
+        IReadOnlyList<ItemLine> lines = this.Cursor.Lines;
+        if (lines.Count == 0)
+        {
+            return Id("menu.item_none");
+        }
+
+        return lines[this.Cursor.Cursor] switch
+        {
+            { Kind: ItemLineKind.KeyItems } => Id("menu.key_items_help"),
+            { Kind: ItemLineKind.Keyring } => Id("menu.keyring_help"),
+            { Entry: PackValues item } => item.Id,
+            _ => throw new InvalidOperationException($"The line {this.Cursor.Cursor} of the item window holds no item (T-2)."),
+        };
     }
 
     private ViewOutcome ReadEvent(InputEvent signal, ScreenFit fit)
@@ -249,6 +292,6 @@ public sealed class ItemsView : IMenuView
         return this.made is null ? ViewOutcome.Stay : ViewOutcome.Chose;
     }
 
-    /// <summary>One line of the list: the left text, the right text, and whether the rules take the entry now.</summary>
-    private sealed record Entry(ContentId Left, ContentId Right, IReadOnlyDictionary<string, string> RightValues, bool Allowed);
+    /// <summary>One line of the list: the left text, the right text or none, and whether the rules take the entry now.</summary>
+    private sealed record Entry(ContentId Left, ContentId? Right, IReadOnlyDictionary<string, string> RightValues, bool Allowed);
 }

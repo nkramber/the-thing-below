@@ -19,9 +19,9 @@ namespace TheThingBelow.Core.Runs;
 /// The map runs in real time, so each enemy and each NPC walks here on the same tick, whether
 /// or not the player moves (D-162, D-1137).
 /// <para>
-/// The tick runs in one fixed order: the beat of a mark, the party, the encounter of a step
-/// into a body, the NPCs, the confirm, and then the enemies and the sight (D-168, D-1131,
-/// D-1137). An encounter
+/// The tick runs in one fixed order: the beat of a mark, the party, the exit, the encounter of a
+/// step into a body, the NPCs, the confirm, and then the enemies and the sight (D-168, D-1131,
+/// D-1137, D-1216). An encounter
 /// starts its battle on the same tick. While the encounter runs, no map system ticks, so the
 /// patrols, the NPCs, and the grace time all stand still (D-531). A snapshot of save format 3
 /// can hold an encounter with no battle, and the next world step starts that battle (D-765).
@@ -104,6 +104,14 @@ public static class WorldRules
                     [new LogField("enemy", passed.Value), LogField.OfNumber("world-tick", state.WorldTick)]));
             }
 
+            return;
+        }
+
+        // The exit enters the map that it names on the arrival, before a step into an enemy of the
+        // same tick, and that step starts no encounter (D-1216).
+        if (step.Arrived && party.Map.ExitAt(step.At) is MapThing exit)
+        {
+            ExitRules.Leave(state, exit, step.Bumped, log);
             return;
         }
 

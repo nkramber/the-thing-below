@@ -128,10 +128,10 @@ public static class IntentIds
     public static readonly ContentId HubRest = ContentId.Parse("intent.hub_rest", Source, nameof(HubRest));
 
     /// <summary>
-    /// The save window of a hub asked for the slot save, at the save service that the lead faces
-    /// while the menu is open (D-1131, D-1132).
+    /// The save window asked for the slot save, at the save point that the lead faces while the
+    /// menu is open, on a hub or in a dungeon (D-1132, D-1221).
     /// </summary>
-    public static readonly ContentId HubSave = ContentId.Parse("intent.hub_save", Source, nameof(HubSave));
+    public static readonly ContentId Save = ContentId.Parse("intent.save", Source, nameof(Save));
 
     /// <summary>
     /// The shop window bought a count of one entry, at the shop service that the lead faces while

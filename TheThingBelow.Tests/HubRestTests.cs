@@ -98,9 +98,9 @@ public sealed class HubRestTests
     }
 
     [Fact]
-    public void ARestRequestAtTheSaveServiceFails()
+    public void ARestRequestAtTheSavePointFails()
     {
-        // D-1131: the bed holds the save service, so a rest request there names the wrong kind.
+        // D-1131, D-1221: the waystone is a save point and holds no service, so a rest request there fails.
         Simulation run = TestParty.StartFour(Seed, HubMaps.Inn);
         HubWalks.Walk(run, StepDirection.East, 6);
         HubWalks.Face(run, StepDirection.East);
@@ -108,7 +108,7 @@ public sealed class HubRestTests
 
         SimulationException error = Assert.Throws<SimulationException>(() => run.Step([Rest]));
 
-        Assert.Contains("the faced service 'service.hub_save' is a save service", error.Message, StringComparison.Ordinal);
+        Assert.Contains("the lead faces no host of a service", error.Message, StringComparison.Ordinal);
     }
 
     /// <summary>Walks the lead from the spawn point to (2, 5), and turns it to the keeper at (2, 6).</summary>
@@ -141,10 +141,10 @@ public sealed class HubRestTests
         return ids;
     }
 
-    private static List<string> NoticeIds(IReadOnlyList<NoticeRecord> notices)
+    private static List<string> NoticeIds(IReadOnlyList<PostedNotice> notices)
     {
         List<string> ids = [];
-        foreach (NoticeRecord notice in notices)
+        foreach (PostedNotice notice in notices)
         {
             ids.Add(notice.Id.Value);
         }

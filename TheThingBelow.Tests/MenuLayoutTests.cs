@@ -42,7 +42,7 @@ public sealed class MenuLayoutTests
     {
         // D-1131, D-1132: a label holds 16 characters at most, and a line of help one line of the window.
         int fits = (int)GameValue.Static(Layout, "ServiceLineCharacters", body)!;
-        foreach (Core.Maps.ServiceKind kind in new[] { Core.Maps.ServiceKind.Rest, Core.Maps.ServiceKind.Save })
+        foreach (object kind in new[] { GameValue.Enum("MenuWindowKind", "Rest"), GameValue.Enum("MenuWindowKind", "Save") })
         {
             foreach (object option in (IEnumerable)GameValue.StaticProperty("ServiceChoice", "Options")!)
             {
@@ -138,12 +138,25 @@ public sealed class MenuLayoutTests
     [InlineData(32)]
     public void EachNoticeFitsTheNoticeBoxAndALineOfTheLog(int body)
     {
-        // D-221, D-987: the notice box and the log show a notice on one line.
+        // D-221, D-987: the notice box and the log show a notice on one line. A notice of a chest
+        // fills its place with the longest singular of the content and the largest gold, and it
+        // never logs, because the log holds the id alone (D-1224).
         int box = (int)GameValue.Static(Layout, "NoticeCharacters", body)!;
         int log = (int)GameValue.Static(Layout, "TaskLineCharacters", body)!;
+        string longest = string.Empty;
+        foreach (string id in Content.Value.Strings.Ids)
+        {
+            if (id.StartsWith("single.", StringComparison.Ordinal) && Text(Id(id)).Length > longest.Length)
+            {
+                longest = Text(Id(id));
+            }
+        }
+
         foreach (NoticeRecord notice in Content.Value.Notices.Records)
         {
-            string text = Text(notice.Id);
+            string line = Text(notice.Id);
+            Assert.False(notice.Logs && line.Contains('{', StringComparison.Ordinal), $"The notice '{notice.Id.Value}' logs and holds a place, and the log holds the id alone (D-1224).");
+            string text = Fill(notice.Id.Value, "thing", longest, "count", int.MaxValue.ToString(CultureInfo.InvariantCulture));
             Assert.True(text.Length <= box && text.Length <= log, $"The notice '{notice.Id.Value}' holds {text.Length} characters, and the notice box holds {box} and a line of the log {log} at a body of {body}.");
             Assert.DoesNotContain("{", text, StringComparison.Ordinal);
         }

@@ -150,15 +150,34 @@ public static class MapRules
     /// </returns>
     /// <exception cref="ArgumentNullException">The map is null (T-2).</exception>
     /// <remarks>
-    /// A service point is solid, so the lead faces it and never walks onto it (D-1142). PR-16
-    /// makes the chest and the door solid in the same rule, and a lock, a trap, and a save
-    /// point answer the step into them in PR-16 and PR-64.
+    /// A service point, a door, a chest, and a save point are solid, so the lead faces each one
+    /// and never walks onto it (D-1142, D-1222). A closed door blocks here, and the lead reads the
+    /// open doors through the overload with the memory of the map. PR-64 adds the step onto a trap.
     /// </remarks>
     public static bool CanEnter(GameMap map, TilePoint at)
     {
         ArgumentNullException.ThrowIfNull(map);
 
         return map.Holds(at) && TileKinds.CanWalk(map.TileAt(at)) && !map.HoldsSolidThing(at);
+    }
+
+    /// <summary>Tells whether the lead can step onto one tile, with the doors that the party opened (D-41).</summary>
+    /// <param name="map">The map.</param>
+    /// <param name="place">The memory of the map, which holds each open door (D-555).</param>
+    /// <param name="at">The tile that the step reaches, which can lie outside the map.</param>
+    /// <returns>True when <see cref="CanEnter(GameMap, TilePoint)"/> holds, or when the tile holds a door that the party opened.</returns>
+    /// <exception cref="ArgumentNullException">The map or the memory is null (T-2).</exception>
+    /// <remarks>
+    /// A door stands in a doorway, which takes a step, and its lock shares the tile. So an open
+    /// door leaves the tile open to the lead. No patrol and no NPC reads this rule, so no enemy
+    /// and no NPC walks through a door (D-1142).
+    /// </remarks>
+    public static bool CanEnter(GameMap map, PlaceState place, TilePoint at)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+        ArgumentNullException.ThrowIfNull(place);
+
+        return CanEnter(map, at) || (map.DoorAt(at) is MapThing door && place.IsOpen(door.Id));
     }
 
     /// <summary>Tells whether the body of an enemy can stand on one map (D-206, D-209).</summary>

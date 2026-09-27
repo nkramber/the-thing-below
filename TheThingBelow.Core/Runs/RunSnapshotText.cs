@@ -49,6 +49,7 @@ public static class RunSnapshotText
             WriteNotices(writer, snapshot.Notices);
             WriteStory(writer, snapshot.Story);
             WriteStock(writer, snapshot.Stock);
+            WritePlaces(writer, snapshot.Places);
             writer.WriteStartArray("streams");
             foreach (StreamPosition position in snapshot.Streams)
             {
@@ -445,6 +446,16 @@ public static class RunSnapshotText
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
     public static RunSnapshot ReadFormatSixteen(ref ContentReader reader) => ReadLine(ref reader, 16, null);
 
+    /// <summary>
+    /// Reads a snapshot of save format 17, which holds no memory of a map (D-555). The resume
+    /// starts the memory with the dead enemies of the map that the party stands on.
+    /// </summary>
+    /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <returns>The snapshot, with no memory of a map.</returns>
+    /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
+    /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
+    public static RunSnapshot ReadFormatSeventeen(ref ContentReader reader) => ReadLine(ref reader, 17, null);
+
     private static RunSnapshot ReadLine(ref ContentReader reader, int format, ulong? seed)
     {
         long? tick = null;
@@ -456,6 +467,7 @@ public static class RunSnapshotText
         List<ContentId>? notices = null;
         StoryValues? story = null;
         List<StockValues>? stock = null;
+        List<PlaceValues>? places = null;
         List<StreamPosition>? streams = null;
 
         int depth = reader.ReadObjectStart();
@@ -507,6 +519,13 @@ public static class RunSnapshotText
                 case "stock":
                     stock = ReadStock(ref reader);
                     break;
+                // Save format 17 and older predate the memory of a map (D-555).
+                case "places" when format < 18:
+                    throw reader.Refuse(
+                        $"the snapshot of save format {format} holds the memory of a map, and that format predates it (D-555)");
+                case "places":
+                    places = ReadPlaces(ref reader);
+                    break;
                 case "streams":
                     streams = ReadStreams(ref reader);
                     break;
@@ -545,6 +564,12 @@ public static class RunSnapshotText
             _ = reader.Require(stock, depth, "stock");
         }
 
+        // Save format 18 and each later format hold the memory of each map (D-555).
+        if (format >= 18)
+        {
+            _ = reader.Require(places, depth, "places");
+        }
+
         RunSnapshot snapshot = new(
             reader.RequireValue(tick, depth, "tick"),
             reader.RequireValue(menu, depth, "menu"),
@@ -555,7 +580,8 @@ public static class RunSnapshotText
             notices,
             story,
             StreamsOf(reader.Require(streams, depth, "streams"), format, seed),
-            stock);
+            stock,
+            places);
 
         snapshot.Check(reader.File);
         return snapshot;
@@ -624,6 +650,7 @@ public static class RunSnapshotText
             null,
             null,
             StreamsOf(reader.Require(streams, depth, "streams"), 1, seed),
+            null,
             null);
 
         snapshot.Check(reader.File);
@@ -690,6 +717,178 @@ public static class RunSnapshotText
         }
 
         return stock;
+    }
+
+    /// <summary>
+    /// Writes the memory of each map that holds something (D-385, D-555). This build writes save
+    /// format 18, so the field is always present, and it holds an empty array before the first kill,
+    /// the first open door, and the first opened chest.
+    /// </summary>
+    private static void WritePlaces(Utf8JsonWriter writer, IReadOnlyList<PlaceValues>? places)
+    {
+        if (places is null)
+        {
+            throw new ArgumentException(
+                "A snapshot that this build writes holds the memory of each map. A snapshot with none comes from save format 17 or older, and this build never writes one (T-2, D-166).",
+                nameof(places));
+        }
+
+        writer.WriteStartArray("places");
+        foreach (PlaceValues place in places)
+        {
+            writer.WriteStartObject();
+            writer.WriteString("map", place.Map.Value);
+            WriteIds(writer, "dead", place.Dead);
+            WriteIds(writer, "doors", place.Doors);
+            writer.WriteStartArray("chests");
+            foreach (ChestValues chest in place.Chests)
+            {
+                writer.WriteStartObject();
+                writer.WriteString("chest", chest.Chest.Value);
+                writer.WriteStartArray("left");
+                foreach (ChestLeft left in chest.Left)
+                {
+                    writer.WriteStartObject();
+                    writer.WriteString("thing", left.Thing.Value);
+                    writer.WriteNumber("count", left.Count);
+                    writer.WriteEndObject();
+                }
+
+                writer.WriteEndArray();
+                writer.WriteEndObject();
+            }
+
+            writer.WriteEndArray();
+            writer.WriteEndObject();
+        }
+
+        writer.WriteEndArray();
+    }
+
+    private static void WriteIds(Utf8JsonWriter writer, string field, IReadOnlyList<ContentId> ids)
+    {
+        writer.WriteStartArray(field);
+        foreach (ContentId id in ids)
+        {
+            writer.WriteStringValue(id.Value);
+        }
+
+        writer.WriteEndArray();
+    }
+
+    /// <summary>Reads the memory of each map. The resume checks each value against the maps of this build (D-555, T-2).</summary>
+    private static List<PlaceValues> ReadPlaces(ref ContentReader reader)
+    {
+        List<PlaceValues> places = [];
+        int depth = reader.ReadArrayStart();
+        while (reader.ReadNextElement(depth, places.Count))
+        {
+            ContentId? map = null;
+            List<ContentId>? dead = null;
+            List<ContentId>? doors = null;
+            List<ChestValues>? chests = null;
+            int fields = reader.ReadObjectStart();
+            while (reader.ReadNextField(fields, out string field))
+            {
+                switch (field)
+                {
+                    case "map":
+                        map = reader.ReadContentId(GameMap.IdKind);
+                        break;
+                    case "dead":
+                        dead = ReadIds(ref reader, null);
+                        break;
+                    case "doors":
+                        doors = ReadIds(ref reader, MapThingKinds.NameOf(MapThingKind.Door));
+                        break;
+                    case "chests":
+                        chests = ReadChests(ref reader);
+                        break;
+                    default:
+                        throw reader.UnknownField(field);
+                }
+            }
+
+            places.Add(new PlaceValues(
+                reader.Require(map, fields, "map"),
+                reader.Require(dead, fields, "dead"),
+                reader.Require(doors, fields, "doors"),
+                reader.Require(chests, fields, "chests")));
+        }
+
+        return places;
+    }
+
+    private static List<ContentId> ReadIds(ref ContentReader reader, string? kind)
+    {
+        List<ContentId> ids = [];
+        int depth = reader.ReadArrayStart();
+        while (reader.ReadNextElement(depth, ids.Count))
+        {
+            ids.Add(kind is null ? reader.ReadContentId() : reader.ReadContentId(kind));
+        }
+
+        return ids;
+    }
+
+    private static List<ChestValues> ReadChests(ref ContentReader reader)
+    {
+        List<ChestValues> chests = [];
+        int depth = reader.ReadArrayStart();
+        while (reader.ReadNextElement(depth, chests.Count))
+        {
+            ContentId? chest = null;
+            List<ChestLeft>? left = null;
+            int fields = reader.ReadObjectStart();
+            while (reader.ReadNextField(fields, out string field))
+            {
+                switch (field)
+                {
+                    case "chest":
+                        chest = reader.ReadContentId(MapThingKinds.NameOf(MapThingKind.Chest));
+                        break;
+                    case "left":
+                        left = ReadLeft(ref reader);
+                        break;
+                    default:
+                        throw reader.UnknownField(field);
+                }
+            }
+
+            chests.Add(new ChestValues(reader.Require(chest, fields, "chest"), reader.Require(left, fields, "left")));
+        }
+
+        return chests;
+    }
+
+    private static List<ChestLeft> ReadLeft(ref ContentReader reader)
+    {
+        List<ChestLeft> left = [];
+        int depth = reader.ReadArrayStart();
+        while (reader.ReadNextElement(depth, left.Count))
+        {
+            ContentId? thing = null;
+            int? count = null;
+            int fields = reader.ReadObjectStart();
+            while (reader.ReadNextField(fields, out string field))
+            {
+                switch (field)
+                {
+                    case "thing":
+                        thing = reader.ReadContentId();
+                        break;
+                    case "count":
+                        count = reader.ReadInt();
+                        break;
+                    default:
+                        throw reader.UnknownField(field);
+                }
+            }
+
+            left.Add(new ChestLeft(reader.Require(thing, fields, "thing"), reader.RequireInt(count, fields, "count")));
+        }
+
+        return left;
     }
 
     private static List<ContentId> ReadNotices(ref ContentReader reader)

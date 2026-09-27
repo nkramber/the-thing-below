@@ -12,11 +12,14 @@ public enum DungeonMapMark
     /// <summary>A walked tile.</summary>
     Floor,
 
-    /// <summary>A walked tile that holds a door.</summary>
+    /// <summary>A door on a walked tile or beside one (D-567, D-1225).</summary>
     Door,
 
-    /// <summary>A walked tile that holds a save point.</summary>
+    /// <summary>A save point on a walked tile or beside one (D-567, D-1225).</summary>
     SavePoint,
+
+    /// <summary>An exit on a walked tile or beside one (D-993, D-1225).</summary>
+    Exit,
 
     /// <summary>The tile of the lead of the party.</summary>
     Party,
@@ -24,13 +27,15 @@ public enum DungeonMapMark
 
 /// <summary>
 /// The place and the marks of the dungeon map screen: each walked tile at 16 frame pixels,
-/// with the doors, the save points, and the party on it (D-567, D-982, D-993).
+/// with the doors, the save points, the exits, and the party (D-567, D-982, D-993).
 /// </summary>
 /// <remarks>
 /// The map sits in the middle of the frame of 1280 by 720, which holds 80 by 45 tiles. No
 /// dungeon of the plan passes that size, so the screen builds no pan, and a larger map is an
-/// error that names its size (D-982, T-2). PR-16 adds the exit and its mark (D-993). This type
-/// holds no Godot value, so a test reads it with no engine (D-614).
+/// error that names its size (D-982, T-2). A door and a save point are solid, so the party never
+/// walks onto a closed door or a save point. Thus a door, a save point, or an exit shows when the
+/// party walked its tile or a tile beside it, to the north, the south, the east, or the west
+/// (D-1225). This type holds no Godot value, so a test reads it with no engine (D-614).
 /// </remarks>
 public sealed class DungeonMapLayout
 {
@@ -88,7 +93,10 @@ public sealed class DungeonMapLayout
 
     /// <summary>Gives the mark of one tile of the map.</summary>
     /// <param name="at">The tile.</param>
-    /// <returns>The mark. A tile that the party never walked draws nothing, the things on it included (D-567).</returns>
+    /// <returns>
+    /// The mark. A door, a save point, or an exit shows on its tile when the party walked that tile
+    /// or a tile beside it (D-1225). Any other tile that the party never walked draws nothing (D-567).
+    /// </returns>
     /// <exception cref="ArgumentOutOfRangeException">The tile is outside the map (T-2).</exception>
     public DungeonMapMark MarkAt(TilePoint at)
     {
@@ -102,24 +110,50 @@ public sealed class DungeonMapLayout
             return DungeonMapMark.Party;
         }
 
-        if (!this.party.Walked.WasWalked(at))
+        DungeonMapMark thing = this.ThingMarkAt(at);
+        if (thing != DungeonMapMark.Floor && this.WalkedOnOrBeside(at))
         {
-            return DungeonMapMark.None;
+            return thing;
         }
 
+        return this.party.Walked.WasWalked(at) ? DungeonMapMark.Floor : DungeonMapMark.None;
+    }
+
+    /// <summary>Gives the mark of the door, the save point, or the exit of a tile, or the floor mark when it holds none.</summary>
+    private DungeonMapMark ThingMarkAt(TilePoint at)
+    {
         DungeonMapMark mark = DungeonMapMark.Floor;
         foreach (MapThing thing in this.party.Map.ThingsAt(at))
         {
-            if (thing.Kind == MapThingKind.Door)
+            mark = thing.Kind switch
             {
-                mark = DungeonMapMark.Door;
-            }
-            else if (thing.Kind == MapThingKind.SavePoint)
-            {
-                mark = DungeonMapMark.SavePoint;
-            }
+                MapThingKind.Door => DungeonMapMark.Door,
+                MapThingKind.SavePoint => DungeonMapMark.SavePoint,
+                MapThingKind.Exit => DungeonMapMark.Exit,
+                _ => mark,
+            };
         }
 
         return mark;
+    }
+
+    /// <summary>Tells whether the party walked a tile or one of the four tiles beside it (D-1225).</summary>
+    private bool WalkedOnOrBeside(TilePoint at)
+    {
+        if (this.party.Walked.WasWalked(at))
+        {
+            return true;
+        }
+
+        foreach (StepDirection direction in StepDirections.All)
+        {
+            TilePoint beside = at.Step(direction);
+            if (this.party.Map.Holds(beside) && this.party.Walked.WasWalked(beside))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

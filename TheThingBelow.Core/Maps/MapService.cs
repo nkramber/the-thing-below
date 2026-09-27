@@ -6,14 +6,11 @@ using TheThingBelow.Core.Story;
 
 namespace TheThingBelow.Core.Maps;
 
-/// <summary>What one service of a hub does (D-28, D-59, D-1131).</summary>
+/// <summary>What one service of a hub does (D-28, D-59, D-1131). A save point holds the save, and no service does (D-1221).</summary>
 public enum ServiceKind
 {
     /// <summary>The rest, which fills the health and the AP and cures the statuses that last past a fight (D-42, D-390, D-970).</summary>
     Rest,
-
-    /// <summary>The save, which writes the slot save (D-1132).</summary>
-    Save,
 
     /// <summary>The shop, which buys and sells for gold (D-530, D-1149).</summary>
     Shop,
@@ -23,10 +20,10 @@ public enum ServiceKind
 public static class ServiceKinds
 {
     /// <summary>Every kind, in one fixed order for a walk of them (G-4).</summary>
-    public static readonly ServiceKind[] All = [ServiceKind.Rest, ServiceKind.Save, ServiceKind.Shop];
+    public static readonly ServiceKind[] All = [ServiceKind.Rest, ServiceKind.Shop];
 
     /// <summary>The names of every kind, for the error of an unknown name (T-2).</summary>
-    public const string EveryName = "rest, save, shop";
+    public const string EveryName = "rest, shop";
 
     /// <summary>Gives the kind of one name.</summary>
     /// <param name="name">The name, such as `rest`.</param>
@@ -52,12 +49,11 @@ public static class ServiceKinds
 
     /// <summary>Gives the name of one kind, which a map file and an error use (T-2).</summary>
     /// <param name="kind">The kind.</param>
-    /// <returns>The name, such as `save`.</returns>
+    /// <returns>The name, such as `rest`.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The value names no kind (T-2).</exception>
     public static string NameOf(ServiceKind kind) => kind switch
     {
         ServiceKind.Rest => "rest",
-        ServiceKind.Save => "save",
         ServiceKind.Shop => "shop",
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no service kind (D-1131)"),
     };
