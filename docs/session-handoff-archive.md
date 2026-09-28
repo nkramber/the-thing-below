@@ -1,5 +1,39 @@
 # Session handoff archive
 
+## Session 376: 2026-09-27, Codex
+
+Author: Codex
+Session: review PR #93 (PR-35). Repository: the-thing-below. Branch: `review/pr-93`, tracking `origin/feat/pr-35-region-map`. Role: reviewer. Base: `9d1d73f`.
+
+### What this session did, and why
+
+- Reviewed the full diff at effective head `5f2ba3b4c9d7c29ad49666a6b6fa23ba4f26d17f` against the PR-35 scope, exit tests, and contracts (D-1242 to D-1260).
+- Found no defect. Recorded `Ready for owner merge` in `docs/reviews/pr-93.md`.
+- Read the changed screen-test frames. No visual fault was found.
+- Corrected the Documents row of the PR description to name the review record (D-577).
+
+### The state of the build
+
+- `make verify` passed locally with 4,318 tests and no skips. CI run 36359846898 passed every implementation check on all three systems.
+- The implementation head is `5f2ba3b4c9d7c29ad49666a6b6fa23ba4f26d17f`. Metadata head `ed09141` passed review-gate, night-gate, changed-paths, STE, and Gitar. Its implementation matrix jobs skipped.
+
+### What is in flight
+
+- Commit this record and handoff update together. Push to `feat/pr-35-region-map`, then verify the remote head and checks.
+
+### Traps and gotchas
+
+- The Gitar CI claim reports the missing review record. The job log confirms RG 3 is its only fault, and the author answered it (D-964).
+- OQ-254 holds the greedy bot wipe loop and blocks no work in PR-35 (D-1260).
+
+### The questions that block progress
+
+None for PR-35.
+
+### The next concrete action
+
+Run `make where`, `make ste-check`, and `git diff --cached --check`. Commit the review record and handoff files, push, then verify the remote head and checks.
+
 ## Session 375: 2026-09-27, Claude Code
 
 Author: Claude Code

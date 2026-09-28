@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -88,6 +89,44 @@ public sealed class OverworldGeneratorTests
         Assert.Contains("mark.overworld_mine", error.Message, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void ATreasureWhoseClosureCutsAPathFailsWithTheSeedAndTheRule()
+    {
+        // D-1306, T-2: a cairn is solid, so a fix that leaves the lead one way past it, from the
+        // west side to the east side, fails the check with the id of the treasure.
+        TilePoint at = OverworldGenerator.Generate(CheckoutPlan()).Things.Single(thing => thing.Id.Value == "chest.overworld_cairn_west_field").At;
+        List<(TilePoint At, char Tile)> fixes = [];
+        foreach (int dx in new[] { -1, 0, 1 })
+        {
+            fixes.Add((new TilePoint(at.X + dx, at.Y - 1), TileKinds.MountainCharacter));
+            fixes.Add((new TilePoint(at.X + dx, at.Y + 1), TileKinds.MountainCharacter));
+        }
+
+        fixes.Add((new TilePoint(at.X - 1, at.Y), TileKinds.GrassCharacter));
+        fixes.Add((new TilePoint(at.X + 1, at.Y), TileKinds.GrassCharacter));
+
+        InvalidOperationException error = Assert.Throws<InvalidOperationException>(() => OverworldGenerator.Generate(PlanOf(WithFixes(fixes))));
+
+        Assert.Contains("the seed 1293 breaks a rule", error.Message, StringComparison.Ordinal);
+        Assert.Contains("the solid treasure 'chest.overworld_cairn_west_field'", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AFixThatShutsATreasureInFailsWithTheSeedAndTheRule()
+    {
+        // D-1306, T-2: a treasure that no lead reaches fails the check with its id.
+        TilePoint at = OverworldGenerator.Generate(CheckoutPlan()).Things.Single(thing => thing.Id.Value == "chest.overworld_cairn_high_hollow").At;
+        List<(TilePoint At, char Tile)> fixes = [];
+        foreach (TilePoint step in new TilePoint[] { new(1, 0), new(-1, 0), new(0, 1), new(0, -1) })
+        {
+            fixes.Add((new TilePoint(at.X + step.X, at.Y + step.Y), TileKinds.MountainCharacter));
+        }
+
+        InvalidOperationException error = Assert.Throws<InvalidOperationException>(() => OverworldGenerator.Generate(PlanOf(WithFixes(fixes))));
+
+        Assert.Contains("the lead cannot reach the treasure 'chest.overworld_cairn_high_hollow'", error.Message, StringComparison.Ordinal);
+    }
+
     [Theory]
     [InlineData("{ \"role\": \"mine_gate\", \"id\": \"gate.overworld_mine_mouth\" }", "{ \"role\": \"mine_gate\", \"id\": \"gate.overworld_mine_mouth\", \"x\": 1, \"y\": 1 }", "holds no field 'x'")]
     [InlineData("\"role\": \"fort\",", "\"role\": \"keep\",", "the role 'keep'")]
@@ -98,6 +137,9 @@ public sealed class OverworldGeneratorTests
     [InlineData("\"ridge\": 70,", "\"ridge\": 300,", "the ridge runs from 0 to 256")]
     [InlineData("\"fixes\": []", "\"fixes\": [{ \"x\": 1, \"y\": 1, \"tile\": \"?\" }]", "the tile '?'")]
     [InlineData("\"south_x\": 80,\n", "", "south_x")]
+    [InlineData("{ \"id\": \"chest.overworld_cairn_west_field\", \"x\": 23,", "{ \"id\": \"chest.overworld_cairn_west_field\", \"x\": 160,", "names the tile (160, 87)")]
+    [InlineData("{ \"id\": \"chest.overworld_cairn_high_hollow\", \"x\"", "{ \"id\": \"chest.overworld_cairn_west_field\", \"x\"", "takes an id that another thing of the file takes")]
+    [InlineData("{ \"id\": \"chest.overworld_cairn_west_field\", \"x\"", "{ \"id\": \"mark.overworld_cairn_west_field\", \"x\"", "this file holds entries of the kind 'chest'")]
     public void ABrokenSettingsFileFailsWithTheReason(string old, string replacement, string reason)
     {
         // D-1295, G-6, T-2.
@@ -142,8 +184,13 @@ public sealed class OverworldGeneratorTests
 
     private static OverworldPlan CheckoutPlan() => PlanOf(PlanText());
 
-    private static string WithFix(TilePoint at, char tile) =>
-        PlanText().Replace("\"fixes\": []", $"\"fixes\": [{{ \"x\": {at.X}, \"y\": {at.Y}, \"tile\": \"{tile}\" }}]", StringComparison.Ordinal);
+    private static string WithFix(TilePoint at, char tile) => WithFixes([(at, tile)]);
+
+    private static string WithFixes(IEnumerable<(TilePoint At, char Tile)> fixes)
+    {
+        string lines = string.Join(", ", fixes.Select(fix => $"{{ \"x\": {fix.At.X}, \"y\": {fix.At.Y}, \"tile\": \"{fix.Tile}\" }}"));
+        return PlanText().Replace("\"fixes\": []", $"\"fixes\": [{lines}]", StringComparison.Ordinal);
+    }
 
     /// <summary>Gives the first tile of a kind in reading order that no thing stands on and no thing touches.</summary>
     private static TilePoint FirstTile(GeneratedOverworld map, char tile)

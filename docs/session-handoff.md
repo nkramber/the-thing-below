@@ -1,3 +1,37 @@
+## Session 386: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-111, round 1. Repository: the-thing-below. Branch: `feat/pr-111-overworld-treasure`. PR: the one PR of PR-111, before GitHub gives a number. Role: author. Base: `2ac46b6`.
+
+### What this session did, and why
+
+- Asked the three questions of D-1298 and the count. D-1304 to D-1308: the chest form, the land hides it, a cairn shows it, four treasures, one low, two valley, one pass.
+- The settings of the generator gain `treasures`. The generator puts each chest off the road, on no tile whose closure cuts a path, and checks both rules (D-1306).
+- Four chest lines on `map.overworld`, with fixture items that have a singular name, so no player string is new. Two placeholder drawings of the cairn.
+- `make sheet` failed on `main` at 107,660 rows. The owner chose the fix in this PR (D-1309): the `screens` command writes pages.
+
+### The state of the build
+
+- Local `make verify` passed: 4,458 tests, no finding. `make sheet` writes 2 pages of 156 captures. The remote head is `2ac46b6` until the first push.
+
+### What is in flight
+
+- The first push, the Gitar pass, and `make codex-review`.
+
+### Traps and gotchas
+
+- The generator gives each tile within one of a thing the road zone, so a test reads the land of a treasure two tiles out.
+- A chest entry needs a `single.` string (D-1224). Salts, the coat, and the charm have none.
+- No simulation version bump: no rule of a run reads `OverworldPlan`. The content hash changed.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push, open the PR, run the Gitar poll, then `make codex-review`.
+
 ## Session 385: 2026-09-28, Codex
 
 Author: Codex
@@ -289,37 +323,3 @@ None.
 ### The next concrete action
 
 Answer each Gitar item of this round, then run `make codex-review PR=<n>` in the background.
-
-## Session 376: 2026-09-27, Codex
-
-Author: Codex
-Session: review PR #93 (PR-35). Repository: the-thing-below. Branch: `review/pr-93`, tracking `origin/feat/pr-35-region-map`. Role: reviewer. Base: `9d1d73f`.
-
-### What this session did, and why
-
-- Reviewed the full diff at effective head `5f2ba3b4c9d7c29ad49666a6b6fa23ba4f26d17f` against the PR-35 scope, exit tests, and contracts (D-1242 to D-1260).
-- Found no defect. Recorded `Ready for owner merge` in `docs/reviews/pr-93.md`.
-- Read the changed screen-test frames. No visual fault was found.
-- Corrected the Documents row of the PR description to name the review record (D-577).
-
-### The state of the build
-
-- `make verify` passed locally with 4,318 tests and no skips. CI run 36359846898 passed every implementation check on all three systems.
-- The implementation head is `5f2ba3b4c9d7c29ad49666a6b6fa23ba4f26d17f`. Metadata head `ed09141` passed review-gate, night-gate, changed-paths, STE, and Gitar. Its implementation matrix jobs skipped.
-
-### What is in flight
-
-- Commit this record and handoff update together. Push to `feat/pr-35-region-map`, then verify the remote head and checks.
-
-### Traps and gotchas
-
-- The Gitar CI claim reports the missing review record. The job log confirms RG 3 is its only fault, and the author answered it (D-964).
-- OQ-254 holds the greedy bot wipe loop and blocks no work in PR-35 (D-1260).
-
-### The questions that block progress
-
-None for PR-35.
-
-### The next concrete action
-
-Run `make where`, `make ste-check`, and `git diff --cached --check`. Commit the review record and handoff files, push, then verify the remote head and checks.

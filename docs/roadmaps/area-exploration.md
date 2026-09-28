@@ -252,7 +252,8 @@ Built by PR-35, PR-109, PR-110, and PR-111. Phase file: `phase-2-first-playable.
 - Rock ridges, rivers, and lakes split the middle of the land, and side routes lead off the road (D-1293, D-1300, D-1301).
 - The road crosses a river on a bridge (D-1302).
 - A place with no map yet is a mark, which the lead walks over. The PR of the place makes it an entrance (D-1270 to D-1272).
-- Four side landmarks stand off the road, and PR-111 hides treasure in the side routes (D-1298, D-1299).
+- Four side landmarks stand off the road (D-1299).
+- Four treasures lie at the ends of side routes. Each is a chest that a cairn shows, and no cairn cuts a path (D-1298, D-1304 to D-1308).
 - Each zone names its region, which gives its groups and its pool of transitions (D-1285, D-1289).
 
 > *In plain English:* between places the party walks a small map of the region, as in Final Fantasy VI. The story opens and closes its roads.

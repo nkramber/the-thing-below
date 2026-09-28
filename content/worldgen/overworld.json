@@ -1,5 +1,5 @@
 {
- "comment": "The settings of the generator of the overworld (D-1294, D-1295). The `overworld` command of Tools reads them and writes the terrain rows, the zone grid, and the tile of each thing into the map file, and a test proves that the committed map matches. Each basin is an ellipse whose edge the noise of the seed moves, and a thin band of the noise inside it turns to rock ridges that split the middle of the land (D-1300). Rivers and lakes lie on the land, and the road crosses a river on a bridge (D-1302). The low pass joins the low land to the valley, and the high pass joins the valley to the pass, each one tile wide and winding. Each thing names the tile near which the generator puts it, and the mine gate and the sealed door take the mouth of the notch of their mark. A fix sets one tile after every other step, so a small change after a playtest survives each regenerate. No rule reads this file, so it stays out of the content hash (D-495).",
+ "comment": "The settings of the generator of the overworld (D-1294, D-1295). The `overworld` command of Tools reads them and writes the terrain rows, the zone grid, and the tile of each thing into the map file, and a test proves that the committed map matches. Each basin is an ellipse whose edge the noise of the seed moves, and a thin band of the noise inside it turns to rock ridges that split the middle of the land (D-1300). Rivers and lakes lie on the land, and the road crosses a river on a bridge (D-1302). The low pass joins the low land to the valley, and the high pass joins the valley to the pass, each one tile wide and winding. Each thing names the tile near which the generator puts it, and the mine gate and the sealed door take the mouth of the notch of their mark. Each treasure is a cairn, a chest that the generator puts on the tile off the road nearest its hint, where the solid cairn cuts no path (D-1305 to D-1307). A fix sets one tile after every other step, so a small change after a playtest survives each regenerate. No rule reads this file, so it stays out of the content hash (D-495).",
  "map": "map.overworld",
  "seed": 1293,
  "width": 160,
@@ -44,6 +44,12 @@
   { "role": "dead_mine_head", "id": "mark.overworld_dead_mine_head", "x": 20, "y": 110 },
   { "role": "war_graves", "id": "mark.overworld_war_graves", "x": 128, "y": 112 },
   { "role": "bandit_lookout", "id": "mark.overworld_bandit_lookout", "x": 90, "y": 10 }
+ ],
+ "treasures": [
+  { "id": "chest.overworld_cairn_west_field", "x": 23, "y": 87 },
+  { "id": "chest.overworld_cairn_river_pocket", "x": 84, "y": 67 },
+  { "id": "chest.overworld_cairn_gorge_strip", "x": 96, "y": 47 },
+  { "id": "chest.overworld_cairn_high_hollow", "x": 80, "y": 25 }
  ],
  "fixes": []
 }

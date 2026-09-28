@@ -2,7 +2,7 @@
  "comment": "The place of every frame in the atlas (D-666). The atlas command of Tools writes this file and each page beside it, and no session edits either one by hand (D-107). A page holds one kind of drawing, and a tile page is a strict grid of 32 by 32 cells (D-667). Run the command again after a change to a drawing file.",
  "pages": [
   { "kind": "tiles", "number": 1, "width": 2048, "height": 32 },
-  { "kind": "map_sprites", "number": 1, "width": 1248, "height": 32 },
+  { "kind": "map_sprites", "number": 1, "width": 1312, "height": 32 },
   { "kind": "battle_sprites", "number": 1, "width": 160, "height": 64 },
   { "kind": "portraits", "number": 1, "width": 192, "height": 64 },
   { "kind": "ui", "number": 1, "width": 480, "height": 32 },
@@ -526,6 +526,36 @@
    ]
   },
   {
+   "id": "drawing.overworld_cairn",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "chest.overworld_cairn_west_field", "use": "map" },
+    { "content": "chest.overworld_cairn_river_pocket", "use": "map" },
+    { "content": "chest.overworld_cairn_gorge_strip", "use": "map" },
+    { "content": "chest.overworld_cairn_high_hollow", "use": "map" }
+   ],
+   "frames": [
+    { "x": 832, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.overworld_cairn_open",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "chest.overworld_cairn_west_field", "use": "map_open" },
+    { "content": "chest.overworld_cairn_river_pocket", "use": "map_open" },
+    { "content": "chest.overworld_cairn_gorge_strip", "use": "map_open" },
+    { "content": "chest.overworld_cairn_high_hollow", "use": "map_open" }
+   ],
+   "frames": [
+    { "x": 864, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
    "id": "drawing.overworld_dead_mine_head",
    "page": "map_sprites",
    "width": 32,
@@ -534,7 +564,7 @@
     { "content": "mark.overworld_dead_mine_head", "use": "map" }
    ],
    "frames": [
-    { "x": 832, "y": 0, "ticks": 0 }
+    { "x": 896, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -546,7 +576,7 @@
     { "content": "mark.overworld_fort", "use": "map" }
    ],
    "frames": [
-    { "x": 864, "y": 0, "ticks": 0 }
+    { "x": 928, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -558,7 +588,7 @@
     { "content": "mark.overworld_gallery", "use": "map" }
    ],
    "frames": [
-    { "x": 896, "y": 0, "ticks": 0 }
+    { "x": 960, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -570,7 +600,7 @@
     { "content": "mark.overworld_ice_crossing", "use": "map" }
    ],
    "frames": [
-    { "x": 928, "y": 0, "ticks": 0 }
+    { "x": 992, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -582,7 +612,7 @@
     { "content": "mark.overworld_mine", "use": "map" }
    ],
    "frames": [
-    { "x": 960, "y": 0, "ticks": 0 }
+    { "x": 1024, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -594,7 +624,7 @@
     { "content": "mark.overworld_refuge", "use": "map" }
    ],
    "frames": [
-    { "x": 992, "y": 0, "ticks": 0 }
+    { "x": 1056, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -606,7 +636,7 @@
     { "content": "gate.overworld_mine_mouth", "use": "map" }
    ],
    "frames": [
-    { "x": 1024, "y": 0, "ticks": 0 }
+    { "x": 1088, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -618,7 +648,7 @@
     { "content": "gate.overworld_mine_mouth", "use": "map_open" }
    ],
    "frames": [
-    { "x": 1056, "y": 0, "ticks": 0 }
+    { "x": 1120, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -630,7 +660,7 @@
     { "content": "gate.overworld_sealed_door", "use": "map" }
    ],
    "frames": [
-    { "x": 1088, "y": 0, "ticks": 0 }
+    { "x": 1152, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -642,7 +672,7 @@
     { "content": "gate.overworld_sealed_door", "use": "map_open" }
    ],
    "frames": [
-    { "x": 1120, "y": 0, "ticks": 0 }
+    { "x": 1184, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -654,7 +684,7 @@
     { "content": "mark.overworld_town", "use": "map" }
    ],
    "frames": [
-    { "x": 1152, "y": 0, "ticks": 0 }
+    { "x": 1216, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -666,7 +696,7 @@
     { "content": "mark.overworld_village", "use": "map" }
    ],
    "frames": [
-    { "x": 1184, "y": 0, "ticks": 0 }
+    { "x": 1248, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -678,7 +708,7 @@
     { "content": "mark.overworld_war_graves", "use": "map" }
    ],
    "frames": [
-    { "x": 1216, "y": 0, "ticks": 0 }
+    { "x": 1280, "y": 0, "ticks": 0 }
    ]
   },
   {
