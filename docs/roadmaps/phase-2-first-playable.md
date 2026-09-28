@@ -2307,29 +2307,38 @@ Area file: `area-tools.md` section 7.11.
 **Scope.**
 
 - The `import` command with two modes: the hand-edit mode and the generator mode (D-688).
-- The hand-edit mode, which reads a PNG that the owner edited by hand (D-107, D-515).
+- Both modes replace one frame of an existing drawing file, which the `--drawing` and `--frame` options name (D-1311).
+- The `frame-png` command, which writes one frame of a drawing file at 1x to a PNG, the frame PNG (D-1313). It never writes over a file, so no link to a drawing can lose the drawing (T-2).
+- The hand-edit mode, which reads a frame PNG that the owner edited by hand (D-107, D-515).
 - The write of the frame of its drawing file again, from the pixels of that PNG.
 - A failure of the hand-edit mode on a pixel with a color outside the palette, with the file, the pixel, and the color (T-2).
 - The generator mode, which reads a picture of the Sprite Fusion generator (D-686, F-86).
-- The removal of the blank border of that picture, and a new frame of 32 or 64 pixels (D-689, F-87).
-- The map of each pixel to the nearest color of the palette of 64, with the count of the mapped pixels (D-181, D-688, F-89).
-- A failure of the generator mode when the content does not fit the frame of 64 pixels, with the file and the size (D-689, T-2).
+- The removal of the blank border of that picture, and the frame of the target drawing file, 32 or 64 pixels (D-689, D-1310, F-87).
+- The content at the center of the frame, with the extra pixel of an odd space to the right and to the bottom (D-1312).
+- The map of each pixel to the nearest color of the palette of 64, by the squared RGB distance (D-181, D-1314, F-89).
+- The count of the mapped pixels in the report (D-688).
+- A failure of the generator mode when the content does not fit the frame of the target, with the file and the size (D-1310, T-2).
+- A failure of both modes on a pixel of partial alpha, with the file, the pixel, and the alpha (D-1315, T-2).
+- A line after each import that names the `atlas` command, which builds the atlas again (D-1316).
+- A runbook of the hand edit and of the import of a generated picture.
 
 **Out of scope.**
 
-- The atlas build (PR-34) and the normal maps (PR-48).
+- The atlas build (PR-34) and the normal maps (PR-48). The import runs neither one (D-1316).
 - No near color, and no new palette entry in the hand-edit mode. That mode never picks one (D-688, T-2).
 - No scale of a picture in either mode. The generator mode crops the blank border and sets the frame (D-689).
+- No new drawing file. The session writes a stub drawing file for a new subject (D-1311).
 
 **Exit tests.**
 
-1. A round trip of a fixture frame through a PNG gives the same grid.
+1. A round trip of a fixture frame through the `frame-png` command and the hand-edit mode gives the same grid (D-1313).
 2. A pixel outside the palette fails in the hand-edit mode, with the file, the pixel, and the color.
 3. An indexed PNG fails, because the PNG code refuses one (D-176).
 4. The rebuilt atlas matches the pixels of the new grid (F-19).
-5. A fixture of 42 pixels with content of 30 pixels gives a frame of 32 pixels.
-6. A fixture with content of 70 pixels fails with the file and the size.
-7. The generator mode maps a pixel outside the palette to the nearest color, and it reports the count.
+5. A fixture of 42 pixels with content of 30 pixels gives a frame of 32 pixels. The content sits at the center (D-1312).
+6. A fixture with content of 70 pixels fails with the file and the size. Content of 36 pixels fails for a target of 32 pixels (D-1310).
+7. The generator mode maps a pixel outside the palette to the nearest color, and it reports the count. A tie goes to the lower index (D-1314).
+8. A pixel of partial alpha fails in both modes, with the file, the pixel, and the alpha (D-1315).
 
 **Review focus.**
 
@@ -2337,10 +2346,11 @@ Area file: `area-tools.md` section 7.11.
 - The generator mode reports the count of the pixels that it mapped, so no map is silent (T-2).
 - A hand edit exports as RGB or RGBA, and the runbook says so.
 - Neither mode scales a picture, because a scale of pixel art makes new colors and soft edges (D-689).
+- The write of a frame changes the rows of that frame alone. The id, the page, the draws, and each tick stay (D-1311).
 
-**Questions.** None. D-688 and D-689 set the two modes.
+**Questions.** None. D-688, D-689, and D-1310 to D-1316 set the two modes.
 
-> *In plain English:* the owner can fix a sprite in a paint program, and this tool writes the edited image as a text grid again. It refuses any color that the palette lacks. A second mode reads a picture from the art tool, trims it, and pulls each color to the closest palette color.
+> *In plain English:* the owner can fix a sprite in a paint program, and this tool writes the edited image as a text grid again. It refuses any color that the palette lacks. A second mode reads a picture from the art tool, trims it, and pulls each color to the closest palette color. A third command writes one frame as a PNG, so the owner has a file to edit.
 
 ### 7.53 PR-52: the map preview
 

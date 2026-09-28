@@ -1,4 +1,226 @@
 # Session handoff archive
+## Session 386: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-111, round 1. Repository: the-thing-below. Branch: `feat/pr-111-overworld-treasure`. PR: the one PR of PR-111, before GitHub gives a number. Role: author. Base: `2ac46b6`.
+
+### What this session did, and why
+
+- Asked the three questions of D-1298 and the count. D-1304 to D-1308: the chest form, the land hides it, a cairn shows it, four treasures, one low, two valley, one pass.
+- The settings of the generator gain `treasures`. The generator puts each chest off the road, on no tile whose closure cuts a path, and checks both rules (D-1306).
+- Four chest lines on `map.overworld`, with fixture items that have a singular name, so no player string is new. Two placeholder drawings of the cairn.
+- `make sheet` failed on `main` at 107,660 rows. The owner chose the fix in this PR (D-1309): the `screens` command writes pages.
+
+### The state of the build
+
+- Local `make verify` passed: 4,458 tests, no finding. `make sheet` writes 2 pages of 156 captures. The remote head is `2ac46b6` until the first push.
+
+### What is in flight
+
+- The first push, the Gitar pass, and `make codex-review`.
+
+### Traps and gotchas
+
+- The generator gives each tile within one of a thing the road zone, so a test reads the land of a treasure two tiles out.
+- A chest entry needs a `single.` string (D-1224). Salts, the coat, and the charm have none.
+- No simulation version bump: no rule of a run reads `OverworldPlan`. The content hash changed.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push, open the PR, run the Gitar poll, then `make codex-review`.
+
+## Session 385: 2026-09-28, Codex
+
+Author: Codex
+Session: repeat review PR #95 (PR-110). Repository: the-thing-below. Branch: `review/pr-95`, tracking `origin/feat/pr-110-region-one-overworld`. Role: reviewer. Base: `5e6fb493c0d92db79409109941b47078179ca544`.
+
+### What this session did, and why
+
+- Re-reviewed effective head `0d1b34b3ca7db19302ab3e4f5638185cb997d88e`. Verified D-1303's finding-round fix and its regression tests.
+- Confirmed P2-1 stays fixed. Updated `docs/reviews/pr-95.md` to approve the new head and answer the Gitar CI-analysis item about RG 5 (D-964).
+- Ran `make verify`: 4,442 tests passed with no failures or skips. CI implementation checks passed on all legs.
+
+### The state of the build
+
+- The remote effective head is `0d1b34b3ca7db19302ab3e4f5638185cb997d88e`. The local review commit `2a8c6fc4` passed review-gate, Gitar, night-gate, STE, and each implementation check.
+
+### What is in flight
+
+- The metadata commit `2a8c6fc4` is on the PR branch. The fresh Gitar dashboard approves the effective head and has no review item.
+
+### Traps and gotchas
+
+- The new head changes Tools, so the review must name it. The metadata commit leaves the effective head unchanged (D-610).
+
+### The questions that block progress
+
+None for PR-110.
+
+### The next concrete action
+
+Verify the final metadata push, then end this review session for PR #95.
+
+## Session 384: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-110, round 4. Repository: the-thing-below. Branch: `feat/pr-110-region-one-overworld`. PR: #95. Role: author. Base: `5e6fb49`.
+
+### What this session did, and why
+
+- The second Codex review, session 383, found P2-1 fixed and gave `Ready for owner merge` for `1d66127`. The `codex-review` command then gave a fault: P2-1 was closed and listed the effective head, which a fix of the description alone cannot move.
+- The owner chose to fix the tool in this PR (D-1303). `FindingRounds.CheckHeads` now accepts a closed finding at the effective head when the record before the round held it open there. The command reads that record before the review. Three tests of the finding rounds and one of the outcome are the regression tests.
+- Recorded D-1303, which revises D-929 in part, and the exception in the `pr-review` skill.
+
+### The state of the build
+
+- The tests of the review tool pass. The full checks run before the push.
+
+### What is in flight
+
+- The Gitar pass and CI of this round, then `make codex-review PR=95`, which reviews the new Tools code.
+
+### Traps and gotchas
+
+- This round moves the effective head, because it changes Tools. Gitar and the Codex review read it again.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Run the Gitar poll, wait for CI, then run `make codex-review PR=95` in the background.
+
+## Session 383: 2026-09-28, Codex
+
+Author: Codex
+Session: repeat review PR #95 (PR-110). Repository: the-thing-below. Branch: `review/pr-95`, tracking `origin/feat/pr-110-region-one-overworld`. Role: reviewer. Base: `5e6fb493c0d92db79409109941b47078179ca544`.
+
+### What this session did, and why
+
+- Re-reviewed effective head `1d6612758d84c020615d561b2f785389a901a945`. The new PR description attaches six art sheets for all 23 drawings, which closes P2-1 (D-514).
+- Updated `docs/reviews/pr-95.md` and retained the earlier verdict and finding history.
+- Read each drawing sheet. The art review evidence meets D-514, D-668, and G-25.
+
+### The state of the build
+
+- All implementation checks pass on metadata tip `67526933d7ccac94070b0962ae1fd8da5d2f2d9c`. The prior review-gate run failed RG 4 because the record still said `Changes required`.
+- The remote head before this commit is `67526933d7ccac94070b0962ae1fd8da5d2f2d9c`.
+
+### What is in flight
+
+- Publish this review record and handoff as one metadata commit. The fresh review-gate result must read this verdict.
+
+### Traps and gotchas
+
+- The review branch is `review/pr-95`. Push with `git push origin HEAD:feat/pr-110-region-one-overworld`.
+- The metadata commits leave the effective head at `1d6612758d84c020615d561b2f785389a901a945` (D-610).
+
+### The questions that block progress
+
+None for PR-110.
+
+### The next concrete action
+
+Push the metadata commit, fetch, and verify the PR head and review-gate result.
+
+## Session 382: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-110, round 3. Repository: the-thing-below. Branch: `feat/pr-110-region-one-overworld`. PR: #95. Role: author. Base: `5e6fb49`.
+
+### What this session did, and why
+
+- Answered the Gitar pass of `1d66127`: the code review approved it, and the CI analysis claimed RG 3 alone, which the reply confirmed from the log. Two comments, none that needed a change.
+- Answered P2-1 of the Codex review of session 381, full merit: the art review sheets of the 23 drawings are now in the PR description (D-514). `docs/reviews/pr-95-response.md` records it.
+
+### The state of the build
+
+- Every check of `1d66127` passes on each leg, except review-gate, which waits for the verdict.
+
+### What is in flight
+
+- The Gitar pass of this round, then `make codex-review PR=95` again.
+
+### Traps and gotchas
+
+- The commits of this round change the metadata set alone, so the effective head stays `1d66127` (D-610).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Run the Gitar poll, then run `make codex-review PR=95` in the background.
+
+## Session 381: 2026-09-28, Codex
+
+Author: Codex
+Session: review PR #95 (PR-110). Repository: the-thing-below. Branch: `review/pr-95`, tracking `origin/feat/pr-110-region-one-overworld`. Role: reviewer. Base: `5e6fb493c0d92db79409109941b47078179ca544`.
+
+### What this session did, and why
+
+- Reviewed effective head `1d6612758d84c020615d561b2f785389a901a945` against the region-one overworld scope and contracts.
+- Read every changed path, the PR comments, and the required screen-test artifact. The review found P2-1: the PR description lacks the required art review sheets for 23 drawings.
+- Recorded `Changes required` in `docs/reviews/pr-95.md`. Gitar's CI-analysis claim about RG 3 matches the job log and has the author's answer (D-964).
+
+### The state of the build
+
+- Local `make verify` passed with 4,438 tests and no skips. The implementation checks pass in CI on the effective head.
+- The remote head before this metadata commit is `1d6612758d84c020615d561b2f785389a901a945`. `review-gate` failed RG 3 before the record existed, and this record leaves RG 4 red until P2-1 closes.
+
+### What is in flight
+
+- The author must attach the required art review sheets and request a repeat review (D-582).
+
+### Traps and gotchas
+
+- The review branch is `review/pr-95`. Push with `git push origin HEAD:feat/pr-110-region-one-overworld`.
+- The current review record applies to effective head `1d6612758d84c020615d561b2f785389a901a945`.
+
+### The questions that block progress
+
+None for PR-110.
+
+### The next concrete action
+
+Attach the review sheets for the 23 drawings to the PR description, list each drawing and the commit shown, then request a repeat review.
+
+## Session 380: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-110, round 2. Repository: the-thing-below. Branch: `feat/pr-110-region-one-overworld`. PR: #95. Role: author. Base: `5e6fb49`.
+
+### What this session did, and why
+
+- Read the Gitar pass of `5ab1c85`: the code review approved it with no finding. Its CI analysis names RG 3 of `review-gate`, which waits for the record of the cross-provider review (T-4).
+- Took the six new baselines from the screen-test artifact of run 36377274609 (D-733): the three `region-one` frames, and the three `overworld` frames that the frosted grass changes. The author read each frame.
+
+### The state of the build
+
+- On each CI leg, the three absent baselines were the only failed tests, so each leg makes the same map as the committed one (D-1296). The replay identity passed on each leg.
+
+### What is in flight
+
+- The Gitar pass of this round, then `make codex-review PR=95`.
+
+### Traps and gotchas
+
+- The baselines of this round move the effective head, so the Gitar pass runs again.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Answer each Gitar item of this round, then run `make codex-review PR=95` in the background.
+
 ## Session 379: 2026-09-28, Claude Code
 
 Author: Claude Code

@@ -1,3 +1,238 @@
+## Session 396: 2026-09-28, Codex
+
+Author: Codex
+Session: repeat review PR #97 (PR-51). Repository: the-thing-below. Branch: `review/pr-97`, tracking `origin/feat/pr-51-png-import`. Role: reviewer. Base: `e9294ec0bb29d30d0ebcdcc47fa5e251cf63cda7`.
+
+### What this session did, and why
+
+- Re-reviewed effective head `95048efd0ddaa39afdc5850f59e9141822f98b5d` and the full correction diff. `CreateNew` prevents output aliases from replacing a drawing, and failed writes remove their partial file (T-2, D-1313).
+- Updated `docs/reviews/pr-97.md` to preserve the earlier verdicts and give `Ready for owner merge` for the effective head.
+- Verified the Gitar item and its confirmation. The CI analysis names RG 4 and RG 5; the log confirms both were stale-record faults, and the updated record answers the claim (D-964).
+
+### The state of the build
+
+- The remote effective head is `95048efd0ddaa39afdc5850f59e9141822f98b5d`. Build, focused tests (9), STE, Gitar, and each CI check pass. The post-push `review-gate` passes on this metadata commit.
+
+### What is in flight
+
+- The review and handoff are published together as one metadata commit. The remote PR head matches the local commit, and `review-gate` passes.
+
+### Traps and gotchas
+
+- Push with `git push origin HEAD:feat/pr-51-png-import`. The metadata commit leaves the effective head unchanged (D-610).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+End this review session for PR #97.
+
+## Session 395: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-51, round 4. Repository: the-thing-below. Branch: `feat/pr-51-png-import`. PR: #97. Role: author. Base: `e9294ec`.
+
+### What this session did, and why
+
+- Gitar gave round 3 at `3aec94f` one item: a failed write of `frame-png` left a part of the PNG, and the next run refused the path. The item has full merit.
+- `FramePngCommand.WriteNewFile` now removes the file that it made when the write fails. A failed removal gives a message that names the part (T-2).
+- The fault prefix of `frame-png` is now `stopped`, because a failed removal leaves a part and "wrote nothing" is then false.
+- Two tests cover the helper. The Gitar fix removed the file on an `IOException` alone. This fix covers a denied access and a failed removal too (D-1072).
+- The CI analysis named RG 4 and RG 5 again. They wait for the repeat review, and the comment of round 2 answers them.
+
+### The state of the build
+
+- The remote head before this round is `3aec94f`. `make verify` passed on the Mac before the push.
+
+### What is in flight
+
+- The Gitar pass of round 4, then a repeat `make codex-review PR=97`. The review of P2-1 is in its third round, so a third open round gives the three-strike stop (D-929).
+
+### Traps and gotchas
+
+- No test makes the removal fail, because no portable way exists. The message path is plain code with no branch.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Reply on the Gitar thread with the commit, then run `make codex-review PR=97` in the background after CI.
+
+## Session 394: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-51, round 3. Repository: the-thing-below. Branch: `feat/pr-51-png-import`. PR: #97. Role: author. Base: `e9294ec`.
+
+### What this session did, and why
+
+- Gitar approved `7ca7b25` with no thread. Its CI analysis named RG 4 and RG 5, which waited for the repeat review, and a PR comment answered it (D-964).
+- The repeat review kept P2-1 open: a symbolic link to the drawing passed the compare of paths. The trigger reproduced.
+- `frame-png` now never writes over a file. The mode `CreateNew` refuses every name that exists, so no alias can reach a drawing (T-2).
+- `docs/reviews/pr-97-response.md` records round 2. The runbook and section 7.52 name the rule.
+
+### The state of the build
+
+- The remote head before this round is `1bcb5c3`, the review record on `7ca7b25`. `make verify` passed on the Mac before the push.
+
+### What is in flight
+
+- The Gitar pass of round 3, then a repeat `make codex-review PR=97`. This is the second round of P2-1, so a third open round gives the three-strike stop (D-929).
+
+### Traps and gotchas
+
+- The symbolic link test runs on each CI leg. The Windows runner needs the right to make a link.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Answer each Gitar item of round 3, then run `make codex-review PR=97` in the background.
+
+## Session 393: 2026-09-28, Codex
+
+Author: Codex
+Session: repeat review PR #97 (PR-51). Repository: the-thing-below. Branch: `review/pr-97`, tracking `origin/feat/pr-51-png-import`. Role: reviewer. Base: `e9294ec0bb29d30d0ebcdcc47fa5e251cf63cda7`.
+
+### What this session did, and why
+
+- Re-reviewed effective head `7ca7b25106e18b8ed8234b0c66824c9e2e21d411` and the full 25-path diff.
+- Checked the fix for P2-1. A symlink output still truncates the drawing file, so P2-1 remains open (T-2, D-1313).
+- Read the current Gitar CI claim and reply. The job log confirms RG 4 and RG 5 wait for this repeat review (D-964).
+
+### The state of the build
+
+- The remote head before this metadata commit is `7ca7b25106e18b8ed8234b0c66824c9e2e21d411`.
+- The first metadata commit, `41f06f11738ea9f868fe1e1564a14eb4a76153f4`, is pushed and verified as the PR head.
+- The CI build, test, format, smoke, bots, replay identity, screen-test, det-lint, night-gate, STE, and Gitar checks pass. `review-gate` fails RG 4 and RG 5 while P2-1 remains open.
+- `make build` passed. The focused frame-png tests passed, 5 of 5. `make test` returned `No test projects were found`.
+
+### What is in flight
+
+- The author must prevent output aliases, including symlinks, from overwriting the drawing and add regression tests.
+
+### Traps and gotchas
+
+- `Path.GetFullPath` does not resolve a symlink. The `frame-png` writer follows it and replaces the drawing bytes.
+- Push with `git push origin HEAD:feat/pr-51-png-import`.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Correct P2-1 for file aliases, then request a repeat review of the new effective head.
+
+## Session 392: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-51, round 2. Repository: the-thing-below. Branch: `feat/pr-51-png-import`. PR: #97. Role: author. Base: `e9294ec`.
+
+### What this session did, and why
+
+- Gitar approved `0cbf3ca` with no thread. Its CI analysis named the RG 3 fault, which waited for the review record, and a PR comment answered it (D-964).
+- Every other CI check passed on the three legs. `make codex-review PR=97` gave `Changes required` with P2-1: `frame-png` could write its PNG over the drawing file.
+- P2-1 has full merit. The command now refuses an output path of the drawing file, and a regression test failed on `0cbf3ca` before the correction.
+- `docs/reviews/pr-97-response.md` records the answer, and the runbook adds the message to its table of errors.
+
+### The state of the build
+
+- The remote head before this round is `7e49b7f`, the review record on `0cbf3ca`. `make verify` passed on the Mac before the push.
+
+### What is in flight
+
+- The Gitar pass of round 2, then a repeat `make codex-review PR=97`.
+
+### Traps and gotchas
+
+- The path compare ignores case, because the disk of the Mac ignores it.
+- The Documents line of `docs/reviews/` now names the record and the response file.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Answer each Gitar item of round 2, then run `make codex-review PR=97` in the background.
+
+## Session 391: 2026-09-28, Codex
+
+Author: Codex
+Session: review PR #97 (PR-51). Repository: the-thing-below. Branch: `review/pr-97`, tracking `origin/feat/pr-51-png-import`. Role: reviewer. Base: `e9294ec0bb29d30d0ebcdcc47fa5e251cf63cda7`.
+
+### What this session did, and why
+
+- Reviewed effective head `0cbf3ca8ca9fef24187344199707fc723ee8b2e6`, the full 23-path diff, PR comments, decisions, and PR-51 exit tests.
+- Found P2-1: `frame-png` overwrites its source drawing when `--drawing` and `--out` name the same path (D-1313, T-2).
+- Verified the author's answer to Gitar's CI claim. RG 3 alone failed because the review record was absent. The clean approval has no item (D-964).
+- `make verify` passed with 4,498 tests. Required CI checks passed except the expected `review-gate` RG 3 fault.
+
+### The state of the build
+
+- The remote head before this metadata commit is `0cbf3ca8ca9fef24187344199707fc723ee8b2e6`.
+- The review record gives `Changes required` for P2-1. The `review-gate` check failed RG 3 before the record existed.
+
+### What is in flight
+
+- The author must reject a `frame-png` output path that matches the drawing path and add a regression test.
+
+### Traps and gotchas
+
+- A same-path reproduction returned success and replaced drawing JSON with a valid PNG.
+- Push with `git push origin HEAD:feat/pr-51-png-import`.
+- Session 381 moves to `docs/session-handoff-archive.md` to keep ten current entries.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Fix P2-1, then request a repeat review of the new effective head.
+
+## Session 390: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-51, round 1. Repository: the-thing-below. Branch: `feat/pr-51-png-import`. PR: opened by this round. Role: author. Base: `e9294ec`.
+
+### What this session did, and why
+
+- Asked the owner seven questions that the roadmap and D-686 to D-689 left open, then recorded D-1310 to D-1316.
+- D-1310 revises D-689 in part: the target drawing file sets the frame. A scan of the 84 spike pictures at `e3c50b4` found 26 of 42 map sprites above 32 pixels.
+- Built the `import` command, with the hand-edit mode and the generator mode, and the `frame-png` command (D-688, D-1313).
+- Each import replaces the rows of one frame alone, and a read back through the reader of Core guards the write (D-1311, T-2).
+- Added 40 tests, one for each exit test of section 7.52 and more. Added `docs/runbooks/art-import.md` and three glossary terms.
+
+### The state of the build
+
+- The remote head of `main` is `e9294ec`. This round pushes the branch and opens the PR.
+- `make verify` ran on the Mac before the push. The PR description records the result.
+
+### What is in flight
+
+- The Gitar pass of round 1, then `make codex-review`.
+
+### Traps and gotchas
+
+- The word export names a build of the Game (D-481), so the command of D-1313 is `frame-png`.
+- The generator mode centers the content (D-1312). A character of less than the full height stands above the bottom row, unlike the current Marrek drawings.
+- The fixture drawing files hold each frame on one line. A write puts one row on each line, and a file of the repository keeps each byte.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Answer each Gitar item of round 1, then run `make codex-review PR=<n>` in the background.
+
 ## Session 389: 2026-09-28, Codex
 
 Author: Codex
@@ -96,223 +331,3 @@ None.
 ### The next concrete action
 
 Commit this review record and handoff entry together, push the metadata commit, then verify the remote head and review-gate.
-## Session 386: 2026-09-28, Claude Code
-
-Author: Claude Code
-Session: author PR-111, round 1. Repository: the-thing-below. Branch: `feat/pr-111-overworld-treasure`. PR: the one PR of PR-111, before GitHub gives a number. Role: author. Base: `2ac46b6`.
-
-### What this session did, and why
-
-- Asked the three questions of D-1298 and the count. D-1304 to D-1308: the chest form, the land hides it, a cairn shows it, four treasures, one low, two valley, one pass.
-- The settings of the generator gain `treasures`. The generator puts each chest off the road, on no tile whose closure cuts a path, and checks both rules (D-1306).
-- Four chest lines on `map.overworld`, with fixture items that have a singular name, so no player string is new. Two placeholder drawings of the cairn.
-- `make sheet` failed on `main` at 107,660 rows. The owner chose the fix in this PR (D-1309): the `screens` command writes pages.
-
-### The state of the build
-
-- Local `make verify` passed: 4,458 tests, no finding. `make sheet` writes 2 pages of 156 captures. The remote head is `2ac46b6` until the first push.
-
-### What is in flight
-
-- The first push, the Gitar pass, and `make codex-review`.
-
-### Traps and gotchas
-
-- The generator gives each tile within one of a thing the road zone, so a test reads the land of a treasure two tiles out.
-- A chest entry needs a `single.` string (D-1224). Salts, the coat, and the charm have none.
-- No simulation version bump: no rule of a run reads `OverworldPlan`. The content hash changed.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Push, open the PR, run the Gitar poll, then `make codex-review`.
-
-## Session 385: 2026-09-28, Codex
-
-Author: Codex
-Session: repeat review PR #95 (PR-110). Repository: the-thing-below. Branch: `review/pr-95`, tracking `origin/feat/pr-110-region-one-overworld`. Role: reviewer. Base: `5e6fb493c0d92db79409109941b47078179ca544`.
-
-### What this session did, and why
-
-- Re-reviewed effective head `0d1b34b3ca7db19302ab3e4f5638185cb997d88e`. Verified D-1303's finding-round fix and its regression tests.
-- Confirmed P2-1 stays fixed. Updated `docs/reviews/pr-95.md` to approve the new head and answer the Gitar CI-analysis item about RG 5 (D-964).
-- Ran `make verify`: 4,442 tests passed with no failures or skips. CI implementation checks passed on all legs.
-
-### The state of the build
-
-- The remote effective head is `0d1b34b3ca7db19302ab3e4f5638185cb997d88e`. The local review commit `2a8c6fc4` passed review-gate, Gitar, night-gate, STE, and each implementation check.
-
-### What is in flight
-
-- The metadata commit `2a8c6fc4` is on the PR branch. The fresh Gitar dashboard approves the effective head and has no review item.
-
-### Traps and gotchas
-
-- The new head changes Tools, so the review must name it. The metadata commit leaves the effective head unchanged (D-610).
-
-### The questions that block progress
-
-None for PR-110.
-
-### The next concrete action
-
-Verify the final metadata push, then end this review session for PR #95.
-
-## Session 384: 2026-09-28, Claude Code
-
-Author: Claude Code
-Session: author PR-110, round 4. Repository: the-thing-below. Branch: `feat/pr-110-region-one-overworld`. PR: #95. Role: author. Base: `5e6fb49`.
-
-### What this session did, and why
-
-- The second Codex review, session 383, found P2-1 fixed and gave `Ready for owner merge` for `1d66127`. The `codex-review` command then gave a fault: P2-1 was closed and listed the effective head, which a fix of the description alone cannot move.
-- The owner chose to fix the tool in this PR (D-1303). `FindingRounds.CheckHeads` now accepts a closed finding at the effective head when the record before the round held it open there. The command reads that record before the review. Three tests of the finding rounds and one of the outcome are the regression tests.
-- Recorded D-1303, which revises D-929 in part, and the exception in the `pr-review` skill.
-
-### The state of the build
-
-- The tests of the review tool pass. The full checks run before the push.
-
-### What is in flight
-
-- The Gitar pass and CI of this round, then `make codex-review PR=95`, which reviews the new Tools code.
-
-### Traps and gotchas
-
-- This round moves the effective head, because it changes Tools. Gitar and the Codex review read it again.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Run the Gitar poll, wait for CI, then run `make codex-review PR=95` in the background.
-
-## Session 383: 2026-09-28, Codex
-
-Author: Codex
-Session: repeat review PR #95 (PR-110). Repository: the-thing-below. Branch: `review/pr-95`, tracking `origin/feat/pr-110-region-one-overworld`. Role: reviewer. Base: `5e6fb493c0d92db79409109941b47078179ca544`.
-
-### What this session did, and why
-
-- Re-reviewed effective head `1d6612758d84c020615d561b2f785389a901a945`. The new PR description attaches six art sheets for all 23 drawings, which closes P2-1 (D-514).
-- Updated `docs/reviews/pr-95.md` and retained the earlier verdict and finding history.
-- Read each drawing sheet. The art review evidence meets D-514, D-668, and G-25.
-
-### The state of the build
-
-- All implementation checks pass on metadata tip `67526933d7ccac94070b0962ae1fd8da5d2f2d9c`. The prior review-gate run failed RG 4 because the record still said `Changes required`.
-- The remote head before this commit is `67526933d7ccac94070b0962ae1fd8da5d2f2d9c`.
-
-### What is in flight
-
-- Publish this review record and handoff as one metadata commit. The fresh review-gate result must read this verdict.
-
-### Traps and gotchas
-
-- The review branch is `review/pr-95`. Push with `git push origin HEAD:feat/pr-110-region-one-overworld`.
-- The metadata commits leave the effective head at `1d6612758d84c020615d561b2f785389a901a945` (D-610).
-
-### The questions that block progress
-
-None for PR-110.
-
-### The next concrete action
-
-Push the metadata commit, fetch, and verify the PR head and review-gate result.
-
-## Session 382: 2026-09-28, Claude Code
-
-Author: Claude Code
-Session: author PR-110, round 3. Repository: the-thing-below. Branch: `feat/pr-110-region-one-overworld`. PR: #95. Role: author. Base: `5e6fb49`.
-
-### What this session did, and why
-
-- Answered the Gitar pass of `1d66127`: the code review approved it, and the CI analysis claimed RG 3 alone, which the reply confirmed from the log. Two comments, none that needed a change.
-- Answered P2-1 of the Codex review of session 381, full merit: the art review sheets of the 23 drawings are now in the PR description (D-514). `docs/reviews/pr-95-response.md` records it.
-
-### The state of the build
-
-- Every check of `1d66127` passes on each leg, except review-gate, which waits for the verdict.
-
-### What is in flight
-
-- The Gitar pass of this round, then `make codex-review PR=95` again.
-
-### Traps and gotchas
-
-- The commits of this round change the metadata set alone, so the effective head stays `1d66127` (D-610).
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Run the Gitar poll, then run `make codex-review PR=95` in the background.
-
-## Session 381: 2026-09-28, Codex
-
-Author: Codex
-Session: review PR #95 (PR-110). Repository: the-thing-below. Branch: `review/pr-95`, tracking `origin/feat/pr-110-region-one-overworld`. Role: reviewer. Base: `5e6fb493c0d92db79409109941b47078179ca544`.
-
-### What this session did, and why
-
-- Reviewed effective head `1d6612758d84c020615d561b2f785389a901a945` against the region-one overworld scope and contracts.
-- Read every changed path, the PR comments, and the required screen-test artifact. The review found P2-1: the PR description lacks the required art review sheets for 23 drawings.
-- Recorded `Changes required` in `docs/reviews/pr-95.md`. Gitar's CI-analysis claim about RG 3 matches the job log and has the author's answer (D-964).
-
-### The state of the build
-
-- Local `make verify` passed with 4,438 tests and no skips. The implementation checks pass in CI on the effective head.
-- The remote head before this metadata commit is `1d6612758d84c020615d561b2f785389a901a945`. `review-gate` failed RG 3 before the record existed, and this record leaves RG 4 red until P2-1 closes.
-
-### What is in flight
-
-- The author must attach the required art review sheets and request a repeat review (D-582).
-
-### Traps and gotchas
-
-- The review branch is `review/pr-95`. Push with `git push origin HEAD:feat/pr-110-region-one-overworld`.
-- The current review record applies to effective head `1d6612758d84c020615d561b2f785389a901a945`.
-
-### The questions that block progress
-
-None for PR-110.
-
-### The next concrete action
-
-Attach the review sheets for the 23 drawings to the PR description, list each drawing and the commit shown, then request a repeat review.
-## Session 380: 2026-09-28, Claude Code
-
-Author: Claude Code
-Session: author PR-110, round 2. Repository: the-thing-below. Branch: `feat/pr-110-region-one-overworld`. PR: #95. Role: author. Base: `5e6fb49`.
-
-### What this session did, and why
-
-- Read the Gitar pass of `5ab1c85`: the code review approved it with no finding. Its CI analysis names RG 3 of `review-gate`, which waits for the record of the cross-provider review (T-4).
-- Took the six new baselines from the screen-test artifact of run 36377274609 (D-733): the three `region-one` frames, and the three `overworld` frames that the frosted grass changes. The author read each frame.
-
-### The state of the build
-
-- On each CI leg, the three absent baselines were the only failed tests, so each leg makes the same map as the committed one (D-1296). The replay identity passed on each leg.
-
-### What is in flight
-
-- The Gitar pass of this round, then `make codex-review PR=95`.
-
-### Traps and gotchas
-
-- The baselines of this round move the effective head, so the Gitar pass runs again.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Answer each Gitar item of this round, then run `make codex-review PR=95` in the background.
