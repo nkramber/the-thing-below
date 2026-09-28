@@ -67,23 +67,13 @@ public static class FramePngCommand
             return Program.FaultExitCode;
         }
 
-        // A write to the path of the drawing file replaces the drawing with PNG bytes, so the
-        // command refuses it before any read or write (T-2). The disk of the Mac ignores the
-        // case of a name, so the compare ignores it too. A refusal of two names that differ by
-        // case alone costs a second name, and it never costs a drawing.
-        if (string.Equals(Path.GetFullPath(drawing), Path.GetFullPath(png), StringComparison.OrdinalIgnoreCase))
-        {
-            errors.WriteLine($"Error: {Name} wrote nothing: the output '{png}' is the drawing file '{drawing}'. Name another {OutOption} file.");
-            return Program.FaultExitCode;
-        }
-
         try
         {
             FrameTarget target = FrameTarget.Read(drawing, frame);
             Palette palette = FrameTarget.ReadPalette(root);
             var canvas = new AtlasCanvas(target.Drawing.Width, target.Drawing.Height);
             canvas.Draw(target.Drawing, frame, palette, 0, 0, 1);
-            PngWriter.WriteFile(png, canvas.ToImage());
+            WriteNewFile(png, PngWriter.Write(canvas.ToImage()));
             output.WriteLine(
                 $"{Name}: wrote frame {frame} of {drawing} to {png}, {target.Drawing.Width} by {target.Drawing.Height} pixels. Save an edit as RGB or RGBA (D-176).");
             return 0;
@@ -95,5 +85,21 @@ public static class FramePngCommand
             errors.WriteLine($"Error: {Name} wrote nothing: {fault.Message}");
             return Program.FaultExitCode;
         }
+    }
+
+    // The command never writes over a file. A path, a symbolic link, or a hard link can each
+    // name the drawing file, and no compare of paths finds every alias. The mode CreateNew
+    // makes the system refuse any name that exists, so a write never reaches a drawing (T-2).
+    private static void WriteNewFile(string png, byte[] bytes)
+    {
+        if (File.Exists(png) || new FileInfo(png).LinkTarget is not null)
+        {
+            throw ImportException.For(
+                png,
+                $"the output already exists, and {Name} never writes over a file. Remove it, or name another {OutOption} file");
+        }
+
+        using var stream = new FileStream(png, FileMode.CreateNew, FileAccess.Write);
+        stream.Write(bytes);
     }
 }

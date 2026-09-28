@@ -2308,7 +2308,7 @@ Area file: `area-tools.md` section 7.11.
 
 - The `import` command with two modes: the hand-edit mode and the generator mode (D-688).
 - Both modes replace one frame of an existing drawing file, which the `--drawing` and `--frame` options name (D-1311).
-- The `frame-png` command, which writes one frame of a drawing file at 1x to a PNG, the frame PNG (D-1313).
+- The `frame-png` command, which writes one frame of a drawing file at 1x to a PNG, the frame PNG (D-1313). It never writes over a file, so no link to a drawing can lose the drawing (T-2).
 - The hand-edit mode, which reads a frame PNG that the owner edited by hand (D-107, D-515).
 - The write of the frame of its drawing file again, from the pixels of that PNG.
 - A failure of the hand-edit mode on a pixel with a color outside the palette, with the file, the pixel, and the color (T-2).

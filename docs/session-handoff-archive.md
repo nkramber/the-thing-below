@@ -1,4 +1,35 @@
 # Session handoff archive
+## Session 384: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-110, round 4. Repository: the-thing-below. Branch: `feat/pr-110-region-one-overworld`. PR: #95. Role: author. Base: `5e6fb49`.
+
+### What this session did, and why
+
+- The second Codex review, session 383, found P2-1 fixed and gave `Ready for owner merge` for `1d66127`. The `codex-review` command then gave a fault: P2-1 was closed and listed the effective head, which a fix of the description alone cannot move.
+- The owner chose to fix the tool in this PR (D-1303). `FindingRounds.CheckHeads` now accepts a closed finding at the effective head when the record before the round held it open there. The command reads that record before the review. Three tests of the finding rounds and one of the outcome are the regression tests.
+- Recorded D-1303, which revises D-929 in part, and the exception in the `pr-review` skill.
+
+### The state of the build
+
+- The tests of the review tool pass. The full checks run before the push.
+
+### What is in flight
+
+- The Gitar pass and CI of this round, then `make codex-review PR=95`, which reviews the new Tools code.
+
+### Traps and gotchas
+
+- This round moves the effective head, because it changes Tools. Gitar and the Codex review read it again.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Run the Gitar poll, wait for CI, then run `make codex-review PR=95` in the background.
+
 ## Session 383: 2026-09-28, Codex
 
 Author: Codex

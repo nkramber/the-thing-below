@@ -23,3 +23,20 @@ None.
 ## Final head
 
 The commit that adds this file, the correction, and session 392.
+
+## P2-1, round 2: an alias of the drawing file
+
+Date: 2026-09-28. This part answers the repeat review at head `7ca7b25106e18b8ed8234b0c66824c9e2e21d411`.
+
+Disposition: full merit.
+
+- The trigger reproduced. A symbolic link `alias.png` to a copy of `marrek-map-front.json` took the PNG bytes, and the command gave exit code 0.
+- The compare of full paths of round 1 cannot find every alias. A symbolic link, a hard link, and a folder link each name the drawing by another path, and .NET gives no compare of file identity on every system.
+- Correction: `frame-png` never writes over a file. It opens the output with the mode `CreateNew`, so the system refuses each name that exists, whatever the alias (T-2, D-1313). The compare of round 1 goes, because this rule covers it.
+- The cost: a second write of one frame to one path needs the removal of the old PNG first. The message says so, and the runbook table names it.
+- Regression checks: `AnOutputLinkToTheDrawingFileFailsAndKeepsTheDrawing` makes a symbolic link to the drawing and checks each byte of the drawing. `AnExistingOutputFileFailsAndKeepsItsBytes` covers any existing file, and a hard link to the drawing is such a file. The test of the same path stays. `FramePngCommandTests` and `ImportCommandTests` give 18 of 18.
+- The correction changes `TheThingBelow.Tools/Import/FramePngCommand.cs`, `TheThingBelow.Tests/FramePngCommandTests.cs`, `docs/runbooks/art-import.md`, and section 7.52 of `docs/roadmaps/phase-2-first-playable.md`.
+
+## Final head, round 2
+
+The commit that adds this part, the correction, and session 394.

@@ -12,7 +12,7 @@ dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj --
 
 ## Edit one frame by hand
 
-1. Write the frame to a PNG: `tools frame-png --root . --drawing <file> --frame <n> --out <png>`.
+1. Write the frame to a PNG: `tools frame-png --root . --drawing <file> --frame <n> --out <png>`. The command never writes over a file.
 2. Open the PNG in a paint program. The PNG is RGBA at 1x, with alpha 0 on each transparent pixel.
 3. Paint with the colors of the palette alone. The swatch sheet of `atlas --sheets <folder>` shows each color.
 4. Use a pencil tool with no soft edge. A pixel of partial alpha fails the import (D-1315).
@@ -48,4 +48,4 @@ Content above the frame fails with the file and the size. The mode never scales 
 | `crops nothing and scales nothing` | A hand-edit PNG of another size | Write the frame again with `frame-png`, then edit it |
 | `the content is` | Content above the frame of the drawing | Redraw the picture, or call the generator again |
 | `has no frame` | A frame number above the last frame | Count the frames from 0 |
-| `is the drawing file` | A `frame-png` output path of the drawing file | Name another output file |
+| `the output already exists` | A `frame-png` output that names a file, a link to a drawing included | Remove the old PNG, or name another output file |

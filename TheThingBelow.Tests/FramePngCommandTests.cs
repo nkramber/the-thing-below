@@ -68,10 +68,46 @@ public sealed class FramePngCommandTests : IDisposable
         (int code, _, string errors) = this.Run(drawing, "0", samePath);
 
         Assert.Equal(Program.FaultExitCode, code);
-        Assert.Contains("is the drawing file", errors);
-        Assert.Contains(drawing, errors);
+        Assert.Contains("the output already exists", errors);
         Assert.Contains(samePath, errors);
         Assert.Equal(before, File.ReadAllBytes(drawing));
+    }
+
+    /// <summary>
+    /// A symbolic link to the drawing file is an alias that no compare of paths finds, so the
+    /// command refuses every name that exists (T-2).
+    /// </summary>
+    [Fact]
+    public void AnOutputLinkToTheDrawingFileFailsAndKeepsTheDrawing()
+    {
+        string drawing = this.checkout.WriteContent(DrawingPath, DrawingFixtures.Body("walk"));
+        byte[] before = File.ReadAllBytes(drawing);
+        string link = Path.Combine(this.checkout.Root, "alias.png");
+        File.CreateSymbolicLink(link, drawing);
+
+        (int code, _, string errors) = this.Run(drawing, "0", link);
+
+        Assert.Equal(Program.FaultExitCode, code);
+        Assert.Contains("never writes over a file", errors);
+        Assert.Equal(before, File.ReadAllBytes(drawing));
+    }
+
+    /// <summary>
+    /// Any file at the output path stays. A hard link to the drawing is such a file, so this
+    /// case covers it on every system (T-2).
+    /// </summary>
+    [Fact]
+    public void AnExistingOutputFileFailsAndKeepsItsBytes()
+    {
+        string drawing = this.checkout.WriteContent(DrawingPath, DrawingFixtures.Body("walk"));
+        string png = Path.Combine(this.checkout.Root, "frame.png");
+        File.WriteAllBytes(png, [1, 2, 3]);
+
+        (int code, _, string errors) = this.Run(drawing, "0", png);
+
+        Assert.Equal(Program.FaultExitCode, code);
+        Assert.Contains("Remove it, or name another --out file", errors);
+        Assert.Equal([1, 2, 3], File.ReadAllBytes(png));
     }
 
     [Fact]
