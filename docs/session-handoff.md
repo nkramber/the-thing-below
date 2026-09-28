@@ -1,3 +1,36 @@
+## Session 392: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-51, round 2. Repository: the-thing-below. Branch: `feat/pr-51-png-import`. PR: #97. Role: author. Base: `e9294ec`.
+
+### What this session did, and why
+
+- Gitar approved `0cbf3ca` with no thread. Its CI analysis named the RG 3 fault, which waited for the review record, and a PR comment answered it (D-964).
+- Every other CI check passed on the three legs. `make codex-review PR=97` gave `Changes required` with P2-1: `frame-png` could write its PNG over the drawing file.
+- P2-1 has full merit. The command now refuses an output path of the drawing file, and a regression test failed on `0cbf3ca` before the correction.
+- `docs/reviews/pr-97-response.md` records the answer, and the runbook adds the message to its table of errors.
+
+### The state of the build
+
+- The remote head before this round is `7e49b7f`, the review record on `0cbf3ca`. `make verify` passed on the Mac before the push.
+
+### What is in flight
+
+- The Gitar pass of round 2, then a repeat `make codex-review PR=97`.
+
+### Traps and gotchas
+
+- The path compare ignores case, because the disk of the Mac ignores it.
+- The Documents line of `docs/reviews/` now names the record and the response file.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Answer each Gitar item of round 2, then run `make codex-review PR=97` in the background.
+
 ## Session 391: 2026-09-28, Codex
 
 Author: Codex
@@ -295,33 +328,3 @@ None for PR-110.
 ### The next concrete action
 
 Push the metadata commit, fetch, and verify the PR head and review-gate result.
-
-## Session 382: 2026-09-28, Claude Code
-
-Author: Claude Code
-Session: author PR-110, round 3. Repository: the-thing-below. Branch: `feat/pr-110-region-one-overworld`. PR: #95. Role: author. Base: `5e6fb49`.
-
-### What this session did, and why
-
-- Answered the Gitar pass of `1d66127`: the code review approved it, and the CI analysis claimed RG 3 alone, which the reply confirmed from the log. Two comments, none that needed a change.
-- Answered P2-1 of the Codex review of session 381, full merit: the art review sheets of the 23 drawings are now in the PR description (D-514). `docs/reviews/pr-95-response.md` records it.
-
-### The state of the build
-
-- Every check of `1d66127` passes on each leg, except review-gate, which waits for the verdict.
-
-### What is in flight
-
-- The Gitar pass of this round, then `make codex-review PR=95` again.
-
-### Traps and gotchas
-
-- The commits of this round change the metadata set alone, so the effective head stays `1d66127` (D-610).
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Run the Gitar poll, then run `make codex-review PR=95` in the background.

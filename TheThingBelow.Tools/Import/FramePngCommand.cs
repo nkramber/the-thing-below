@@ -67,6 +67,16 @@ public static class FramePngCommand
             return Program.FaultExitCode;
         }
 
+        // A write to the path of the drawing file replaces the drawing with PNG bytes, so the
+        // command refuses it before any read or write (T-2). The disk of the Mac ignores the
+        // case of a name, so the compare ignores it too. A refusal of two names that differ by
+        // case alone costs a second name, and it never costs a drawing.
+        if (string.Equals(Path.GetFullPath(drawing), Path.GetFullPath(png), StringComparison.OrdinalIgnoreCase))
+        {
+            errors.WriteLine($"Error: {Name} wrote nothing: the output '{png}' is the drawing file '{drawing}'. Name another {OutOption} file.");
+            return Program.FaultExitCode;
+        }
+
         try
         {
             FrameTarget target = FrameTarget.Read(drawing, frame);

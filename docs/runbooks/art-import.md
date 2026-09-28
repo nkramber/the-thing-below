@@ -48,3 +48,4 @@ Content above the frame fails with the file and the size. The mode never scales 
 | `crops nothing and scales nothing` | A hand-edit PNG of another size | Write the frame again with `frame-png`, then edit it |
 | `the content is` | Content above the frame of the drawing | Redraw the picture, or call the generator again |
 | `has no frame` | A frame number above the last frame | Count the frames from 0 |
+| `is the drawing file` | A `frame-png` output path of the drawing file | Name another output file |

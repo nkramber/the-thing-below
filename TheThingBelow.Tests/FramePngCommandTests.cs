@@ -57,6 +57,23 @@ public sealed class FramePngCommandTests : IDisposable
         Assert.False(File.Exists(png));
     }
 
+    /// <summary>An output path of the drawing file fails and keeps each byte of the drawing (T-2).</summary>
+    [Fact]
+    public void AnOutputPathOfTheDrawingFileFailsAndKeepsTheDrawing()
+    {
+        string drawing = this.checkout.WriteContent(DrawingPath, DrawingFixtures.Body("walk"));
+        byte[] before = File.ReadAllBytes(drawing);
+        string samePath = Path.Combine(Path.GetDirectoryName(drawing)!, ".", "walk.json");
+
+        (int code, _, string errors) = this.Run(drawing, "0", samePath);
+
+        Assert.Equal(Program.FaultExitCode, code);
+        Assert.Contains("is the drawing file", errors);
+        Assert.Contains(drawing, errors);
+        Assert.Contains(samePath, errors);
+        Assert.Equal(before, File.ReadAllBytes(drawing));
+    }
+
     [Fact]
     public void AnAbsentOptionFailsWithTheUsage()
     {

@@ -1,4 +1,34 @@
 # Session handoff archive
+## Session 382: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-110, round 3. Repository: the-thing-below. Branch: `feat/pr-110-region-one-overworld`. PR: #95. Role: author. Base: `5e6fb49`.
+
+### What this session did, and why
+
+- Answered the Gitar pass of `1d66127`: the code review approved it, and the CI analysis claimed RG 3 alone, which the reply confirmed from the log. Two comments, none that needed a change.
+- Answered P2-1 of the Codex review of session 381, full merit: the art review sheets of the 23 drawings are now in the PR description (D-514). `docs/reviews/pr-95-response.md` records it.
+
+### The state of the build
+
+- Every check of `1d66127` passes on each leg, except review-gate, which waits for the verdict.
+
+### What is in flight
+
+- The Gitar pass of this round, then `make codex-review PR=95` again.
+
+### Traps and gotchas
+
+- The commits of this round change the metadata set alone, so the effective head stays `1d66127` (D-610).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Run the Gitar poll, then run `make codex-review PR=95` in the background.
+
 ## Session 381: 2026-09-28, Codex
 
 Author: Codex
