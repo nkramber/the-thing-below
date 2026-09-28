@@ -126,7 +126,7 @@ public static class EdgeFixtures
              ],
              "zone_grid": [
             {{zones}} ],
-             "enemies": [], "npcs": [], "services": [], "reopen": [], "triggers": []
+             "enemies": [], "npcs": [], "services": [], "reopen": [], "triggers": [], "time_changes": []
             }
             """;
     }

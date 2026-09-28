@@ -23,6 +23,10 @@ public sealed record StreamPosition(StreamId Stream, ulong State, ulong Incremen
 /// moves a lead that the edited map no longer holds to the spawn point (D-1111).
 /// </remarks>
 /// <param name="Map">The id of the map that the party stands on (D-528).</param>
+/// <param name="Time">
+/// The time of day that the party took when it entered the map (D-1349). The value is absent on a
+/// snapshot before save format 21, and the migration then takes the time that the flags give.
+/// </param>
 /// <param name="LeadX">The column of the lead (D-106).</param>
 /// <param name="LeadY">The row of the lead.</param>
 /// <param name="Facing">The direction that the lead faces (D-207, D-716).</param>
@@ -43,6 +47,7 @@ public sealed record StreamPosition(StreamId Stream, ulong State, ulong Incremen
 /// </param>
 public sealed record MapSnapshot(
     ContentId Map,
+    TimeOfDay? Time,
     int LeadX,
     int LeadY,
     StepDirection Facing,

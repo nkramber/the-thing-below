@@ -39,7 +39,7 @@ internal static class BattleRuns
          "label": "label.test_guarded",
          "time": "day",
          "dark": false,
-         "kind": "dungeon", "npcs": [], "services": [], "zones": [], "zone_grid": [], "reopen": [],
+         "kind": "dungeon", "npcs": [], "services": [], "zones": [], "zone_grid": [], "time_changes": [], "reopen": [],
          "terrain": [
           "######",
           "#....#",
@@ -81,7 +81,7 @@ internal static class BattleRuns
          "label": "label.test_guarded_walker",
          "time": "day",
          "dark": false,
-         "kind": "dungeon", "npcs": [], "services": [], "zones": [], "zone_grid": [], "reopen": [],
+         "kind": "dungeon", "npcs": [], "services": [], "zones": [], "zone_grid": [], "time_changes": [], "reopen": [],
          "terrain": [
           "########",
           "#......#",

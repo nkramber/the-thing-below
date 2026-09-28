@@ -141,7 +141,8 @@ public static class SimulationVersion
     /// (D-1285, D-1289).
     /// PR-17 raised it to 40. A story scene gains the pay step: a yes with enough gold removes the price and turns on
     /// a flag, and a yes with too little gold, or a no, shows a refusal line and ends the story scene (D-1335). A hub
-    /// and a dungeon can hold a gate (D-1347).
+    /// and a dungeon can hold a gate (D-1347). A map file can hold time changes, and the party takes the time of the
+    /// first change that holds when it enters the map (D-1349).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number

@@ -636,7 +636,7 @@ public sealed class ContentSetTests
         // The waystone of the yard is a save point, and no service holds the save (D-1221).
         Assert.Equal("save_point.fixture_hub_waystone", Assert.Single(hub.Things, thing => thing.Kind == MapThingKind.SavePoint).Id.Value);
         Assert.DoesNotContain(hub.Things, thing => thing.Kind == MapThingKind.ServicePoint);
-        Assert.Equal(hub.Time, set.Light.SetupOf(hub.Id, hub.Time).Time);
+        Assert.Equal(hub.BaseTime, set.Light.SetupOf(hub.Id, hub.BaseTime).Time);
     }
 
     [Fact]
@@ -696,7 +696,7 @@ public sealed class ContentSetTests
              "label": "{{label}}",
              "time": "day",
              "dark": false,
-             "kind": "dungeon", "npcs": [], "services": [], "zones": [], "zone_grid": [], "reopen": [],
+             "kind": "dungeon", "npcs": [], "services": [], "zones": [], "zone_grid": [], "time_changes": [], "reopen": [],
              "terrain": [ "###", "#.#", "###" ],
              "things": [
               { "id": "spawn_point.one_start", "kind": "spawn_point", "x": 1, "y": 1 }

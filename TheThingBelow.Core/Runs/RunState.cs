@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Hashing;
+using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Notices;
 using TheThingBelow.Core.Shops;
@@ -194,6 +195,8 @@ public sealed class RunState
             streams[index] = RandomStreams.Open(seed, RandomStreams.All[index]);
         }
 
+        // The story state comes first, so the entry reads its flags for the time of the map (D-1349).
+        StoryState storyState = StoryState.Start(story);
         PlaceMemory places = PlaceMemory.Start();
         return new RunState(
             seed,
@@ -202,13 +205,13 @@ public sealed class RunState
             false,
             0,
             maps,
-            MapState.Enter(map!, places.Of(map!.Id)),
+            MapState.Enter(map!, places.Of(map!.Id), map!.TimeFor(storyState.Flags)),
             battleContent,
             PartyState.Start(battleContent),
             null,
             notices,
             NoticeLog.Empty(),
-            StoryState.Start(story),
+            storyState,
             ShopState.Start(),
             places,
             0);
@@ -246,7 +249,8 @@ public sealed class RunState
     /// starts with no flag on, no story scene, and no entry to read, because a load is not an
     /// entry to the map (D-1004). A snapshot before save format 18 holds no memory of a map, and
     /// its migration starts the memory with the dead enemies of the map that the party stands on
-    /// (D-555).
+    /// (D-555). A snapshot before save format 21 holds no time of the map, and its migration takes
+    /// the time that its flags give, as an entry does (D-1349).
     /// </remarks>
     public static RunState Resume(ulong seed, RunSnapshot snapshot, MapSet maps, BattleContent battleContent, NoticeList notices, StoryContent story, ResumeDrift drift)
     {
@@ -277,14 +281,17 @@ public sealed class RunState
         }
 
         PlaceMemory places = PlaceMemory.Resume(maps, snapshot.Places, "this run", drift);
-        MapState party = ResumeMap(snapshot, map, places.Of(map.Id), drift);
+
+        // The story state comes before the map, so a snapshot before save format 21 takes the time
+        // that its flags give (D-1349).
+        StoryState storyState = ResumeStory(snapshot, story, map, drift);
+        MapState party = ResumeMap(snapshot, map, places.Of(map.Id), storyState.Flags, drift);
         if (snapshot.Places is null)
         {
             RememberDead(party);
         }
 
         PartyState characters = ResumeCharacters(snapshot, battleContent);
-        StoryState storyState = ResumeStory(snapshot, story, map, drift);
 
         // Core refuses every intent but the few of a story scene while one runs, the close of the
         // menu included, so the pair would hold the run for good (D-1009, P3-18).
@@ -329,8 +336,8 @@ public sealed class RunState
     }
 
     /// <summary>
-    /// Checks the groups, the story scenes, and the services of every map of the set against the
-    /// content of this build (D-766, D-1004, D-1131). The load of the content set checks the chests,
+    /// Checks the groups, the story scenes, the services, and the time changes of every map of the
+    /// set against the content of this build (D-766, D-1004, D-1131, D-1349). The load of the content set checks the chests,
     /// the locks, the exits, and the reopen flags of each map, and a confirm at a chest names an
     /// absent id with an error (D-555, D-1220, T-2).
     /// </summary>
@@ -341,14 +348,15 @@ public sealed class RunState
             battleContent.RequireGroupsOf(map);
             story.RequireScenesOf(map);
             story.RequireServicesOf(map);
+            story.RequireTimeChangesOf(map);
         }
     }
 
-    private static MapState ResumeMap(RunSnapshot snapshot, GameMap map, PlaceState place, ResumeDrift drift)
+    private static MapState ResumeMap(RunSnapshot snapshot, GameMap map, PlaceState place, FlagSet flags, ResumeDrift drift)
     {
         if (snapshot.Map is null)
         {
-            return MapState.Enter(map, place);
+            return MapState.Enter(map, place, map.TimeFor(flags));
         }
 
         MapSnapshot party = snapshot.Map;
@@ -366,8 +374,43 @@ public sealed class RunState
             party.Encounter,
             party.Npcs,
             place,
+            ResumeTime(party, map, flags, drift),
             "this run",
             drift);
+    }
+
+    /// <summary>
+    /// Gives the time of day of the map of a snapshot (D-1349). A snapshot before save format 21
+    /// holds no time, and its migration takes the time that the flags give, as an entry does. A
+    /// snapshot of this build whose time the map cannot take fails. A snapshot of another build can
+    /// follow an edit of the time changes, so it takes the time that the flags give, with a log line
+    /// (D-1111).
+    /// </summary>
+    private static TimeOfDay ResumeTime(MapSnapshot party, GameMap map, FlagSet flags, ResumeDrift drift)
+    {
+        if (party.Time is not TimeOfDay stored)
+        {
+            return map.TimeFor(flags);
+        }
+
+        if (map.CanTake(stored))
+        {
+            return stored;
+        }
+
+        if (!drift.Adjusts)
+        {
+            throw new ArgumentException(
+                $"The snapshot of this run holds the time '{TimesOfDay.NameOf(stored)}' on the map '{map.Id.Value}', which takes {map.DescribeTimes()} alone (D-1349, T-2).",
+                nameof(party));
+        }
+
+        TimeOfDay time = map.TimeFor(flags);
+        drift.Note(
+            LogSubsystems.World,
+            "the map of this build cannot take the time of the save, and the map takes the time that the flags give",
+            [new LogField("map", map.Id.Value), new LogField("stored_time", TimesOfDay.NameOf(stored)), new LogField("time", TimesOfDay.NameOf(time))]);
+        return time;
     }
 
     /// <summary>
@@ -513,6 +556,7 @@ public sealed class RunState
             this.WorldTick,
             new MapSnapshot(
                 this.Party.Map.Id,
+                this.Party.Time,
                 this.Party.LeadAt.X,
                 this.Party.LeadAt.Y,
                 this.Party.Facing,
@@ -837,7 +881,7 @@ public sealed class RunState
 
         this.Maps.TryFind(id, out GameMap? map);
         GameMap entered = map!;
-        this.Arrive(MapState.Enter(entered, this.Places.Of(entered.Id)));
+        this.Arrive(MapState.Enter(entered, this.Places.Of(entered.Id), entered.TimeFor(this.Story.Flags)));
     }
 
     /// <summary>
@@ -866,7 +910,7 @@ public sealed class RunState
         GameMap entered = map!;
         MapThing found = entered.ThingOf(marker, MapThingKind.Marker)
             ?? throw new SimulationException($"an entry to the map '{id.Value}' on the marker '{marker.Value}', which the map lacks, and the content set checks each marker of an exit (D-1255)", context);
-        this.Arrive(MapState.EnterAt(entered, this.Places.Of(entered.Id), found.At));
+        this.Arrive(MapState.EnterAt(entered, this.Places.Of(entered.Id), found.At, entered.TimeFor(this.Story.Flags)));
     }
 
     /// <summary>

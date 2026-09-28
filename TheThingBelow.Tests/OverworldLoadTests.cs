@@ -206,8 +206,8 @@ public sealed class OverworldLoadTests
         GameMap overworld = set.Map(OverworldMaps.Id("map.fixture_overworld"));
 
         Assert.Equal(MapKind.Overworld, overworld.Kind);
-        Assert.Equal(TimeOfDay.Day, overworld.Time);
-        Assert.Equal(overworld.Time, set.Light.SetupOf(overworld.Id, overworld.Time).Time);
+        Assert.Equal(TimeOfDay.Day, overworld.BaseTime);
+        Assert.Equal(overworld.BaseTime, set.Light.SetupOf(overworld.Id, overworld.BaseTime).Time);
         Assert.Equal(
             ["map.fixture_dungeon", "map.fixture_hub"],
             EntranceTargets(overworld));
@@ -355,7 +355,7 @@ public sealed class OverworldLoadTests
          "things": [
           { "id": "spawn_point.test_place_start", "kind": "spawn_point", "x": 1, "y": 1 }
          ],
-         "enemies": [], "npcs": [], "services": [], "zones": [], "zone_grid": [], "reopen": [], "triggers": []
+         "enemies": [], "npcs": [], "services": [], "zones": [], "zone_grid": [], "time_changes": [], "reopen": [], "triggers": []
         }
         """;
 }

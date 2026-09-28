@@ -5,6 +5,7 @@
  "label": "label.fixture_overworld",
  "kind": "overworld",
  "time": "day",
+ "time_changes": [],
  "dark": false,
  "terrain": [
   "^^^^^^^^^^^^^^^^^^^^^^^^^^^^",

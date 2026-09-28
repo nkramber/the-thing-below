@@ -1,6 +1,7 @@
 using System;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Maps;
+using TheThingBelow.Core.Story;
 using Xunit;
 
 namespace TheThingBelow.Tests;
@@ -18,7 +19,7 @@ public sealed class GameMapTests
 
         Assert.Equal("map.test_room", map.Id.Value);
         Assert.Equal("label.test_room", map.Label.Value);
-        Assert.Equal(TimeOfDay.Day, map.Time);
+        Assert.Equal(TimeOfDay.Day, map.BaseTime);
         Assert.Equal(12, map.Width);
         Assert.Equal(9, map.Height);
         Assert.Equal(new TilePoint(2, 2), map.Spawn);
@@ -371,6 +372,127 @@ public sealed class GameMapTests
         Assert.Equal(wanted, GameMap.IsMapFile(path));
     }
 
+    [Fact]
+    public void AMapHoldsItsTimeChangesInTheOrderOfTheFile()
+    {
+        // D-1349: a change names a time and a condition in the one form of a condition (D-543).
+        GameMap map = TimeMaps.NightOnFlag;
+
+        TimeChange change = Assert.Single(map.TimeChanges);
+        Assert.Equal(TimeOfDay.Night, change.Time);
+        Assert.Equal(ConditionKind.Flag, change.Condition.Kind);
+        Assert.Equal(TimeMaps.Flag, change.Condition.Flag!.Value);
+        Assert.Equal(TimeOfDay.Day, map.BaseTime);
+    }
+
+    [Fact]
+    public void AMapWithNoTimeChangeListIsAnError()
+    {
+        // D-1349, T-2: an absent list is an error, never an empty list.
+        string text = Map().Replace("\"time_changes\": [], ", string.Empty, StringComparison.Ordinal);
+        ContentException error = Assert.Throws<ContentException>(() => TestMaps.Of("bad.json", text));
+
+        Assert.Contains("field time_changes", error.Message, StringComparison.Ordinal);
+        Assert.Contains("the field is absent", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ATimeChangeOfAnUnknownTimeIsAnError()
+    {
+        ContentException error = Assert.Throws<ContentException>(
+            () => TimeMaps.Of("day", """[{ "time": "noon", "condition": { "flag": "flag.test_victor" } }]"""));
+
+        Assert.Contains("time_changes[0].time", error.Message, StringComparison.Ordinal);
+        Assert.Contains("'noon'", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ATimeChangeOnTheAlwaysLeafIsAnError()
+    {
+        // D-1349, D-1002: the always leaf holds on each entry, so the base time never shows.
+        ContentException error = Assert.Throws<ContentException>(
+            () => TimeMaps.Of("day", """[{ "time": "night", "condition": { "always": true } }]"""));
+
+        Assert.Contains("time_changes[0].condition", error.Message, StringComparison.Ordinal);
+        Assert.Contains("base time", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ATimeChangeWithNoConditionIsAnError()
+    {
+        ContentException error = Assert.Throws<ContentException>(() => TimeMaps.Of("day", """[{ "time": "night" }]"""));
+
+        Assert.Contains("time_changes[0].condition", error.Message, StringComparison.Ordinal);
+        Assert.Contains("the field is absent", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TheFirstTimeChangeThatHoldsSetsTheTime()
+    {
+        // D-1349: the list reads in the order of the file, and the base time holds when no change does.
+        GameMap map = TimeMaps.Of(
+            "day",
+            """
+            [
+             { "time": "dusk", "condition": { "all": [{ "flag": "flag.test_victor" }, { "flag": "flag.test_done" }] } },
+             { "time": "night", "condition": { "flag": "flag.test_victor" } },
+             { "time": "dusk", "condition": { "flag": "flag.test_met" } }
+            ]
+            """);
+        FlagSet flags = FlagSet.Empty();
+
+        Assert.Equal(TimeOfDay.Day, map.TimeFor(flags));
+        _ = flags.TurnOn(ContentId.Parse("flag.test_victor", "the test", "flag"));
+        Assert.Equal(TimeOfDay.Night, map.TimeFor(flags));
+        _ = flags.TurnOn(ContentId.Parse("flag.test_done", "the test", "flag"));
+        Assert.Equal(TimeOfDay.Dusk, map.TimeFor(flags));
+    }
+
+    [Fact]
+    public void TheTimesOfAMapHoldTheBaseTimeThenEachOtherTimeOnce()
+    {
+        // D-1349: the load checks the light, the enemies, and the NPCs at each of these times.
+        GameMap map = TimeMaps.Of(
+            "dusk",
+            """
+            [
+             { "time": "night", "condition": { "flag": "flag.test_victor" } },
+             { "time": "dusk", "condition": { "flag": "flag.test_done" } },
+             { "time": "night", "condition": { "flag": "flag.test_met" } },
+             { "time": "dawn", "condition": { "flag": "flag.test_yes" } }
+            ]
+            """);
+
+        Assert.Equal([TimeOfDay.Dusk, TimeOfDay.Night, TimeOfDay.Dawn], map.Times);
+        Assert.True(map.CanTake(TimeOfDay.Dawn));
+        Assert.False(map.CanTake(TimeOfDay.Day));
+        Assert.Equal([TimeOfDay.Day], TestMaps.Room.Times);
+    }
+
+    [Fact]
+    public void AnEnemyThatSeesPastThePartyAtTheTimeOfAChangeIsAnError()
+    {
+        // D-720, D-1349: the sight floor holds at each time that the map can take, so a day map
+        // that a flag turns to night takes no enemy that sees farther than the party at night.
+        string text = TimeMaps.Text("day", """[{ "time": "night", "condition": { "flag": "flag.test_victor" } }]""")
+            .Replace("\"sight_range\": 3", "\"sight_range\": 6", StringComparison.Ordinal);
+        ContentException error = Assert.Throws<ContentException>(() => TestMaps.Of("time-test.json", text));
+
+        Assert.Contains("a map set to night", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TwoEnemiesThatStartOnOneTileAtTheTimeOfAChangeAreAnError()
+    {
+        // D-206, D-1349: the start check reads each time that the map can take.
+        string text = TimeMaps.Text("day", """[{ "time": "night", "condition": { "flag": "flag.test_victor" } }]""")
+            .Replace("\"times\": [\"dawn\", \"day\", \"dusk\"]", "\"times\": [\"dawn\", \"day\", \"dusk\", \"night\"]", StringComparison.Ordinal)
+            .Replace("{ \"x\": 1, \"y\": 6 }, { \"x\": 3, \"y\": 6 }", "{ \"x\": 1, \"y\": 1 }, { \"x\": 1, \"y\": 2 }", StringComparison.Ordinal);
+        ContentException error = Assert.Throws<ContentException>(() => TestMaps.Of("time-test.json", text));
+
+        Assert.Contains("at the time night", error.Message, StringComparison.Ordinal);
+    }
+
     /// <summary>The text of a small map file, with one part of it changed for a test.</summary>
     private static string Map(
         string terrain = """
@@ -391,7 +513,7 @@ public sealed class GameMapTests
          "label": "label.bad",
          "time": "{{time}}",
          "dark": false,
-         "kind": "dungeon", "npcs": [], "services": [], "zones": [], "zone_grid": [], "reopen": [],
+         "kind": "dungeon", "npcs": [], "services": [], "zones": [], "zone_grid": [], "time_changes": [], "reopen": [],
          "terrain": [
         {{terrain}}
          ],

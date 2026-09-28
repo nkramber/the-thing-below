@@ -4,9 +4,10 @@ namespace TheThingBelow.Core.Maps;
 
 /// <summary>The time of day of one map, which the story sets and no clock moves (D-442).</summary>
 /// <remarks>
-/// No day clock runs. A map file gives its time (D-442). D-442 lets a story flag change that
-/// time, and no rule of this build changes it yet. The time sets the sight range of the party,
-/// and it picks the station of each enemy of the map (D-193, D-743).
+/// No day clock runs. A map file gives its base time, and a time change of the file names a
+/// story flag that sets another time when the party enters the map (D-442, D-1349). The time
+/// sets the sight range of the party, and it picks the station of each enemy of the map (D-193,
+/// D-743).
 /// </remarks>
 public enum TimeOfDay
 {

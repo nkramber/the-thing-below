@@ -14,8 +14,8 @@ namespace TheThingBelow.Core.Maps;
 /// </summary>
 /// <remarks>
 /// The map runs in real time, so each enemy walks on the tick whether or not the player moves
-/// (D-162). The time of day of the map picks the station of each enemy, and an enemy that no
-/// station names is not on the map at that time (D-743).
+/// (D-162). The time of day of the entry picks the station of each enemy, and an enemy that no
+/// station names is not on the map at that time (D-743, D-1349).
 /// <para>
 /// One enemy that sees the party starts a mark for a beat, and the encounter starts when that
 /// beat ends (D-208, D-745). A step of the party into a body starts the encounter at once,
@@ -40,7 +40,7 @@ public sealed class MapPatrols
         this.Encounter = encounter;
     }
 
-    /// <summary>Every enemy that the time of day of the map places, in the order of the file (G-4).</summary>
+    /// <summary>Every enemy that the time of day of the entry places, in the order of the file (G-4).</summary>
     public IReadOnlyList<PatrolState> All => this.patrols;
 
     /// <summary>The mark of a sight that runs now, or no value (D-208, D-745).</summary>
@@ -49,7 +49,7 @@ public sealed class MapPatrols
     /// <summary>The encounter that runs now, or no value (D-531, D-749).</summary>
     public MapEncounter? Encounter { get; private set; }
 
-    /// <summary>Puts every enemy of one map on its station, with each enemy alive (D-743).</summary>
+    /// <summary>Puts every enemy of one map on its station at the base time of the map, with each enemy alive (D-743, D-1349).</summary>
     /// <param name="map">The map that the party enters.</param>
     /// <returns>The enemies, with no mark and no encounter.</returns>
     /// <exception cref="ArgumentNullException">The map is null (T-2).</exception>
@@ -57,23 +57,26 @@ public sealed class MapPatrols
     {
         ArgumentNullException.ThrowIfNull(map);
 
-        return Enter(map, new PlaceState(map.Id));
+        return Enter(map, new PlaceState(map.Id), map.BaseTime);
     }
 
     /// <summary>Puts every enemy of one map on its station, and leaves each enemy that the memory holds as dead dead (D-555, D-743).</summary>
     /// <param name="map">The map that the party enters.</param>
     /// <param name="place">The memory of the map.</param>
+    /// <param name="time">The time of day of the entry, which picks the station of each enemy (D-743, D-1349).</param>
     /// <returns>The enemies, with no mark and no encounter.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
-    public static MapPatrols Enter(GameMap map, PlaceState place)
+    /// <exception cref="ArgumentException">The map cannot take the time (D-1349, T-2).</exception>
+    public static MapPatrols Enter(GameMap map, PlaceState place, TimeOfDay time)
     {
         ArgumentNullException.ThrowIfNull(map);
         ArgumentNullException.ThrowIfNull(place);
+        RequireTimeOf(map, time);
 
         List<PatrolState> placed = [];
         foreach (Patrol patrol in map.Patrols)
         {
-            PatrolStation? station = patrol.StationOf(map.Time);
+            PatrolStation? station = patrol.StationOf(time);
             if (station is not null)
             {
                 placed.Add(PatrolState.EnterAgain(patrol, station, place.IsDead(patrol.Id)));
@@ -83,7 +86,7 @@ public sealed class MapPatrols
         return new MapPatrols([.. placed], null, null);
     }
 
-    /// <summary>Puts every enemy back from the values of a snapshot (D-166, D-750).</summary>
+    /// <summary>Puts every enemy back from the values of a snapshot, at the base time of the map (D-166, D-750, D-1349).</summary>
     /// <param name="map">The map of the snapshot, from the content of this build.</param>
     /// <param name="values">The stored values, one for each enemy that the map places.</param>
     /// <param name="mark">The mark of the snapshot, or no value.</param>
@@ -93,7 +96,7 @@ public sealed class MapPatrols
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
     /// <exception cref="ArgumentException">The values describe no state of this map (T-2).</exception>
     /// <remarks>
-    /// The list holds one value for each enemy that the time of day of the map places, in the
+    /// The list holds one value for each enemy that the base time of the map places, in the
     /// order of the map file. A list of another shape names a save of another content set, so
     /// the load fails with the map and the count (T-2).
     /// </remarks>
@@ -107,7 +110,8 @@ public sealed class MapPatrols
 
     /// <summary>
     /// Puts every enemy back from the values of a snapshot that this build or another build
-    /// wrote, with a map that the run never changed (D-166, D-750, D-1111).
+    /// wrote, with a map that the run never changed, at the base time of the map (D-166, D-750,
+    /// D-1111, D-1349).
     /// </summary>
     /// <param name="map">The map of the snapshot, from the content of this build.</param>
     /// <param name="values">The stored values, one for each enemy that the map placed.</param>
@@ -128,7 +132,7 @@ public sealed class MapPatrols
     {
         ArgumentNullException.ThrowIfNull(map);
 
-        return Resume(map, values, mark, encounter, new PlaceState(map.Id), source, drift);
+        return Resume(map, values, mark, encounter, new PlaceState(map.Id), map.BaseTime, source, drift);
     }
 
     /// <summary>
@@ -140,17 +144,18 @@ public sealed class MapPatrols
     /// <param name="mark">The mark of the snapshot, or no value.</param>
     /// <param name="encounter">The encounter of the snapshot, or no value.</param>
     /// <param name="place">The memory of the map, which holds each killed enemy (D-555).</param>
+    /// <param name="time">The time of day that the party took at its entry, which picks the station of each enemy (D-743, D-1349).</param>
     /// <param name="source">What the values came from, such as `the save`, for an error (T-2).</param>
     /// <param name="drift">The build of the snapshot, and the log of each change (D-1111).</param>
     /// <returns>The enemies.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
-    /// <exception cref="ArgumentException">The values describe no state of this map, or a snapshot of this build holds alive an enemy that the memory holds dead (T-2).</exception>
+    /// <exception cref="ArgumentException">The values describe no state of this map, or a snapshot of this build holds alive an enemy that the memory holds dead, or the map cannot take the time (T-2).</exception>
     /// <remarks>
     /// An enemy that the memory of the map holds dead stays dead, so a killed enemy never fights
     /// again before a reopen (D-555). A snapshot of another build that places such an enemy alive
     /// puts it dead, with a log line (D-1111).
     /// <para>
-    /// A snapshot of this build holds one value for each enemy that the time of day of the map
+    /// A snapshot of this build holds one value for each enemy that the time of the entry
     /// places, in the order of the map file, and a list of another shape fails with the map and
     /// the count (T-2). A snapshot of another build matches each enemy by its id instead
     /// (D-1111). An enemy that the save lacks starts on its station. An enemy that the map no
@@ -166,6 +171,7 @@ public sealed class MapPatrols
         SightMark? mark,
         MapEncounter? encounter,
         PlaceState place,
+        TimeOfDay time,
         string source,
         ResumeDrift drift)
     {
@@ -174,12 +180,13 @@ public sealed class MapPatrols
         ArgumentNullException.ThrowIfNull(place);
         ArgumentException.ThrowIfNullOrEmpty(source);
         ArgumentNullException.ThrowIfNull(drift);
+        RequireTimeOf(map, time);
 
         List<Patrol> placed = [];
         List<PatrolStation> stations = [];
         foreach (Patrol patrol in map.Patrols)
         {
-            PatrolStation? station = patrol.StationOf(map.Time);
+            PatrolStation? station = patrol.StationOf(time);
             if (station is not null)
             {
                 placed.Add(patrol);
@@ -189,7 +196,7 @@ public sealed class MapPatrols
 
         MapPatrols built = drift.Adjusts
             ? ResumeById(map, placed, stations, values, mark, encounter, source, drift)
-            : ResumeInOrder(map, placed, stations, values, mark, encounter, source);
+            : ResumeInOrder(map, time, placed, stations, values, mark, encounter, source);
         built.KeepDead(map, place, source, drift);
         built.CheckMarkAndEncounter(source);
         return built;
@@ -546,6 +553,17 @@ public sealed class MapPatrols
         }
     }
 
+    /// <summary>Fails when the map cannot take one time, so no station of another time places an enemy (D-1349, T-2).</summary>
+    private static void RequireTimeOf(GameMap map, TimeOfDay time)
+    {
+        if (!map.CanTake(time))
+        {
+            throw new ArgumentException(
+                $"The enemies of the map '{map.Id.Value}' take their stations at the time '{TimesOfDay.NameOf(time)}', which the map cannot take (D-1349, T-2).",
+                nameof(time));
+        }
+    }
+
     /// <summary>
     /// Picks the next direction of an enemy of an area (D-741). The enemy keeps its direction
     /// while the step holds the body inside the area, and it draws a new direction from the
@@ -636,6 +654,7 @@ public sealed class MapPatrols
 
     private static MapPatrols ResumeInOrder(
         GameMap map,
+        TimeOfDay time,
         List<Patrol> placed,
         List<PatrolStation> stations,
         IReadOnlyList<PatrolValues> values,
@@ -646,7 +665,7 @@ public sealed class MapPatrols
         Refuse(
             values.Count != placed.Count,
             source,
-            $"it holds {values.Count} enemies, and the map '{map.Id.Value}' places {placed.Count} at the time {TimesOfDay.NameOf(map.Time)}");
+            $"it holds {values.Count} enemies, and the map '{map.Id.Value}' places {placed.Count} at the time {TimesOfDay.NameOf(time)}");
 
         PatrolState[] states = new PatrolState[placed.Count];
         for (int index = 0; index < placed.Count; index += 1)

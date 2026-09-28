@@ -5,6 +5,7 @@
  "label": "label.fixture_hub",
  "kind": "hub",
  "time": "day",
+ "time_changes": [],
  "dark": false,
  "terrain": [
   "####################",

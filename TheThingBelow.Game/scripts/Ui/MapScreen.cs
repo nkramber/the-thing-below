@@ -144,6 +144,12 @@ public partial class MapScreen : Node2D
     public ContentId MapId { get; private set; } = null!;
 
     /// <summary>
+    /// The time of day that this node draws, which the party took at its entry (D-1349). The host
+    /// builds a new node when the party enters the map again at another time.
+    /// </summary>
+    public TimeOfDay MapTime { get; private set; }
+
+    /// <summary>
     /// The frame whose tilt-shift blur centers on the lead, or no value for a map that draws outside
     /// the frame, such as a check of the smoke session (D-1173).
     /// </summary>
@@ -186,6 +192,7 @@ public partial class MapScreen : Node2D
         // stands behind it (D-206, the external facts of `area-exploration.md`).
         this.YSortEnabled = true;
         this.MapId = party.Map.Id;
+        this.MapTime = party.Time;
 
         // One tile set serves the ground and the edge layers. Each edge layer draws over the
         // ground, in the order of the pieces of a tile (D-501, D-1321).
@@ -250,7 +257,7 @@ public partial class MapScreen : Node2D
         // The mark draws above the fog, the glow, and the passes, so fog never hides it and it stays sharp (D-208, D-916, D-919).
         GlowPass.LiftToMarks(this.mark);
 
-        this.BuildLight(atlas, party.Map, content);
+        this.BuildLight(atlas, party.Map, party.Time, content);
         this.weather = AmbientLayer.Build(ambient, content.Palette, this);
 
         // A map with no light shaft draws no shaft pass, so the budget counts none (D-523, D-918).
@@ -434,10 +441,11 @@ public partial class MapScreen : Node2D
     /// <summary>
     /// Builds the scene light of the map: the ambient light, each decor piece and its light,
     /// each added light, and the carried light (D-843, D-844, D-847).
+    /// The time is the time of the entry of the party, which a time change of the map sets (D-1349).
     /// </summary>
-    private void BuildLight(GameAtlas atlas, GameMap map, ContentSet content)
+    private void BuildLight(GameAtlas atlas, GameMap map, TimeOfDay time, ContentSet content)
     {
-        LightSetup setup = content.Light.SetupOf(map.Id, map.Time);
+        LightSetup setup = content.Light.SetupOf(map.Id, time);
         this.AddChild(WorldLights.Ambient(content.Palette, setup.Ambient));
 
         DecorFile pieces = content.Light.DecorOf(map.Id);
@@ -461,7 +469,7 @@ public partial class MapScreen : Node2D
         ImageTexture halo = WorldLights.HaloTexture(GlowPass.HaloPower);
         const int EveryShadow = WorldLights.WallShadows | WorldLights.FigureShadows | WorldLights.LeadShadows;
         DecorFile decor = content.Light.DecorOf(map.Id);
-        foreach (MapLight light in content.Light.LightsOf(map.Id, map.Time))
+        foreach (MapLight light in content.Light.LightsOf(map.Id, time))
         {
             (PointLight2D ground, PointLight2D figures) = WorldLights.Pair(light.Id.Value, content.Palette, light.Light, texture, EveryShadow);
             ground.Position = new Vector2(light.X, light.Y);
@@ -641,7 +649,7 @@ public partial class MapScreen : Node2D
         this.mark.Visible = false;
         int leadX = MapCamera.LeadX(party, tickPart);
         int leadY = MapCamera.LeadY(party, tickPart);
-        int range = MapRules.PartySightRange(party.Map, torchHeld) * MapCamera.TilePixels;
+        int range = MapRules.PartySightRange(party.Map, party.Time, torchHeld) * MapCamera.TilePixels;
         if (party.Map.Dark && this.fade is null)
         {
             this.fade = new SightFade(ClearLines(party), range);
@@ -1141,7 +1149,7 @@ public partial class MapScreen : Node2D
     {
         TilePoint nearest = patrol.Body.Nearest(party.LeadAt);
         int reach = Math.Max(Math.Abs(nearest.X - party.LeadAt.X), Math.Abs(nearest.Y - party.LeadAt.Y));
-        return reach <= MapRules.PartySightRange(party.Map, torchHeld: true) + 2;
+        return reach <= MapRules.PartySightRange(party.Map, party.Time, torchHeld: true) + 2;
     }
 
     private static void CheckSprite(Sprite2D sprite, string what)

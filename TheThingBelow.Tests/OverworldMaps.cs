@@ -58,7 +58,7 @@ public static class OverworldMaps
           ".rrrrrrr.",
           "........."
          ],
-         "enemies": [], "npcs": [], "services": [], "reopen": [], "triggers": []
+         "enemies": [], "npcs": [], "services": [], "reopen": [], "triggers": [], "time_changes": []
         }
         """;
 
@@ -83,7 +83,7 @@ public static class OverworldMaps
           { "id": "spawn_point.test_place_start", "kind": "spawn_point", "x": 1, "y": 1 },
           { "id": "exit.test_place_out", "kind": "exit", "x": 5, "y": 1, "to": "map.test_overworld", "arrive": "marker.test_overworld_place" }
          ],
-         "enemies": [], "npcs": [], "services": [], "zones": [], "zone_grid": [], "reopen": [], "triggers": []
+         "enemies": [], "npcs": [], "services": [], "zones": [], "zone_grid": [], "time_changes": [], "reopen": [], "triggers": []
         }
         """);
 

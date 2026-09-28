@@ -5,6 +5,7 @@
  "label": "label.fixture_dungeon",
  "kind": "dungeon",
  "time": "night",
+ "time_changes": [],
  "dark": true,
  "terrain": [
   "########################################",

@@ -158,7 +158,7 @@ public sealed class TorchRulesTests
          "label": "label.dark_hall",
          "time": "night",
          "dark": true,
-         "kind": "dungeon", "npcs": [], "services": [], "zones": [], "zone_grid": [], "reopen": [],
+         "kind": "dungeon", "npcs": [], "services": [], "zones": [], "zone_grid": [], "time_changes": [], "reopen": [],
          "terrain": [
           "################",
           "#..............#",

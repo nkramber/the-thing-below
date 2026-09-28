@@ -63,7 +63,7 @@ public static class EncounterMaps
           {{zone}}
          ],
          "zone_grid": [{{string.Join(", ", Array.ConvertAll(grid ?? Grid, row => $"\"{row}\""))}}],
-         "enemies": [], "npcs": [], "services": [], "reopen": [], "triggers": []
+         "enemies": [], "npcs": [], "services": [], "reopen": [], "triggers": [], "time_changes": []
         }
         """;
 

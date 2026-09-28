@@ -150,7 +150,7 @@ public sealed class ResumeDriftTests
         Assert.True(party.Patrols.All[1].Dead);
         Assert.Contains(drift.Entries, entry => entry.Message.Contains("stays dead", StringComparison.Ordinal));
         place.Reopen();
-        Assert.False(MapState.Enter(after, place).Patrols.All[1].Dead);
+        Assert.False(MapState.Enter(after, place, after.BaseTime).Patrols.All[1].Dead);
     }
 
     [Fact]
@@ -445,7 +445,7 @@ public sealed class ResumeDriftTests
     {
         var walked = WalkedTiles.Empty(map.Width, map.Height);
         walked.Mark(map.Spawn);
-        return MapState.Resume(map, new LeadValues(map.Spawn, StepDirection.South, null, 0), walked, enemies, null, null, null, place, "the test", drift);
+        return MapState.Resume(map, new LeadValues(map.Spawn, StepDirection.South, null, 0), walked, enemies, null, null, null, place, map.BaseTime, "the test", drift);
     }
 
     private static MapState Resume(GameMap map, TilePoint lead, IReadOnlyList<PatrolValues> enemies, SightMark? mark, MapEncounter? encounter, ResumeDrift drift)
@@ -466,7 +466,7 @@ public sealed class ResumeDriftTests
          "label": "label.patrol_test",
          "time": "day",
          "dark": false,
-         "kind": "dungeon", "npcs": [], "services": [], "zones": [], "zone_grid": [], "reopen": [],
+         "kind": "dungeon", "npcs": [], "services": [], "zones": [], "zone_grid": [], "time_changes": [], "reopen": [],
          "terrain": [
           "######",
           "#....#",

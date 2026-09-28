@@ -88,7 +88,7 @@ public sealed class GateOnEveryMapTests
           { "id": "gate.test_place_door", "kind": "gate", "x": 3, "y": 1, "condition": { "flag": "{{OverworldMaps.GateFlag}}" }, "notice": "{{OverworldMaps.GateNotice}}" },
           { "id": "exit.test_place_out", "kind": "exit", "x": 5, "y": 1, "to": "map.test_overworld", "arrive": "marker.test_overworld_place" }
          ],
-         "enemies": [], "npcs": [], "services": [], "zones": [], "zone_grid": [], "reopen": [], "triggers": []
+         "enemies": [], "npcs": [], "services": [], "zones": [], "zone_grid": [], "time_changes": [], "reopen": [], "triggers": []
         }
         """;
 }

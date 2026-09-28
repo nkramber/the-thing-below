@@ -128,7 +128,7 @@ public static class HubMaps
          "enemies": [{{enemies}}],
          "npcs": [{{npcs}}],
          "services": [{{services}}],
-         "zones": [], "zone_grid": [], "reopen": [],
+         "zones": [], "zone_grid": [], "time_changes": [], "reopen": [],
          "triggers": []
         }
         """;

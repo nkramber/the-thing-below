@@ -199,6 +199,20 @@ public sealed class StoryContent
         }
     }
 
+    /// <summary>Checks that the condition of each time change of a map names declared flags alone (D-543, D-1349, T-2).</summary>
+    /// <param name="map">The map.</param>
+    /// <exception cref="ArgumentNullException">The map is null (T-2).</exception>
+    /// <exception cref="ContentException">A condition names an undeclared flag. The error names the map and the change.</exception>
+    public void RequireTimeChangesOf(GameMap map)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+
+        for (int index = 0; index < map.TimeChanges.Count; index += 1)
+        {
+            map.TimeChanges[index].Condition.RequireDeclared(this.Flags, map.File, $"{TimeChange.ListField}[{index}].{GameMap.ConditionField}");
+        }
+    }
+
     /// <summary>Checks that each flag of the reopen list of a map is a flag of the flag file (D-555, T-2).</summary>
     /// <param name="map">The map.</param>
     /// <exception cref="ArgumentNullException">The map is null (T-2).</exception>

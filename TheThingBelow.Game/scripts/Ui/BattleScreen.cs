@@ -216,7 +216,7 @@ public sealed class BattleScreen
             $"The battle screen builds at tick {run.Tick}, and the run holds no view of a fight (D-532, T-2).");
 
         var screen = new BattleScreen(ui, content, frame, memory, effects);
-        screen.BuildLight(run.Party.Map);
+        screen.BuildLight(run.Party.Map, run.Party.Time);
 
         // The weather of the place plays over the backdrop of the fight (D-205).
         screen.weather = AmbientLayer.Build(
@@ -274,10 +274,10 @@ public sealed class BattleScreen
         return count;
     }
 
-    /// <summary>Builds the ambient light and the key light of the map where the fight began (D-850).</summary>
-    private void BuildLight(TheThingBelow.Core.Maps.GameMap map)
+    /// <summary>Builds the ambient light and the key light of the map where the fight began, at the time of the entry of the party (D-850, D-1349).</summary>
+    private void BuildLight(TheThingBelow.Core.Maps.GameMap map, TheThingBelow.Core.Maps.TimeOfDay time)
     {
-        LightSetup setup = this.content.Light.SetupOf(map.Id, map.Time);
+        LightSetup setup = this.content.Light.SetupOf(map.Id, time);
         this.world.AddChild(WorldLights.Ambient(this.content.Palette, setup.Ambient));
 
         // No wall stands in a fight, so the key light casts no shadow (D-850).

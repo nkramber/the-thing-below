@@ -151,6 +151,8 @@ public static class SaveText
     /// its start tile, the NPC stream joins at its first value, from the seed of the header, and
     /// the reserve starts empty (D-1136, D-1137). Format 19 and older hold no danger count and no
     /// encounter stream. The count starts at zero, and the stream joins at its first value (D-1249).
+    /// Format 20 and older hold no time on the map, and the resume takes the time that the flags
+    /// give (D-1349).
     /// <para>
     /// The PR that next changes the snapshot raises <see cref="SaveFormat.Current"/>, adds a
     /// reader of each older version, and commits a fixture save of the version that it
@@ -179,7 +181,8 @@ public static class SaveText
             17 => ReadLine(line, file, (ref ContentReader reader) => RunSnapshotText.ReadFormatSeventeen(ref reader, seed)),
             18 => ReadLine(line, file, (ref ContentReader reader) => RunSnapshotText.ReadFormatEighteen(ref reader, seed)),
             19 => ReadLine(line, file, (ref ContentReader reader) => RunSnapshotText.ReadFormatNineteen(ref reader, seed)),
-            20 => ReadLine(line, file, RunSnapshotText.Read),
+            20 => ReadLine(line, file, RunSnapshotText.ReadFormatTwenty),
+            21 => ReadLine(line, file, RunSnapshotText.Read),
 
             // `CheckFormat` passed, so this build named the version and wrote no reader for
             // it. The message thus names a fault of the build and never a fault of the file (T-2).

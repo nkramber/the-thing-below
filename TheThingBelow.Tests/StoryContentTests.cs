@@ -124,6 +124,23 @@ public sealed class StoryContentTests
     }
 
     [Fact]
+    public void ATimeChangeThatNamesAnUndeclaredFlagFailsWithTheMapAndTheChange()
+    {
+        // D-543, D-1349: a time change joins the readers of the one condition form.
+        GameMap map = TimeMaps.Of(
+            "day",
+            """[{ "time": "dusk", "condition": { "flag": "flag.test_met" } }, { "time": "night", "condition": { "any": [{ "flag": "flag.test_met" }, { "flag": "flag.test_lost" }] } }]""");
+
+        ContentException error = Assert.Throws<ContentException>(() => TestStory.Content.RequireTimeChangesOf(map));
+
+        Assert.Contains("time-test.json", error.Message, StringComparison.Ordinal);
+        Assert.Contains("time_changes[1].condition", error.Message, StringComparison.Ordinal);
+        Assert.Contains("flag.test_lost", error.Message, StringComparison.Ordinal);
+        Assert.Throws<ContentException>(() => Simulation.Start(1, map, TestBattles.Content, TestBattles.Notices, TestStory.Content, DebugIntentHandlers.None));
+        TestStory.Content.RequireTimeChangesOf(TimeMaps.NightOnFlag);
+    }
+
+    [Fact]
     public void ARunRefusesAHubWhoseServiceNamesAnUndeclaredFlag()
     {
         Assert.Throws<ContentException>(() => Simulation.Start(

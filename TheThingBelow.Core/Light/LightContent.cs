@@ -389,8 +389,12 @@ public sealed class LightContent
 
         foreach (GameMap map in maps.Values)
         {
-            // The map draws in the light of its own time, so that setup must exist (D-442, T-2).
-            _ = this.SetupOf(map.Id, map.Time);
+            // The map draws in the light of the time of each entry, so a setup must exist for its
+            // base time and for the time of each change (D-442, D-1349, T-2).
+            foreach (TimeOfDay time in map.Times)
+            {
+                _ = this.SetupOf(map.Id, time);
+            }
         }
     }
 
