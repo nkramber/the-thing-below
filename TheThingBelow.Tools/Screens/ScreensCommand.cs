@@ -7,7 +7,7 @@ namespace TheThingBelow.Tools.Screens;
 
 /// <summary>
 /// The `screens` command. It compares the captures of one session with the committed
-/// baseline, or it joins them into one contact sheet (D-172, D-735, D-736).
+/// baseline, or it joins them into the pages of a contact sheet (D-172, D-735, D-736, D-1309).
 /// </summary>
 /// <remarks>
 /// The screen-test job of CI runs the compare, and the Mac of the owner runs the sheet. A
@@ -29,7 +29,7 @@ public static class ScreensCommand
     /// <summary>The option that names the folder of the committed baseline (D-736).</summary>
     public const string BaselineOption = "--baseline";
 
-    /// <summary>The option that names the file of the contact sheet (D-735).</summary>
+    /// <summary>The option that names the file of the contact sheet. Each page takes the name with its number (D-735, D-1309).</summary>
     public const string SheetOption = "--sheet";
 
     /// <summary>The file type of every capture and every baseline.</summary>
@@ -156,9 +156,9 @@ public static class ScreensCommand
         return 0;
     }
 
-    /// <summary>Joins every capture into one contact sheet (D-735).</summary>
+    /// <summary>Joins every capture into the pages of the contact sheet (D-735, D-1309).</summary>
     /// <param name="captures">The folder that the local capture session wrote.</param>
-    /// <param name="sheet">The file of the sheet, which enters no commit.</param>
+    /// <param name="sheet">The file of the sheet, which each page numbers and which enters no commit.</param>
     /// <param name="output">The writer that takes each line of the report.</param>
     /// <param name="errors">The writer that takes each fault.</param>
     /// <returns>0 when the sheet is written, and 1 on any fault.</returns>
@@ -183,23 +183,41 @@ public static class ScreensCommand
             images.Add(PngReader.ReadFile(Path.Combine(captures, name)));
         }
 
-        PngImage built = ContactSheet.Build(images);
         string? folder = Path.GetDirectoryName(sheet);
         if (!string.IsNullOrEmpty(folder))
         {
             Directory.CreateDirectory(folder);
         }
 
-        PngWriter.WriteFile(sheet, built);
-        output.WriteLine(
-            $"{Name}: the sheet of {names.Count} capture(s) is '{sheet}', " +
-            $"{built.Width} by {built.Height} pixels.");
-        foreach (string name in names)
+        IReadOnlyList<(int First, int Count)> pages = ContactSheet.PagesOf(images, ContactSheet.MaxPageHeight);
+        output.WriteLine($"{Name}: the sheet of {names.Count} capture(s) takes {pages.Count} page(s).");
+        for (int page = 0; page < pages.Count; page++)
         {
-            output.WriteLine($"{Name}: the sheet holds '{name}'.");
+            (int first, int count) = pages[page];
+            string file = PageFileOf(sheet, page + 1);
+            PngImage built = ContactSheet.Build(images.GetRange(first, count));
+            PngWriter.WriteFile(file, built);
+            output.WriteLine($"{Name}: page {page + 1} is '{file}', {built.Width} by {built.Height} pixels.");
+            for (int at = first; at < first + count; at++)
+            {
+                output.WriteLine($"{Name}: page {page + 1} holds '{names[at]}'.");
+            }
         }
 
         return 0;
+    }
+
+    /// <summary>Gives the file of one page of the sheet: the file that the option names, with the page number before its type (D-1309).</summary>
+    /// <param name="sheet">The file that the sheet option names, such as `artifacts/contact-sheet.png`.</param>
+    /// <param name="page">The number of the page, from 1.</param>
+    /// <returns>The file of the page, such as `artifacts/contact-sheet-1.png`.</returns>
+    public static string PageFileOf(string sheet, int page)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(sheet);
+        ArgumentOutOfRangeException.ThrowIfLessThan(page, 1);
+
+        string stem = Path.Combine(Path.GetDirectoryName(sheet) ?? string.Empty, Path.GetFileNameWithoutExtension(sheet));
+        return $"{stem}-{page}{Path.GetExtension(sheet)}";
     }
 
     /// <summary>Reads the PNG file names of one folder, in ordinal order.</summary>

@@ -75,6 +75,43 @@ public sealed class ContactSheetTests
         Assert.Throws<ArgumentException>(() => ContactSheet.Build(new List<PngImage>()));
     }
 
+    [Fact]
+    public void APageTakesEachNextCaptureWhileItFits()
+    {
+        // D-1309: two captures of 10 rows and a gap make 28 rows, and a third passes a page of 30.
+        PngImage[] captures = [Image(10, 10, 1), Image(10, 10, 2), Image(10, 10, 3), Image(10, 10, 4), Image(10, 10, 5)];
+
+        IReadOnlyList<(int First, int Count)> pages = ContactSheet.PagesOf(captures, 30);
+
+        Assert.Equal([(0, 2), (2, 2), (4, 1)], pages);
+    }
+
+    [Fact]
+    public void APageReadsTheHeightOfAWideCaptureOnTheSheet()
+    {
+        // D-1309: a capture of 2560 by 60 scales to 30 rows, so it fits a page of 30.
+        IReadOnlyList<(int First, int Count)> pages = ContactSheet.PagesOf([Image(2560, 60, 1)], 30);
+
+        Assert.Equal([(0, 1)], pages);
+    }
+
+    [Fact]
+    public void ACaptureHigherThanAPageFails()
+    {
+        // T-2: one capture that no page holds names its index and its height.
+        ArgumentException error = Assert.Throws<ArgumentException>(() => ContactSheet.PagesOf([Image(10, 10, 1), Image(10, 40, 2)], 30));
+
+        Assert.Contains("The capture 1 is 40 pixels high on the sheet, and a page holds 30", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void NoCaptureOrNoPageHeightFails()
+    {
+        // T-2.
+        Assert.Throws<ArgumentException>(() => ContactSheet.PagesOf(new List<PngImage>(), 30));
+        Assert.Throws<ArgumentOutOfRangeException>(() => ContactSheet.PagesOf([Image(10, 10, 1)], 0));
+    }
+
     private static PngImage Image(int width, int height, byte level)
     {
         var pixels = new byte[width * height * 4];

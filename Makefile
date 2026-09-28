@@ -140,7 +140,8 @@ smoke:
 # The picture of this machine never matches the baseline of CI, which draws on the software
 # Vulkan driver of Linux. Thus the target makes the sheet and never compares (D-731, D-733).
 #
-# The sheet lands under `artifacts/`, which git ignores. `gh pr edit --attach` puts it in a
+# Each page of the sheet lands under `artifacts/` as `contact-sheet-<n>.png`, and a page stays inside
+# the height limit of a PNG (D-1309). Git ignores the folder. `gh pr edit --attach` puts a page in a
 # PR description (D-514, D-735).
 #
 # The target builds the Godot solution first, so the captures never show an old build (D-782).
