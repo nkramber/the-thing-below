@@ -1,0 +1,48 @@
+{
+ "id": "drawing.overworld_village",
+ "page": "map_sprites",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "mark.overworld_village", "use": "map" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "......kk................kk......",
+    "......kk................kk......",
+    "....kkeekk............kkeekk....",
+    "....kkeekk............kkeekk....",
+    "..kkeeeeEEkk........kkeeeeEEkk..",
+    "..kkeeeeEEkk........kkeeeeEEkk..",
+    "kkeeeeeeEEEEkk....kkeeeeeeEEEEkk",
+    "kkeeeeeeEEEEkk....kkeeeeeeEEEEkk",
+    "kkHHHHHHHHHHkk....kkHHHHHHHHHHkk",
+    "kkHHHHHHHHHHkk....kkHHHHHHHHHHkk",
+    "kkbbBBBBBBbbkk....kkbbBBBBBBbbkk",
+    "kkbbBBBBBBbbkk....kkbbBBBBBBbbkk",
+    "kkbbjjAABBbbkk....kkbbBBkkBBbbkk",
+    "kkbbjjAABBbbkk....kkbbBBkkBBbbkk",
+    "kkbbBBBBBBbbkk....kkbbBBkkBBbbkk",
+    "kkbbBBBBBBbbkk....kkbbBBkkBBbbkk",
+    "kkkkkkkkkkkkkk....kkkkkkkkkkkkkk",
+    "kkkkkkkkkkkkkk....kkkkkkkkkkkkkk",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................"
+   ]
+  }
+ ]
+}

@@ -1,9 +1,13 @@
 {
- "comment": "Every story flag id of the game, with one line of prose for each (D-542, D-1003). A flag is a name that is on or off, and a load fails on a flag id that this file does not declare. A condition, a set flag step, and a choose step each name a flag of this file. PR-68 built the flags with no flag of its own. PR-12 adds the fixture flag of the side aptitude of Marrek, PR-36 adds the three flags of the fixture story scenes of the hub, and the arc content of PR-17 and later PRs adds each flag of the story here.",
+ "comment": "Every story flag id of the game, with one line of prose for each (D-542, D-1003). A flag is a name that is on or off, and a load fails on a flag id that this file does not declare. A condition, a set flag step, and a choose step each name a flag of this file. PR-68 built the flags with no flag of its own. PR-12 adds the fixture flag of the side aptitude of Marrek, PR-36 adds the three flags of the fixture story scenes of the hub, PR-110 adds the four flags of the gates of the overworld, which the arc content sets (D-1282), and the arc content of PR-17 and later PRs adds each other flag of the story here.",
  "flags": [
   { "id": "flag.fixture_marrek_side", "note": "The fixture flag that unlocks the side aptitude of Marrek, which the tests of PR-12 set (D-538, D-556)." },
   { "id": "flag.fixture_hub_yes", "note": "Marrek told the stranger of the fixture hub that he goes down again (PR-36)." },
   { "id": "flag.fixture_hub_no", "note": "Marrek told the stranger of the fixture hub to find his brother himself (PR-36)." },
-  { "id": "flag.fixture_hub_rats", "note": "The party beat the rats in the straw of the fixture hub (PR-36)." }
+  { "id": "flag.fixture_hub_rats", "note": "The party beat the rats in the straw of the fixture hub (PR-36)." },
+  { "id": "flag.region_one_bergit_joins", "note": "Bergit joined Marrek near the village. The road to the town opens (D-1281). The arc content sets it." },
+  { "id": "flag.region_one_ottild_joins", "note": "Ottild joined the party with her tunnels. The mouth of the deep mine opens (D-1281). The arc content sets it." },
+  { "id": "flag.region_one_breakout", "note": "The party broke out of the cells and killed the bishop. The sealed door opens, and the way down to the village shuts (D-1281). The arc content sets it." },
+  { "id": "flag.region_one_night_pass", "note": "The party passed the town by night. The road up to the pass opens (D-1281). The arc content sets it." }
  ]
 }

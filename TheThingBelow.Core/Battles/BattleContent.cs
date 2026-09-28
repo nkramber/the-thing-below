@@ -249,7 +249,8 @@ public sealed class BattleContent
     /// <summary>
     /// Refuses a map whose region has no group file, a map that names a group which the file
     /// of its region does not hold (D-957), and a map whose patrol size differs from the
-    /// largest enemy record of its group (D-754, D-788).
+    /// largest enemy record of its group (D-754, D-788). A zone takes the group file of its own
+    /// region (D-1289).
     /// </summary>
     /// <param name="map">The map.</param>
     /// <exception cref="ContentException">
@@ -297,17 +298,24 @@ public sealed class BattleContent
             }
         }
 
-        // A zone fight draws no body on the map, so its groups take no size check (D-1250).
+        // A zone fight draws no body on the map, so its groups take no size check (D-1250). Its
+        // groups come from the group file of the region of the zone, because one overworld holds
+        // the land of each region (D-1274, D-1289).
         foreach (EncounterZone zone in map.Zones)
         {
+            GroupFile zoneRegion = this.FindRegion(zone.Region)
+                ?? throw ContentException.ForField(
+                    map.File,
+                    $"zones.{zone.Id.Value}",
+                    $"the zone names the region '{zone.Region.Value}', and no file of '{GroupFile.Folder}' holds it (D-957, D-1289)");
             foreach (ZoneGroup entry in zone.Groups)
             {
-                if (region.Find(entry.Group) is null)
+                if (zoneRegion.Find(entry.Group) is null)
                 {
                     throw ContentException.ForField(
                         map.File,
                         $"zones.{zone.Id.Value}",
-                        $"the zone names the group '{entry.Group.Value}', and '{region.File}' of the region '{map.Region.Value}' holds no such group (D-957, D-1250)");
+                        $"the zone names the group '{entry.Group.Value}', and '{zoneRegion.File}' of the region '{zone.Region.Value}' holds no such group (D-957, D-1250, D-1289)");
                 }
             }
         }

@@ -414,6 +414,10 @@
    "text": "Bent nail"
   },
   {
+   "id": "label.overworld",
+   "text": "The high country"
+  },
+  {
    "id": "label.rope",
    "text": "Wet rope"
   },
@@ -992,6 +996,26 @@
   {
    "id": "notice.fixture_mark",
    "text": "Someone cut a mark in the stone. It is fresh."
+  },
+  {
+   "id": "notice.overworld_mine_mouth",
+   "text": "Rockfall. No way through."
+  },
+  {
+   "id": "notice.overworld_road_up",
+   "text": "Wardens hold the road up."
+  },
+  {
+   "id": "notice.overworld_sealed_door",
+   "text": "Guild iron. Sealed shut."
+  },
+  {
+   "id": "notice.overworld_town_road",
+   "text": "Not alone. Not on that road."
+  },
+  {
+   "id": "notice.overworld_village_road",
+   "text": "Wardens watch the village road."
   },
   {
    "id": "notice.rested",

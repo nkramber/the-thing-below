@@ -10,7 +10,7 @@ namespace TheThingBelow.Core.Maps;
 /// author, for the review, and for the content hash (D-528). PR-16 adds the rules that open a
 /// door, a lock, and a chest, the save of a save point, and the exit (D-1131, D-1216). PR-64 adds
 /// the rules that show, fire, and disarm a trap (D-1226, D-1228). A service point holds a service of a hub (D-1142).
-/// PR-35 adds the entrance and the gate of the overworld (D-1243).
+/// PR-35 adds the entrance and the gate of the overworld (D-1243). PR-110 adds the mark of a place with no map yet (D-1271).
 /// </remarks>
 public enum MapThingKind
 {
@@ -62,6 +62,13 @@ public enum MapThingKind
     /// confirm at a closed gate posts its notice (D-1257).
     /// </summary>
     Gate,
+
+    /// <summary>
+    /// The mark of a place on the overworld whose map does not exist yet (D-1270, D-1271). It draws
+    /// the place, and no rule reads it: the lead walks over it (D-1272). The PR of the place changes
+    /// its kind to an entrance on the same tile.
+    /// </summary>
+    Mark,
 }
 
 /// <summary>The condition and the notice of one gate of the overworld (D-1243, D-1257).</summary>
@@ -108,10 +115,11 @@ public static class MapThingKinds
         MapThingKind.Exit,
         MapThingKind.Entrance,
         MapThingKind.Gate,
+        MapThingKind.Mark,
     ];
 
     /// <summary>The names of every kind, for the error of an unknown name (T-2).</summary>
-    public const string EveryName = "door, lock, chest, trap, save_point, spawn_point, marker, service_point, exit, entrance, gate";
+    public const string EveryName = "door, lock, chest, trap, save_point, spawn_point, marker, service_point, exit, entrance, gate, mark";
 
     /// <summary>Gives the kind of one name.</summary>
     /// <param name="name">The name, such as `save_point`.</param>
@@ -152,21 +160,28 @@ public static class MapThingKinds
         MapThingKind.Exit => "exit",
         MapThingKind.Entrance => "entrance",
         MapThingKind.Gate => "gate",
+        MapThingKind.Mark => "mark",
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no map thing kind (D-528)"),
     };
 
     /// <summary>The ground of every thing that sits on open ground, for the error of a wrong tile (T-2).</summary>
-    public const string OpenGroundNames = "floor or grass";
+    public const string OpenGroundNames = "floor, grass, road, or snowfield";
+
+    /// <summary>Tells whether a tile is open ground, where every thing but a door and a lock sits (D-1256, D-1277).</summary>
+    /// <param name="tile">The kind of the tile.</param>
+    /// <returns>True for the floor of a place, and for the grass, the road, and the snowfield of the overworld.</returns>
+    public static bool IsOpenGround(TileKind tile) =>
+        tile == TileKind.Floor || tile == TileKind.Grass || tile == TileKind.Road || tile == TileKind.Snowfield;
 
     /// <summary>Tells whether a thing of this kind can sit on a tile of this kind (D-528, D-1256, T-2).</summary>
     /// <param name="kind">The kind of the thing.</param>
     /// <param name="tile">The kind of the tile under the thing.</param>
-    /// <returns>True for a door or a lock in a doorway, and for every other thing on floor or grass.</returns>
+    /// <returns>True for a door or a lock in a doorway, and for every other thing on open ground.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The value names no kind (T-2).</exception>
     /// <remarks>
     /// A door and a lock stand in a doorway, because a doorway is the gap in a wall that
-    /// holds them. Every other thing sits on open ground: the floor of a place, or the grass of
-    /// the overworld (D-1256). A thing on a tile of another kind fails the load of the map, and
+    /// holds them. Every other thing sits on open ground: the floor of a place, or the grass, the
+    /// road, or the snowfield of the overworld (D-1256, D-1277). A thing on a tile of another kind fails the load of the map, and
     /// the message names the map, the tile, and the kind.
     /// </remarks>
     public static bool CanSitOn(MapThingKind kind, TileKind tile) => kind switch
@@ -175,7 +190,7 @@ public static class MapThingKinds
         MapThingKind.Lock => tile == TileKind.Doorway,
         MapThingKind.Chest or MapThingKind.Trap or MapThingKind.SavePoint or MapThingKind.SpawnPoint
             or MapThingKind.Marker or MapThingKind.ServicePoint or MapThingKind.Exit or MapThingKind.Entrance
-            or MapThingKind.Gate => tile == TileKind.Floor || tile == TileKind.Grass,
+            or MapThingKind.Gate or MapThingKind.Mark => IsOpenGround(tile),
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no map thing kind (D-528)"),
     };
 
@@ -188,7 +203,7 @@ public static class MapThingKinds
         MapThingKind.Door or MapThingKind.Lock => TileKinds.NameOf(TileKind.Doorway),
         MapThingKind.Chest or MapThingKind.Trap or MapThingKind.SavePoint or MapThingKind.SpawnPoint
             or MapThingKind.Marker or MapThingKind.ServicePoint or MapThingKind.Exit or MapThingKind.Entrance
-            or MapThingKind.Gate => OpenGroundNames,
+            or MapThingKind.Gate or MapThingKind.Mark => OpenGroundNames,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no map thing kind (D-528)"),
     };
 
@@ -217,6 +232,7 @@ public static class MapThingKinds
         MapThingKind.Exit => false,
         MapThingKind.Entrance => false,
         MapThingKind.Gate => false,
+        MapThingKind.Mark => false,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no map thing kind (D-528)"),
     };
 }

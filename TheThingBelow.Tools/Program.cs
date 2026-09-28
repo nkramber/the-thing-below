@@ -17,6 +17,7 @@ using TheThingBelow.Tools.Screens;
 using TheThingBelow.Tools.Screenplay;
 using TheThingBelow.Tools.SteCheck;
 using TheThingBelow.Tools.Watch;
+using TheThingBelow.Tools.Worldgen;
 
 namespace TheThingBelow.Tools;
 
@@ -90,6 +91,11 @@ public static class Program
         if (command == AtlasCommand.Name)
         {
             return AtlasCommand.Run(args[1..], output, errors);
+        }
+
+        if (command == OverworldCommand.Name)
+        {
+            return OverworldCommand.Run(args[1..], output, errors);
         }
 
         if (command == ScreensCommand.Name)
@@ -183,6 +189,7 @@ public static class Program
         errors.WriteLine($"  {ReplayIdentityCommand.Name}: ready");
         errors.WriteLine($"  {ContentHashCommand.Name}: ready");
         errors.WriteLine($"  {AtlasCommand.Name}: ready");
+        errors.WriteLine($"  {OverworldCommand.Name}: ready");
         errors.WriteLine($"  {ScreensCommand.Name}: ready");
         errors.WriteLine($"  {PictureCommand.Name}: ready");
         errors.WriteLine($"  {ChangedPathsCommand.Name}: ready");

@@ -1,0 +1,48 @@
+{
+ "id": "drawing.overworld_dead_mine_head",
+ "page": "map_sprites",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "mark.overworld_dead_mine_head", "use": "map" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "....kk..................kk......",
+    "....kk..................kk......",
+    "....kkBBkk..........kkBBkk......",
+    "....kkBBkk..........kkBBkk......",
+    "......kkBBkk......kkBBkk........",
+    "......kkBBkk......kkBBkk........",
+    "........kkBBkkkkkkBBkk..........",
+    "........kkBBkkkkkkBBkk..........",
+    "........kkBBttttttBBkk..........",
+    "........kkBBttttttBBkk..........",
+    "......kkBBkk~~~~~~kkBBkk........",
+    "......kkBBkk~~~~~~kkBBkk........",
+    "....kkBBkkkk~~~~~~kkkkBBkk......",
+    "....kkBBkkkk~~~~~~kkkkBBkk......",
+    "..kkddddkkkk~~~~~~kkkkddddkk....",
+    "..kkddddkkkk~~~~~~kkkkddddkk....",
+    "..kkddddddddkkkkkkddddddddkk....",
+    "..kkddddddddkkkkkkddddddddkk....",
+    "....kkkkkkkkkkkkkkkkkkkkkk......",
+    "....kkkkkkkkkkkkkkkkkkkkkk......",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................"
+   ]
+  }
+ ]
+}

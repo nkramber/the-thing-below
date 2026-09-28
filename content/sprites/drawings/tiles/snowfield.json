@@ -1,0 +1,48 @@
+{
+ "id": "drawing.tile_snowfield",
+ "page": "tiles",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "tile.snowfield", "use": "map" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "eeeefeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "eEeEeEeEeeeeeeeeeeeeeeeeeeeeeeee",
+    "EEEEEEEEEeweeeeeeeeeeeeeeeeeeeee",
+    "eeeeeeeeeeeeeeeeeeeeweeeeeeeeeee",
+    "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "eeeeeeeeeeeeeeeeeeeeeeeeeeeweeEe",
+    "eeeeeeeeeeeeeeeeeeeeeeeeeeEEEEEE",
+    "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "eeeeeeweeeeeeEeeeeEeeeeeeeeeeeee",
+    "eeeeeeeeeeeeEEEEEEEEeeeeeweeeEee",
+    "eEeeeeeeeeeeeeeeweeeeeeeEEEEEEEe",
+    "EEEeeeeeeefeeeeeeeeeeeeeeEEEEEEE",
+    "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "eeeEeeeeeeweeeeeeeeeeeeeeeeeeeeE",
+    "EEEEEeeeeeeeeeeeeeeeeeeeeeeeeeEE",
+    "eeeeeefeeeeeeeeeeeeeeeeeeeeeeeee",
+    "feeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "eeeeeeeeeeeeeeeeeeeeEEeeeeeeeeee",
+    "eeeeeeeeeeeeeeeeeeeEEEEEeeeeEeee",
+    "eeeeeeeeeeeeeeeeeEeeeeEEEEEEEEee",
+    "eeeeeeeeeewEeeeeEEEEEEEEeeeeeeee",
+    "eeeeeeeeeeEEEEEEEEeeeeeeeeeeeeee",
+    "eeeeeeeeeeeeeeEEEEEeeeeeeeeeeeee",
+    "eeeeeefeeeeeeeeeEEEEeeeeeeeeeeee",
+    "eeeeeefeeeeeeeeeeeeeeeeeeeeeeeee"
+   ]
+  }
+ ]
+}

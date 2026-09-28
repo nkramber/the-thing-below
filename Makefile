@@ -21,7 +21,7 @@ SKIP_GITAR_REVIEW := --skip-gitar-review
 CODEX_REVIEW_FLAGS := $(filter $(SKIP_GITAR_REVIEW),$(MAKECMDGOALS))
 
 
-.PHONY: verify where hooks build test lint format ste-check identity bots content atlas smoke sheet walk run clean codex-review screenplay evaluator-cost night-watch night-watch-install $(SKIP_GITAR_REVIEW)
+.PHONY: verify where hooks build test lint format ste-check identity bots content atlas overworld smoke sheet walk run clean codex-review screenplay evaluator-cost night-watch night-watch-install $(SKIP_GITAR_REVIEW)
 
 ## verify: every check that this machine can run.
 verify: build test format lint ste-check identity bots content atlas smoke
@@ -78,6 +78,12 @@ bots:
 # value.
 content:
 	dotnet run --project $(TOOLS_PROJECT) --no-build -- content-hash --root .
+
+## overworld: write the map of the overworld from its generator settings (D-1294, D-1295).
+# A test compares the committed map with the output, so change the settings, run this target,
+# and read the new map. `--check` compares and writes nothing.
+overworld:
+	dotnet run --project $(TOOLS_PROJECT) --no-build -- overworld --root .
 
 ## atlas: compare the committed atlas with the drawing files by pixel (D-666, G-24).
 #

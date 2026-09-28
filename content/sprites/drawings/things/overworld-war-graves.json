@@ -1,0 +1,48 @@
+{
+ "id": "drawing.overworld_war_graves",
+ "page": "map_sprites",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "mark.overworld_war_graves", "use": "map" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "....kk....kk....kk..............",
+    "....kk....kk....kk..............",
+    "..kkLLkk..kkLLkkkkLLkk....kkkk..",
+    "..kkLLkk..kkLLkkkkLLkk....kkkk..",
+    "....kkLL..kkLL..kkLL....kkqqqqkk",
+    "....kkLL..kkLL..kkLL....kkqqqqkk",
+    "..kkLLkk..kkLLkkkkLLkk..kkqqqqkk",
+    "..kkLLkk..kkLLkkkkLLkk..kkqqqqkk",
+    "....kkLL..kkLL..kkLL....kkqqkk..",
+    "....kkLL..kkLL..kkLL....kkqqkk..",
+    "....kkLL..kkLL..kkLL....kkBBBBkk",
+    "....kkLL..kkLL..kkLL....kkBBBBkk",
+    "kkeeeeeeeeeeeeeeeeeeeekkqqqqqqkk",
+    "kkeeeeeeeeeeeeeeeeeeeekkqqqqqqkk",
+    "..kkkkkkkkkkkkkkkkkkkkkkkkkkkk..",
+    "..kkkkkkkkkkkkkkkkkkkkkkkkkkkk..",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................"
+   ]
+  }
+ ]
+}

@@ -53,6 +53,25 @@ public sealed class TransitionTable
     /// <summary>The regions, in the order of the file (D-936).</summary>
     public IReadOnlyList<TransitionRegion> Regions { get; }
 
+    /// <summary>Gives one region of the table by its id (D-936, D-1285).</summary>
+    /// <param name="region">The id of the region, such as `region.one`.</param>
+    /// <returns>The region, or no value when the table holds no such region.</returns>
+    /// <exception cref="ArgumentNullException">The id is null (T-2).</exception>
+    public TransitionRegion? RegionById(ContentId region)
+    {
+        ArgumentNullException.ThrowIfNull(region);
+
+        foreach (TransitionRegion entry in this.Regions)
+        {
+            if (string.CompareOrdinal(entry.Id.Value, region.Value) == 0)
+            {
+                return entry;
+            }
+        }
+
+        return null;
+    }
+
     /// <summary>Gives the transition of one fixed kind (D-934).</summary>
     /// <param name="kind">A kind of <see cref="EncounterKinds.Fixed"/>.</param>
     /// <returns>The id of its transition.</returns>

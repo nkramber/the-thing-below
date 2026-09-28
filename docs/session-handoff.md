@@ -1,3 +1,227 @@
+## Session 385: 2026-09-28, Codex
+
+Author: Codex
+Session: repeat review PR #95 (PR-110). Repository: the-thing-below. Branch: `review/pr-95`, tracking `origin/feat/pr-110-region-one-overworld`. Role: reviewer. Base: `5e6fb493c0d92db79409109941b47078179ca544`.
+
+### What this session did, and why
+
+- Re-reviewed effective head `0d1b34b3ca7db19302ab3e4f5638185cb997d88e`. Verified D-1303's finding-round fix and its regression tests.
+- Confirmed P2-1 stays fixed. Updated `docs/reviews/pr-95.md` to approve the new head and answer the Gitar CI-analysis item about RG 5 (D-964).
+- Ran `make verify`: 4,442 tests passed with no failures or skips. CI implementation checks passed on all legs.
+
+### The state of the build
+
+- The remote effective head is `0d1b34b3ca7db19302ab3e4f5638185cb997d88e`. The local review commit `2a8c6fc4` passed review-gate, Gitar, night-gate, STE, and each implementation check.
+
+### What is in flight
+
+- The metadata commit `2a8c6fc4` is on the PR branch. The fresh Gitar dashboard approves the effective head and has no review item.
+
+### Traps and gotchas
+
+- The new head changes Tools, so the review must name it. The metadata commit leaves the effective head unchanged (D-610).
+
+### The questions that block progress
+
+None for PR-110.
+
+### The next concrete action
+
+Verify the final metadata push, then end this review session for PR #95.
+
+## Session 384: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-110, round 4. Repository: the-thing-below. Branch: `feat/pr-110-region-one-overworld`. PR: #95. Role: author. Base: `5e6fb49`.
+
+### What this session did, and why
+
+- The second Codex review, session 383, found P2-1 fixed and gave `Ready for owner merge` for `1d66127`. The `codex-review` command then gave a fault: P2-1 was closed and listed the effective head, which a fix of the description alone cannot move.
+- The owner chose to fix the tool in this PR (D-1303). `FindingRounds.CheckHeads` now accepts a closed finding at the effective head when the record before the round held it open there. The command reads that record before the review. Three tests of the finding rounds and one of the outcome are the regression tests.
+- Recorded D-1303, which revises D-929 in part, and the exception in the `pr-review` skill.
+
+### The state of the build
+
+- The tests of the review tool pass. The full checks run before the push.
+
+### What is in flight
+
+- The Gitar pass and CI of this round, then `make codex-review PR=95`, which reviews the new Tools code.
+
+### Traps and gotchas
+
+- This round moves the effective head, because it changes Tools. Gitar and the Codex review read it again.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Run the Gitar poll, wait for CI, then run `make codex-review PR=95` in the background.
+
+## Session 383: 2026-09-28, Codex
+
+Author: Codex
+Session: repeat review PR #95 (PR-110). Repository: the-thing-below. Branch: `review/pr-95`, tracking `origin/feat/pr-110-region-one-overworld`. Role: reviewer. Base: `5e6fb493c0d92db79409109941b47078179ca544`.
+
+### What this session did, and why
+
+- Re-reviewed effective head `1d6612758d84c020615d561b2f785389a901a945`. The new PR description attaches six art sheets for all 23 drawings, which closes P2-1 (D-514).
+- Updated `docs/reviews/pr-95.md` and retained the earlier verdict and finding history.
+- Read each drawing sheet. The art review evidence meets D-514, D-668, and G-25.
+
+### The state of the build
+
+- All implementation checks pass on metadata tip `67526933d7ccac94070b0962ae1fd8da5d2f2d9c`. The prior review-gate run failed RG 4 because the record still said `Changes required`.
+- The remote head before this commit is `67526933d7ccac94070b0962ae1fd8da5d2f2d9c`.
+
+### What is in flight
+
+- Publish this review record and handoff as one metadata commit. The fresh review-gate result must read this verdict.
+
+### Traps and gotchas
+
+- The review branch is `review/pr-95`. Push with `git push origin HEAD:feat/pr-110-region-one-overworld`.
+- The metadata commits leave the effective head at `1d6612758d84c020615d561b2f785389a901a945` (D-610).
+
+### The questions that block progress
+
+None for PR-110.
+
+### The next concrete action
+
+Push the metadata commit, fetch, and verify the PR head and review-gate result.
+
+## Session 382: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-110, round 3. Repository: the-thing-below. Branch: `feat/pr-110-region-one-overworld`. PR: #95. Role: author. Base: `5e6fb49`.
+
+### What this session did, and why
+
+- Answered the Gitar pass of `1d66127`: the code review approved it, and the CI analysis claimed RG 3 alone, which the reply confirmed from the log. Two comments, none that needed a change.
+- Answered P2-1 of the Codex review of session 381, full merit: the art review sheets of the 23 drawings are now in the PR description (D-514). `docs/reviews/pr-95-response.md` records it.
+
+### The state of the build
+
+- Every check of `1d66127` passes on each leg, except review-gate, which waits for the verdict.
+
+### What is in flight
+
+- The Gitar pass of this round, then `make codex-review PR=95` again.
+
+### Traps and gotchas
+
+- The commits of this round change the metadata set alone, so the effective head stays `1d66127` (D-610).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Run the Gitar poll, then run `make codex-review PR=95` in the background.
+
+## Session 381: 2026-09-28, Codex
+
+Author: Codex
+Session: review PR #95 (PR-110). Repository: the-thing-below. Branch: `review/pr-95`, tracking `origin/feat/pr-110-region-one-overworld`. Role: reviewer. Base: `5e6fb493c0d92db79409109941b47078179ca544`.
+
+### What this session did, and why
+
+- Reviewed effective head `1d6612758d84c020615d561b2f785389a901a945` against the region-one overworld scope and contracts.
+- Read every changed path, the PR comments, and the required screen-test artifact. The review found P2-1: the PR description lacks the required art review sheets for 23 drawings.
+- Recorded `Changes required` in `docs/reviews/pr-95.md`. Gitar's CI-analysis claim about RG 3 matches the job log and has the author's answer (D-964).
+
+### The state of the build
+
+- Local `make verify` passed with 4,438 tests and no skips. The implementation checks pass in CI on the effective head.
+- The remote head before this metadata commit is `1d6612758d84c020615d561b2f785389a901a945`. `review-gate` failed RG 3 before the record existed, and this record leaves RG 4 red until P2-1 closes.
+
+### What is in flight
+
+- The author must attach the required art review sheets and request a repeat review (D-582).
+
+### Traps and gotchas
+
+- The review branch is `review/pr-95`. Push with `git push origin HEAD:feat/pr-110-region-one-overworld`.
+- The current review record applies to effective head `1d6612758d84c020615d561b2f785389a901a945`.
+
+### The questions that block progress
+
+None for PR-110.
+
+### The next concrete action
+
+Attach the review sheets for the 23 drawings to the PR description, list each drawing and the commit shown, then request a repeat review.
+## Session 380: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-110, round 2. Repository: the-thing-below. Branch: `feat/pr-110-region-one-overworld`. PR: #95. Role: author. Base: `5e6fb49`.
+
+### What this session did, and why
+
+- Read the Gitar pass of `5ab1c85`: the code review approved it with no finding. Its CI analysis names RG 3 of `review-gate`, which waits for the record of the cross-provider review (T-4).
+- Took the six new baselines from the screen-test artifact of run 36377274609 (D-733): the three `region-one` frames, and the three `overworld` frames that the frosted grass changes. The author read each frame.
+
+### The state of the build
+
+- On each CI leg, the three absent baselines were the only failed tests, so each leg makes the same map as the committed one (D-1296). The replay identity passed on each leg.
+
+### What is in flight
+
+- The Gitar pass of this round, then `make codex-review PR=95`.
+
+### Traps and gotchas
+
+- The baselines of this round move the effective head, so the Gitar pass runs again.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Answer each Gitar item of this round, then run `make codex-review PR=95` in the background.
+
+## Session 379: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-110, round 1. Repository: the-thing-below. Branch: `feat/pr-110-region-one-overworld`. PR: opened by this round. Role: author. Base: `5e6fb49`.
+
+### What this session did, and why
+
+- Asked the owner each question of the layout, the terrain, the zones, the gates, and the art. D-1270 to D-1302 record the answers. D-1289 corrects a premise of the session in D-1286.
+- Built the one overworld of the game with region one at 160 by 128 (D-1274, D-1297), from a generator in Tools with a settings file (D-1294 to D-1296).
+- Added the tile kinds road, snowfield, gorge, snow peak, and bridge, the frosted grass, and the thing kind `mark` (D-1271, D-1277, D-1278, D-1302). The simulation version is 39.
+- Gave each zone its region, which names its group file and its pool (D-1285, D-1289). The fixture maps moved to `region.fixture` in the transition table.
+- Filed PR-111, the treasure of the overworld, right after PR-110 (D-1298).
+
+### The state of the build
+
+- 4,434 tests pass locally. The three new screen baselines of `region-one` come from CI (D-733), and the fixture overworld baselines change with the frosted grass.
+- The owner approved the terrain, the marks, the landmarks, and the map at each review stop of D-1287.
+
+### What is in flight
+
+- The first push, the Gitar pass, and the new baselines from the screen-test artifact.
+
+### Traps and gotchas
+
+- Never edit the rows of `content/rules/maps/overworld.json` by hand. Change `content/worldgen/overworld.json`, run `make overworld`, and read the map. A test fails a hand edit.
+- The generator uses integer math and PCG streams alone, so each CI leg makes the same map.
+- The content set reads the settings file only when it is present. The generator test reads the checkout file itself.
+- Python stays out of the repository (D-406). The draft scripts of this session lived in the scratchpad alone.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push, run the Gitar poll, then commit the CI baselines of the screen-test artifact after reading each frame.
+
 ## Session 378: 2026-09-28, Codex
 
 Author: Codex
@@ -99,237 +323,3 @@ None for PR-35.
 ### The next concrete action
 
 Run `make where`, `make ste-check`, and `git diff --cached --check`. Commit the review record and handoff files, push, then verify the remote head and checks.
-
-## Session 375: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-35, round 1. Repository: the-thing-below. Branch: `feat/pr-35-region-map`. PR: #93. Role: author. Base: `9d1d73f`.
-
-### What this session did, and why
-
-- The owner answered OQ-251 and OQ-122: a walkable overworld at the scale of Final Fantasy VI replaces the node map (D-1242 to D-1258). D-113 is superseded, and D-37, D-224, D-430, and D-543 are revised in part.
-- PR-35 builds the overworld: the map kind, four tile kinds, the entrance, the gate with its notice, the exit marker, and the autosave on the entry (D-1243, D-1246, D-1255 to D-1257). The fixture overworld joins the fixture dungeon and the fixture hub.
-- PR-109 (the invisible encounters) and PR-110 (the overworld of region one) join Phase 2 (D-1248, D-1254).
-- Each bot policy has its own tick budget: greedy 13,665, random 2,349. The greedy counts of CI and the night job are halved (D-1259, D-1260). OQ-254 holds the wipe loop of the greedy bot.
-- The greedy path now crosses no exit or entrance except its target, with a regression test.
-
-### The state of the build
-
-- CI run 36359224796 on `5799c14` passed the bots, the smoke, the replay identity, the det-lint, and the STE jobs on each leg. The tests failed on the three absent `overworld` baselines alone. The simulation version is 37.
-- The author read each frame of `make sheet FIXTURE=overworld`.
-
-### What is in flight
-
-- Gitar approved `5799c14` with no thread, and a PR comment answers its claim on RG 3. The second push adds the three `overworld` baselines and 12 hub baselines from the CI artifact: the hub exit now draws on the east wall of the yard (D-733). All 153 CI captures match them. Then `make codex-review PR=93`.
-
-### Traps and gotchas
-
-- The rats trigger of the hub sits on (18,10), and the capture walks cross row 5. The hub exit sits on (18,6) to stay off both.
-- The greedy bot can loop on a wipe after a save at the waystone with a hurt party. About one dungeon run in five plays its whole budget (OQ-254). The owner first chose a reset on a reload, and the session measured it, found no gain, and removed it (D-1260).
-
-### The questions that block progress
-
-None for PR-35.
-
-### The next concrete action
-
-Run the Gitar poll of the second push, wait for its checks, then run `make codex-review PR=93` in the background (D-926).
-
-## Session 374: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-64, round 4. Repository: the-thing-below. Branch: `feat/pr-64-traps-hazards`. PR: #92. Role: author. Base: `b7eb8bc`.
-
-### What this session did, and why
-
-- The repeat review approved the effective head `fe1c5ec7`: `Ready for owner merge`, with no open finding (T-4, D-17). The record is `docs/reviews/pr-92.md`, in `65b4053`.
-- Gitar approved `fe1c5ec7` with no thread. Each CI claim on RG 3 to RG 5 has its answer in a PR comment (D-964).
-
-### The state of the build
-
-- CI on `fe1c5ec7` passed each job except the review-gate, which the record now answers.
-- The remote head before this push is `65b4053`, the review record.
-
-### What is in flight
-
-- The checks and the Gitar pass of this metadata commit, then the merge question to the owner (D-933, D-942). The PR then waits for the auto-merge (D-930).
-
-### Traps and gotchas
-
-- The review commit adds a handoff entry of its own, so the author reads the top number again before each entry.
-
-### The questions that block progress
-
-None for PR-64. OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Ask the owner to confirm the merge with the summary of D-942, then turn on the auto-merge (D-930).
-
-## Session 373: 2026-09-27, Codex
-
-Author: Codex
-Session: repeat review PR #92 (PR-64). Repository: the-thing-below. Branch: `review/pr-92`, tracking `origin/feat/pr-64-traps-hazards`. Role: reviewer. Base: `b7eb8bc`.
-
-### What this session did, and why
-
-- Re-reviewed the fix for P2-1 at effective head `fe1c5ec77e990e82d4f74510e51e07ed0e343926`.
-- The damage trap posts the down notice when one fighter falls and another stands. The wipe case posts no extra down notice (D-392, D-397, D-1241).
-- Updated `docs/reviews/pr-92.md` to close P2-1 and approve the effective head. The new down-notice test fails on `869cc599`.
-- Read the Gitar CI claim. The author answered both review-gate faults, and the log confirms them (D-964).
-
-### The state of the build
-
-- `TrapRulesTests` passed 19/19 on `fe1c5ec7`. The CI implementation checks passed on all three systems.
-- The remote implementation head is `fe1c5ec77e990e82d4f74510e51e07ed0e343926`. The review-gate check waits for this metadata commit.
-
-### What is in flight
-
-- Commit the review record and this handoff entry as one metadata commit. Push to `feat/pr-64-traps-hazards`, then verify the remote head and review-gate result.
-
-### Traps and gotchas
-
-- The full `make sheet` fails in the join, because the sheet passes 65535 rows. `make sheet FIXTURE=pit` joins one fixture.
-- The detached base test at `869cc599` used the two new tests. The down-notice test failed there, as required.
-
-### The questions that block progress
-
-None for PR-64. OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Run `make where` and `make ste-check`. Commit the review record and handoff, push with `git push origin HEAD:feat/pr-64-traps-hazards`, then fetch and verify the PR head.
-
-## Session 372: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-64, round 3. Repository: the-thing-below. Branch: `feat/pr-64-traps-hazards`. PR: #92. Role: author. Base: `b7eb8bc`.
-
-### What this session did, and why
-
-- Gitar approved `869cc59` with no thread. A PR comment answers its RG 3 claim again (D-964).
-- The review of `869cc59` gave `Changes required` with one finding, P2-1: a damage trap that downs a fighter posted no notice of the down.
-- P2-1 has full merit. A damage trap now posts `notice.fell_on_map` after its own notice when a fighter goes down and the party does not wipe. Two tests of `TrapRulesTests` prove it, and the first fails on `869cc59`. `docs/reviews/pr-92-response.md` records the answer.
-
-### The state of the build
-
-- Local: the build, 4271 tests, format, det-lint, and the replay identity pass.
-- The remote head before this push is `33bca20`, the review record.
-
-### What is in flight
-
-- The CI and the Gitar pass of this push, then the repeat review with `make codex-review PR=92` (D-926).
-
-### Traps and gotchas
-
-- The full `make sheet` fails in the join, because the sheet passes 65535 rows. `make sheet FIXTURE=pit` joins one fixture.
-
-### The questions that block progress
-
-None for PR-64. OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Wait for green CI and the Gitar pass on this head, then run `make codex-review PR=92` in the background.
-
-## Session 371: 2026-09-27, Codex
-
-Author: Codex
-Session: review PR #92 (PR-64). Repository: the-thing-below. Branch: `review/pr-92`, tracking `origin/feat/pr-64-traps-hazards`. Role: reviewer. Base: `b7eb8bc`.
-
-### What this session did, and why
-
-- Reviewed effective head `869cc599ee1c3c9e4fc4412a66f311af16b7788a`, the traps, hazards, map status effects, wipe, saves, and HUD (D-1226 to D-1241).
-- Inspected all 92 changed baseline frames in CI artifact `screen-captures`. No visual fault was found.
-- Wrote `docs/reviews/pr-92.md` with `Changes required` for the effective head. P2-1 finds a missing down notice when a damage trap downs a fighter but does not wipe the party.
-- Answered the review-gate evidence in the review record. RG 3 failed before publication because the record was absent (D-964).
-
-### The state of the build
-
-- Local `make verify` passed with 4,269 tests and no skips.
-- CI run 36347245729 passed each implementation job on the effective head. The review-gate result awaits the metadata commit.
-- The first remote metadata head was `0250ca3f9f982a46843da5d7120c7e531760b578`. The effective head remains `869cc599ee1c3c9e4fc4412a66f311af16b7788a`.
-
-### What is in flight
-
-- The author must correct P2-1. Then repeat the review of the new effective head (D-582).
-
-### Traps and gotchas
-
-- The review branch is `review/pr-92`; push with `git push origin HEAD:feat/pr-64-traps-hazards`.
-- The full `make sheet` join exceeds 65,535 rows. The CI capture artifact holds the frames.
-
-### The questions that block progress
-
-None for PR-64. OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Wait for the author correction, then review its regression test and update this review record.
-
-## Session 370: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-64, round 2. Repository: the-thing-below. Branch: `feat/pr-64-traps-hazards`. PR: #92. Role: author. Base: `b7eb8bc`.
-
-### What this session did, and why
-
-- Gitar approved `8d652b0` with no thread. Its CI analysis named the RG 3 fault, which waits for the review record, and a PR comment answers it (D-964).
-- CI run 36346460741 passed each job except the screen-test job. The 91 changed frames show the snow, the ice, or the new `pit-trap-1x` frame. The two frames of the battle pointer change in 12 and 27 pixels, because the `ui` page grew with the faces.
-- This round commits the 92 baselines of the capture artifact of that run (D-733). The captures of the artifact match them.
-
-### The state of the build
-
-- The remote head before this push is `8d652b0`.
-
-### What is in flight
-
-- The CI of this push and its Gitar pass, then `make codex-review PR=92` (D-926).
-
-### Traps and gotchas
-
-- The full `make sheet` fails in the join, because the sheet passes 65535 rows. `make sheet FIXTURE=pit` joins one fixture.
-
-### The questions that block progress
-
-None for PR-64. OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Wait for green CI and the Gitar pass on this head, then run `make codex-review PR=92` in the background.
-
-## Session 369: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-64, round 1. Repository: the-thing-below. Branch: `feat/pr-64-traps-hazards`. PR: the PR-64 intent, with no GitHub number before the push. Role: author. Base: `b7eb8bc`.
-
-### What this session did, and why
-
-- The owner answered OQ-119, OQ-120, and the batches of detail: D-1226 to D-1241, with the look of the ice and the text batch.
-- Core: a trap fires one time on the arrival of the lead: a share of full health, a lasting status, or a fight in which the enemies act first. The memory of the map keeps it spent (D-1226, D-1229 to D-1231). A Theft drill shows a trap at 2 steps, and a confirm disarms it (D-1228).
-- Core: deep snow doubles a step, and ice slides the lead until a stop. A load check proves that each field of ice has a way out (D-1232, D-1233).
-- Core: each 60 world ticks, poison hurts each poisoned character, the reserve included, and bad air hurts each fighter. A down of each fighter holds a wipe on the map (D-397, D-1234 to D-1236). Save format 19, simulation version 36.
-- Game: the map HUD at the top left, the trap looks, the drain of a wipe on the map, and the frame `pit-trap-1x`. The art holds 3 tiles, 2 trap looks, and 5 faces (D-1237 to D-1239).
-
-### The state of the build
-
-- Local: the build, 4269 tests, format, det-lint, content, identity, atlas, smoke, and the bots pass. `make sheet` wrote every frame, and its joined sheet passes the PNG height limit, so the session read the frames alone.
-- The remote head before this push is `b7eb8bc`, the base.
-
-### What is in flight
-
-- The first push, the PR, the Gitar poll, and the screen baselines from the capture artifact of CI.
-
-### Traps and gotchas
-
-- `RunState.MapWiped` comes from the party alone: no battle and no fighter who stands. A test that downs the only fighter on the map now meets a wipe, so two item tests take a partner.
-- The owner chose darker snow and ice (D-1240). The ice now sits in the dark, and the snow on a base of snow shade still reads pale.
-- The full `make sheet` fails in the join, because the sheet passes 65535 rows. `make sheet FIXTURE=pit` joins one fixture.
-
-### The questions that block progress
-
-None for PR-64. OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Push, open the PR, run the Gitar poll, and then commit the baselines of CI.

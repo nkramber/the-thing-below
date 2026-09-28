@@ -1,0 +1,6 @@
+{
+ "comment": "The decor pieces of the overworld (D-844). No rule reads a piece, so this file stays out of the content hash (D-495). The terrain tiles and the marks of the places draw the overworld, which holds no piece yet.",
+ "map": "map.overworld",
+ "pieces": [],
+ "shafts": []
+}

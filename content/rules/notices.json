@@ -19,6 +19,11 @@
   { "id": "notice.trap_silence", "log": false },
   { "id": "notice.trap_disarmed", "log": false },
   { "id": "notice.fell_on_map", "log": true },
-  { "id": "notice.fixture_gate_shut", "log": false }
+  { "id": "notice.fixture_gate_shut", "log": false },
+  { "id": "notice.overworld_town_road", "log": false },
+  { "id": "notice.overworld_mine_mouth", "log": false },
+  { "id": "notice.overworld_sealed_door", "log": false },
+  { "id": "notice.overworld_road_up", "log": false },
+  { "id": "notice.overworld_village_road", "log": false }
  ]
 }

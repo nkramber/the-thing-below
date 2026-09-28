@@ -1,0 +1,48 @@
+{
+ "id": "drawing.tile_road",
+ "page": "tiles",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "tile.road", "use": "map" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "BbbBBBbbtBBBbEbbbbbEbbbbbbbbtbBB",
+    "bbbbbbbbbbbbbbbBBbbbbbbbbbbbbbbb",
+    "BBBbbbbbbbbbbbbbbbbbbbbblgbbbbbB",
+    "bbbBBBBbbbbbbbbbbbbbbbbBBtBBbbbb",
+    "EbbbbbbbbbbbbbbbbbtbbbbbbbbbEEbb",
+    "bbbbbbbbbbbbbbtbbbbbbtbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbBBBBbbbbbBBBBB",
+    "bbbbbbbbbbbbbBBBBBBBBbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbE",
+    "bbbbbbbbBBBBBBbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bblgbbbbbbbbbbBBBBBbbbbbbbbbbbbb",
+    "tBBBBbbbBBBBBtBBBBBbbbbbbbbEbbbb",
+    "BbblgbbEbbbbbbbbbbbbbbbBBBBBbBBE",
+    "bbEbblgbbbbbEbbbbbbbbbbbBBBBbbbb",
+    "bbbbbbbbbbbbbbbbtbblgbbbbbbbbbbb",
+    "bbbbbbbbbbbEbbbbbbEbbbbbbbEbEbbb",
+    "btbbbbbbbbbtbbbtbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbtb",
+    "tbbbbbbbbbbbBBblgbbEbbbbbbBBBBBb",
+    "bbbbbbbbbbbbbBEBtBBBbbbbbbbtbbbb",
+    "bbbbbbbBBBBbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbBBBbbbbbbbbbbbb",
+    "bbbBBbbbbbbbbbbbbbbbbbbbbbBBBBbb",
+    "bbbbbbbbEbbBBBBbbbbbbbbbbbBBlgbb",
+    "bbbbbbBBBBBbBBBBBbbbbbbbbbbbbbbb",
+    "bbbbbbbBBBBbEbBBbbbbbbbbbbbbbbbb",
+    "bbbblgbbbEbbbbbbbbbbbbtbbbbbEbbb",
+    "bbbbbbbbbbbbbbbBBBBBbbbbbbbEbbbb",
+    "BbtbbbbbbbbbbbbbbbbbbbbbbtbbEbbB",
+    "BBbbbbbtbbbbbbbbbbbbbbbbEbbbbbBB",
+    "bbbbbbbbblgbbbbbbbbbbbbbbbbbbblg"
+   ]
+  }
+ ]
+}

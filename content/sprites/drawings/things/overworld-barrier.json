@@ -1,0 +1,50 @@
+{
+ "id": "drawing.overworld_barrier",
+ "page": "map_sprites",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "gate.overworld_town_road", "use": "map" },
+  { "content": "gate.overworld_road_up", "use": "map" },
+  { "content": "gate.overworld_village_road", "use": "map" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "...k........................k...",
+    "..ktk......................ktk..",
+    "..ktk......................ktk..",
+    ".kBBBk....................kBBBk.",
+    ".ktBbRk..................kktBbk.",
+    ".ktBbkrk................ktktBbk.",
+    ".ktBbkkkkkkkkkkkkkkkkkkktBktBbk.",
+    ".ktttttttttttttttttttttttttttbk.",
+    ".ktBGBbBBBBBbBBBBBbBBBBBbBBBGbk.",
+    ".ktbbbbbbbbbbbbbbbbbbbbbbbbbbbk.",
+    ".ktBbkkkkkkkkkkkkkktBbbkkkktBbk.",
+    ".ktBbk..........kttBbkk...ktBbk.",
+    ".ktBbk.........ktBBbk.....ktBbk.",
+    ".ktBbk.......kktBbbk......ktBbk.",
+    ".ktBbkkkkkkkkttBbkkkkkkkkkktBbk.",
+    ".ktttttttttttttttttttttttttttbk.",
+    ".ktBGBbBBBBBbBBBBBbBBBBBbBBBGbk.",
+    ".ktbbbbbbbbbbbbbbbbbbbbbbbbbbbk.",
+    ".ktBbkkktBBbkkkkkkkkkkkkkkktBbk.",
+    ".ktBbkttBbbk..............ktBbk.",
+    ".ktBbkBBbkk...............ktBbk.",
+    ".ktBbkbbk.................ktBbk.",
+    ".ktBbkkk..................ktBbk.",
+    ".ktBbk....................ktBbk.",
+    "kHHkkhk..................khkkHHk",
+    ".kk..k....................k..kk.",
+    "................................"
+   ]
+  }
+ ]
+}

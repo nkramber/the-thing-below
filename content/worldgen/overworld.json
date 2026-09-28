@@ -1,0 +1,49 @@
+{
+ "comment": "The settings of the generator of the overworld (D-1294, D-1295). The `overworld` command of Tools reads them and writes the terrain rows, the zone grid, and the tile of each thing into the map file, and a test proves that the committed map matches. Each basin is an ellipse whose edge the noise of the seed moves, and a thin band of the noise inside it turns to rock ridges that split the middle of the land (D-1300). Rivers and lakes lie on the land, and the road crosses a river on a bridge (D-1302). The low pass joins the low land to the valley, and the high pass joins the valley to the pass, each one tile wide and winding. Each thing names the tile near which the generator puts it, and the mine gate and the sealed door take the mouth of the notch of their mark. A fix sets one tile after every other step, so a small change after a playtest survives each regenerate. No rule reads this file, so it stays out of the content hash (D-495).",
+ "map": "map.overworld",
+ "seed": 1293,
+ "width": 160,
+ "height": 128,
+ "basins": [
+  { "name": "low", "land": "low", "x": 72, "y": 101, "rx": 62, "ry": 22 },
+  { "name": "valley", "land": "valley", "x": 52, "y": 56, "rx": 42, "ry": 18 },
+  { "name": "pass", "land": "pass", "x": 70, "y": 16, "rx": 44, "ry": 12 },
+  { "name": "refuge", "land": "valley", "x": 122, "y": 54, "rx": 14, "ry": 10 }
+ ],
+ "passes": [
+  { "from": "low", "to": "valley", "x": 62, "zig": 8 },
+  { "from": "valley", "to": "pass", "x": 58, "zig": -6 }
+ ],
+ "south_x": 80,
+ "ridge": 70,
+ "rocks": 710,
+ "gorge": { "x": 100, "top": 32, "bottom": 80 },
+ "lakes": [
+  { "x": 102, "y": 104, "rx": 12, "ry": 6 },
+  { "x": 30, "y": 62, "rx": 6, "ry": 4 }
+ ],
+ "rivers": [
+  { "from_x": 140, "from_y": 96, "to_x": 104, "to_y": 104 },
+  { "from_x": 14, "from_y": 48, "to_x": 88, "to_y": 66 }
+ ],
+ "things": [
+  { "role": "spawn", "id": "spawn_point.overworld_start", "x": 52, "y": 100 },
+  { "role": "village", "id": "mark.overworld_village", "x": 48, "y": 98 },
+  { "role": "town", "id": "mark.overworld_town", "x": 54, "y": 54 },
+  { "role": "fort", "id": "mark.overworld_fort", "x": 64, "y": 18 },
+  { "role": "ice_crossing", "id": "mark.overworld_ice_crossing", "x": 74, "y": 0 },
+  { "role": "mine", "id": "mark.overworld_mine", "x": 10, "y": 52 },
+  { "role": "mine_gate", "id": "gate.overworld_mine_mouth" },
+  { "role": "gallery", "id": "mark.overworld_gallery", "x": 96, "y": 58 },
+  { "role": "sealed_door", "id": "gate.overworld_sealed_door" },
+  { "role": "refuge", "id": "mark.overworld_refuge", "x": 122, "y": 54 },
+  { "role": "town_road", "id": "gate.overworld_town_road", "x": 62, "y": 82 },
+  { "role": "village_road", "id": "gate.overworld_village_road", "x": 62, "y": 74 },
+  { "role": "road_up", "id": "gate.overworld_road_up", "x": 58, "y": 34 },
+  { "role": "broken_waystone", "id": "mark.overworld_broken_waystone", "x": 84, "y": 44 },
+  { "role": "dead_mine_head", "id": "mark.overworld_dead_mine_head", "x": 20, "y": 110 },
+  { "role": "war_graves", "id": "mark.overworld_war_graves", "x": 128, "y": 112 },
+  { "role": "bandit_lookout", "id": "mark.overworld_bandit_lookout", "x": 90, "y": 10 }
+ ],
+ "fixes": []
+}

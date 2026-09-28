@@ -1,0 +1,48 @@
+{
+ "id": "drawing.overworld_sealed_door",
+ "page": "map_sprites",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "gate.overworld_sealed_door", "use": "map" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "..kkkkkkkkkkkkkkkkkkkkkkkkkkkk..",
+    "..kkkkkkkkkkkkkkkkkkkkkkkkkkkk..",
+    "kkHHhhhhhhhhhhhhhhhhhhhhhhhhHHkk",
+    "kkHHhhhhhhhhhhhhhhhhhhhhhhhhHHkk",
+    "kkHHhhkkkkkkkkkkkkkkkkkkkkhhHHkk",
+    "kkHHhhkkkkkkkkkkkkkkkkkkkkhhHHkk",
+    "kkHHhhkkggGGGGGGGGGGGGggkkhhHHkk",
+    "kkHHhhkkggGGGGGGGGGGGGggkkhhHHkk",
+    "kkHHhhkkggkkkkkkkkkkkkggkkhhHHkk",
+    "kkHHhhkkggkkkkkkkkkkkkggkkhhHHkk",
+    "kkHHhhkkggGGGGGGkkGGGGggkkhhHHkk",
+    "kkHHhhkkggGGGGGGkkGGGGggkkhhHHkk",
+    "kkHHhhkkggGGGGkkOOkkGGggkkhhHHkk",
+    "kkHHhhkkggGGGGkkOOkkGGggkkhhHHkk",
+    "kkHHhhkkggGGGGGGkkGGGGggkkhhHHkk",
+    "kkHHhhkkggGGGGGGkkGGGGggkkhhHHkk",
+    "kkHHhhkkggkkkkkkkkkkkkggkkhhHHkk",
+    "kkHHhhkkggkkkkkkkkkkkkggkkhhHHkk",
+    "kkHHHHkkkkkkkkkkkkkkkkkkkkHHHHkk",
+    "kkHHHHkkkkkkkkkkkkkkkkkkkkHHHHkk",
+    "..kkkkkkkkkkkkkkkkkkkkkkkkkkkk..",
+    "..kkkkkkkkkkkkkkkkkkkkkkkkkkkk..",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................"
+   ]
+  }
+ ]
+}

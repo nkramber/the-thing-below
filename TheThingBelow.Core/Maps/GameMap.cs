@@ -1177,9 +1177,9 @@ public sealed class GameMap
                 throw reader.Refuse($"the map is an overworld, and it holds the exit '{thing.Id.Value}'. The party leaves the overworld through an entrance (D-1243)");
             }
 
-            if (map.Kind != MapKind.Overworld && (thing.Kind == MapThingKind.Entrance || thing.Kind == MapThingKind.Gate))
+            if (map.Kind != MapKind.Overworld && (thing.Kind == MapThingKind.Entrance || thing.Kind == MapThingKind.Gate || thing.Kind == MapThingKind.Mark))
             {
-                throw reader.Refuse($"the map is a {name}, and it holds the {MapThingKinds.NameOf(thing.Kind)} '{thing.Id.Value}'. An overworld alone holds entrances and gates (D-1243)");
+                throw reader.Refuse($"the map is a {name}, and it holds the {MapThingKinds.NameOf(thing.Kind)} '{thing.Id.Value}'. An overworld alone holds entrances, gates, and marks (D-1243, D-1271)");
             }
         }
     }

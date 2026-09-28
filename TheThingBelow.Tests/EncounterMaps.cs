@@ -28,7 +28,7 @@ public static class EncounterMaps
     public const int EastColumn = 7;
 
     /// <summary>The road at rate zero, on the column of the entrance, the spawn, and the marker.</summary>
-    private const string Road = """{ "id": "zone.test_road", "key": "r", "rate": 0, "groups": [], "condition": { "always": true } }""";
+    private const string Road = """{ "id": "zone.test_road", "key": "r", "region": "region.test", "rate": 0, "groups": [], "condition": { "always": true } }""";
 
     /// <summary>The zone grid of each test overworld: the road on the west column, and the zone `z` east of it.</summary>
     public static readonly string[] Grid = [".........", ".rzzzzzz.", ".rzzzzzz.", ".rzzzzzz.", "........."];
@@ -72,13 +72,13 @@ public static class EncounterMaps
     /// <param name="groups">The JSON array of the groups.</param>
     /// <returns>The object.</returns>
     public static string Zone(int rate, string groups) =>
-        $$"""{ "id": "zone.test_wild", "key": "z", "rate": {{rate}}, "groups": {{groups}}, "condition": { "always": true } }""";
+        $$"""{ "id": "zone.test_wild", "key": "z", "region": "region.test", "rate": {{rate}}, "groups": {{groups}}, "condition": { "always": true } }""";
 
     /// <summary>Gives the JSON object of a zone with the key `z` that runs while the zone flag is on.</summary>
     /// <param name="rate">The rate, in basis points.</param>
     /// <returns>The object, whose one group is `group.one`.</returns>
     public static string FlaggedZone(int rate) =>
-        $$"""{ "id": "zone.test_wild", "key": "z", "rate": {{rate}}, "groups": [{ "group": "group.one", "weight": 1 }], "condition": { "flag": "{{ZoneFlag}}" } }""";
+        $$"""{ "id": "zone.test_wild", "key": "z", "region": "region.test", "rate": {{rate}}, "groups": [{ "group": "group.one", "weight": 1 }], "condition": { "flag": "{{ZoneFlag}}" } }""";
 
     /// <summary>Reads an overworld from its text.</summary>
     /// <param name="text">The text of the map file.</param>

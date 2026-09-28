@@ -1,0 +1,5 @@
+{
+ "comment": "The groups of region one (D-535, D-957). The file holds no group yet, so that the overworld of PR-110 loads with its zones at rate 0 (D-1284, D-1289). PR-17 writes the enemies and the groups of region one here.",
+ "region": "region.one",
+ "groups": []
+}

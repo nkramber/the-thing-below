@@ -1,0 +1,48 @@
+{
+ "id": "drawing.overworld_broken_waystone",
+ "page": "map_sprites",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "mark.overworld_broken_waystone", "use": "map" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "..........kkkk..................",
+    "..........kkkk..................",
+    "........kkLLLLkk....kkkk........",
+    "........kkLLLLkk....kkkk........",
+    "........kkLLllkk..kkLLllkk......",
+    "........kkLLllkk..kkLLllkk......",
+    "........kkLLllkk..kkLLLLkk......",
+    "........kkLLllkk..kkLLLLkk......",
+    "........kkLLllkkkkkkLLllkk......",
+    "........kkLLllkkkkkkLLllkk......",
+    "........kkGGllkkeekkGGGGkk......",
+    "........kkGGllkkeekkGGGGkk......",
+    "......kkeeeeeeeeeeeeeeeeeekk....",
+    "......kkeeeeeeeeeeeeeeeeeekk....",
+    "....kkeeeeeeeeeeeeeeeeeeeeeekk..",
+    "....kkeeeeeeeeeeeeeeeeeeeeeekk..",
+    "......kkkkkkkkkkkkkkkkkkkkkk....",
+    "......kkkkkkkkkkkkkkkkkkkkkk....",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................"
+   ]
+  }
+ ]
+}

@@ -26,13 +26,32 @@ The land of the old crown lies beyond the high pass, and the enemy crown came up
 
 A mine gallery from before the war runs under the gorge (D-251). The guild sealed it, and the old faith keeps the far end. The sealed door is a gate of the overworld (D-1243). The party flees through the gallery to the refuge late in region one (D-331). A second passage lets the party and the church wardens pass each other in it (D-343). The gallery is the fifth dungeon of region one (D-575).
 
+## The overworld of region one
+
+The party walks between the places on one overworld (D-1242, D-1274). On it, the road climbs north from the foothills past the village to the mining town (D-1276). It then climbs on to the border fort and the ice crossing. The deep mine lies west of the town, and the gorge lies east of it. The refuge sits on the far cliff, and the sealed gallery alone reaches it (D-1279, D-1280).
+
+Five gates hold the story on the overworld (D-1281):
+
+- The road to the town opens when Bergit joins.
+- The mouth of the deep mine opens when Ottild joins.
+- The sealed door of the gallery opens at the breakout.
+- The road up to the pass opens at the night pass.
+- The way down to the village shuts at the breakout, because of the risk of arrest.
+
+Four landmarks stand off the road (D-1299):
+
+- A waystone that the church smashed.
+- A dead mine head of the guild.
+- War graves with a burned farmstead.
+- A bandit lookout above the road to the pass.
+
 ## The village
 
 - Kind: a small start area of a few houses, with story scenes and people, and no shop or rest service (D-369).
 - Place: on the road in, below the high valley, a short walk from the mining town (D-371). The supply road of the occupier passes it.
 - Marrek grew up here, and his parent walked from here to work the deep mine (D-368).
 - Marrek fights hungry winter beasts near the village alone, and Bergit, who guards the road for coin, finds him there (D-370, D-372, D-373).
-- Region one never returns to the village, because the flight at the end climbs away from it (D-371).
+- The story of region one never returns to the village, because the flight at the end climbs away from it (D-371). The player can walk back until the breakout (D-1281).
 
 ## The mining town
 

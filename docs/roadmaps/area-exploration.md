@@ -235,7 +235,7 @@ Built by PR-65. Phase file: `phase-2-first-playable.md`.
 
 ### 7.13 The overworld
 
-Built by PR-35, PR-109, and PR-110. Phase file: `phase-2-first-playable.md`.
+Built by PR-35, PR-109, PR-110, and PR-111. Phase file: `phase-2-first-playable.md`.
 
 - The overworld is a walkable map between the places, at the scale of Final Fantasy VI. The map shows the lead alone, and a place is a small mark (D-1242, D-1245).
 - The overworld is a map file of the kind `overworld`, with the terrain and the things of every map (D-1243).
@@ -247,7 +247,13 @@ Built by PR-35, PR-109, and PR-110. Phase file: `phase-2-first-playable.md`.
 - PR-109 adds the invisible encounters: a step counter, and zones that name a rate, a weighted list of groups, and a condition (D-1247 to D-1251, D-1269).
 - A zone grid marks the zone of each walkable tile. Each step onto a live zone adds its rate to the danger count of the run, and draws against it (D-1261, D-1262).
 - A safe zone and a visit to a place keep the count, and an encounter sets it to zero. An encounter of a zone has no side from behind (D-1263 to D-1266).
-- PR-110 lays out the overworld of region one from `docs/world/places.md` (D-250, D-255, D-371, D-1244).
+- The game has one overworld, and each region adds its land at an edge. Region one takes 160 tiles by 128 (D-1274, D-1297).
+- A generator in Tools writes the land from a settings file, and a test proves that the map matches it (D-1294 to D-1296).
+- Rock ridges, rivers, and lakes split the middle of the land, and side routes lead off the road (D-1293, D-1300, D-1301).
+- The road crosses a river on a bridge (D-1302).
+- A place with no map yet is a mark, which the lead walks over. The PR of the place makes it an entrance (D-1270 to D-1272).
+- Four side landmarks stand off the road, and PR-111 hides treasure in the side routes (D-1298, D-1299).
+- Each zone names its region, which gives its groups and its pool of transitions (D-1285, D-1289).
 
 > *In plain English:* between places the party walks a small map of the region, as in Final Fantasy VI. The story opens and closes its roads.
 
@@ -267,7 +273,8 @@ Built by PR-35, PR-109, and PR-110. Phase file: `phase-2-first-playable.md`.
 | PR-65 | The shop and the gold economy | D-60, D-530, D-1149 to D-1161 |
 | PR-35 | The overworld, its entrances, its gates, and its autosave | D-1242 to D-1246 |
 | PR-109 | The invisible encounters of the overworld: the step counter and the zones | D-1247 to D-1251 |
-| PR-110 | The overworld of region one | D-250, D-255, D-371, D-1244 |
+| PR-110 | The overworld of region one, its generator, its marks, its gates, and the region of each zone | D-1270 to D-1302 |
+| PR-111 | The treasure of the overworld | D-1298 |
 | PR-21 | The switches, the blocks, the light and dark, and the secrets | D-41 |
 | PR-17 | The village, the land near it, the mining town, and the hanging cells | D-313, D-362, D-369 |
 | PR-23 to PR-27 | The deep mine, the second visit to the cells, the border fort, the ice crossing, and the second hub, the refuge | D-313, D-327, D-574 |

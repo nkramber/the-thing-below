@@ -101,6 +101,72 @@ public sealed class EncounterLoadTests
     }
 
     [Fact]
+    public void AZoneWithNoRegionFailsTheLoad()
+    {
+        // D-1286, T-2: the region of a zone is required, as its condition is.
+        ContentException error = Assert.Throws<ContentException>(() => ContentSet.Load(Changed(
+            OverworldPath,
+            """{ "id": "zone.fixture_overworld_road", "key": "r", "region": "region.fixture", """,
+            """{ "id": "zone.fixture_overworld_road", "key": "r", """)));
+
+        Assert.Contains(OverworldPath, error.Message, StringComparison.Ordinal);
+        Assert.Contains("region", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AZoneOfARegionThatTheTableLacksNamesTheFileAndTheZone()
+    {
+        // D-1285, D-1286: a common fight of a zone takes the pool of its region, so the table
+        // holds the region. Region two gets a group file, so the table check alone speaks.
+        List<ContentFile> files = Changed(
+            OverworldPath,
+            """{ "id": "zone.fixture_overworld_road", "key": "r", "region": "region.fixture", """,
+            """{ "id": "zone.fixture_overworld_road", "key": "r", "region": "region.two", """);
+        files.Add(new ContentFile("rules/groups/two.json", System.Text.Encoding.UTF8.GetBytes("""{ "comment": "c", "region": "region.two", "groups": [] }""")));
+
+        ContentException error = Assert.Throws<ContentException>(() => ContentSet.Load(files));
+
+        Assert.Contains(OverworldPath, error.Message, StringComparison.Ordinal);
+        Assert.Contains("zones.zone.fixture_overworld_road", error.Message, StringComparison.Ordinal);
+        Assert.Contains("region.two", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AZoneTakesItsGroupsFromTheGroupFileOfItsOwnRegion()
+    {
+        // D-1289: the fixture group of a zone of region one fails, because the group file of
+        // region one holds no such group, although the map of the zone lies in the fixture region.
+        ContentException error = Assert.Throws<ContentException>(() => ContentSet.Load(Changed(
+            OverworldPath,
+            """
+               "key": "g",
+               "region": "region.fixture",
+            """,
+            """
+               "key": "g",
+               "region": "region.one",
+            """)));
+
+        Assert.Contains("zones.zone.fixture_overworld_grass", error.Message, StringComparison.Ordinal);
+        Assert.Contains("rules/groups/one.json", error.Message, StringComparison.Ordinal);
+        Assert.Contains("group.fixture_pair", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AZoneOfARegionWithNoGroupFileNamesTheFileAndTheZone()
+    {
+        // D-957, D-1289: the region of a zone names a group file.
+        ContentException error = Assert.Throws<ContentException>(() => ContentSet.Load(Changed(
+            OverworldPath,
+            """{ "id": "zone.fixture_overworld_road", "key": "r", "region": "region.fixture", """,
+            """{ "id": "zone.fixture_overworld_road", "key": "r", "region": "region.absent", """)));
+
+        Assert.Contains(OverworldPath, error.Message, StringComparison.Ordinal);
+        Assert.Contains("zones.zone.fixture_overworld_road", error.Message, StringComparison.Ordinal);
+        Assert.Contains("region.absent", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void AZoneWithAnUndeclaredFlagNamesTheFileAndTheZone()
     {
         // D-543, D-1251: the zone joins the readers of the one condition form.

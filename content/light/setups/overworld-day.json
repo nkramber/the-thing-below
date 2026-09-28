@@ -1,0 +1,9 @@
+{
+ "comment": "The light of the overworld by day (D-442, D-1252). It matches the light of the fixture overworld: flame white at full strength, with no torch and no added light. A story flag can set the overworld to night later.",
+ "map": "map.overworld",
+ "time": "day",
+ "ambient": { "color": "a", "strength": 10000 },
+ "battle": { "color": "A", "strength": 24000, "range": 720, "height": 96 },
+ "changes": [],
+ "added": []
+}

@@ -50,6 +50,21 @@ public static class TileIds
     /// <summary>The id of water of the overworld (D-1256).</summary>
     public static readonly ContentId Water = ContentId.Parse("tile.water", Source, nameof(Water));
 
+    /// <summary>The id of a road of the overworld (D-1277).</summary>
+    public static readonly ContentId Road = ContentId.Parse("tile.road", Source, nameof(Road));
+
+    /// <summary>The id of a snowfield of the overworld (D-1277).</summary>
+    public static readonly ContentId Snowfield = ContentId.Parse("tile.snowfield", Source, nameof(Snowfield));
+
+    /// <summary>The id of a gorge of the overworld (D-1277).</summary>
+    public static readonly ContentId Gorge = ContentId.Parse("tile.gorge", Source, nameof(Gorge));
+
+    /// <summary>The id of a snow peak of the overworld (D-1277).</summary>
+    public static readonly ContentId SnowPeak = ContentId.Parse("tile.snow_peak", Source, nameof(SnowPeak));
+
+    /// <summary>The id of a bridge of the overworld (D-1302).</summary>
+    public static readonly ContentId Bridge = ContentId.Parse("tile.bridge", Source, nameof(Bridge));
+
     /// <summary>Gives the content id of one tile kind (D-519).</summary>
     /// <param name="kind">The kind of the tile.</param>
     /// <returns>The id that the drawing of that kind names.</returns>
@@ -66,6 +81,11 @@ public static class TileIds
         TileKind.Forest => Forest,
         TileKind.Mountain => Mountain,
         TileKind.Water => Water,
+        TileKind.Road => Road,
+        TileKind.Snowfield => Snowfield,
+        TileKind.Gorge => Gorge,
+        TileKind.SnowPeak => SnowPeak,
+        TileKind.Bridge => Bridge,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no tile kind (D-528)"),
     };
 }

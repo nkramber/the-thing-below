@@ -17,7 +17,7 @@ public sealed class TransitionContentTests
 {
     private const string LitMap = "\"" + LightFixtures.MapId + "\"";
 
-    private static readonly ContentId Map = ContentId.Parse(LightFixtures.MapId, "test", "map");
+    private static readonly ContentId Region = ContentId.Parse("region.test", "test", "region");
 
     [Fact]
     public void TheCheckoutHoldsTheTenTransitionsAndTheTableOfTheOwner()
@@ -40,12 +40,48 @@ public sealed class TransitionContentTests
         Assert.Equal("transition.shatter", content.Table.FixedOf(EncounterKind.Boss).Value);
         Assert.Equal("transition.ripple", content.Table.FixedOf(EncounterKind.WrongThing).Value);
 
-        TransitionRegion one = Assert.Single(content.Table.Regions);
+        // D-1289: the fixture maps lie in the fixture region, and region one holds the overworld.
+        Assert.Equal(2, content.Table.Regions.Count);
+        TransitionRegion fixture = content.Table.Regions[0];
+        TransitionRegion one = content.Table.Regions[1];
+        Assert.Equal("region.fixture", fixture.Id.Value);
+        Assert.Equal(["map.fixture_dungeon", "map.fixture_hub", "map.fixture_overworld"], Ids(fixture.Maps));
         Assert.Equal("region.one", one.Id.Value);
-        Assert.Equal(["map.fixture_dungeon", "map.fixture_hub", "map.fixture_overworld"], Ids(one.Maps));
-        Assert.Equal(
-            ["transition.pixel_dissolve", "transition.mosaic", "transition.crt_power_off", "transition.snow_whiteout", "transition.blinds", "transition.scanline_sweep"],
-            Ids(one.Pool));
+        Assert.Equal(["map.overworld"], Ids(one.Maps));
+        string[] pool = ["transition.pixel_dissolve", "transition.mosaic", "transition.crt_power_off", "transition.snow_whiteout", "transition.blinds", "transition.scanline_sweep"];
+        Assert.Equal(pool, Ids(fixture.Pool));
+        Assert.Equal(pool, Ids(one.Pool));
+    }
+
+    [Fact]
+    public void AMapWhoseFileNamesAnotherRegionFails()
+    {
+        // D-1289: the region of a map in the table and in its file agree.
+        string other = $$"""{ "comment": "a test table", "fade_ticks": 20, "back_cover": "k", "kinds": {{EffectFixtures.Kinds}}, "regions": [{ "region": "region.two", "maps": [{{LitMap}}], "pool": [{{EffectFixtures.Pool}}] }] }""";
+
+        ContentException error = Assert.Throws<ContentException>(() => Load(table: other));
+
+        Assert.Equal("regions[0].maps[0]", error.Field);
+        Assert.Contains("the map file names the region 'region.test'", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void RegionOfGivesTheRegionOfTheTableThatHoldsTheMap()
+    {
+        TransitionContent content = Load();
+
+        Assert.Equal("region.test", content.RegionOf(ContentId.Parse(LightFixtures.MapId, "test", "map")).Value);
+    }
+
+    [Fact]
+    public void ACommonPickOfARegionThatTheTableLacksFails()
+    {
+        TransitionContent content = Load();
+        ContentId absent = ContentId.Parse("region.absent", "test", "region");
+
+        ContentException error = Assert.Throws<ContentException>(() => content.Pick(EncounterKind.Common, absent, 1, 100, null));
+
+        Assert.Contains("region.absent", error.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -137,7 +173,7 @@ public sealed class TransitionContentTests
         ContentException error = Assert.Throws<ContentException>(() => Load(table: EffectFixtures.TableBody(maps: LitMap, regions: second)));
 
         Assert.Equal("regions[1].maps[0]", error.Field);
-        Assert.Contains("the region 'region.one' holds the map", error.Message, StringComparison.Ordinal);
+        Assert.Contains("the region 'region.test' holds the map", error.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -152,7 +188,7 @@ public sealed class TransitionContentTests
     [Fact]
     public void ARegionNamedTwoTimesFails()
     {
-        string second = $$""", { "region": "region.one", "maps": [], "pool": [{{EffectFixtures.Pool}}] }""";
+        string second = $$""", { "region": "region.test", "maps": [], "pool": [{{EffectFixtures.Pool}}] }""";
 
         ContentException error = Assert.Throws<ContentException>(() => Load(table: EffectFixtures.TableBody(maps: LitMap, regions: second)));
 
@@ -216,10 +252,10 @@ public sealed class TransitionContentTests
         TransitionContent content = Load();
         for (ulong seed = 0; seed < 50; seed += 1)
         {
-            Assert.Equal(TransitionLook.ColorSplit, content.Pick(EncounterKind.Ambush, Map, seed, 100, null).Look);
-            Assert.Equal(TransitionLook.Swirl, content.Pick(EncounterKind.Elite, Map, seed, 100, null).Look);
-            Assert.Equal(TransitionLook.Shatter, content.Pick(EncounterKind.Boss, Map, seed, 100, null).Look);
-            Assert.Equal(TransitionLook.Ripple, content.Pick(EncounterKind.WrongThing, Map, seed, 100, null).Look);
+            Assert.Equal(TransitionLook.ColorSplit, content.Pick(EncounterKind.Ambush, Region, seed, 100, null).Look);
+            Assert.Equal(TransitionLook.Swirl, content.Pick(EncounterKind.Elite, Region, seed, 100, null).Look);
+            Assert.Equal(TransitionLook.Shatter, content.Pick(EncounterKind.Boss, Region, seed, 100, null).Look);
+            Assert.Equal(TransitionLook.Ripple, content.Pick(EncounterKind.WrongThing, Region, seed, 100, null).Look);
         }
     }
 
@@ -235,7 +271,7 @@ public sealed class TransitionContentTests
             ContentId? last = null;
             for (long tick = 1; tick <= 20; tick += 1)
             {
-                Transition picked = content.Pick(EncounterKind.Common, Map, seed, tick * 97, last);
+                Transition picked = content.Pick(EncounterKind.Common, Region, seed, tick * 97, last);
                 Assert.True(Ids(region.Pool).Contains(picked.Id.Value), $"seed {seed}, tick {tick * 97}: '{picked.Id.Value}' is outside the pool");
                 Assert.True(last is null || string.CompareOrdinal(last.Value, picked.Id.Value) != 0, $"seed {seed}, tick {tick * 97}: the pick repeats '{picked.Id.Value}'");
                 last = picked.Id;
@@ -252,8 +288,8 @@ public sealed class TransitionContentTests
         for (ulong seed = 0; seed < 100; seed += 1)
         {
             Assert.Equal(
-                first.Pick(EncounterKind.Common, Map, seed, 1234, null).Id.Value,
-                second.Pick(EncounterKind.Common, Map, seed, 1234, null).Id.Value);
+                first.Pick(EncounterKind.Common, Region, seed, 1234, null).Id.Value,
+                second.Pick(EncounterKind.Common, Region, seed, 1234, null).Id.Value);
         }
     }
 
@@ -265,7 +301,7 @@ public sealed class TransitionContentTests
         var seen = new SortedSet<string>(StringComparer.Ordinal);
         for (ulong seed = 0; seed < 200; seed += 1)
         {
-            seen.Add(content.Pick(EncounterKind.Common, Map, seed, 600, null).Id.Value);
+            seen.Add(content.Pick(EncounterKind.Common, Region, seed, 600, null).Id.Value);
         }
 
         Assert.Equal(6, seen.Count);

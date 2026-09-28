@@ -149,6 +149,13 @@ public static class ScreenCaptures
     public const string OverworldFixture = "overworld";
 
     /// <summary>
+    /// The running screen on the overworld of region one, which the debug command `goto` reaches:
+    /// the frosted grass, the road, the village mark, and the walls of the low land around the
+    /// spawn point (exit test 3 of PR-110, D-1276, D-1277).
+    /// </summary>
+    public const string RegionOneFixture = "region-one";
+
+    /// <summary>
     /// The fixture story scene of the stranger on the fixture hub: the dialogue box with a portrait,
     /// the window of the choices, and the pause (exit tests 2 and 7 of PR-36, D-1010, D-1175).
     /// </summary>
@@ -168,6 +175,9 @@ public static class ScreenCaptures
 
     /// <summary>The id of the map that the overworld fixture shows (D-1244).</summary>
     public const string OverworldMap = "map.fixture_overworld";
+
+    /// <summary>The id of the map that the region one fixture shows (D-1274).</summary>
+    public const string RegionOneMap = "map.overworld";
 
     /// <summary>The word of the debug command that puts the party on a map, which the Debug assembly holds (D-723, D-1133).</summary>
     public const string GoToCommand = "goto";
@@ -506,7 +516,7 @@ public static class ScreenCaptures
 
     /// <summary>The name of each fixture, in the order that the session draws it.</summary>
     public static IReadOnlyList<string> Fixtures { get; } =
-        [MapFixture, UiFixture, WalkFixture, PictureFixture, BattleFixture, SettingsFixture, PitFixture, ScrollFixture, StillFixture, TransitionFixture, MenuFixture, NoticeFixture, HubFixture, OverworldFixture, SceneFixture, CrashFixture];
+        [MapFixture, UiFixture, WalkFixture, PictureFixture, BattleFixture, SettingsFixture, PitFixture, ScrollFixture, StillFixture, TransitionFixture, MenuFixture, NoticeFixture, HubFixture, OverworldFixture, RegionOneFixture, SceneFixture, CrashFixture];
 
     /// <summary>Gives the file name of every capture, in the order of <see cref="All"/>.</summary>
     /// <returns>One file name for each capture.</returns>
@@ -724,6 +734,12 @@ public static class ScreenCaptures
         captures.Add(new ScreenCapture(OverworldFixture, "1x", ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
         captures.Add(new ScreenCapture(OverworldFixture, DeckFrame, ScreenFit.FrameWidth, DeckHeight, FitMode.Fill, null));
         captures.Add(new ScreenCapture(OverworldFixture, "fill-1080", DesktopWidth, 1080, FitMode.Fill, null));
+
+        // PR-110: the overworld of region one at the same three frames (exit test 3 of PR-110,
+        // D-568, G-19).
+        captures.Add(new ScreenCapture(RegionOneFixture, "1x", ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
+        captures.Add(new ScreenCapture(RegionOneFixture, DeckFrame, ScreenFit.FrameWidth, DeckHeight, FitMode.Fill, null));
+        captures.Add(new ScreenCapture(RegionOneFixture, "fill-1080", DesktopWidth, 1080, FitMode.Fill, null));
 
         // PR-36: the dialogue box, the choices, and the pause of a story scene, at 1x and at the
         // body of 24 at 1080 rows (exit tests 2 and 7 of PR-36, D-707).
