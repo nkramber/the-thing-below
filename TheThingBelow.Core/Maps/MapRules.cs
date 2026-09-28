@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TheThingBelow.Core.Story;
 
 namespace TheThingBelow.Core.Maps;
 
@@ -230,6 +231,24 @@ public static class MapRules
         ArgumentNullException.ThrowIfNull(place);
 
         return CanEnter(map, at) || (map.DoorAt(at) is MapThing door && place.IsOpen(door.Id));
+    }
+
+    /// <summary>Tells whether the gate on one tile lets the lead pass (D-1243).</summary>
+    /// <param name="map">The map.</param>
+    /// <param name="flags">The story flags of the run.</param>
+    /// <param name="at">The tile, which can lie outside the map.</param>
+    /// <returns>True when the tile holds no gate, or when the condition of its gate holds.</returns>
+    /// <exception cref="ArgumentNullException">The map or the flags are null (T-2).</exception>
+    /// <remarks>
+    /// A gate is not a solid thing, so no rule of the map load and no NPC reads the flags. The lead
+    /// reads this rule through `MapState` alone (D-543, D-1243).
+    /// </remarks>
+    public static bool GateOpen(GameMap map, FlagSet flags, TilePoint at)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+        ArgumentNullException.ThrowIfNull(flags);
+
+        return map.GateAt(at) is not MapThing { Gate: MapGate gate } || gate.Condition.Holds(flags);
     }
 
     /// <summary>Tells whether the body of an enemy can stand on one map (D-206, D-209).</summary>

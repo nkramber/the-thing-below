@@ -6,7 +6,8 @@ namespace TheThingBelow.Core.Maps;
 /// <remarks>
 /// A hub and a dungeon take one map code path (D-112). The kind decides what the load lets a
 /// map hold: a hub holds services, and a dungeon holds none (D-1131). PR-14 adds the autosave
-/// on the entry to a hub (D-224, D-1132).
+/// on the entry to a hub (D-224, D-1132). PR-35 adds the overworld, which holds no service and no
+/// enemy, and its entry writes the autosave too (D-1242, D-1246, D-1247).
 /// </remarks>
 public enum MapKind
 {
@@ -15,16 +16,22 @@ public enum MapKind
 
     /// <summary>A place of enemies and loot, which holds no service (D-1131).</summary>
     Dungeon,
+
+    /// <summary>
+    /// The walkable map between the places of a region (D-1242). It holds the entrances and the
+    /// gates, and no service, no enemy, and no exit (D-1243, D-1247).
+    /// </summary>
+    Overworld,
 }
 
 /// <summary>The names of the map kinds, as a map file writes them (D-112).</summary>
 public static class MapKinds
 {
     /// <summary>Every kind, in one fixed order for a walk of them (G-4).</summary>
-    public static readonly MapKind[] All = [MapKind.Hub, MapKind.Dungeon];
+    public static readonly MapKind[] All = [MapKind.Hub, MapKind.Dungeon, MapKind.Overworld];
 
     /// <summary>The names of every kind, for the error of an unknown name (T-2).</summary>
-    public const string EveryName = "hub, dungeon";
+    public const string EveryName = "hub, dungeon, overworld";
 
     /// <summary>Gives the kind of one name.</summary>
     /// <param name="name">The name, such as `hub`.</param>
@@ -56,6 +63,7 @@ public static class MapKinds
     {
         MapKind.Hub => "hub",
         MapKind.Dungeon => "dungeon",
+        MapKind.Overworld => "overworld",
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no map kind (D-112)"),
     };
 }

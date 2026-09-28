@@ -26,6 +26,18 @@ public enum TileKind
 
     /// <summary>Ground under bad air, which hurts each character who fights while the lead stands in it (D-1235).</summary>
     BadAir,
+
+    /// <summary>Grass of the overworld. The party walks it, and sight passes over it (D-1256).</summary>
+    Grass,
+
+    /// <summary>Forest of the overworld. The party walks it, and sight passes over it (D-1256).</summary>
+    Forest,
+
+    /// <summary>A mountain of the overworld. The party cannot walk it, and it stops sight (D-1256).</summary>
+    Mountain,
+
+    /// <summary>Water of the overworld. The party cannot walk it, and sight passes over it (D-1256).</summary>
+    Water,
 }
 
 /// <summary>The character, the step rule, and the sight rule of each tile kind (D-515, D-528).</summary>
@@ -53,8 +65,20 @@ public static class TileKinds
     /// <summary>Ground under bad air, as a terrain row writes it (D-1235).</summary>
     public const char BadAirCharacter = '~';
 
+    /// <summary>Grass of the overworld, as a terrain row writes it (D-1256).</summary>
+    public const char GrassCharacter = ',';
+
+    /// <summary>Forest of the overworld, as a terrain row writes it (D-1256).</summary>
+    public const char ForestCharacter = '%';
+
+    /// <summary>A mountain of the overworld, as a terrain row writes it (D-1256).</summary>
+    public const char MountainCharacter = '^';
+
+    /// <summary>Water of the overworld, as a terrain row writes it (D-1256).</summary>
+    public const char WaterCharacter = '-';
+
     /// <summary>The characters of every kind, for the error of an unknown character (T-2).</summary>
-    public const string EveryCharacter = ".#+*=~";
+    public const string EveryCharacter = ".#+*=~,%^-";
 
     /// <summary>Gives the kind of one character of a terrain row.</summary>
     /// <param name="character">The character, such as `#`.</param>
@@ -82,6 +106,18 @@ public static class TileKinds
             case BadAirCharacter:
                 kind = TileKind.BadAir;
                 return true;
+            case GrassCharacter:
+                kind = TileKind.Grass;
+                return true;
+            case ForestCharacter:
+                kind = TileKind.Forest;
+                return true;
+            case MountainCharacter:
+                kind = TileKind.Mountain;
+                return true;
+            case WaterCharacter:
+                kind = TileKind.Water;
+                return true;
             default:
                 kind = TileKind.Floor;
                 return false;
@@ -100,6 +136,10 @@ public static class TileKinds
         TileKind.Snow => SnowCharacter,
         TileKind.Ice => IceCharacter,
         TileKind.BadAir => BadAirCharacter,
+        TileKind.Grass => GrassCharacter,
+        TileKind.Forest => ForestCharacter,
+        TileKind.Mountain => MountainCharacter,
+        TileKind.Water => WaterCharacter,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no tile kind (D-528)"),
     };
 
@@ -115,6 +155,10 @@ public static class TileKinds
         TileKind.Snow => "snow",
         TileKind.Ice => "ice",
         TileKind.BadAir => "bad_air",
+        TileKind.Grass => "grass",
+        TileKind.Forest => "forest",
+        TileKind.Mountain => "mountain",
+        TileKind.Water => "water",
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no tile kind (D-528)"),
     };
 
@@ -130,6 +174,10 @@ public static class TileKinds
         TileKind.Snow => true,
         TileKind.Ice => true,
         TileKind.BadAir => true,
+        TileKind.Grass => true,
+        TileKind.Forest => true,
+        TileKind.Mountain => false,
+        TileKind.Water => false,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no tile kind (D-528)"),
     };
 
@@ -149,6 +197,10 @@ public static class TileKinds
         TileKind.Snow => false,
         TileKind.Ice => false,
         TileKind.BadAir => false,
+        TileKind.Grass => false,
+        TileKind.Forest => false,
+        TileKind.Mountain => true,
+        TileKind.Water => false,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no tile kind (D-528)"),
     };
 }

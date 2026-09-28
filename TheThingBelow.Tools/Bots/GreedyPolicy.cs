@@ -4,6 +4,7 @@ using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
+using TheThingBelow.Core.Story;
 
 namespace TheThingBelow.Tools.Bots;
 
@@ -21,6 +22,10 @@ namespace TheThingBelow.Tools.Bots;
 public sealed class GreedyPolicy : IBotPolicy
 {
     private readonly HashSet<string> reached = new(StringComparer.Ordinal);
+
+    // The maps that the walk stood on. An exit or an entrance to a map outside this set comes
+    // first, so a run that leaves a place crosses the overworld to the next place (D-1243).
+    private readonly HashSet<string> entered = new(StringComparer.Ordinal);
 
     private bool served;
 
@@ -111,7 +116,8 @@ public sealed class GreedyPolicy : IBotPolicy
             return null;
         }
 
-        WalkTarget? nearest = this.Nearest(party, WalkTargets.Of(state), out StepDirection? step);
+        this.entered.Add(party.Map.Id.Value);
+        WalkTarget? nearest = this.Nearest(party, state.Story.Flags, WalkTargets.Of(state), out StepDirection? step);
         if (nearest is null)
         {
             // Every target is reached or out of reach, so the walk starts over.
@@ -136,7 +142,7 @@ public sealed class GreedyPolicy : IBotPolicy
 
         // A step into an enemy bumps it, and a step onto a tile that takes the lead walks onto it
         // (D-747, D-1142). Either one reaches the target.
-        if (nearest.Reach == TargetReach.Bump || party.CanStepOnto(nearest.At))
+        if (nearest.Reach == TargetReach.Bump || party.CanStepOnto(nearest.At, state.Story.Flags))
         {
             this.reached.Add(nearest.Key);
             return FirstOf(accepted, MoveOf(facing));
@@ -154,16 +160,21 @@ public sealed class GreedyPolicy : IBotPolicy
 
     /// <summary>
     /// Gives the target with the shortest path that the policy did not reach, and marks each target
-    /// with no path as reached. An exit counts once no other target is left (D-1216).
+    /// with no path as reached. An exit or an entrance counts once no other target is left, and one
+    /// to a map that the walk never stood on comes before the rest (D-1216, D-1243).
     /// </summary>
-    private WalkTarget? Nearest(MapState party, IReadOnlyList<WalkTarget> targets, out StepDirection? step)
+    private WalkTarget? Nearest(MapState party, FlagSet flags, IReadOnlyList<WalkTarget> targets, out StepDirection? step)
     {
-        WalkTarget? found = this.Nearest(party, targets, last: false, out step);
-        return found ?? this.Nearest(party, targets, last: true, out step);
+        WalkTarget? found = this.Nearest(party, flags, targets, last: false, onlyNew: false, out step);
+        found ??= this.Nearest(party, flags, targets, last: true, onlyNew: true, out step);
+        return found ?? this.Nearest(party, flags, targets, last: true, onlyNew: false, out step);
     }
 
-    /// <summary>Gives the target of one kind, an exit or any other, with the shortest path that the policy did not reach.</summary>
-    private WalkTarget? Nearest(MapState party, IReadOnlyList<WalkTarget> targets, bool last, out StepDirection? step)
+    /// <summary>
+    /// Gives the target of one kind, an exit or an entrance or any other, with the shortest path that
+    /// the policy did not reach. With `onlyNew`, it gives a target to a map that the walk never stood on.
+    /// </summary>
+    private WalkTarget? Nearest(MapState party, FlagSet flags, IReadOnlyList<WalkTarget> targets, bool last, bool onlyNew, out StepDirection? step)
     {
         WalkTarget? nearest = null;
         int shortest = int.MaxValue;
@@ -175,7 +186,12 @@ public sealed class GreedyPolicy : IBotPolicy
                 continue;
             }
 
-            StepDirection? first = WalkTargets.FirstStep(party, target, out int length);
+            if (onlyNew && (target.Leads is not ContentId leads || this.entered.Contains(leads.Value)))
+            {
+                continue;
+            }
+
+            StepDirection? first = WalkTargets.FirstStep(party, flags, target, out int length);
             if (length < 0)
             {
                 this.reached.Add(target.Key);

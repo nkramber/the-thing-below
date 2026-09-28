@@ -91,7 +91,7 @@ public sealed class BotRun
                 return this.Result(BotEnd.Complete, null);
             }
 
-            if (this.played >= rules.TickBudget)
+            if (this.played >= BudgetOf(rules, this.policy.Kind))
             {
                 return this.Result(BotEnd.Budget, null);
             }
@@ -183,6 +183,20 @@ public sealed class BotRun
         }
 
         this.recorder = this.NewRecorder();
+    }
+
+    /// <summary>Gives the tick budget of a run of one policy (D-1184, D-1259).</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The value names no policy (T-2).</exception>
+    public static long BudgetOf(BotRules rules, BotPolicyKind kind)
+    {
+        ArgumentNullException.ThrowIfNull(rules);
+
+        return kind switch
+        {
+            BotPolicyKind.Greedy => rules.GreedyBudget,
+            BotPolicyKind.Random => rules.RandomBudget,
+            _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "The value names no bot policy (D-1183, T-2)."),
+        };
     }
 
     /// <summary>Starts the run at tick zero on the start map of its seed (D-1185).</summary>

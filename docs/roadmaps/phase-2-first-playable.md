@@ -2203,7 +2203,7 @@ Area file: `area-exploration.md` section 7.8.
 **Review focus.**
 
 - The reserve and the swap anywhere answer F-7, and AP comes back in a fight (D-1134, D-1198).
-- The exit leads to the fixture hub until PR-35 points it at the region map (D-1216).
+- The exit leads to the fixture hub until PR-35 points it at the overworld (D-1216, D-1242).
 - The snapshot carries the open chests, the open doors, and the dead enemies of each map.
 
 **Questions.** None.
@@ -2254,43 +2254,47 @@ Area file: `area-exploration.md` section 7.9.
 
 > *In plain English:* the dungeon itself can hurt you. Traps wait on the floor, snow and ice change how you walk, and bad air and poison hurt while you walk or stand. A party can go down between fights.
 
-### 7.50 PR-35: the region map
+### 7.50 PR-35: the overworld
 
 Area file: `area-exploration.md` section 7.13.
 
 **Scope.**
 
-- The region map screen of nodes and routes, where the party moves node to node (D-113).
-- The route that a story flag opens and closes, through the condition form of PR-68 (D-40, D-329, D-543).
-- The autosave on each arrival at a node (D-224).
-- The exit of each dungeon, which PR-16 points at the fixture hub, now enters the region map (D-1216).
-- The one track of the region map, and no sign of night (D-430, D-445).
-- One hub and one dungeon as the first nodes.
-- The layout of region one, which follows `docs/world/places.md` (D-250, D-255, D-371).
+- The map kind `overworld`: a walkable map between the places, which shows the lead alone (D-1242, D-1243, D-1245).
+- The entrance thing, which enters the map of its place. Each exit that leads to the overworld names a marker there, and the party appears on it (D-1216, D-1243, D-1255).
+- The gate thing, with a condition of the PR-68 form and a notice. The lead passes it only while the condition holds, and a confirm at a closed gate posts the notice (D-543, D-1243, D-1257).
+- The autosave on each step onto the overworld (D-1246).
+- Four tile kinds for the overworld: grass, forest, mountain, and water (D-1256).
+- A fixture overworld between the fixture dungeon and the fixture hub, with one gate (D-1244, D-1258).
+- The bots cross the overworld from the dungeon to the hub (D-1185).
 
 **Out of scope.**
 
-- The other nodes of region one (PR-23 to PR-27, PR-81).
-- The cost of a route in time, because no clock runs (D-442).
+- The encounters of the overworld (PR-109).
+- The overworld of region one (PR-110).
+- The cost of a step in time, because no clock runs (D-442, D-1243).
 
 **Exit tests.**
 
-1. A closed route refuses the move, and the screen shows why.
-2. A replay reproduces the path through the nodes.
-3. The autosave writes on each arrival, and it reloads to the same state hash (D-224).
-4. A screen test captures the region map.
-5. A route that names an absent node id fails with the file and the id.
+1. A closed gate refuses the step, and a confirm at it posts its notice (D-1257).
+2. An open gate lets the lead pass, and a replay reproduces the path through the places.
+3. The autosave writes on each step onto the overworld, and it reloads to the same state hash (D-1246).
+4. An exit puts the party on its marker. An entrance puts it on the spawn point of its place.
+5. An entrance or an exit that names an absent map fails with the file and the id.
+6. An exit to the overworld with an absent marker fails the load with the file and the id (D-1255).
+7. An overworld that holds an enemy or a service fails the load (D-1131, D-1247).
+8. A screen test captures the overworld, and the author reads each frame of `make sheet`.
+9. A bot run from the dungeon reaches the hub through the overworld.
 
 **Review focus.**
 
-- The route condition uses the one condition form of PR-68 (D-543).
-- The answer of OQ-122 sets the format of the map and the cost of a route.
-- The first item settles OQ-251 with OQ-122: the node map of D-113, or a walkable overworld. The answer can change D-113, D-224, and D-430.
-- The screen shows no sign of night, because the story sets the time (D-445).
+- The gate uses the one condition form of PR-68 (D-543).
+- The time and the dark of the overworld follow its map file, and one track serves every time (D-1252).
+- The simulation version changes (G-17).
 
-**Questions.** OQ-122 and OQ-251.
+**Questions.** OQ-122 and OQ-251, resolved by D-1242 and D-1243.
 
-> *In plain English:* between places the party travels on a map of the region, along roads that the story opens and closes.
+> *In plain English:* between places the party walks a small map of the region, as in Final Fantasy VI. A road that the story keeps shut stays shut, and the game says so.
 
 ### 7.51 PR-37: retired
 
@@ -2871,6 +2875,70 @@ Area files: `area-ci.md` sections 7.14 and 7.15, `area-tools.md` for the command
 
 > *In plain English:* when the robots find a crash at night, the owner gets a phone alert. The Mac then starts a session that fixes the fault and asks for the merge. A fix that proved itself turns the check green for everyone at its merge.
 
+### 7.68 PR-109: the encounters of the overworld
+
+Area file: `area-exploration.md` section 7.13.
+
+**Scope.**
+
+- Invisible encounters in the style of Final Fantasy VI, on the overworld alone (D-1247).
+- The step counter: each step adds the rate of its zone to a danger count (D-1249). The step then rolls against the count from a stream of its own, and a fight sets the count to zero.
+- The zones of the overworld map. Each zone names its rate, a weighted list of groups, and an optional condition of the PR-68 form (D-543, D-1250, D-1251).
+- The count in the snapshot and the save, and the zones of the fixture overworld.
+
+**Out of scope.**
+
+- The zones of region one (PR-110).
+- Visible enemies on the overworld, which the load refuses (D-1247).
+
+**Exit tests.**
+
+1. A seed loop proves that the same seed and steps give the same fights, and each failure names its seed.
+2. A zone at rate zero never starts a fight.
+3. A zone whose condition fails starts no fight, and the same zone starts fights when the condition holds.
+4. A fight sets the danger count to zero, and the save holds the count across a reload.
+5. A zone with an absent group or a weight of zero fails the load with the file and the id.
+6. The bots cross the overworld and finish the fixture run with no softlock.
+
+**Review focus.**
+
+- The encounter stream reads no other stream, and the state hash covers the count (T-7, G-4).
+- The simulation version changes (G-17).
+
+**Questions.** None. D-1247 to D-1251 hold the answers.
+
+> *In plain English:* the walk between places now has fights that the player cannot see coming, as in Final Fantasy VI. The map decides where the danger is and when the story turns it off.
+
+### 7.69 PR-110: the overworld of region one
+
+Area file: `area-exploration.md` section 7.13. World file: `docs/world/places.md`.
+
+**Scope.**
+
+- The overworld of region one, which follows `docs/world/places.md` (D-250, D-255, D-371, D-1244).
+- The terrain tiles of the overworld and the mark of each place, as grids (D-107, D-1245).
+- The entrance of each place that exists, and the zones of region one with the rule of PR-109 (D-1250, D-1254).
+- The gates of the story, such as the sealed door of the gorge crossing (D-251, D-1243).
+
+**Out of scope.**
+
+- The places themselves (PR-17, PR-23 to PR-27, PR-81).
+
+**Exit tests.**
+
+1. A test walks the lead from the village to the mining town and to the hanging cells.
+2. The atlas matches the grids by pixel (D-107).
+3. A screen test captures the overworld of region one, and the author reads each frame of `make sheet`.
+
+**Review focus.**
+
+- The layout matches `docs/world/places.md`.
+- The owner reads the contact sheet before the merge.
+
+**Questions.** None yet. The PR asks each question of the layout when it starts (D-487).
+
+> *In plain English:* the real map of the first region replaces the test map. The village, the town, the gorge, and the high pass stand where they belong.
+
 ## 8. Sequence
 
 The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). Phase 2 holds this order:
@@ -2885,7 +2953,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 8. PR-36: the dialogue box.
 9. PR-15, PR-49, PR-108, PR-107: the bots, the night job and the night gate, night recovery, and ability power (D-1196, D-1200).
 10. PR-15 requires the bot check (D-1186). The PR-49 session requires `night-gate` after the first night on `main` (D-1192).
-11. PR-16, PR-64, PR-35: the dungeon and the region map.
+11. PR-16, PR-64, PR-35, PR-109, PR-110: the dungeon, the overworld, its encounters, and the overworld of region one (D-1254).
 12. PR-51, PR-52, PR-53: the PNG import, the map preview, and the tile-edge tool.
 13. PR-17: the village, the mining town, and the hanging cells.
 14. PR-38, PR-69, PR-70, PR-71: the audio tool, the player, the rules, and the sound room (D-1079).
@@ -2943,7 +3011,7 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-119 | What a trap does, and what a Theft drill does to it, resolved by D-1226, D-1228 to D-1231 | PR-64 |
 | OQ-120 | The hazards of region one, resolved by D-1227, D-1232 to D-1235 | PR-64 |
 | OQ-121 | The prices, the buy-back, and the stock of a shop, resolved by D-1149 to D-1155 | PR-65 |
-| OQ-122 | The format of the region map, and the cost of a route | PR-35 |
+| OQ-122 | The format of the region map, and the cost of a route. Resolved by D-1242 and D-1243 | PR-35 |
 | OQ-124 | A defend action. Resolved by D-755 | PR-9 |
 | OQ-125 | How many turns the timeline strip shows. Resolved by D-756 | PR-9 and PR-10 |
 | OQ-126 | Where the delay of each action lives. Resolved by D-757 | PR-9 |
@@ -2996,6 +3064,6 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-243 | A column of the waiting enemies, taller than the field. Resolved by D-963 | PR-98 |
 | OQ-247 | The stat set. Resolved by D-1052 | PR-99 |
 | OQ-248 | The heal of an absorbed hit. Resolved by D-1055 | PR-99 |
-| OQ-251 | The kind of the region map: the node map of D-113, or a walkable overworld | PR-35 |
+| OQ-251 | The kind of the region map: the node map of D-113, or a walkable overworld. Resolved by D-1242 | PR-35 |
 | OQ-252 | Two regains of AP from one blow | PR-107 |
 | OQ-253 | A head night after commits of documents alone. Resolved by D-1204 | PR-108 |

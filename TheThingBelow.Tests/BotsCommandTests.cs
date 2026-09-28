@@ -31,7 +31,8 @@ public sealed class BotsCommandTests : IDisposable
         Assert.Equal(string.Empty, errors.ToString());
         Assert.Equal(4, File.ReadAllLines(Path.Combine(this.folder, "results-greedy.txt")).Length);
         Assert.Contains("- Runs: 4, in ", output.ToString(), StringComparison.Ordinal);
-        Assert.Contains("complete 2", output.ToString(), StringComparison.Ordinal);
+        // PR-35 links the dungeon and the hub, so the two dungeon runs reach the goal too (D-1259).
+        Assert.Contains("complete 4", output.ToString(), StringComparison.Ordinal);
         Assert.False(Directory.Exists(Path.Combine(this.folder, "saves", "greedy-1")), "The folder of the saves of a run stays after the run.");
     }
 

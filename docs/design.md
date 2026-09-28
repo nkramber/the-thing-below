@@ -168,6 +168,8 @@ The shop window takes a count, and it shows the change of each fighter for a pie
 
 2026-09-27 dungeon map pass: the map screen marks a door, a save point, or an exit beside a walked tile. A shut door and a save point are solid (D-1225).
 
+2026-09-27 overworld pass: a walkable overworld at the scale of Final Fantasy VI replaces the node map (D-1242, D-1245). The glossary retires the term region map (D-1253). The overworld is a map file of the kind `overworld`. An entrance leads to a place, and a gate opens with a condition (D-1243). The autosave writes on each step onto the overworld (D-1246). PR-109 adds invisible encounters with a step counter and zones, and PR-110 lays out region one (D-1247 to D-1251, D-1254).
+
 External facts, each with the date of its check:
 
 - The GitHub repository `nkramber/the-thing-below` is public. Its name changed from the working title on 2026-09-14 (D-410). Source: `gh repo view`, run 2026-09-14.
@@ -224,7 +226,7 @@ Text rules: this file follows ASD-STE100 (D-10). Tables are exempt from sentence
 
 The Thing Below, a tentative name (D-215), is a dark fantasy role-playing game in 32-pixel sprites on a 16:9 frame of 1280 by 720 (D-27, D-107, D-228, D-568). A fixed cast (D-33, D-299) travels between hubs of every shape, a castle town, a cave community, a boat, an airship (D-28). Between the hubs lie hand-authored dungeons with visible enemies, traps, puzzles, and secrets (D-37, D-39, D-41). Three fight at a time on a visible timeline where speed decides the order (D-29, D-31). Any character equips lessons, the rites and drills that give abilities, and each character does one kind of ability best (D-272, D-274, D-278).
 
-Combat is hard because enemies think and resources run out (D-35), and a fallen character stays down until a hub (D-36). Decisions close routes, lose allies outside the cast, and change hubs (D-40, D-301).
+Combat is hard because enemies think and resources run out (D-35), and a fallen character stays down until a hub (D-36). Decisions close gates of the overworld, lose allies outside the cast, and change hubs (D-40, D-301, D-1243).
 
 The game runs on Godot 4 with C# (D-99). The simulation lives in an engine-free Core library that replays any run from a seed and an input record (D-100, T-7). Sprites, tiles, and portraits are text grids in content that a tool renders into an atlas (D-107). Particles, 2D light, and shaders enter the plan from the start (D-139).
 
@@ -273,7 +275,7 @@ From the roadmap interview of 2026-09-12:
 | Lessons, aptitudes, and levels | Core | lesson content, experience | character state | High. The build decision (D-34, D-272, D-274) |
 | Gear and items | Core | item content, inventory | equipment state | Medium (D-44, D-45) |
 | Story flags, story scenes, and quests | Core | story scene content, conditions, choices | flags, story scene state, quest state, hub state | High. Branches multiply (D-40, D-59, D-329). Core runs each scene and holds its step index, and one condition form serves every reader (D-540, D-542, D-543) |
-| Hub services and the region map | Core | hub content, route content, gold | party, saves, position | Medium (D-59, D-113) |
+| Hub services and the overworld | Core | hub content, overworld content, gold | party, saves, position | Medium (D-59, D-1242, D-1243) |
 | Debug assembly | Debug assembly | debug intents, the typed line of the console | Core state, through the seam of D-260. The console reads the state and sends each change as an intent (D-724) | High. A release build never loads it (D-260). Game loads it by name outside the release configuration, and it names no type of it (D-723) |
 | Save, record, crash, log, and settings files | Storage | record bytes, snapshot bytes, crash context, log entries, the settings | save files, record files, crash files, log files, the settings file (D-860) | High. A torn write loses a save (D-178, D-494) |
 | Map scene, battle scene, hub scene, scene runner | Game | Core state, content from the Game assembly, the atlas and its index, large pictures, edge files, string table | screen, intents | Medium. Cosmetic by design (D-106, D-111, D-114, D-501). Player text reaches the screen through the text helper (D-499). The content bytes come from the Game assembly (D-508). Art draws with the Nearest filter, and an art file names the content ids that it draws (D-519, F-45) |
@@ -416,7 +418,7 @@ Status: ✅ done (code merged, or "doc" for a document-only correction) · 🔧 
 | F-52 | The camera meets two facts that no page of the docs states. When the limit rectangle is smaller than the view, the camera centers the view: the source reads "Split the difference horizontally (center it)". The gate of PR-7 for a small map rests on that source alone. The same function carries a FIXME: "smoothing is not currently applied only once per frame / tick, which will result in some haphazard results". The docs add that the position of the node "doesn't represent the actual position of the screen". Sources: the external facts of `docs/roadmaps/area-exploration.md`, read 2026-09-16 | 2026-09-16 | ⚠ Binds PR-7: a test locks the centering of a small map, and Game moves the camera from the tick of Core, never from the smoothing of Godot (D-203) |
 | F-53 | D-534 takes an evaluator that simulates each legal action and the strongest reply of the other side, and no measurement of its cost exists. The cost grows with the count of legal actions times the replies. The same code runs on the Deck at 60 frames per second (D-161), and a night plays fourteen thousand runs through it (D-507). The plan holds no number until M-3, M-4, and M-6 | 2026-09-16 | ✅ PR-11: the `evaluator-cost` command gave 15 legal actions at most. A whole enemy turn took 52 us at the 95th percentile on the Mac, and 74 us and 103 us in two runs on the Steam Deck on 2026-09-23, inside the limit of 1000 us (D-961, G-14) |
 | F-54 | The end of the job system left the stats of a character with no source. D-34 gives the character level "for stats", and D-77 gave the rest to job multipliers. D-268 removed the jobs, and no later row replaced those multipliers. No PR could set the health, the MP, the attack, the defense, or the speed of a character | 2026-09-16 | ✅ doc. D-537: each character carries its own stat curve in content, and PR-30 balances the eight curves against the M-4 band |
-| F-55 | A scene step can set a story flag (D-173), and the scene runner lands in Phase 2. PR-18, which defines the flags and the condition form, sat in Phase 3. PR-14 and PR-35 also read a condition in Phase 2, for a hub line and a closed route (D-59, D-113) | 2026-09-16 | ✅ doc. D-544: PR-68 takes the flag set and the condition form with the scene runner, and PR-18 keeps the branches and the choice effects. ⚠ Binds PR-68 |
+| F-55 | A scene step can set a story flag (D-173), and the scene runner lands in Phase 2. PR-18, which defines the flags and the condition form, sat in Phase 3. PR-14 and PR-35 also read a condition in Phase 2, for a hub line and a closed route (D-59, D-113) | 2026-09-16 | ✅ doc. D-544: PR-68 takes the flag set and the condition form with the scene runner, and PR-18 keeps the branches and the choice effects. ⚠ Binds PR-68. 2026-09-27: D-1242 supersedes D-113, and a gate of the overworld takes the place of the closed route (D-1243) |
 | F-56 | Two Godot audio calls meet the plan. `AudioStreamWAV.load_from_buffer` returns an empty reference on data that is not WAV, and it prints the reason to the log alone, as `ImageTexture.create_from_image` does (F-45). `AudioStreamPlayer.get_playback_position` "Returns 0.0 if no sounds are playing", and its note says that "The position is not always accurate, as the [AudioServer] does not mix audio every processed frame". Sources: the external facts of `docs/roadmaps/area-audio.md`, read 2026-09-16 | 2026-09-16 | ⚠ Binds PR-69 and PR-70: Game checks every stream that it makes and fails with the id of the render, and the audio player holds its own count for the crossfade of D-428 and the resume of D-429 (T-2) |
 | F-57 | The third design-critic pass read the merged plan of PR #11 in five slices and found 52 defects. Seven exit tests needed a PR that lands later, such as a shop flag in PR-65 before the flags of PR-68. A party could leave a dungeon and return for fresh enemies, fresh MP, and free health. No PR built the enemy record, the starting row, the party join, the party and status windows, or the sealed gallery. D-538 and D-544 clashed, a workflow change could merge on its own label, and "scene" named two concepts. Five area citations pointed at text that the rebuild of D-554 removed | 2026-09-16 | ✅ doc. D-555 to D-572 answer the owner questions, and PR #12 fixes the rest. D-647 answers OQ-179 on 2026-09-18 |
 | F-58 | The harness gives no session id and no record of the conversation to a check. No check can prove that a session is clean or that it worked on one PR alone. A check can read the diff, the changed paths, and the PR description | 2026-09-16 | ⚠ Binds PR-3: the document rules read the diff and the description alone (D-579). The session and the owner enforce the binding of D-576 |
@@ -660,7 +662,7 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 49. PR-15 requires the bot check on `main` (D-1186). After its merge, the PR-49 session requires `night-gate` after the first night passes (D-1192).
 50. PR-16: the treasure, the doors, the keys, and the save points (D-41, D-555).
 51. PR-64: the traps, the hazards, and the statuses that last on the map (D-390, D-529).
-52. PR-35: the region map of nodes and routes (D-113).
+52. PR-35: the overworld, its entrances, its gates, and its autosave (D-1242 to D-1246). PR-109, the encounters of the overworld, comes next, then PR-110, the overworld of region one (D-1247 to D-1251, D-1254).
 53. PR-51: the PNG import for a hand edit (D-107, D-497).
 54. PR-52: the map preview as a PNG (D-165, D-497).
 55. PR-53: the tile-edge tool and the edge files (D-204, D-501).
@@ -684,7 +686,7 @@ PR-37 is retired. The CRT pass of the first plan has no purpose after D-618, and
 
 > *In plain English:* this phase turns the machinery into a game. It ends when the owner walks a village, fights in a mine, and says whether it feels right. Then the game gets a public page on Steam.
 
-### Phase 3: Story systems (gate: the owner plays a branch that closes a route and a hub that changes with an earlier choice, D-329)
+### Phase 3: Story systems (gate: the owner plays a branch that closes a gate of the overworld and a hub that changes with an earlier choice, D-329, D-1243)
 
 Phase file: `docs/roadmaps/phase-3-story-systems.md`.
 
@@ -772,7 +774,7 @@ Section 7 gives the same order inside each phase, with a link to each phase file
 20. PR-36.
 21. PR-15, PR-49, PR-108, PR-107. After the merge of PR-49, a night runs on `main`, then `night-gate` joins the protection of `main` (D-1192).
 22. PR-15 adds the `bots` check to the protection of `main` (D-1186). The PR-49 session adds `night-gate` after the first night passes (D-1192).
-23. PR-16, PR-64, PR-35.
+23. PR-16, PR-64, PR-35, PR-109, PR-110 (D-1254).
 24. PR-51, PR-52, PR-53.
 25. PR-17.
 26. PR-38, PR-69, PR-70, PR-71, PR-72 (D-1079).

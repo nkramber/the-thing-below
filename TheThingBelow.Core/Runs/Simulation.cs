@@ -59,8 +59,8 @@ namespace TheThingBelow.Core.Runs;
 /// that names one is an error (D-1133).
 /// </para>
 /// <para>
-/// The run holds a set of maps, and the entry to a map of the set emits the autosave request of a
-/// hub for <see cref="TakeSaveRequests"/> (D-224, D-1132, D-1133).
+/// The run holds a set of maps, and the entry to a hub or to the overworld emits the autosave request
+/// for <see cref="TakeSaveRequests"/> (D-224, D-1132, D-1133, D-1246).
 /// </para>
 /// <para>
 /// A step returns the log entries of that step, and Core keeps none of them. Core adds no

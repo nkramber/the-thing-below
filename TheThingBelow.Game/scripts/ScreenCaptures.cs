@@ -142,6 +142,13 @@ public static class ScreenCaptures
     public const string HubFixture = "hub";
 
     /// <summary>
+    /// The running screen on the fixture overworld, which the debug command `goto` reaches: the
+    /// terrain tiles, the marks of the cut and the inn, and the closed gate of the pass (exit test 8
+    /// of PR-35, D-1242, D-1245, D-1256).
+    /// </summary>
+    public const string OverworldFixture = "overworld";
+
+    /// <summary>
     /// The fixture story scene of the stranger on the fixture hub: the dialogue box with a portrait,
     /// the window of the choices, and the pause (exit tests 2 and 7 of PR-36, D-1010, D-1175).
     /// </summary>
@@ -158,6 +165,9 @@ public static class ScreenCaptures
 
     /// <summary>The id of the map that the hub fixture shows (D-1133).</summary>
     public const string HubMap = "map.fixture_hub";
+
+    /// <summary>The id of the map that the overworld fixture shows (D-1244).</summary>
+    public const string OverworldMap = "map.fixture_overworld";
 
     /// <summary>The word of the debug command that puts the party on a map, which the Debug assembly holds (D-723, D-1133).</summary>
     public const string GoToCommand = "goto";
@@ -496,7 +506,7 @@ public static class ScreenCaptures
 
     /// <summary>The name of each fixture, in the order that the session draws it.</summary>
     public static IReadOnlyList<string> Fixtures { get; } =
-        [MapFixture, UiFixture, WalkFixture, PictureFixture, BattleFixture, SettingsFixture, PitFixture, ScrollFixture, StillFixture, TransitionFixture, MenuFixture, NoticeFixture, HubFixture, SceneFixture, CrashFixture];
+        [MapFixture, UiFixture, WalkFixture, PictureFixture, BattleFixture, SettingsFixture, PitFixture, ScrollFixture, StillFixture, TransitionFixture, MenuFixture, NoticeFixture, HubFixture, OverworldFixture, SceneFixture, CrashFixture];
 
     /// <summary>Gives the file name of every capture, in the order of <see cref="All"/>.</summary>
     /// <returns>One file name for each capture.</returns>
@@ -707,6 +717,13 @@ public static class ScreenCaptures
         captures.Add(new ScreenCapture(HubFixture, "1x", ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
         captures.Add(new ScreenCapture(HubFixture, DeckFrame, ScreenFit.FrameWidth, DeckHeight, FitMode.Fill, null));
         captures.Add(new ScreenCapture(HubFixture, "fill-1080", DesktopWidth, 1080, FitMode.Fill, null));
+
+        // PR-35: the fixture overworld at 1x, at the screen of the Steam Deck, the floor of
+        // readability of each terrain tile and each mark, and at 1080 rows (exit test 8 of PR-35,
+        // D-568, G-19). The frame of 1080 rows comes last, as for the hub (D-782).
+        captures.Add(new ScreenCapture(OverworldFixture, "1x", ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
+        captures.Add(new ScreenCapture(OverworldFixture, DeckFrame, ScreenFit.FrameWidth, DeckHeight, FitMode.Fill, null));
+        captures.Add(new ScreenCapture(OverworldFixture, "fill-1080", DesktopWidth, 1080, FitMode.Fill, null));
 
         // PR-36: the dialogue box, the choices, and the pause of a story scene, at 1x and at the
         // body of 24 at 1080 rows (exit tests 2 and 7 of PR-36, D-707).

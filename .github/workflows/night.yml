@@ -58,8 +58,9 @@ jobs:
       # the slowest leg, the same on each leg (G-14). The bot job of run 36280972257 on defedf6
       # played 7,000 greedy runs in 50 seconds on windows-2025, and 6,500 random runs in
       # 71 seconds on macos-26. Each count keeps a margin of about 7% for the noise of a runner,
-      # as D-1180 did.
-      GREEDY_RUNS: "235000"
+      # as D-1180 did. PR-35 halved the greedy count, because a greedy run of the dungeon now
+      # crosses the overworld to the hub and plays about twice the ticks (D-1259, D-1260).
+      GREEDY_RUNS: "117500"
       RANDOM_RUNS: "153000"
       INPUT_FIRST_SEED: ${{ inputs.first-seed }}
       RUN_NUMBER: ${{ github.run_number }}

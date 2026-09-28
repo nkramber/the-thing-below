@@ -1,0 +1,48 @@
+{
+ "id": "drawing.tile_mountain",
+ "page": "tiles",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "tile.mountain", "use": "map" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "dddddddddddddddddddddddddddddddd",
+    "ddddddddDdddddKddddddddddddddddd",
+    "ddddddddddddddKddddddddddddDdddd",
+    "ddDddddddddddKeKdddddddddddddddd",
+    "dddddddddddddKeKdddddddddddddddd",
+    "ddddddddddddKeeEKddddddddddddddd",
+    "ddddddddddddKeeEEKdddddddddddddd",
+    "dddddDdddddKeeeEEKdddddddddddddd",
+    "dddddddddddKeeeEEfKddddddddddDdd",
+    "ddddddddddKeeeeeEEKHdddddddddddd",
+    "ddddddddddKeehehHEHKHddddddddddd",
+    "dddddddddKehhehhHHHHKHHddddddddd",
+    "ddddddddhKhhhhhlHHHHKDDHdddddddd",
+    "ddddddhhKhhhhhhlHHgKHKDDHHdddddd",
+    "dddddhHHKHlhhhhlHHHgKKDDDDHddddd",
+    "dddhEHHKHlhhhlhlHHHHHKKDDDDEHddd",
+    "ddhHHHHKhhhhhhhhlHHHHHHKDDDDDHdd",
+    "hhHHHHKhhhhhhhhhlHHHHHHKDDDDDDHH",
+    "HHHHHHKhhhhhhhhhlgKHHHHHKDDDDDDD",
+    "HHHHHKhhhhhHlhhhlHHKHHHHKDDDDDDD",
+    "HHHHHKhhhhHlhhhhlHHHHHHHHKDDDDDD",
+    "HHHHKhhhhhhhhhlhlHHHHHgKHHKDDDDD",
+    "HHHHKhHlhhhhhhhhlHHHHHHgKHKDDDDD",
+    "HHHKhHlhhhhhhhhhlHHHHHHHHKHKDDDD",
+    "HHHKhhhhhhhhhhhhhlHHHHHHHHHKDDDD",
+    "HHKhhhhhhhhhHlhhhlHgKHHHHHHHKDDD",
+    "HHKhhhhhhhhHlhhhhlHHgKHHHHHHHKDD",
+    "HKhhHlhhhhHhhhhhhlHHHHKHHHgKHKDD",
+    "HKhHlhhhhhhhhhhhhlHHHHHHHHHHKHKD",
+    "KhhhhhhhhhhhhhhhhlHHHHHHHHHHHHKD",
+    "KhhhhhhhhhhhhhhhhlHHHHHHHHHHHHHK",
+    "KhhhhhhhhhhhhhhhhhlHHHHHHHHHHHHK"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,48 @@
+{
+ "id": "drawing.fixture_overworld_cut",
+ "page": "map_sprites",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "entrance.fixture_overworld_cut", "use": "map" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "............kkkkkkkk............",
+    "..........kkeeeeeeeekk..........",
+    "........kkeeeeeeeeeeeekk........",
+    ".......keheeheeheeheeheek.......",
+    "......khhehhhehhhehhhehhHk......",
+    "......khhhhhhhhhhhhhhhhhHk......",
+    ".....khhtkttttttttttttktHHk.....",
+    "....khhhBkBBbBBBBBBbBBkBHHHk....",
+    "....khhhbkbbbbbbbbbbbbkbHHHk....",
+    "...khhhhhhtBhhhhhhhhtBHHHHHHk...",
+    "...khhhhhhtBkkkkkkkktBkHHHHHk...",
+    "..khhHlhhhtBkkkkkkkktBjkHHHHHk..",
+    "..khhhHhhhtBk~~~~~~ktBHHHHdHHk..",
+    "..khhhhhhhtbk~~~~~~ktbHHHdHHHk..",
+    ".khhhhhhhhtBk~~~~~~ktBHHHHHHHHk.",
+    ".khhhhhhhhtBk~~~~~~ktBHHHHHHHHk.",
+    ".khhhhhhhhtBk~~~~~~ktBHHHHHHHHk.",
+    ".khhhhhhhhtBk~d~~d~ktBHHHHHHHHk.",
+    ".khhHlhhhhtBk~d~~d~ktBHHHHHHHHk.",
+    ".khhhHhhhhtbk~d~~d~ktbHHHHHdHHk.",
+    ".khhhhhhhhtBk~g~~g~ktBHHHHdHHHk.",
+    ".khhhhhhhltBkbGbbGbktBHHHHHHHHk.",
+    ".khhhhhhHhtBk~g~~g~ktBHHHHHHHHk.",
+    ".khhhQhhhhtBkbGbbGbktBHHdQHHHHk.",
+    ".khQQhhhhhtBk~g~~g~ktBHHHHQQHHk.",
+    "..kkkkkkkkkkkkkkkkkkkkkkkkkkkk..",
+    "................................"
+   ]
+  }
+ ]
+}

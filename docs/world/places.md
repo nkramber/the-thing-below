@@ -24,7 +24,7 @@ From the high pass down to the foothills (D-250, D-255, D-371):
 
 The land of the old crown lies beyond the high pass, and the enemy crown came up the road from the foothills (D-254). The supply road of the occupier runs up from the foothills.
 
-A mine gallery from before the war runs under the gorge (D-251). The guild sealed it, and the old faith keeps the far end. The sealed door is a story gate on the region map. The party flees through the gallery to the refuge late in region one (D-331). A second passage lets the party and the church wardens pass each other in it (D-343). The gallery is the fifth dungeon of region one (D-575).
+A mine gallery from before the war runs under the gorge (D-251). The guild sealed it, and the old faith keeps the far end. The sealed door is a gate of the overworld (D-1243). The party flees through the gallery to the refuge late in region one (D-331). A second passage lets the party and the church wardens pass each other in it (D-343). The gallery is the fifth dungeon of region one (D-575).
 
 ## The village
 

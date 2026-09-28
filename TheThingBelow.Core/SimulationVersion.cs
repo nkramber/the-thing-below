@@ -127,6 +127,11 @@ public static class SimulationVersion
     /// (D-1228). A step on deep snow takes 32 ticks, and the lead slides over ice (D-1232, D-1233). Each 60 world ticks,
     /// poison hurts each poisoned character and bad air hurts each fighter, and a down of each fighter on the map wipes
     /// the party (D-397, D-1234 to D-1236).
+    /// PR-35 raised it to 37. A map can be an overworld, with grass, forest, mountain, and water tiles (D-1242, D-1256).
+    /// An arrival on an entrance of the overworld enters the spawn point of its place, and an exit to the overworld
+    /// puts the party on the marker that it names (D-1243, D-1255). The lead steps onto a gate only while its
+    /// condition holds, and a confirm at a closed gate posts its notice (D-1243, D-1257). The entry to the overworld
+    /// asks for the autosave (D-1246).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number
@@ -135,5 +140,5 @@ public static class SimulationVersion
     /// hash differs from this build takes the drift rules of D-1111 and D-1112. A change of this
     /// number also changes the expected hashes of the identity file (D-504).
     /// </remarks>
-    public const int Current = 36;
+    public const int Current = 37;
 }

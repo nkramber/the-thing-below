@@ -258,11 +258,13 @@ public sealed class DungeonPartsTests
     public void TheFixtureDungeonHoldsEachPartOfPr16()
     {
         // D-386, D-1216, D-1219, D-1220: a plain door, a story lock with its key in a chest, a
-        // pickable lock, a chest with gold and an owned lesson, a save point, and the exit to the hub.
+        // pickable lock, a chest with gold and an owned lesson, a save point, and the exit. PR-35 leads
+        // the exit to the overworld, onto the marker beside the cut (D-1255).
         GameMap map = TestMaps.FixtureDungeon;
 
         MapThing exit = Assert.Single(map.Things, thing => thing.Kind == MapThingKind.Exit);
-        Assert.Equal("map.fixture_hub", exit.To?.Value);
+        Assert.Equal("map.fixture_overworld", exit.To?.Value);
+        Assert.Equal("marker.fixture_overworld_cut", exit.Arrive?.Value);
         Assert.Contains(map.Things, thing => thing.Kind == MapThingKind.Lock && !thing.Pickable && thing.Key?.Value == "item.fixture_iron_key");
         Assert.Contains(map.Things, thing => thing.Kind == MapThingKind.Lock && thing.Pickable && thing.Key is null);
         Assert.Contains(map.Things, thing => thing.Contents is ChestContents contents && contents.Gold > 0 && contents.Entries.Any(entry => entry.Fallback is not null));

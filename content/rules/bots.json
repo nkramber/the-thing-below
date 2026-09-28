@@ -1,6 +1,7 @@
 {
- "comment": "The rules of the headless runner of PR-15 (D-1181, D-1184, D-1185). The runs start on the maps of the list in turn by seed: an even seed in the fixture dungeon, where Game starts, and an odd seed on the fixture hub. A run ends as complete when the goal flag is on: the party beat the rats in the straw of the fixture hub. PR-35 links the maps, and PR-17 moves the goal to the story of the first playable. PR-15 measured the tick budget: three times 783, the longest greedy run to the goal over seeds 1 to 2000.",
+ "comment": "The rules of the headless runner of PR-15 (D-1181, D-1184, D-1185). The runs start on the maps of the list in turn by seed: an even seed in the fixture dungeon, where Game starts, and an odd seed on the fixture hub. A run ends as complete when the goal flag is on: the party beat the rats in the straw of the fixture hub. PR-35 links the dungeon and the hub through the fixture overworld, so a dungeon run can reach the goal, and PR-17 moves the goal to the story of the first playable. Each policy has its own budget (D-1259). PR-35 measured the greedy budget: three times 4,555, the longest greedy run to the goal over seeds 1 to 2000. The random budget stays the 2,349 of PR-15, because a random run seldom reaches the goal.",
  "start_maps": ["map.fixture_dungeon", "map.fixture_hub"],
  "goal_flag": "flag.fixture_hub_rats",
- "tick_budget": 2349
+ "greedy_tick_budget": 13665,
+ "random_tick_budget": 2349
 }

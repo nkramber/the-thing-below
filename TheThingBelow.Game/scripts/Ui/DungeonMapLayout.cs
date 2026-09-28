@@ -119,7 +119,10 @@ public sealed class DungeonMapLayout
         return this.party.Walked.WasWalked(at) ? DungeonMapMark.Floor : DungeonMapMark.None;
     }
 
-    /// <summary>Gives the mark of the door, the save point, or the exit of a tile, or the floor mark when it holds none.</summary>
+    /// <summary>
+    /// Gives the mark of the door, the save point, or the exit of a tile, or the floor mark when it
+    /// holds none. An entrance takes the mark of an exit, and a gate the mark of a door (D-1243).
+    /// </summary>
     private DungeonMapMark ThingMarkAt(TilePoint at)
     {
         DungeonMapMark mark = DungeonMapMark.Floor;
@@ -129,7 +132,8 @@ public sealed class DungeonMapLayout
             {
                 MapThingKind.Door => DungeonMapMark.Door,
                 MapThingKind.SavePoint => DungeonMapMark.SavePoint,
-                MapThingKind.Exit => DungeonMapMark.Exit,
+                MapThingKind.Exit or MapThingKind.Entrance => DungeonMapMark.Exit,
+                MapThingKind.Gate => DungeonMapMark.Door,
                 _ => mark,
             };
         }

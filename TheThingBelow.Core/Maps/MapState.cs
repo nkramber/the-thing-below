@@ -4,6 +4,7 @@ using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Hashing;
 using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Runs;
+using TheThingBelow.Core.Story;
 
 namespace TheThingBelow.Core.Maps;
 
@@ -119,12 +120,30 @@ public sealed class MapState
     public static MapState Enter(GameMap map, PlaceState place)
     {
         ArgumentNullException.ThrowIfNull(map);
+
+        return EnterAt(map, place, map.Spawn);
+    }
+
+    /// <summary>Puts the party on a map at one tile, with the memory of the map (D-555, D-1255).</summary>
+    /// <param name="map">The map to enter.</param>
+    /// <param name="place">The memory of the map, which the run holds.</param>
+    /// <param name="at">The tile where the party arrives, such as the marker that an exit names.</param>
+    /// <returns>The state, with the tile walked, the lead to the south, and each enemy that the memory holds as dead left dead.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="ArgumentException">The memory is the memory of another map, or the lead cannot stand on the tile (T-2).</exception>
+    public static MapState EnterAt(GameMap map, PlaceState place, TilePoint at)
+    {
+        ArgumentNullException.ThrowIfNull(map);
         ArgumentNullException.ThrowIfNull(place);
         RequirePlaceOf(map, place);
+        if (!MapRules.CanEnter(map, place, at))
+        {
+            throw new ArgumentException($"The lead cannot stand on {at} of the map '{map.Id.Value}' (D-1255, T-2).", nameof(at));
+        }
 
         var walked = WalkedTiles.Empty(map.Width, map.Height);
-        walked.Mark(map.Spawn);
-        return new MapState(map, map.Spawn, StepDirection.South, null, 0, walked, MapPatrols.Enter(map, place), MapNpcs.Enter(map), place);
+        walked.Mark(at);
+        return new MapState(map, at, StepDirection.South, null, 0, walked, MapPatrols.Enter(map, place), MapNpcs.Enter(map), place);
     }
 
     /// <summary>Puts the party back on a map from the values of a snapshot (D-166, D-651).</summary>
@@ -308,10 +327,20 @@ public sealed class MapState
         return new MapState(map, leadAt, lead.Facing, stepping, stepTicks, walked, patrols, mapNpcs, place);
     }
 
-    /// <summary>Tells whether the lead can step onto one tile of this map, through each door that the party opened (D-41).</summary>
+    /// <summary>
+    /// Tells whether the lead can step onto one tile of this map, through each door that the party
+    /// opened and each gate whose condition holds (D-41, D-1243).
+    /// </summary>
     /// <param name="at">The tile, which can lie outside the map.</param>
+    /// <param name="flags">The story flags of the run, which open each gate (D-543).</param>
     /// <returns>True when the tile takes the step of the lead.</returns>
-    public bool CanStepOnto(TilePoint at) => MapRules.CanEnter(this.Map, this.Place, at);
+    /// <exception cref="ArgumentNullException">The flags are null (T-2).</exception>
+    public bool CanStepOnto(TilePoint at, FlagSet flags)
+    {
+        ArgumentNullException.ThrowIfNull(flags);
+
+        return MapRules.CanEnter(this.Map, this.Place, at) && MapRules.GateOpen(this.Map, flags, at);
+    }
 
     /// <summary>Gives the walked tiles the size of the map of this build, and logs a change (D-1111).</summary>
     private static WalkedTiles FitWalked(GameMap map, WalkedTiles walked, ResumeDrift drift)
@@ -423,7 +452,9 @@ public sealed class MapState
     }
 
     /// <summary>Runs the party for one world tick: the step that runs, and then the next one.</summary>
+    /// <param name="flags">The story flags of the run, which open each gate (D-1243).</param>
     /// <returns>What the tick did to the party (D-203, D-747).</returns>
+    /// <exception cref="ArgumentNullException">The flags are null (T-2).</exception>
     /// <exception cref="OverflowException">A count passes the range of an `int` (T-2).</exception>
     /// <remarks>
     /// A menu pauses the world, so the world step of a run calls this method only while no menu
@@ -435,8 +466,10 @@ public sealed class MapState
     /// step when the encounter ends.
     /// </para>
     /// </remarks>
-    public PartyStep Advance()
+    public PartyStep Advance(FlagSet flags)
     {
+        ArgumentNullException.ThrowIfNull(flags);
+
         TilePoint walked = this.LeadAt;
         StepDirection? started = null;
         ContentId? bumped = null;
@@ -488,8 +521,9 @@ public sealed class MapState
                 }
             }
             // An NPC is solid, so a step into one turns the lead alone, with no bump and no
-            // encounter (D-1139).
-            else if (this.CanStepOnto(target) && !this.Npcs.TryNpcAt(target, out _))
+            // encounter (D-1139). A closed gate turns the lead alone too, and a confirm then
+            // posts its notice (D-1257).
+            else if (this.CanStepOnto(target, flags) && !this.Npcs.TryNpcAt(target, out _))
             {
                 this.Stepping = next;
                 this.StepTicks = 0;

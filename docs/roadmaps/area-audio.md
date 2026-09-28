@@ -87,7 +87,7 @@ Built by PR-70. Phase file: `phase-2-first-playable.md`.
 - Content sets the time of day of each map, and a story flag can change it (D-442). No clock runs.
 - A place has a night version of its track only if the story sets it at dusk or night (D-443). Caves and mines keep one version (D-417).
 - At a change of the time of day, the place track finishes its musical phrase, then it crossfades to the other version (D-428). OQ-159 holds the phrase mark, and OQ-160 the length of the crossfade.
-- The region map plays one track, and it gives no sign of night (D-430).
+- The overworld plays one track at every time, and its light shows the time that the story sets (D-430, D-1252).
 - The music of the place plays on under every in-game menu (D-421). That covers the party menu, the gear menu, the save point menu, and the hub services.
 - The HUD shows no sun and no moon mark, because the light and the music show the time (D-445).
 
@@ -112,7 +112,7 @@ Built by PR-70. Phase file: `phase-2-first-playable.md`.
 
 - A story scene keeps the place music unless a cue serves it (D-418, D-548). A cue comes from a small set of mood tracks, such as tension, grief, and menace.
 - A few key story scenes have a track of their own (D-418). The file `area-story.md` holds the story scene.
-- The title screen and the last story scene of region one play the main theme (D-427). The region map has a track of its own.
+- The title screen and the last story scene of region one play the main theme (D-427). The overworld has a track of its own.
 - Three sets of themes run through the music: the main theme, a theme for each faction, and a theme for each cast member (D-419). Other tracks borrow a theme.
 - Region one holds ten themes: the main theme, four faction themes, and five character themes (D-419).
 - Menus make soft, short sounds: a cursor tick, a confirm, a cancel, and a refusal (D-431). The dialogue box types in silence (D-223).

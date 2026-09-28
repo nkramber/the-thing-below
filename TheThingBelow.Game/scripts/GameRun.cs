@@ -205,6 +205,9 @@ public sealed class GameRun
     /// </remarks>
     public RunState State => this.simulation.State;
 
+    /// <summary>The story flags of the run, which open each gate of the overworld (D-1243).</summary>
+    public FlagSet Flags => this.simulation.State.Story.Flags;
+
     /// <summary>The part of the next tick that the frames reached, in thousandths (D-820).</summary>
     public int TickPart => this.loop.TickPart;
 

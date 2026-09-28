@@ -253,18 +253,20 @@ public partial class MapScreen : Node2D
     /// <param name="tick">The tick of the run, which each fade of the dark counts (D-1062).</param>
     /// <param name="torchHeld">True while the party holds the torch out (D-1064).</param>
     /// <param name="theftCarried">True when a character who fights and stands carries a Theft drill, so a trap near the lead shows (D-1228).</param>
+    /// <param name="flags">The story flags of the run, which open each gate of the overworld (D-1243).</param>
     /// <param name="scene">The story scene on screen, which walks its actors and holds the view, or no value on the walk (D-1012, D-1013).</param>
     /// <param name="story">The story state, whose shown actors draw, or no value on the walk (D-1006).</param>
-    /// <exception cref="ArgumentNullException">The party is null (T-2).</exception>
+    /// <exception cref="ArgumentNullException">The party or the flags are null (T-2).</exception>
     /// <exception cref="ArgumentOutOfRangeException">The tick is below zero (T-2).</exception>
     /// <exception cref="ContentException">The atlas holds no map drawing of a shown actor (T-2, D-519).</exception>
     /// <remarks>
     /// Every value is a whole art pixel of the world viewport, so no sprite draws between
     /// two pixels and no Godot snap setting is on (D-715).
     /// </remarks>
-    public void ShowParty(MapState party, int tickPart, long tick, bool torchHeld, bool theftCarried, ScenePlay? scene = null, StoryState? story = null)
+    public void ShowParty(MapState party, int tickPart, long tick, bool torchHeld, bool theftCarried, FlagSet flags, ScenePlay? scene = null, StoryState? story = null)
     {
         ArgumentNullException.ThrowIfNull(party);
+        ArgumentNullException.ThrowIfNull(flags);
         ArgumentOutOfRangeException.ThrowIfNegative(tick);
 
         int leadX = MapCamera.LeadX(party, tickPart);
@@ -284,7 +286,7 @@ public partial class MapScreen : Node2D
         this.carriedFlame.MoveTo(carriedAt);
         this.ShowEnemies(party, tickPart, tick, torchHeld);
         this.ShowNpcs(party, tickPart, tick, scene);
-        this.ShowPoints(party, tickPart, tick, theftCarried);
+        this.ShowPoints(party, tickPart, tick, theftCarried, flags);
         this.ShowActors(story?.Actors ?? [], scene);
 
         CameraPlace view = scene?.View ?? MapCamera.Of(party, FrameRoot.WorldWidth, FrameRoot.WorldHeight, tickPart);
@@ -720,7 +722,7 @@ public partial class MapScreen : Node2D
     /// trap takes its sprung look, a trap that shows takes its armed look, and a hidden trap draws
     /// nothing (D-1228, D-1238).
     /// </summary>
-    private void ShowPoints(MapState party, int tickPart, long tick, bool theftCarried)
+    private void ShowPoints(MapState party, int tickPart, long tick, bool theftCarried, FlagSet flags)
     {
         int leadX = MapCamera.LeadX(party, tickPart);
         int leadY = MapCamera.LeadY(party, tickPart);
@@ -744,19 +746,23 @@ public partial class MapScreen : Node2D
                 share = 0;
             }
 
-            this.pointSprites[index].Texture = this.pointOpen[index] is Texture2D open && IsOpen(party.Place, this.points[index])
+            this.pointSprites[index].Texture = this.pointOpen[index] is Texture2D open && IsOpen(party.Place, flags, this.points[index])
                 ? open
                 : this.pointShut[index];
             this.ShowFigure(this.pointSprites[index], slot, share, new Vector2(x, FeetOf(y, 1)));
         }
     }
 
-    /// <summary>Tells whether the party opened a door or a chest, or spent a trap, from the memory of the map (D-555, D-1229).</summary>
-    private static bool IsOpen(PlaceState place, MapThing thing) => thing.Kind switch
+    /// <summary>
+    /// Tells whether the party opened a door or a chest, or spent a trap, from the memory of the map,
+    /// or whether the condition of a gate holds (D-555, D-1229, D-1243).
+    /// </summary>
+    private static bool IsOpen(PlaceState place, FlagSet flags, MapThing thing) => thing.Kind switch
     {
         MapThingKind.Door => place.IsOpen(thing.Id),
         MapThingKind.Chest => place.LeftIn(thing.Id) is not null,
         MapThingKind.Trap => place.IsSpent(thing.Id),
+        MapThingKind.Gate => thing.Gate is MapGate gate && gate.Condition.Holds(flags),
         _ => false,
     };
 
@@ -864,19 +870,20 @@ public partial class MapScreen : Node2D
 
     /// <summary>Tells whether a thing of one kind draws a sprite on the map (D-1142, D-1223).</summary>
     /// <param name="kind">The kind of the thing.</param>
-    /// <returns>True for a service point, a save point, a door, a chest, a trap, and an exit.</returns>
+    /// <returns>True for a service point, a save point, a door, a chest, a trap, an exit, an entrance, and a gate.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The value names no kind (T-2).</exception>
     public static bool Draws(MapThingKind kind) => kind switch
     {
-        MapThingKind.ServicePoint or MapThingKind.SavePoint or MapThingKind.Door or MapThingKind.Chest or MapThingKind.Trap or MapThingKind.Exit => true,
+        MapThingKind.ServicePoint or MapThingKind.SavePoint or MapThingKind.Door or MapThingKind.Chest or MapThingKind.Trap
+            or MapThingKind.Exit or MapThingKind.Entrance or MapThingKind.Gate => true,
         MapThingKind.Lock or MapThingKind.SpawnPoint or MapThingKind.Marker => false,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "The value names no map thing kind (D-528, T-2)."),
     };
 
     /// <summary>Tells whether a thing of one kind takes an open look beside its closed look (D-1223).</summary>
     /// <param name="kind">The kind of the thing.</param>
-    /// <returns>True for a door, a chest, and a trap, whose open look is its sprung look (D-1238).</returns>
-    public static bool HasOpenLook(MapThingKind kind) => kind is MapThingKind.Door or MapThingKind.Chest or MapThingKind.Trap;
+    /// <returns>True for a door, a chest, a gate, and a trap, whose open look is its sprung look (D-1238, D-1243).</returns>
+    public static bool HasOpenLook(MapThingKind kind) => kind is MapThingKind.Door or MapThingKind.Chest or MapThingKind.Trap or MapThingKind.Gate;
 
     /// <summary>Gives the open look of a door or a chest, or no value for a thing with one look (D-1223).</summary>
     /// <exception cref="ContentException">The atlas holds no open drawing of a door or a chest (T-2).</exception>

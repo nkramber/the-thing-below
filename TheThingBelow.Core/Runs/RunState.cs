@@ -780,8 +780,8 @@ public sealed class RunState
 
     /// <summary>
     /// Puts the party on the spawn point of a map of the run, and notes the entry for the entry
-    /// triggers of that map (D-528, D-1004, D-1133). The entry to a hub asks for the autosave
-    /// (D-224, D-1132).
+    /// triggers of that map (D-528, D-1004, D-1133). The entry to a hub or to the overworld asks
+    /// for the autosave (D-224, D-1132, D-1246).
     /// </summary>
     /// <param name="id">The id of the map to enter, which can be the map that the party stands on.</param>
     /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
@@ -807,9 +807,48 @@ public sealed class RunState
 
         this.Maps.TryFind(id, out GameMap? map);
         GameMap entered = map!;
-        this.Party = MapState.Enter(entered, this.Places.Of(entered.Id));
+        this.Arrive(MapState.Enter(entered, this.Places.Of(entered.Id)));
+    }
+
+    /// <summary>
+    /// Puts the party on a marker of a map of the run, as an exit to the overworld does, and notes
+    /// the entry as <see cref="EnterMap"/> does (D-1246, D-1255).
+    /// </summary>
+    /// <param name="id">The id of the map to enter.</param>
+    /// <param name="marker">The id of the marker of that map where the party arrives.</param>
+    /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="SimulationException">
+    /// <see cref="RefusalOfEnter"/> gives a reason, or the map holds no such marker (T-2).
+    /// </exception>
+    public void EnterMapAt(ContentId id, ContentId marker, RunContext context)
+    {
+        ArgumentNullException.ThrowIfNull(id);
+        ArgumentNullException.ThrowIfNull(marker);
+        ArgumentNullException.ThrowIfNull(context);
+
+        if (this.RefusalOfEnter(id) is string refusal)
+        {
+            throw new SimulationException($"an entry to the map '{id.Value}' found {refusal} (D-1133)", context);
+        }
+
+        this.Maps.TryFind(id, out GameMap? map);
+        GameMap entered = map!;
+        MapThing found = entered.ThingOf(marker, MapThingKind.Marker)
+            ?? throw new SimulationException($"an entry to the map '{id.Value}' on the marker '{marker.Value}', which the map lacks, and the content set checks each marker of an exit (D-1255)", context);
+        this.Arrive(MapState.EnterAt(entered, this.Places.Of(entered.Id), found.At));
+    }
+
+    /// <summary>
+    /// Sets the party on the map that it entered, and notes the entry for its entry triggers
+    /// (D-1004). The entry to a hub or to the overworld asks for the autosave, which Game writes
+    /// after the tick (D-224, D-1132, D-1246).
+    /// </summary>
+    private void Arrive(MapState party)
+    {
+        this.Party = party;
         this.Story.NoteEntry();
-        if (entered.Kind == MapKind.Hub)
+        if (party.Map.Kind == MapKind.Hub || party.Map.Kind == MapKind.Overworld)
         {
             this.RequestSave(SaveRequestKind.Autosave);
         }

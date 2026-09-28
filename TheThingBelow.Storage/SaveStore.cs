@@ -11,7 +11,7 @@ public enum SaveKind
     /// <summary>The one slot save, which the save service of a hub and a save point write by the choice of the player (D-62, D-1132).</summary>
     Slot,
 
-    /// <summary>The autosave, which a hub and a node of the region map write (D-224).</summary>
+    /// <summary>The autosave, which the entry to a hub or to the overworld writes (D-224, D-1246).</summary>
     Autosave,
 
     /// <summary>The resume file of a quit, which one load reads and removes (D-258).</summary>

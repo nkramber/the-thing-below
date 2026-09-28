@@ -383,7 +383,9 @@ public sealed class ContentSet
         {
             story.RequireScenesOf(map);
             story.RequireServicesOf(map);
+            story.RequireGatesOf(map);
             story.RequireReopenFlagsOf(map);
+            RequireGateNoticesOf(map, notices ?? throw AbsentFile(NoticeList.Path));
         }
 
         LightContent light = LightContent.Load(lightFiles, maps, readPalette, readAtlas);
@@ -638,17 +640,75 @@ public sealed class ContentSet
         return strikes;
     }
 
-    /// <summary>Checks that each exit of a map names a map of the content (D-1216, T-2).</summary>
+    /// <summary>
+    /// Checks that each exit and each entrance of a map names a map of the content (D-1216,
+    /// D-1243). An exit to an overworld names a marker of that overworld, and an exit to another
+    /// kind of map names none (D-1255, T-2).
+    /// </summary>
     private static void RequireExitsOf(GameMap map, SortedDictionary<string, GameMap> maps)
     {
         foreach (MapThing thing in map.Things)
         {
-            if (thing.To is ContentId to && !maps.ContainsKey(to.Value))
+            if (thing.To is not ContentId to)
+            {
+                continue;
+            }
+
+            string kind = MapThingKinds.NameOf(thing.Kind);
+            if (!maps.TryGetValue(to.Value, out GameMap? target))
             {
                 throw ContentException.ForField(
                     map.File,
                     $"{thing.Id.Value}.to",
-                    $"the exit names the map '{to.Value}', and no file of '{GameMap.Folder}' holds it (D-1216)");
+                    $"the {kind} names the map '{to.Value}', and no file of '{GameMap.Folder}' holds it (D-1216, D-1243)");
+            }
+
+            RequireArriveOf(map, thing, target);
+        }
+    }
+
+    /// <summary>Checks the marker of the overworld that one exit names (D-1255, T-2).</summary>
+    private static void RequireArriveOf(GameMap map, MapThing thing, GameMap target)
+    {
+        string field = $"{thing.Id.Value}.{GameMap.ArriveField}";
+        if (target.Kind != MapKind.Overworld)
+        {
+            if (thing.Arrive is ContentId named)
+            {
+                throw ContentException.ForField(
+                    map.File,
+                    field,
+                    $"the exit names the marker '{named.Value}', and its map '{target.Id.Value}' is a {MapKinds.NameOf(target.Kind)}. An exit to an overworld alone names a marker, and the party arrives on the spawn point of any other map (D-1255)");
+            }
+
+            return;
+        }
+
+        ContentId marker = thing.Arrive
+            ?? throw ContentException.ForField(
+                map.File,
+                field,
+                $"the exit leads to the overworld '{target.Id.Value}' and names no marker, and an exit to an overworld names the marker where the party arrives (D-1255)");
+        if (target.ThingOf(marker, MapThingKind.Marker) is null)
+        {
+            throw ContentException.ForField(
+                map.File,
+                field,
+                $"the exit names the marker '{marker.Value}', and the overworld '{target.Id.Value}' holds no such marker (D-1255)");
+        }
+    }
+
+    /// <summary>Checks that the notice of each gate of a map is a notice of the notice file (D-1257, T-2).</summary>
+    private static void RequireGateNoticesOf(GameMap map, NoticeList notices)
+    {
+        foreach (MapThing thing in map.Things)
+        {
+            if (thing.Gate is MapGate gate && !notices.Holds(gate.Notice))
+            {
+                throw ContentException.ForField(
+                    map.File,
+                    $"{thing.Id.Value}.{GameMap.NoticeField}",
+                    $"the gate names the notice '{gate.Notice.Value}', and '{NoticeList.Path}' holds no such notice (D-1257)");
             }
         }
     }

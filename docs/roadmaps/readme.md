@@ -49,7 +49,7 @@ Twelve files in four groups (D-485).
 | Graphics and effects | `area-art.md` | The drawings, the palette, the atlas, and the large pictures |
 | Graphics and effects | `area-effects.md` | Light, particles, glow, the transitions, and the effect budget |
 | UI and input | `area-ui-input.md` | The UI base, the menus, the settings, and the intents |
-| Systems, audio, release | `area-exploration.md` | The maps, the dungeons, the hubs, the shop, and the region map |
+| Systems, audio, release | `area-exploration.md` | The maps, the dungeons, the hubs, the shop, and the overworld |
 | Systems, audio, release | `area-battle.md` | The timeline, the actions, the elements, the statuses, and the evaluator |
 | Systems, audio, release | `area-progression.md` | The character level, AP, the lessons, the aptitudes, the gear, and the items |
 | Systems, audio, release | `area-story.md` | The story scenes, the story flags, the conditions, the quests, and the arc |

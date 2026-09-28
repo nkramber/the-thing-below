@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using TheThingBelow.Core;
 using TheThingBelow.Core.Maps;
+using TheThingBelow.Core.Story;
 using TheThingBelow.Core.Runs;
 using TheThingBelow.Core.Streams;
 using Xunit;
@@ -57,7 +58,7 @@ public sealed class NpcBlockTests
         for (int tick = 0; tick < 40; tick += 1)
         {
             party.Want(StepDirection.South);
-            PartyStep step = party.Advance();
+            PartyStep step = party.Advance(FlagSet.Empty());
 
             Assert.Null(step.Started);
             Assert.Null(step.Bumped);

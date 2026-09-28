@@ -1,5 +1,6 @@
 using System;
 using TheThingBelow.Core.Maps;
+using TheThingBelow.Core.Story;
 using Xunit;
 
 namespace TheThingBelow.Tests;
@@ -32,7 +33,7 @@ public sealed class MapStateTests
         MapState party = MapState.Enter(inn);
 
         party.Want(StepDirection.East);
-        PartyStep step = party.Advance();
+        PartyStep step = party.Advance(FlagSet.Empty());
 
         Assert.Null(step.Started);
         Assert.Null(party.Stepping);
@@ -46,7 +47,7 @@ public sealed class MapStateTests
         MapState party = MapState.Enter(TestMaps.Room);
 
         party.Want(StepDirection.East);
-        PartyStep step = party.Advance();
+        PartyStep step = party.Advance(FlagSet.Empty());
 
         Assert.False(step.Arrived);
         Assert.Equal(StepDirection.East, step.Started);
@@ -60,15 +61,15 @@ public sealed class MapStateTests
         MapState party = MapState.Enter(TestMaps.Room);
         TilePoint start = party.LeadAt;
         party.Want(StepDirection.East);
-        party.Advance();
+        party.Advance(FlagSet.Empty());
 
         for (int tick = 1; tick < MapRules.TicksPerStep; tick += 1)
         {
-            Assert.False(party.Advance().Arrived);
+            Assert.False(party.Advance(FlagSet.Empty()).Arrived);
             Assert.Equal(start, party.LeadAt);
         }
 
-        PartyStep last = party.Advance();
+        PartyStep last = party.Advance(FlagSet.Empty());
         Assert.True(last.Arrived);
         Assert.Equal(start.Step(StepDirection.East), party.LeadAt);
         Assert.Equal(party.LeadAt, last.At);
@@ -86,7 +87,7 @@ public sealed class MapStateTests
         for (int tick = 0; tick <= MapRules.TicksPerStep * 2; tick += 1)
         {
             party.Want(StepDirection.East);
-            party.Advance();
+            party.Advance(FlagSet.Empty());
         }
 
         Assert.Equal(new TilePoint(start.X + 2, start.Y), party.LeadAt);
@@ -102,9 +103,9 @@ public sealed class MapStateTests
         TilePoint start = party.LeadAt;
 
         party.Want(StepDirection.North);
-        PartyStep first = party.Advance();
+        PartyStep first = party.Advance(FlagSet.Empty());
         party.Want(StepDirection.West);
-        PartyStep second = party.Advance();
+        PartyStep second = party.Advance(FlagSet.Empty());
 
         Assert.Equal(StepDirection.North, first.Started);
         Assert.Null(second.Started);
@@ -128,7 +129,7 @@ public sealed class MapStateTests
             "the test");
 
         party.Want(StepDirection.West);
-        PartyStep step = party.Advance();
+        PartyStep step = party.Advance(FlagSet.Empty());
 
         Assert.False(step.Arrived);
         Assert.Null(step.Started);
@@ -147,7 +148,7 @@ public sealed class MapStateTests
         party.Want(StepDirection.East);
         for (int tick = 0; tick <= MapRules.TicksPerStep; tick += 1)
         {
-            party.Advance();
+            party.Advance(FlagSet.Empty());
         }
 
         Assert.Null(party.Stepping);

@@ -38,6 +38,18 @@ public static class TileIds
     /// <summary>The id of ground under bad air (D-1235).</summary>
     public static readonly ContentId BadAir = ContentId.Parse("tile.bad_air", Source, nameof(BadAir));
 
+    /// <summary>The id of grass of the overworld (D-1256).</summary>
+    public static readonly ContentId Grass = ContentId.Parse("tile.grass", Source, nameof(Grass));
+
+    /// <summary>The id of forest of the overworld (D-1256).</summary>
+    public static readonly ContentId Forest = ContentId.Parse("tile.forest", Source, nameof(Forest));
+
+    /// <summary>The id of a mountain of the overworld (D-1256).</summary>
+    public static readonly ContentId Mountain = ContentId.Parse("tile.mountain", Source, nameof(Mountain));
+
+    /// <summary>The id of water of the overworld (D-1256).</summary>
+    public static readonly ContentId Water = ContentId.Parse("tile.water", Source, nameof(Water));
+
     /// <summary>Gives the content id of one tile kind (D-519).</summary>
     /// <param name="kind">The kind of the tile.</param>
     /// <returns>The id that the drawing of that kind names.</returns>
@@ -50,6 +62,10 @@ public static class TileIds
         TileKind.Snow => Snow,
         TileKind.Ice => Ice,
         TileKind.BadAir => BadAir,
+        TileKind.Grass => Grass,
+        TileKind.Forest => Forest,
+        TileKind.Mountain => Mountain,
+        TileKind.Water => Water,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no tile kind (D-528)"),
     };
 }

@@ -249,7 +249,7 @@ Built by PR-41. Phase file: `phase-2-first-playable.md`.
 Built by PR-15. Phase file: `phase-2-first-playable.md`.
 
 - Each leg runs the headless runner of `area-tools.md` section 7.8 with both policies over a fixed seed range (D-64, D-505).
-- Each policy plays the largest count of runs that fits in 5 minutes on the slowest leg (D-1180, G-14). PR-15 timed macos-26 as the slowest leg, and set 7,000 greedy runs and 6,500 random runs.
+- Each policy plays the largest count of runs that fits in 5 minutes on the slowest leg (D-1180, G-14). PR-15 timed macos-26 as the slowest leg, and set 7,000 greedy runs and 6,500 random runs. PR-35 halved the greedy count to 3,500, because a greedy run of the dungeon now crosses the overworld (D-1260).
 - The job is the family `bots`, with one leg for each system and the gate job `bots` (section 7.19). A docs-only change skips it (D-858).
 - PR-15 adds `bots` to the required checks of `main`, after four green runs of the job (D-1186).
 - A crash or a softlock fails the job with the seed, the policy, and the leg (T-2). The job uploads the run record of that run (T-7). D-1179 sets how the runner finds a softlock.
@@ -263,7 +263,7 @@ Built by PR-15. Phase file: `phase-2-first-playable.md`.
 Built by PR-49. PR-108 adds the alert and the watcher. Phase file: `phase-2-first-playable.md`.
 
 - The night job runs on `schedule` from `main`, on the latest commit there (F-37). It starts at 04:17 UTC, away from the start of the hour (D-1189, F-41).
-- Each policy plays the most runs that fit in 30 minutes on the slowest leg, and each leg plays the same count (D-1191). PR-49 set 235,000 greedy runs and 153,000 random runs from the bot job of run 36280972257.
+- Each policy plays the most runs that fit in 30 minutes on the slowest leg, and each leg plays the same count (D-1191). PR-49 set 235,000 greedy runs and 153,000 random runs from the bot job of run 36280972257. PR-35 halved the greedy count to 117,500 (D-1260).
 - Each night plays a new seed range: its run number times 1,000,000,000. The three legs share the range, and a manual night can name its first seed (D-1190).
 - The `night` command of Tools plays one leg and writes its night record. The record names the commit, the leg, the first seed, the runs and the count of each end of each policy, and the status (D-509).
 - Each leg uploads its night record as an artifact of its run, a failed night too. The records of the failed runs replay with the `bots` command (T-7).

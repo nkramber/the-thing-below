@@ -1,0 +1,9 @@
+{
+ "comment": "The light of the fixture overworld by day (D-442, D-1252). The overworld takes its time and its dark from its map file, as each map does, so a story flag can set it to night later. By day the ambient light is flame white at full strength, as on the fixture hub, and the overworld holds no torch and no added light. No fight begins here in PR-35, because the overworld holds no enemy (D-1247). Each color is a palette key with a strength in basis points (D-846).",
+ "map": "map.fixture_overworld",
+ "time": "day",
+ "ambient": { "color": "a", "strength": 10000 },
+ "battle": { "color": "A", "strength": 24000, "range": 720, "height": 96 },
+ "changes": [],
+ "added": []
+}

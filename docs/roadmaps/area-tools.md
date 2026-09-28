@@ -198,7 +198,7 @@ Built by PR-15. Phase file: `phase-2-first-playable.md`.
 - The two policies are random and greedy (D-64). A policy takes its random numbers from a source outside the rule streams (G-4, `area-core.md` section 7.4).
 - The random policy picks one accepted intent. The greedy policy walks to the nearest target that it did not reach, and it wins a battle fast (D-1183).
 - Each run writes its run record and its saves through Storage (D-494). On a wipe, the runner reloads the newer save of the run, as Game does (D-1114, D-1181).
-- A run ends as complete, softlock, crash, or budget, and each failure names its seed. The goal flag and the tick budget live in the bot rules file of content (D-1181, D-1184).
+- A run ends as complete, softlock, crash, or budget, and each failure names its seed. The goal flag and the tick budget of each policy live in the bot rules file of content (D-1181, D-1184, D-1259).
 - A run ends as softlock when no intent that the state accepts changes the state other than the tick (D-1179). Core answers the query of the accepted intents.
 - The result of each run lists the turns and the outcome of each battle (D-1182). The balance harness of PR-90 adds the bands (D-822).
 - Each policy plays the runs that fit in 5 minutes on each PR, on every CI leg (D-505, D-1180). `area-ci.md` holds the job.

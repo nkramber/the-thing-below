@@ -14,6 +14,10 @@ public sealed class TileKindsTests
     [InlineData('*', TileKind.Snow)]
     [InlineData('=', TileKind.Ice)]
     [InlineData('~', TileKind.BadAir)]
+    [InlineData(',', TileKind.Grass)]
+    [InlineData('%', TileKind.Forest)]
+    [InlineData('^', TileKind.Mountain)]
+    [InlineData('-', TileKind.Water)]
     public void ACharacterOfATerrainRowNamesItsKind(char character, TileKind kind)
     {
         Assert.True(TileKinds.TryOf(character, out TileKind found));
@@ -44,6 +48,10 @@ public sealed class TileKindsTests
     [InlineData(TileKind.Snow, true, false)]
     [InlineData(TileKind.Ice, true, false)]
     [InlineData(TileKind.BadAir, true, false)]
+    [InlineData(TileKind.Grass, true, false)]
+    [InlineData(TileKind.Forest, true, false)]
+    [InlineData(TileKind.Mountain, false, true)]
+    [InlineData(TileKind.Water, false, false)]
     public void EachKindGivesItsStepRuleAndItsSightRule(TileKind kind, bool walk, bool stopsSight)
     {
         Assert.Equal(walk, TileKinds.CanWalk(kind));
@@ -53,11 +61,11 @@ public sealed class TileKindsTests
     [Fact]
     public void AValueThatNamesNoKindIsAnError()
     {
-        Assert.Throws<ArgumentOutOfRangeException>(() => TileKinds.CanWalk((TileKind)9));
-        Assert.Throws<ArgumentOutOfRangeException>(() => TileKinds.StopsSight((TileKind)9));
-        Assert.Throws<ArgumentOutOfRangeException>(() => TileKinds.NameOf((TileKind)9));
-        Assert.Throws<ArgumentOutOfRangeException>(() => TileKinds.CharacterOf((TileKind)9));
-        Assert.Throws<ArgumentOutOfRangeException>(() => TileIds.Of((TileKind)9));
+        Assert.Throws<ArgumentOutOfRangeException>(() => TileKinds.CanWalk((TileKind)10));
+        Assert.Throws<ArgumentOutOfRangeException>(() => TileKinds.StopsSight((TileKind)10));
+        Assert.Throws<ArgumentOutOfRangeException>(() => TileKinds.NameOf((TileKind)10));
+        Assert.Throws<ArgumentOutOfRangeException>(() => TileKinds.CharacterOf((TileKind)10));
+        Assert.Throws<ArgumentOutOfRangeException>(() => TileIds.Of((TileKind)10));
     }
 
     [Theory]
@@ -67,6 +75,10 @@ public sealed class TileKindsTests
     [InlineData(TileKind.Snow, "tile.snow")]
     [InlineData(TileKind.Ice, "tile.ice")]
     [InlineData(TileKind.BadAir, "tile.bad_air")]
+    [InlineData(TileKind.Grass, "tile.grass")]
+    [InlineData(TileKind.Forest, "tile.forest")]
+    [InlineData(TileKind.Mountain, "tile.mountain")]
+    [InlineData(TileKind.Water, "tile.water")]
     public void EachKindNamesTheContentIdOfItsDrawing(TileKind kind, string id)
     {
         // D-519: an art file names the content ids that it draws, and a rule file names no

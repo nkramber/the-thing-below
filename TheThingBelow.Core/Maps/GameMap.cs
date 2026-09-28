@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Notices;
 using TheThingBelow.Core.Story;
 
 namespace TheThingBelow.Core.Maps;
@@ -30,6 +31,15 @@ public sealed class GameMap
 
     /// <summary>The folder that holds every map file, under `content/` (D-495, D-528).</summary>
     public const string Folder = "rules/maps/";
+
+    /// <summary>The field of an exit that names its marker of the overworld (D-1255).</summary>
+    public const string ArriveField = "arrive";
+
+    /// <summary>The field of a gate that holds its condition (D-1243).</summary>
+    public const string ConditionField = "condition";
+
+    /// <summary>The field of a gate that names its notice (D-1257).</summary>
+    public const string NoticeField = "notice";
 
     /// <summary>
     /// The largest count of tiles on one side of a map. A `TileMapLayer` of Godot holds
@@ -164,6 +174,16 @@ public sealed class GameMap
     /// <param name="at">The tile, which can lie outside the map.</param>
     /// <returns>The exit, or no value when the tile holds none.</returns>
     public MapThing? ExitAt(TilePoint at) => this.ThingOfKindAt(at, MapThingKind.Exit);
+
+    /// <summary>Finds the entrance on one tile (D-1243).</summary>
+    /// <param name="at">The tile, which can lie outside the map.</param>
+    /// <returns>The entrance, or no value when the tile holds none.</returns>
+    public MapThing? EntranceAt(TilePoint at) => this.ThingOfKindAt(at, MapThingKind.Entrance);
+
+    /// <summary>Finds the gate on one tile (D-1243).</summary>
+    /// <param name="at">The tile, which can lie outside the map.</param>
+    /// <returns>The gate, or no value when the tile holds none.</returns>
+    public MapThing? GateAt(TilePoint at) => this.ThingOfKindAt(at, MapThingKind.Gate);
 
     /// <summary>Finds the trap on one tile (D-1226).</summary>
     /// <param name="at">The tile, which can lie outside the map.</param>
@@ -499,6 +519,9 @@ public sealed class GameMap
         int? share = null;
         string? status = null;
         ContentId? group = null;
+        ContentId? arrive = null;
+        Condition? condition = null;
+        ContentId? notice = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -544,6 +567,15 @@ public sealed class GameMap
                 case TrapHarm.GroupField:
                     group = reader.ReadContentId(Patrol.GroupKind);
                     break;
+                case ArriveField:
+                    arrive = reader.ReadContentId(MapThingKinds.NameOf(MapThingKind.Marker));
+                    break;
+                case ConditionField:
+                    condition = Condition.Read(ref reader);
+                    break;
+                case NoticeField:
+                    notice = reader.ReadContentId(NoticeList.Kind);
+                    break;
                 default:
                     throw reader.UnknownField(field);
             }
@@ -559,7 +591,9 @@ public sealed class GameMap
             to,
             contents,
             gold,
-            new TrapLine(harm, share, status, group));
+            new TrapLine(harm, share, status, group),
+            arrive,
+            new GateLine(condition, notice));
     }
 
     private static GameMap Build(
@@ -597,6 +631,7 @@ public sealed class GameMap
 
         // The map is complete here, so each check of a patrol reads the terrain and the
         // spawn point through the map itself and never through a second copy of them (T-1).
+        CheckKindOfThings(ref reader, map);
         PatrolLayout.Check(ref reader, map);
         NpcLayout.Check(ref reader, map);
         CheckServices(ref reader, map);
@@ -687,11 +722,10 @@ public sealed class GameMap
             }
 
             TileKind under = tiles[(at.Y * width) + at.X];
-            TileKind wanted = MapThingKinds.TileOf(kind);
-            if (under != wanted)
+            if (!MapThingKinds.CanSitOn(kind, under))
             {
                 throw reader.Refuse(
-                    $"the thing '{line.Id.Value}' sits at {at} on a {TileKinds.NameOf(under)} tile, and a {MapThingKinds.NameOf(kind)} sits on a {TileKinds.NameOf(wanted)} tile (D-528)");
+                    $"the thing '{line.Id.Value}' sits at {at} on a {TileKinds.NameOf(under)} tile, and a {MapThingKinds.NameOf(kind)} sits on a {MapThingKinds.GroundNameOf(kind)} tile (D-528, D-1256)");
             }
 
             if (line.Pickable.HasValue && kind != MapThingKind.Lock)
@@ -707,7 +741,17 @@ public sealed class GameMap
             }
 
             ContentId? key = LockKeyOf(ref reader, line, kind);
-            things[index] = new MapThing(line.Id, kind, at, line.Pickable ?? false, key, ExitTargetOf(ref reader, line, kind), ChestOf(ref reader, line, kind), TrapHarmOf(ref reader, line, kind));
+            things[index] = new MapThing(
+                line.Id,
+                kind,
+                at,
+                line.Pickable ?? false,
+                key,
+                ExitTargetOf(ref reader, line, kind),
+                ChestOf(ref reader, line, kind),
+                TrapHarmOf(ref reader, line, kind),
+                ArriveOf(ref reader, line, kind),
+                GateOf(ref reader, line, kind));
         }
 
         RefuseRepeatedId(ref reader, things);
@@ -756,20 +800,57 @@ public sealed class GameMap
         return key;
     }
 
-    /// <summary>Reads the map that an exit enters. An exit names one, and no other thing does (D-1216, T-2).</summary>
+    /// <summary>
+    /// Reads the map that an exit or an entrance enters. Each of the two names one, and no other
+    /// thing does (D-1216, D-1243, T-2).
+    /// </summary>
     private static ContentId? ExitTargetOf(ref ContentReader reader, ThingLine line, MapThingKind kind)
     {
-        if (kind == MapThingKind.Exit)
+        if (kind == MapThingKind.Exit || kind == MapThingKind.Entrance)
         {
-            return line.To ?? throw reader.Refuse($"the exit '{line.Id.Value}' holds no field 'to', and an exit names the map that it enters (D-1216)");
+            return line.To ?? throw reader.Refuse($"the {MapThingKinds.NameOf(kind)} '{line.Id.Value}' holds no field 'to', and an exit or an entrance names the map that it enters (D-1216, D-1243)");
         }
 
         if (line.To is not null)
         {
-            throw reader.Refuse($"the thing '{line.Id.Value}' is a {MapThingKinds.NameOf(kind)} and it holds the field 'to', which an exit alone holds (D-1216)");
+            throw reader.Refuse($"the thing '{line.Id.Value}' is a {MapThingKinds.NameOf(kind)} and it holds the field 'to', which an exit or an entrance alone holds (D-1216, D-1243)");
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// Reads the marker of the overworld where an exit puts the party (D-1255). An exit can name
+    /// one, and the content set requires it for an exit to an overworld. No other thing names one (T-2).
+    /// </summary>
+    private static ContentId? ArriveOf(ref ContentReader reader, ThingLine line, MapThingKind kind)
+    {
+        if (line.Arrive is not null && kind != MapThingKind.Exit)
+        {
+            throw reader.Refuse($"the thing '{line.Id.Value}' is a {MapThingKinds.NameOf(kind)} and it holds the field '{ArriveField}', which an exit alone holds (D-1255)");
+        }
+
+        return line.Arrive;
+    }
+
+    /// <summary>Reads the condition and the notice of a gate. A gate holds both, and no other thing does (D-1243, T-2).</summary>
+    private static MapGate? GateOf(ref ContentReader reader, ThingLine line, MapThingKind kind)
+    {
+        if (kind != MapThingKind.Gate)
+        {
+            if (line.Gate.Condition is not null || line.Gate.Notice is not null)
+            {
+                throw reader.Refuse($"the thing '{line.Id.Value}' is a {MapThingKinds.NameOf(kind)} and it holds the field '{ConditionField}' or '{NoticeField}', which a gate alone holds (D-1243)");
+            }
+
+            return null;
+        }
+
+        Condition condition = line.Gate.Condition
+            ?? throw reader.Refuse($"the gate '{line.Id.Value}' holds no field '{ConditionField}', and a gate opens while its condition holds (D-1243)");
+        ContentId notice = line.Gate.Notice
+            ?? throw reader.Refuse($"the gate '{line.Id.Value}' holds no field '{NoticeField}', and a confirm at a closed gate posts its notice (D-1257)");
+        return new MapGate(condition, notice);
     }
 
     /// <summary>Reads the entries and the gold of a chest. A chest holds both fields, and no other thing does (D-1220, T-2).</summary>
@@ -927,6 +1008,33 @@ public sealed class GameMap
         }
     }
 
+    /// <summary>
+    /// Refuses a thing or an enemy that the kind of the map cannot hold (D-1243, D-1247, T-2). An
+    /// overworld holds no enemy and no exit, because the party leaves it through an entrance. A
+    /// hub or a dungeon holds no entrance and no gate, which belong to the overworld.
+    /// </summary>
+    private static void CheckKindOfThings(ref ContentReader reader, GameMap map)
+    {
+        string name = MapKinds.NameOf(map.Kind);
+        if (map.Kind == MapKind.Overworld && map.patrols.Length > 0)
+        {
+            throw reader.Refuse($"the map is an overworld, and it holds the enemy '{map.patrols[0].Id.Value}'. The overworld holds no visible enemy (D-1247)");
+        }
+
+        foreach (MapThing thing in map.things)
+        {
+            if (map.Kind == MapKind.Overworld && thing.Kind == MapThingKind.Exit)
+            {
+                throw reader.Refuse($"the map is an overworld, and it holds the exit '{thing.Id.Value}'. The party leaves the overworld through an entrance (D-1243)");
+            }
+
+            if (map.Kind != MapKind.Overworld && (thing.Kind == MapThingKind.Entrance || thing.Kind == MapThingKind.Gate))
+            {
+                throw reader.Refuse($"the map is a {name}, and it holds the {MapThingKinds.NameOf(thing.Kind)} '{thing.Id.Value}'. An overworld alone holds entrances and gates (D-1243)");
+            }
+        }
+    }
+
     private static TilePoint OneSpawn(ref ContentReader reader, MapThing[] things)
     {
         int count = 0;
@@ -1067,7 +1175,10 @@ public sealed class GameMap
         return null;
     }
 
-    private sealed record ThingLine(ContentId Id, string Kind, int X, int Y, bool? Pickable, string? Key, ContentId? To, List<ChestEntry>? Contents, int? Gold, TrapLine Trap);
+    private sealed record ThingLine(ContentId Id, string Kind, int X, int Y, bool? Pickable, string? Key, ContentId? To, List<ChestEntry>? Contents, int? Gold, TrapLine Trap, ContentId? Arrive, GateLine Gate);
+
+    /// <summary>The raw gate fields of one thing line, before the kind check (D-1243).</summary>
+    private sealed record GateLine(Condition? Condition, ContentId? Notice);
 
     /// <summary>The trap fields of one thing line, each absent when the line does not write it (D-1226).</summary>
     private sealed record TrapLine(string? Harm, int? Share, string? Status, ContentId? Group)

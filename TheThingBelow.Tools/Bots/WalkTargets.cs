@@ -13,7 +13,7 @@ public enum TargetReach
     /// <summary>The lead stands next to the target, faces it, and confirms: an NPC, a door, a chest, a save point, or a service.</summary>
     Confirm,
 
-    /// <summary>The lead steps onto the tile: the tile of a trigger of a story scene, or an exit.</summary>
+    /// <summary>The lead steps onto the tile: the tile of a trigger of a story scene, an exit, or an entrance.</summary>
     StandOn,
 
     /// <summary>The lead steps into the body from the next tile: the mark of an enemy.</summary>
@@ -24,8 +24,9 @@ public enum TargetReach
 /// <param name="Key">The id of the target, such as the NPC id, which the policy keeps when it reached the target.</param>
 /// <param name="At">The tile of the target.</param>
 /// <param name="Reach">How the lead reaches it.</param>
-/// <param name="Last">True for an exit, which the policy takes once it reached every other target, so a run explores the map before it leaves (D-1216).</param>
-public sealed record WalkTarget(string Key, TilePoint At, TargetReach Reach, bool Last = false);
+/// <param name="Last">True for an exit or an entrance, which the policy takes once it reached every other target, so a run explores the map before it leaves (D-1216, D-1243).</param>
+/// <param name="Leads">The map that an exit or an entrance enters, or no value for every other target (D-1243).</param>
+public sealed record WalkTarget(string Key, TilePoint At, TargetReach Reach, bool Last = false, ContentId? Leads = null);
 
 /// <summary>
 /// The targets of the walk of the greedy policy on the map of the party, and the shortest path to
@@ -38,7 +39,7 @@ public static class WalkTargets
     /// <summary>
     /// Gives each target of the map: each NPC, each shut door, each chest that the party never
     /// opened, each save point and service point, each tile of a trigger whose condition holds,
-    /// each enemy that lives, and each exit, in that order (D-1183, D-1216, D-1221).
+    /// each enemy that lives, and each exit and entrance, in that order (D-1183, D-1216, D-1221, D-1243).
     /// </summary>
     /// <param name="state">The state of the run.</param>
     /// <returns>The targets.</returns>
@@ -86,9 +87,9 @@ public static class WalkTargets
 
         foreach (MapThing thing in party.Map.Things)
         {
-            if (thing.Kind == MapThingKind.Exit)
+            if (thing.Kind == MapThingKind.Exit || thing.Kind == MapThingKind.Entrance)
             {
-                targets.Add(new WalkTarget(thing.Id.Value, thing.At, TargetReach.StandOn, Last: true));
+                targets.Add(new WalkTarget(thing.Id.Value, thing.At, TargetReach.StandOn, Last: true, Leads: thing.To));
             }
         }
 
@@ -101,12 +102,14 @@ public static class WalkTargets
     /// lead to face it.
     /// </summary>
     /// <param name="party">The map state of the party.</param>
+    /// <param name="flags">The story flags of the run, which open each gate (D-1243).</param>
     /// <param name="target">The target.</param>
     /// <param name="length">The count of steps of the path, or -1 when no path exists.</param>
     /// <returns>The direction of the first step, or no value when the lead stands where it reaches the target, or when no path exists.</returns>
-    public static StepDirection? FirstStep(MapState party, WalkTarget target, out int length)
+    public static StepDirection? FirstStep(MapState party, FlagSet flags, WalkTarget target, out int length)
     {
         ArgumentNullException.ThrowIfNull(party);
+        ArgumentNullException.ThrowIfNull(flags);
         ArgumentNullException.ThrowIfNull(target);
 
         // A search of the tiles in the order of the distance from the lead. Each tile keeps the
@@ -128,7 +131,9 @@ public static class WalkTargets
             foreach (StepDirection direction in Directions)
             {
                 TilePoint next = at.Step(direction);
-                if (distances.ContainsKey(next) || !Walkable(party, next))
+                // A step onto an exit or an entrance leaves the map, so a path crosses none of
+                // them on its way to another target (D-1243).
+                if (distances.ContainsKey(next) || !Walkable(party, flags, next) || (next != target.At && LeavesMap(party, next)))
                 {
                     continue;
                 }
@@ -163,9 +168,13 @@ public static class WalkTargets
     private static bool Reaches(TilePoint at, WalkTarget target) =>
         target.Reach == TargetReach.StandOn ? at == target.At : Toward(at, target.At) is not null;
 
-    /// <summary>Tells whether the lead can step onto a tile, through each open door, with no NPC and no enemy on it (D-41).</summary>
-    private static bool Walkable(MapState party, TilePoint at) =>
-        party.CanStepOnto(at)
+    /// <summary>Tells whether a tile holds an exit or an entrance, which enters another map on the arrival (D-1216, D-1243).</summary>
+    private static bool LeavesMap(MapState party, TilePoint at) =>
+        party.Map.ExitAt(at) is not null || party.Map.EntranceAt(at) is not null;
+
+    /// <summary>Tells whether the lead can step onto a tile, through each open door and gate, with no NPC and no enemy on it (D-41, D-1243).</summary>
+    private static bool Walkable(MapState party, FlagSet flags, TilePoint at) =>
+        party.CanStepOnto(at, flags)
         && !party.Npcs.TryNpcAt(at, out _)
         && !party.Patrols.TryEnemyAt(at, out _);
 }

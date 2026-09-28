@@ -269,7 +269,7 @@ Built by PR-41 and every UI PR. Phase file: `phase-2-first-playable.md`.
 | PR-106 | The remap screen names the key of the layout through a string id, and the captures add body 24, the screen of the Deck, and the crash message | D-1128, D-1130 |
 | PR-14 and PR-16 | The service and save screens, one for each system | D-211 |
 | PR-36 | The dialogue box, the name plate, and the choices | D-114, D-223 |
-| PR-35 | The region map screen | D-113 |
+| PR-35 | The overworld on the map scene | D-1242, D-1245 |
 | PR-33 | The title screen, the version line, the settings entry, and the credits screen | D-454, D-467 |
 | PR-39 | The Deck checklist: no text names a key or a button, the default bindings, and the 9-pixel text floor | D-459, D-815 |
 | PR-78 | The Steamworks binding and the start, with no controller type call | D-460, D-462, D-553, D-815 |
@@ -315,7 +315,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 8. PR-62: the menu windows, the party window, and the status window, right before PR-68 (D-525, D-558, D-569).
 9. PR-68: the story scene runner, before PR-12 (D-541, D-556).
 10. PR-12, PR-13, PR-14, and PR-16: one screen for each system.
-11. PR-36: the dialogue box. PR-35: the region map screen.
+11. PR-36: the dialogue box. PR-35: the overworld on the map scene.
 12. PR-17: the first playable, read on the Deck (M-6).
 13. **← GATE 2 (first playable).**
 15. PR-33: the title screen, the version line, and the credits.

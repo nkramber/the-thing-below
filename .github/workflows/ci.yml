@@ -467,7 +467,9 @@ jobs:
       # the slowest leg (G-14). PR-15 timed 1,000 runs of each policy in run 36278255713. The
       # slowest leg, macos-26, took 20 seconds for the greedy runs and 22 for the random runs.
       # Each policy takes half of the 5 minutes, less a margin for the noise of a runner.
-      GREEDY_RUNS: "7000"
+      # PR-35 halved the greedy count: a greedy run of the dungeon now crosses the overworld to
+      # the hub, and plays about twice the ticks (D-1259, D-1260).
+      GREEDY_RUNS: "3500"
       RANDOM_RUNS: "6500"
     steps:
       - name: Check out the branch
