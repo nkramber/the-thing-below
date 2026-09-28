@@ -46,7 +46,7 @@ Built by PR-68. Phase file: `phase-2-first-playable.md`.
 - A story scene names no track and no cue. The audio file names the story scene and the step that its cue serves (D-548, `area-audio.md`).
 - A story scene names no art. An art file names the content ids that it draws, as D-519 asks.
 - The schema validates each story scene at load, and an absent field is an error (G-6, T-2). A step that names an absent string id, flag id, cast member, or enemy group fails with the story scene, the step, and the id.
-- A script holds eleven kinds of step, and a start battle step names an enemy group (D-997, D-998). A pick of a choose step sets the flag of its option (D-1007).
+- A script holds eleven kinds of step, and a start battle step names an enemy group (D-997, D-998). A pick of a choose step sets the flag of its option (D-1007). PR-17 adds a twelfth kind, the pay step (D-1335).
 - A step acts on the lead, or on a cast member that a show step put on a marker. Each shown cast member leaves at the end of the story scene (D-1006).
 
 > *In plain English:* a story scene is a list of simple steps in a data file. It says walk here, face there, say this line, and ask this question. Nothing about it is code.

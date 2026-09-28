@@ -1297,7 +1297,7 @@ Area file: `area-story.md` sections 7.1, 7.2, 7.3, and 7.5.
 
 **Scope.**
 
-- The story scene format: a JSON list of eleven kinds of step (D-173, D-997). A pick of a choose step sets the flag of its option (D-1007).
+- The story scene format: a JSON list of eleven kinds of step (D-173, D-997). A pick of a choose step sets the flag of its option (D-1007). PR-17 adds a twelfth kind, the pay step (D-1335).
 - The join step, which adds a cast member to the party (D-342, D-563).
 - The story scene runner in Core, which holds the step index and every flag that a step sets (D-540).
 - The wait intent that Game sends at the end of a move, a face, a line, or a camera step. A wait step names its ticks, and Core counts them (D-493, D-522, D-1000, D-1013).
@@ -2432,7 +2432,7 @@ Area files: `area-exploration.md`, `area-battle.md`, `area-story.md`, and `area-
 - The beasts and the foes of the cells, with their profiles and their groups, and the rates of the zones (D-535, D-1284, D-1332, D-1333).
 - The services of the town, the two save points, the shop stock, and the treasure (D-1339, D-1341, D-1343).
 - The lessons, the gear, and the items, and the curves and the join levels of Bergit and Dagvar (D-1341, D-1342).
-- The paid scene step, and the bribe of the turnkey (D-1334 to D-1336, G-17).
+- The paid scene step, the bribe of the turnkey, and a gate on every map (D-1334 to D-1336, D-1347, G-17).
 - The opening scene, the villagers, the joins of Bergit and Dagvar, and the notice at the end (D-563, D-1337, D-1344).
 - One light setup for each map at its time of day, and the night outside after the end (D-442, D-1338).
 - The voice notes of the three characters, then the text of Marrek, Bergit, Dagvar, and the lessons, in the voice (D-362, D-1345, D-1346, G-20).
@@ -2458,6 +2458,7 @@ Area files: `area-exploration.md`, `area-battle.md`, `area-story.md`, and `area-
 7. Every string comes from the string table, and the owner approves each text batch (D-57, G-7, G-20).
 8. Each new content file loads, no id is absent, and each new thing has its drawing (D-519, D-1329).
 9. After the join of Dagvar, each map outside is at night (D-1338).
+10. A gate on a hub or a dungeon stops the party until its condition holds (D-1347).
 
 **Review focus.**
 
@@ -2465,7 +2466,7 @@ Area files: `area-exploration.md`, `area-battle.md`, `area-story.md`, and `area-
 - The places follow `docs/world/places.md` (D-250, D-371).
 - The paid step in the save, the snapshot, and the replay (T-7, G-17).
 
-**Questions.** None. D-1328 to D-1346 hold the answers of the start of PR-17. OQ-249 now blocks PR-23 (D-1330), and OQ-255 blocks PR-28.
+**Questions.** None. D-1328 to D-1347 hold the answers of the start of PR-17. OQ-249 now blocks PR-23 (D-1330), and OQ-255 blocks PR-28.
 
 > *In plain English:* the first real places to play, from the village down to the cells. They borrow the fixture pictures for now, and the four PRs after this one give each place its own look.
 
