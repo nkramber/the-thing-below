@@ -1,3 +1,37 @@
+## Session 373: 2026-09-27, Codex
+
+Author: Codex
+Session: repeat review PR #92 (PR-64). Repository: the-thing-below. Branch: `review/pr-92`, tracking `origin/feat/pr-64-traps-hazards`. Role: reviewer. Base: `b7eb8bc`.
+
+### What this session did, and why
+
+- Re-reviewed the fix for P2-1 at effective head `fe1c5ec77e990e82d4f74510e51e07ed0e343926`.
+- The damage trap posts the down notice when one fighter falls and another stands. The wipe case posts no extra down notice (D-392, D-397, D-1241).
+- Updated `docs/reviews/pr-92.md` to close P2-1 and approve the effective head. The new down-notice test fails on `869cc599`.
+- Read the Gitar CI claim. The author answered both review-gate faults, and the log confirms them (D-964).
+
+### The state of the build
+
+- `TrapRulesTests` passed 19/19 on `fe1c5ec7`. The CI implementation checks passed on all three systems.
+- The remote implementation head is `fe1c5ec77e990e82d4f74510e51e07ed0e343926`. The review-gate check waits for this metadata commit.
+
+### What is in flight
+
+- Commit the review record and this handoff entry as one metadata commit. Push to `feat/pr-64-traps-hazards`, then verify the remote head and review-gate result.
+
+### Traps and gotchas
+
+- The full `make sheet` fails in the join, because the sheet passes 65535 rows. `make sheet FIXTURE=pit` joins one fixture.
+- The detached base test at `869cc599` used the two new tests. The down-notice test failed there, as required.
+
+### The questions that block progress
+
+None for PR-64. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Run `make where` and `make ste-check`. Commit the review record and handoff, push with `git push origin HEAD:feat/pr-64-traps-hazards`, then fetch and verify the PR head.
+
 ## Session 372: 2026-09-27, Claude Code
 
 Author: Claude Code
