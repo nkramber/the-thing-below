@@ -11,11 +11,11 @@ Session: repeat review PR #95 (PR-110). Repository: the-thing-below. Branch: `re
 
 ### The state of the build
 
-- The remote head is `0d1b34b3ca7db19302ab3e4f5638185cb997d88e`. The CI jobs pass except review-gate, which fails RG 5 against the old record.
+- The remote effective head is `0d1b34b3ca7db19302ab3e4f5638185cb997d88e`. The local review commit `2a8c6fc4` passed review-gate, Gitar, night-gate, STE, and each implementation check.
 
 ### What is in flight
 
-- Commit this review record and handoff entry together. Push with `git push origin HEAD:feat/pr-110-region-one-overworld`.
+- The metadata commit `2a8c6fc4` is on the PR branch. The fresh Gitar dashboard approves the effective head and has no review item.
 
 ### Traps and gotchas
 
@@ -27,7 +27,7 @@ None for PR-110.
 
 ### The next concrete action
 
-Run `make where` and the STE check. Commit the review record and handoff entry, push, fetch, then verify the PR head and review-gate result.
+Verify the final metadata push, then end this review session for PR #95.
 
 ## Session 384: 2026-09-28, Claude Code
 
