@@ -1,4 +1,35 @@
 # Session handoff archive
+## Session 366: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-16, round 3. Repository: the-thing-below. Branch: `feat/pr-16-dungeon-parts`. PR: #91. Role: author. Base: `78b0d24`.
+
+### What this session did, and why
+
+- Gitar approved `6a9eb1ae` with no thread. Its CI claim, RG 3, has its answer in a PR comment (D-964).
+- The cross-provider review of `6a9eb1ae` gave `Changes required` with P2-1: a resume of another build could revive an enemy that the memory of the map holds dead. The finding has full merit. `MapPatrols.Resume` now reads the memory, and a snapshot of this build with such an enemy alive refuses the load (D-555, D-1111). The answer is `docs/reviews/pr-91-response.md`.
+
+### The state of the build
+
+- `make verify` passed at the correction: 4,196 tests, format, lint, STE, identity, bots, content, atlas, and smoke.
+- The remote head before this push is `dce3ed8`, the review record.
+
+### What is in flight
+
+- The Gitar pass and the CI legs of the correction, then `make codex-review PR=91` again.
+
+### Traps and gotchas
+
+- The map memory is the source of a dead enemy on each resume. The stored enemy values still give its place.
+
+### The questions that block progress
+
+None for PR-16. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Wait for the Gitar poll and the checks of the correction, then run `make codex-review PR=91` in the background.
+
 ## Session 365: 2026-09-27, Codex
 
 Author: Codex
