@@ -1,3 +1,33 @@
+## Session 382: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-110, round 3. Repository: the-thing-below. Branch: `feat/pr-110-region-one-overworld`. PR: #95. Role: author. Base: `5e6fb49`.
+
+### What this session did, and why
+
+- Answered the Gitar pass of `1d66127`: the code review approved it, and the CI analysis claimed RG 3 alone, which the reply confirmed from the log. Two comments, none that needed a change.
+- Answered P2-1 of the Codex review of session 381, full merit: the art review sheets of the 23 drawings are now in the PR description (D-514). `docs/reviews/pr-95-response.md` records it.
+
+### The state of the build
+
+- Every check of `1d66127` passes on each leg, except review-gate, which waits for the verdict.
+
+### What is in flight
+
+- The Gitar pass of this round, then `make codex-review PR=95` again.
+
+### Traps and gotchas
+
+- The commits of this round change the metadata set alone, so the effective head stays `1d66127` (D-610).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Run the Gitar poll, then run `make codex-review PR=95` in the background.
+
 ## Session 381: 2026-09-28, Codex
 
 Author: Codex
@@ -298,35 +328,3 @@ None for PR-64. OQ-251 blocks PR-35.
 ### The next concrete action
 
 Run `make where` and `make ste-check`. Commit the review record and handoff, push with `git push origin HEAD:feat/pr-64-traps-hazards`, then fetch and verify the PR head.
-
-## Session 372: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-64, round 3. Repository: the-thing-below. Branch: `feat/pr-64-traps-hazards`. PR: #92. Role: author. Base: `b7eb8bc`.
-
-### What this session did, and why
-
-- Gitar approved `869cc59` with no thread. A PR comment answers its RG 3 claim again (D-964).
-- The review of `869cc59` gave `Changes required` with one finding, P2-1: a damage trap that downs a fighter posted no notice of the down.
-- P2-1 has full merit. A damage trap now posts `notice.fell_on_map` after its own notice when a fighter goes down and the party does not wipe. Two tests of `TrapRulesTests` prove it, and the first fails on `869cc59`. `docs/reviews/pr-92-response.md` records the answer.
-
-### The state of the build
-
-- Local: the build, 4271 tests, format, det-lint, and the replay identity pass.
-- The remote head before this push is `33bca20`, the review record.
-
-### What is in flight
-
-- The CI and the Gitar pass of this push, then the repeat review with `make codex-review PR=92` (D-926).
-
-### Traps and gotchas
-
-- The full `make sheet` fails in the join, because the sheet passes 65535 rows. `make sheet FIXTURE=pit` joins one fixture.
-
-### The questions that block progress
-
-None for PR-64. OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Wait for green CI and the Gitar pass on this head, then run `make codex-review PR=92` in the background.

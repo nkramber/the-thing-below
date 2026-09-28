@@ -1,3 +1,35 @@
+## Session 372: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-64, round 3. Repository: the-thing-below. Branch: `feat/pr-64-traps-hazards`. PR: #92. Role: author. Base: `b7eb8bc`.
+
+### What this session did, and why
+
+- Gitar approved `869cc59` with no thread. A PR comment answers its RG 3 claim again (D-964).
+- The review of `869cc59` gave `Changes required` with one finding, P2-1: a damage trap that downs a fighter posted no notice of the down.
+- P2-1 has full merit. A damage trap now posts `notice.fell_on_map` after its own notice when a fighter goes down and the party does not wipe. Two tests of `TrapRulesTests` prove it, and the first fails on `869cc59`. `docs/reviews/pr-92-response.md` records the answer.
+
+### The state of the build
+
+- Local: the build, 4271 tests, format, det-lint, and the replay identity pass.
+- The remote head before this push is `33bca20`, the review record.
+
+### What is in flight
+
+- The CI and the Gitar pass of this push, then the repeat review with `make codex-review PR=92` (D-926).
+
+### Traps and gotchas
+
+- The full `make sheet` fails in the join, because the sheet passes 65535 rows. `make sheet FIXTURE=pit` joins one fixture.
+
+### The questions that block progress
+
+None for PR-64. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Wait for green CI and the Gitar pass on this head, then run `make codex-review PR=92` in the background.
+
 ## Session 371: 2026-09-27, Codex
 
 Author: Codex

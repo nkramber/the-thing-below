@@ -19,4 +19,4 @@ None.
 
 ## Final head
 
-The commit that adds this file and session 381. It changes the metadata set alone, so the effective head stays `1d6612758d84c020615d561b2f785389a901a945` (D-610).
+The commits that add this file and session 382. It changes the metadata set alone, so the effective head stays `1d6612758d84c020615d561b2f785389a901a945` (D-610).
