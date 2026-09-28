@@ -267,7 +267,8 @@ public static class DebugCommands
     /// <summary>
     /// Sets the gold of the party to the amount that the intent holds, so a build reaches the
     /// shop and the rest with gold (D-1162). The command works in each place, because the gold
-    /// reaches no rule of a battle, a story scene, or a menu until a spend.
+    /// reaches no rule of a battle, a story scene, or a menu until a spend: a purchase, a rest, or
+    /// the answer to the offer of a pay step (D-1335).
     /// </summary>
     /// <exception cref="SimulationException">The intent holds no amount or an amount below 0, which points at a fault of the record (T-2).</exception>
     private static void SetGold(RunState state, Intent intent, RunContext context, List<LogEntry> log)

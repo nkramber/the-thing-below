@@ -236,7 +236,13 @@ public sealed class ScenePlayTests
         {
             foreach (SceneStep step in scene.Steps)
             {
-                if (step is SayStep { Speaker: SceneActor speaker })
+                SceneActor? speaker = step switch
+                {
+                    SayStep say => say.Speaker,
+                    PayStep pay => pay.Speaker,
+                    _ => null,
+                };
+                if (speaker is not null)
                 {
                     ContentId art = (ContentId)GameValue.Static("ScenePlay", "ArtIdOf", speaker)!;
                     _ = content.Atlas.Entry(art, "portrait");
@@ -276,7 +282,7 @@ public sealed class ScenePlayTests
 
         public SceneActor? Speaker => this.play.Read<SceneActor?>("Speaker");
 
-        public IReadOnlyList<ChooseOption>? Options => this.play.Read<IReadOnlyList<ChooseOption>?>("Options");
+        public IReadOnlyList<ContentId>? Options => this.play.Read<IReadOnlyList<ContentId>?>("Options");
 
         public int? Characters => this.play.Read<int?>("Characters");
 

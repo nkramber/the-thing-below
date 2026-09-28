@@ -69,6 +69,7 @@ public static class ScreenplayText
             HideStep hide => Action($"{names.Cast(hide.Actor, "actor")} leaves."),
             CameraStep camera => Action($"The view moves to {camera.Marker.Value}."),
             StartBattleStep battle => Action($"Battle: {battle.Group.Value}."),
+            PayStep pay => PayText(pay, names),
             _ => throw ContentException.ForField(scene.File, scene.StepField(index), $"the step kind '{SceneStepKinds.NameOf(scene.Steps[index].Kind)}' has no screenplay text (T-2)"),
         };
     }
@@ -96,6 +97,17 @@ public static class ScreenplayText
             text.Append($"> {option + 1}. {line} *(sets {each.Flag.Value})*\n");
         }
 
+        return text.ToString();
+    }
+
+    private static string PayText(PayStep pay, StepNames names)
+    {
+        string offer = names.Line(pay.Line, "line");
+        string refusal = names.Line(pay.Refusal, "refusal");
+        string speaker = pay.Speaker is null ? "*(no speaker)*" : $"**{names.Speaker(pay.Speaker)}**";
+        var text = new StringBuilder($"*Offer: {pay.Price} gold. Yes sets {pay.Flag.Value}.*\n");
+        text.Append($"{speaker}\n").Append(Quote(offer, italic: pay.Speaker is null));
+        text.Append($"*Refusal, after no or too little gold, which ends the scene:*\n{speaker}\n").Append(Quote(refusal, italic: pay.Speaker is null));
         return text.ToString();
     }
 

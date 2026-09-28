@@ -1160,7 +1160,8 @@ public sealed class GameMap
     /// <summary>
     /// Refuses a thing or an enemy that the kind of the map cannot hold (D-1243, D-1247, T-2). An
     /// overworld holds no enemy and no exit, because the party leaves it through an entrance. A
-    /// hub or a dungeon holds no entrance and no gate, which belong to the overworld.
+    /// hub or a dungeon holds no entrance and no mark, which belong to the overworld. Any map can
+    /// hold a gate, such as the paid door of the hanging cells (D-1347).
     /// </summary>
     private static void CheckKindOfThings(ref ContentReader reader, GameMap map)
     {
@@ -1177,9 +1178,9 @@ public sealed class GameMap
                 throw reader.Refuse($"the map is an overworld, and it holds the exit '{thing.Id.Value}'. The party leaves the overworld through an entrance (D-1243)");
             }
 
-            if (map.Kind != MapKind.Overworld && (thing.Kind == MapThingKind.Entrance || thing.Kind == MapThingKind.Gate || thing.Kind == MapThingKind.Mark))
+            if (map.Kind != MapKind.Overworld && (thing.Kind == MapThingKind.Entrance || thing.Kind == MapThingKind.Mark))
             {
-                throw reader.Refuse($"the map is a {name}, and it holds the {MapThingKinds.NameOf(thing.Kind)} '{thing.Id.Value}'. An overworld alone holds entrances, gates, and marks (D-1243, D-1271)");
+                throw reader.Refuse($"the map is a {name}, and it holds the {MapThingKinds.NameOf(thing.Kind)} '{thing.Id.Value}'. An overworld alone holds entrances and marks (D-1243, D-1271, D-1347)");
             }
         }
     }

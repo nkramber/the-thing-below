@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Text;
 using TheThingBelow.Core.Battles;
+using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Hashing;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
@@ -24,7 +25,7 @@ public static partial class IdentitySet
     }
     """;
 
-    /// <summary>The flag file of the story run. PR-68 added it, and it never changes.</summary>
+    /// <summary>The flag file of the story run. PR-68 added it, and PR-17 added the flag of the offer (D-1335).</summary>
     private const string StoryFlagFile = """
     {
      "comment": "The flags of the story run of the identity set.",
@@ -33,6 +34,7 @@ public static partial class IdentitySet
       { "id": "flag.identity_trust", "note": "The hero trusts the friend." },
       { "id": "flag.identity_doubt", "note": "The hero doubts the friend." },
       { "id": "flag.identity_fought", "note": "The hero and the friend won the set fight." },
+      { "id": "flag.identity_paid", "note": "The hero paid the price of the offer after the fight." },
       { "id": "flag.identity_side", "note": "The side aptitude of each character of the set is open." }
      ]
     }
@@ -40,7 +42,7 @@ public static partial class IdentitySet
 
     /// <summary>
     /// The first story scene of the story run: every kind of step except the start battle
-    /// step. The map fires it on entry. It never changes.
+    /// step and the pay step. The map fires it on entry. It never changes.
     /// </summary>
     private const string MeetSceneFile = """
     {
@@ -67,17 +69,21 @@ public static partial class IdentitySet
     }
     """;
 
-    /// <summary>The second story scene of the story run: a set fight, then a walk and a line. It never changes.</summary>
+    /// <summary>
+    /// The second story scene of the story run: a set fight, then a walk, a line, and an offer. PR-17
+    /// added the offer as the last step, and the gold of the win pays its price (D-1335).
+    /// </summary>
     private const string FightSceneFile = """
     {
-     "comment": "A line with no speaker, a set fight, and the step after the win.",
+     "comment": "A line with no speaker, a set fight, the steps after the win, and an offer that the gold of the win pays.",
      "id": "scene.identity_fight",
      "steps": [
       { "id": "step.ambush", "kind": "say", "speaker": "none", "line": "line.identity_ambush" },
       { "id": "step.fight", "kind": "start_battle", "group": "group.identity_run" },
       { "id": "step.lead_steps", "kind": "move", "actor": "lead", "path": ["east"] },
       { "id": "step.after", "kind": "say", "speaker": "lead", "line": "line.identity_after" },
-      { "id": "step.fought", "kind": "set_flag", "flag": "flag.identity_fought" }
+      { "id": "step.fought", "kind": "set_flag", "flag": "flag.identity_fought" },
+      { "id": "step.offer", "kind": "pay", "speaker": "none", "line": "line.identity_offer", "price": 3, "flag": "flag.identity_paid", "refusal": "line.identity_refusal" }
      ]
     }
     """;
@@ -192,6 +198,12 @@ public static partial class IdentitySet
                 savedBattle = true;
             }
         }
+
+        // The gold of the win pays the offer, so the set proves the pay and not the refusal alone (D-1335).
+        CoreAssert.That(
+            simulation.State.Story.Flags.IsOn(ContentId.Parse("flag.identity_paid", "identity-set-story", "flag")),
+            "the story run of the identity set ended with the offer unpaid, so the set holds no pay (D-1335)",
+            simulation.State.Context("identity"));
 
         string text = RunRecordText.Write(recorder.Build());
         RunState replayed = RunReplay.Play(

@@ -150,16 +150,27 @@ public static class StoryRules
         }
 
         log.Add(Entry(state, LogLevel.Debug, "a step of a story scene ended", [new LogField("scene", scene.Id.Value), LogField.OfNumber("step", story.Step)]));
+        if (scene.Steps[story.Step] is PayStep)
+        {
+            // Only the refusal line of a pay step waits for the wait intent, and a refusal ends the story scene (D-1335).
+            log.Add(Entry(state, LogLevel.Info, "a story scene ended after a refused offer", [new LogField("scene", scene.Id.Value)]));
+            story.SkipToEnd(context);
+            return;
+        }
+
         story.Next();
     }
 
-    /// <summary>Takes the pick of the player in a choose step, and turns on the flag of the option (D-1007).</summary>
+    /// <summary>
+    /// Takes the pick of the player in a choose step or in the offer of a pay step (D-1007,
+    /// D-1335). A choose step turns on the flag of the option. A pay step pays or refuses.
+    /// </summary>
     /// <param name="state">The run.</param>
     /// <param name="option">The index of the option, from zero.</param>
     /// <param name="context">The seed, the tick, and the intent, for an error (T-2).</param>
     /// <param name="log">The log entries of this tick (D-179).</param>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
-    /// <exception cref="SimulationException">No choose step waits, or the choice holds no such option (T-2).</exception>
+    /// <exception cref="SimulationException">No choose step or pay step waits, or the step holds no such option (T-2).</exception>
     public static void Pick(RunState state, int option, RunContext context, List<LogEntry> log)
     {
         ArgumentNullException.ThrowIfNull(state);
@@ -167,9 +178,15 @@ public static class StoryRules
         ArgumentNullException.ThrowIfNull(log);
 
         StoryState story = state.Story;
+        if (story.Scene is StoryScene payScene && story.Phase == ScenePhase.Pick && payScene.Steps[story.Step] is PayStep pay)
+        {
+            PickOfPay(state, payScene, pay, option, context, log);
+            return;
+        }
+
         if (story.Scene is not StoryScene scene || story.Phase != ScenePhase.Pick || scene.Steps[story.Step] is not ChooseStep choose)
         {
-            throw new SimulationException($"a pick of a story scene, and no choose step waits for it. {Describe(story)} (D-1007)", context);
+            throw new SimulationException($"a pick of a story scene, and no choose step or pay step waits for it. {Describe(story)} (D-1007, D-1335)", context);
         }
 
         if (option < 0 || option >= choose.Options.Count)
@@ -190,6 +207,46 @@ public static class StoryRules
         }
 
         story.Next();
+    }
+
+    /// <summary>
+    /// Takes the answer to the offer of a pay step (D-1335). A yes with enough gold removes the
+    /// price, turns on the flag, and moves to the next step. A yes with too little gold, or a no,
+    /// holds the step for its refusal line, and the end of that line ends the story scene.
+    /// </summary>
+    private static void PickOfPay(RunState state, StoryScene scene, PayStep pay, int option, RunContext context, List<LogEntry> log)
+    {
+        if (option != PayStep.PayOption && option != PayStep.DeclineOption)
+        {
+            throw new SimulationException($"a pick of option {option}, and an offer holds the options {PayStep.PayOption} (yes) and {PayStep.DeclineOption} (no) (D-1335)", context);
+        }
+
+        int gold = state.Characters.Gold;
+        if (option == PayStep.PayOption && gold >= pay.Price)
+        {
+            state.Characters.SpendGold(pay.Price, context);
+            bool changed = state.Story.Flags.TurnOn(pay.Flag);
+            log.Add(Entry(
+                state,
+                LogLevel.Info,
+                "the party paid the price of an offer",
+                [new LogField("scene", scene.Id.Value), LogField.OfNumber("price", pay.Price), LogField.OfNumber("gold_left", state.Characters.Gold), new LogField("flag", pay.Flag.Value), new LogField("changed", changed ? "yes" : "no")]));
+            if (changed)
+            {
+                ReopenPlaces(state, pay.Flag, log);
+            }
+
+            state.Story.Next();
+            return;
+        }
+
+        string reason = option == PayStep.DeclineOption ? "no" : "too_little_gold";
+        log.Add(Entry(
+            state,
+            LogLevel.Info,
+            "the party refused an offer",
+            [new LogField("scene", scene.Id.Value), new LogField("reason", reason), LogField.OfNumber("price", pay.Price), LogField.OfNumber("gold", gold)]));
+        state.Story.Hold(ScenePhase.WaitIntent, 0);
     }
 
     /// <summary>Pauses the story scene that runs, from the start button (D-1009, D-1010).</summary>
@@ -294,6 +351,7 @@ public static class StoryRules
                 story.Hold(ScenePhase.WaitIntent, 0);
                 break;
             case ChooseStep:
+            case PayStep:
                 story.Hold(ScenePhase.Pick, 0);
                 break;
             case SetFlagStep set:

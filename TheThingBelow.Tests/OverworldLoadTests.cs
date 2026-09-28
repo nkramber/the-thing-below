@@ -68,11 +68,10 @@ public sealed class OverworldLoadTests
 
     [Theory]
     [InlineData("""{ "id": "entrance.test_room_in", "kind": "entrance", "x": 3, "y": 1, "to": "map.test_place" }""", "entrance.test_room_in")]
-    [InlineData("""{ "id": "gate.test_room_pass", "kind": "gate", "x": 3, "y": 1, "condition": { "always": true }, "notice": "notice.fixture_gate_shut" }""", "gate.test_room_pass")]
     [InlineData("""{ "id": "mark.test_room_town", "kind": "mark", "x": 3, "y": 1 }""", "mark.test_room_town")]
-    public void APlaceWithAnEntranceAGateOrAMarkIsAnError(string thing, string id)
+    public void APlaceWithAnEntranceOrAMarkIsAnError(string thing, string id)
     {
-        // D-1243, D-1271: an overworld alone holds entrances, gates, and marks.
+        // D-1243, D-1271, D-1347: an overworld alone holds entrances and marks.
         string text = PlaceText().Replace(
             "\"kind\": \"spawn_point\", \"x\": 1, \"y\": 1 }",
             $"\"kind\": \"spawn_point\", \"x\": 1, \"y\": 1 }},\n  {thing}",
@@ -81,7 +80,7 @@ public sealed class OverworldLoadTests
         ContentException error = Assert.Throws<ContentException>(() => GameMap.Read(Encoding.UTF8.GetBytes(text), "test-place.json"));
 
         Assert.Contains(id, error.Message, StringComparison.Ordinal);
-        Assert.Contains("An overworld alone holds entrances, gates, and marks", error.Message, StringComparison.Ordinal);
+        Assert.Contains("An overworld alone holds entrances and marks", error.Message, StringComparison.Ordinal);
     }
 
     [Theory]

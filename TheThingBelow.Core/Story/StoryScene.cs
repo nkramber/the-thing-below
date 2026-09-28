@@ -191,6 +191,7 @@ public sealed class StoryScene
             SceneStepKind.Hide => new HideStep(ShownOf(ref reader, depth, fields)),
             SceneStepKind.Camera => new CameraStep(reader.Require(fields.At, depth, "at")),
             SceneStepKind.StartBattle => new StartBattleStep(reader.Require(fields.Group, depth, "group")),
+            SceneStepKind.Pay => new PayStep(SpeakerOf(ref reader, depth, fields), reader.Require(fields.Line, depth, "line"), PriceOf(ref reader, depth, fields), reader.Require(fields.Flag, depth, "flag"), reader.Require(fields.Refusal, depth, "refusal")),
             _ => throw reader.RefuseField(depth, "kind", $"the step kind '{name}' has no reader (T-2)"),
         };
     }
@@ -262,6 +263,13 @@ public sealed class StoryScene
                 break;
             case "group":
                 fields.Group = reader.ReadContentId(Patrol.GroupKind);
+                break;
+            case "price":
+                fields.Price = reader.ReadInt();
+                break;
+            case "refusal":
+                // A string id, as a line is (G-7, D-646).
+                fields.Refusal = reader.ReadContentId();
                 break;
             default:
                 throw reader.UnknownField(field);
@@ -371,6 +379,17 @@ public sealed class StoryScene
         return ticks;
     }
 
+    private static int PriceOf(ref ContentReader reader, int depth, StepFields fields)
+    {
+        int price = reader.RequireInt(fields.Price, depth, "price");
+        if (price <= 0)
+        {
+            throw reader.RefuseField(depth, "price", $"the price is {price} gold, and an offer costs one gold or more (D-1335)");
+        }
+
+        return price;
+    }
+
     private static SceneActor? SpeakerOf(ref ContentReader reader, int depth, StepFields fields)
     {
         string speaker = reader.Require(fields.Speaker, depth, "speaker");
@@ -455,6 +474,10 @@ public sealed class StoryScene
 
         public ContentId? Group { get; set; }
 
+        public int? Price { get; set; }
+
+        public ContentId? Refusal { get; set; }
+
         /// <summary>Refuses a field that the kind of the step does not read, so no value passes in silence (T-2).</summary>
         public void RefuseFieldsOutside(ref ContentReader reader, int depth, SceneStepKind kind)
         {
@@ -483,6 +506,7 @@ public sealed class StoryScene
             SceneStepKind.Hide => ["actor"],
             SceneStepKind.Camera => ["at"],
             SceneStepKind.StartBattle => ["group"],
+            SceneStepKind.Pay => ["speaker", "line", "price", "flag", "refusal"],
             _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no story scene step kind (D-997)"),
         };
     }

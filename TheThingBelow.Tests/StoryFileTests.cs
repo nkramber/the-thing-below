@@ -87,6 +87,7 @@ public sealed class StoryFileTests
     [InlineData(SceneStepKind.Camera, SceneStepEnd.WaitIntent)]
     [InlineData(SceneStepKind.Wait, SceneStepEnd.Ticks)]
     [InlineData(SceneStepKind.Choose, SceneStepEnd.Pick)]
+    [InlineData(SceneStepKind.Pay, SceneStepEnd.Pick)]
     [InlineData(SceneStepKind.StartBattle, SceneStepEnd.Battle)]
     [InlineData(SceneStepKind.SetFlag, SceneStepEnd.AtOnce)]
     [InlineData(SceneStepKind.Join, SceneStepEnd.AtOnce)]
@@ -121,6 +122,11 @@ public sealed class StoryFileTests
     [InlineData("""{ "kind": "wait", "ticks": 5 }""", ".id)")]
     [InlineData("""{ "id": "step.end", "kind": "wait", "ticks": 5 }""", "marks the end of a story scene")]
     [InlineData("""{ "id": "scene.s16", "kind": "wait", "ticks": 5 }""", "the kind 'step'")]
+    [InlineData("""{ "id": "step.s18", "kind": "pay", "speaker": "none", "line": "line.test_greet", "price": 0, "flag": "flag.test_yes", "refusal": "line.test_no" }""", "an offer costs one gold or more")]
+    [InlineData("""{ "id": "step.s19", "kind": "pay", "speaker": "none", "line": "line.test_greet", "price": 5, "flag": "flag.test_yes" }""", ".refusal)")]
+    [InlineData("""{ "id": "step.s20", "kind": "pay", "speaker": "none", "line": "line.test_greet", "flag": "flag.test_yes", "refusal": "line.test_no" }""", ".price)")]
+    [InlineData("""{ "id": "step.s21", "kind": "pay", "speaker": "none", "line": "line.test_greet", "price": 5, "flag": "flag.test_yes", "refusal": "line.test_no", "ticks": 3 }""", "reads no field 'ticks'")]
+    [InlineData("""{ "id": "step.s22", "kind": "say", "speaker": "none", "line": "line.test_greet", "price": 5 }""", "reads no field 'price'")]
     public void AMalformedStepFailsWithTheReason(string step, string reason)
     {
         ContentException error = Assert.Throws<ContentException>(() => TestStory.Scene(SceneOf(step), "test"));

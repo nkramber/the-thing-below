@@ -216,7 +216,7 @@ public sealed class StoryContent
     /// <summary>Fails when a step names a string id that the table lacks (G-7, T-2).</summary>
     /// <param name="strings">The string table.</param>
     /// <exception cref="ArgumentNullException">The table is null (T-2).</exception>
-    /// <exception cref="ContentException">A line of a say step or an option names an absent id. The error names the story scene, the step, and the id.</exception>
+    /// <exception cref="ContentException">A line of a say step, an option, or a line of a pay step names an absent id. The error names the story scene, the step, and the id.</exception>
     public void RequireStrings(StringTable strings)
     {
         ArgumentNullException.ThrowIfNull(strings);
@@ -236,6 +236,11 @@ public sealed class StoryContent
                     {
                         RequireString(strings, scene, index, $"options[{option}].line", choose.Options[option].Line);
                     }
+                }
+                else if (step is PayStep pay)
+                {
+                    RequireString(strings, scene, index, "line", pay.Line);
+                    RequireString(strings, scene, index, "refusal", pay.Refusal);
                 }
             }
         }
@@ -355,6 +360,15 @@ public sealed class StoryContent
                     break;
                 case StartBattleStep start:
                     RequireGroup(scene, $"{field}.group", start.Group, battle);
+                    break;
+                case PayStep pay:
+                    // A line of an NPC needs no body on the map, as a say step shows (D-1146).
+                    if (pay.Speaker?.Id is ContentId payer && !SceneActor.IsNpcId(payer))
+                    {
+                        RequireCast(scene, $"{field}.speaker", payer, battle);
+                    }
+
+                    flags.RequireDeclared(pay.Flag, scene.File, $"{field}.flag");
                     break;
                 case WaitStep:
                 case CameraStep:

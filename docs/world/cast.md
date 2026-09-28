@@ -67,13 +67,31 @@ The four 16 by 16 test sprites of D-233 became Bergit, Dagvar, Elio, and Ottild 
 
 Marrek grew up under the ban in a small village on the road below the mining town (D-284, D-368). He fights up close with what a miner carries (D-285). The father of Marrek went down into the deep mine and did not come back, and Marrek goes down to learn why (D-291, D-1345). His road starts at the thing below. He fights alone at first, near the village (D-370). In the deep mine, he finds the sealed crew but not his father, and the mark of his father leads toward the pass (D-311, D-344).
 
+The voice of Marrek (D-1346):
+
+- He speaks plainly and quietly. He asks short questions, and he answers with one word where one word is enough.
+- He says less than he knows about his father. He never makes a speech.
+- He uses the words of the son of a miner: rock, shaft, lamp, and shift.
+
 ### Bergit, the warden
 
 The guild took the mark of Bergit because she refused to seal a level of the deep mine with a crew still inside (D-294, D-311). She knows that the crew was alive behind the seal, that the collapse is a lie, and where the level is. She does not know what waits below, or who was in the crew (D-338). She is the first to join, because she needs a witness that the crew went down alive (D-342). She guards carts on the road in for coin, and she finds Marrek near his village (D-370, D-372). She crosses the pass because nothing is left for her in region one (D-347).
 
+The voice of Bergit (D-1346):
+
+- She speaks in clipped, dry lines, in the terms of price, work, and debt.
+- She states a fact and stops. She does not explain herself, and she does not comfort.
+- Her humor is the dry humor of the game, and it is rare.
+
 ### Dagvar, the hexer
 
 Dagvar casts with no church license, so the law can hang him (D-130). He keeps the old-faith rites at the waystones that the church breaks, and the road of Marrek passes the stones (D-295). He was an adult when the ban came, so he remembers the faith before it (D-298). He kept rites at a waystone in the deep mine and saw the father of Marrek go down (D-337). The church holds him in the hanging cells to hang, and Marrek and Bergit break him out (D-330). He crosses the pass to find waystones beyond the reach of the church (D-348).
+
+The voice of Dagvar (D-1346):
+
+- He speaks with bitter, sharp words, and he says the most of the three. He names the church and the law with contempt.
+- He speaks the old words of the faith, and he does not translate them.
+- Under the anger, he fears the rope, and a short line shows it at times.
 
 ### Ottild, the cutpurse
 
