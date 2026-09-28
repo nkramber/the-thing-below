@@ -1,4 +1,38 @@
 # Session handoff archive
+## Session 389: 2026-09-28, Codex
+
+Author: Codex
+Session: repeat review PR #96 (PR-111). Repository: the-thing-below. Branch: `review/pr-96`, tracking `origin/feat/pr-111-overworld-treasure`. Role: reviewer. Base: `2ac46b6e7280a5000c9397b4b592fcbf1889949c`.
+
+### What this session did, and why
+
+- Re-reviewed effective head `d56432a9dd281d48bcbce2a411862392aaa4d325`. The author added both required art sheets to the PR description.
+- Opened and checked both sheets. They show the cairn drawings at the required scales, grounds, and light directions (D-514, D-521, D-668).
+- Closed P2-1 under the unchanged-head rule of D-1303. The record now gives `Ready for owner merge`.
+- Verified the author's answer to Gitar's RG 4 analysis. Its clean code approval has no item (D-964).
+
+### The state of the build
+
+- The effective head stays `d56432a9dd281d48bcbce2a411862392aaa4d325`. The remote tip before this metadata commit is `1a8bbd0d64fc638e9bb16d9e43db48fd190dc1bb`.
+- Implementation checks passed on macOS, Ubuntu, and Windows. The review-gate failed RG 4 because the prior verdict remained in the record.
+
+### What is in flight
+
+- The review record and this entry need one metadata commit and a push to the PR branch.
+
+### Traps and gotchas
+
+- Push with `git push origin HEAD:feat/pr-111-overworld-treasure`.
+- Session 379 moves to the archive to keep ten current entries.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit the review record and this entry together. Push, fetch, check the remote head, then read the new review-gate result.
+
 ## Session 388: 2026-09-28, Claude Code
 
 Author: Claude Code

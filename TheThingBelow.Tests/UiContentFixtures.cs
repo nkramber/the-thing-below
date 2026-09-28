@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Edges;
 using TheThingBelow.Core.Light;
 
 namespace TheThingBelow.Tests;
@@ -89,16 +90,17 @@ public static class UiContentFixtures
     ];
 
     /// <summary>
-    /// Makes the decor file and the light setup of one map, with no piece and no light: the two
-    /// files that each map of a content set needs (D-442, D-844).
+    /// Makes the decor file, the light setup, and the edge file of one map, with no piece, no light,
+    /// and no edge: the three files that each map of a content set needs (D-442, D-501, D-844).
     /// </summary>
-    /// <param name="stem">The name of both files, such as `one`.</param>
+    /// <param name="stem">The name of the three files, such as `one`.</param>
     /// <param name="map">The id of the map, such as `map.one`.</param>
     /// <param name="time">The time of day of the map, such as `day`.</param>
-    /// <returns>The decor file and the light setup.</returns>
-    public static IReadOnlyList<ContentFile> LightFilesOf(string stem, string map, string time) =>
+    /// <returns>The decor file, the light setup, and the edge file.</returns>
+    public static IReadOnlyList<ContentFile> SideFilesOf(string stem, string map, string time) =>
     [
         Of($"{DecorFile.Folder}{stem}.json", $$"""{ "comment": "a test decor file", "map": "{{map}}", "pieces": [], "shafts": [] }"""),
+        Of($"{EdgeFile.Folder}{stem}.json", $$"""{ "comment": "a test edge file", "map": "{{map}}", "tiles": [] }"""),
         Of(
             $"{LightSetup.Folder}{stem}-{time}.json",
             $$"""

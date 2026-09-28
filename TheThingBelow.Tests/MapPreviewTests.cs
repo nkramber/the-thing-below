@@ -101,7 +101,7 @@ public sealed class MapPreviewTests
         AtlasIndex atlas = PreviewFixtures.Index(PreviewFixtures.IndexText(withWall: false));
 
         ContentException fault = Assert.Throws<ContentException>(
-            () => MapPreview.Render(PreviewFixtures.Map(), PreviewFixtures.Decor(), atlas, PreviewFixtures.Pages()));
+            () => MapPreview.Render(PreviewFixtures.Map(), PreviewFixtures.Edges(), PreviewFixtures.Decor(), atlas, PreviewFixtures.Pages()));
 
         Assert.Contains("'map.hub_test'", fault.Message, StringComparison.Ordinal);
         Assert.Contains("'tile.wall'", fault.Message, StringComparison.Ordinal);
@@ -113,7 +113,7 @@ public sealed class MapPreviewTests
         GameMap map = HubMaps.Of(npcs: HubMaps.Keeper);
 
         ContentException fault = Assert.Throws<ContentException>(
-            () => MapPreview.Render(map, PreviewFixtures.Decor(), PreviewFixtures.Index(), PreviewFixtures.Pages()));
+            () => MapPreview.Render(map, PreviewFixtures.Edges(), PreviewFixtures.Decor(), PreviewFixtures.Index(), PreviewFixtures.Pages()));
 
         Assert.Contains("'map.hub_test'", fault.Message, StringComparison.Ordinal);
         Assert.Contains("'npc.hub_keeper'", fault.Message, StringComparison.Ordinal);
@@ -126,7 +126,7 @@ public sealed class MapPreviewTests
         pages.Remove("pieces");
 
         ContentException fault = Assert.Throws<ContentException>(
-            () => MapPreview.Render(PreviewFixtures.Map(), PreviewFixtures.Decor(), PreviewFixtures.Index(), pages));
+            () => MapPreview.Render(PreviewFixtures.Map(), PreviewFixtures.Edges(), PreviewFixtures.Decor(), PreviewFixtures.Index(), pages));
 
         Assert.Contains("'pieces'", fault.Message, StringComparison.Ordinal);
         Assert.Contains("'drawing.preview_torch'", fault.Message, StringComparison.Ordinal);
@@ -137,24 +137,47 @@ public sealed class MapPreviewTests
     {
         // A drawing holds a transparent pixel or a color of the palette, so a partial alpha
         // means a broken page (D-1315).
-        var tiles = new PreviewFixtures.Page(64, 32);
-        tiles.Fill(0, 0, 64, 32, PreviewFixtures.Floor);
+        var tiles = new PreviewFixtures.Page(96, 32);
+        tiles.Fill(0, 0, 96, 32, PreviewFixtures.Floor);
         tiles.Set(3, 4, 1, 2, 3, 128);
         SortedDictionary<string, PngImage> pages = PreviewFixtures.Pages();
         pages["tiles"] = tiles.ToImage();
 
         ContentException fault = Assert.Throws<ContentException>(
-            () => MapPreview.Render(PreviewFixtures.Map(), PreviewFixtures.Decor(), PreviewFixtures.Index(), pages));
+            () => MapPreview.Render(PreviewFixtures.Map(), PreviewFixtures.Edges(), PreviewFixtures.Decor(), PreviewFixtures.Index(), pages));
 
         Assert.Contains("the pixel 3,4", fault.Message, StringComparison.Ordinal);
         Assert.Contains("the alpha 128", fault.Message, StringComparison.Ordinal);
     }
 
     [Fact]
+    public void AnEdgePieceDrawsOverItsTileAndUnderEachSprite()
+    {
+        // The piece holds a strip in its north rows, and its other pixels leave the ground (D-1321).
+        // The enemy at (7, 6) stands on a tile with the same piece, and it covers it (D-501).
+        PngImage image = Render();
+
+        AssertPixel(image, 3 * Tile, 6 * Tile, PreviewFixtures.Edge);
+        AssertPixel(image, (3 * Tile) + 31, (6 * Tile) + PreviewFixtures.EdgeRows - 1, PreviewFixtures.Edge);
+        AssertPixel(image, 3 * Tile, (6 * Tile) + PreviewFixtures.EdgeRows, PreviewFixtures.Floor);
+        AssertCell(image, 7, 6, PreviewFixtures.Enemy);
+    }
+
+    [Fact]
+    public void TheEdgesOfAnotherMapFail()
+    {
+        ContentException fault = Assert.Throws<ContentException>(
+            () => MapPreview.Render(PreviewFixtures.Map(), PreviewFixtures.Edges("map.other"), PreviewFixtures.Decor(), PreviewFixtures.Index(), PreviewFixtures.Pages()));
+
+        Assert.Contains("'map.other'", fault.Message, StringComparison.Ordinal);
+        Assert.Contains("'map.hub_test'", fault.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void TheDecorOfAnotherMapFails()
     {
         ContentException fault = Assert.Throws<ContentException>(
-            () => MapPreview.Render(PreviewFixtures.Map(), PreviewFixtures.Decor("map.other"), PreviewFixtures.Index(), PreviewFixtures.Pages()));
+            () => MapPreview.Render(PreviewFixtures.Map(), PreviewFixtures.Edges(), PreviewFixtures.Decor("map.other"), PreviewFixtures.Index(), PreviewFixtures.Pages()));
 
         Assert.Contains("'map.other'", fault.Message, StringComparison.Ordinal);
         Assert.Contains("'map.hub_test'", fault.Message, StringComparison.Ordinal);
@@ -162,7 +185,7 @@ public sealed class MapPreviewTests
 
     private static PngImage Render()
     {
-        PngImage image = MapPreview.Render(PreviewFixtures.Map(), PreviewFixtures.Decor(), PreviewFixtures.Index(), PreviewFixtures.Pages());
+        PngImage image = MapPreview.Render(PreviewFixtures.Map(), PreviewFixtures.Edges(), PreviewFixtures.Decor(), PreviewFixtures.Index(), PreviewFixtures.Pages());
 
         // The test reads the pixels of the decoded file, as the owner sees it (F-19).
         return PngReader.Read(PngWriter.Write(image), "the test preview");

@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using Godot;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Edges;
 using TheThingBelow.Core.Maps;
 
 namespace TheThingBelow.Game.Ui;
@@ -20,6 +22,10 @@ namespace TheThingBelow.Game.Ui;
 /// on, and `MapScreen` turns both off, because no rule of Core reads them (G-1,
 /// G-23).
 /// </para>
+/// <para>
+/// The set also holds each edge piece, which the edge layers of the map screen draw over the
+/// ground (D-501, D-1321).
+/// </para>
 /// </remarks>
 public static class MapTileSet
 {
@@ -29,15 +35,17 @@ public static class MapTileSet
     /// <summary>The number of the one atlas source of the set.</summary>
     public const int SourceId = 0;
 
-    /// <summary>Builds the tile set of every tile kind from the tile page (D-667).</summary>
+    /// <summary>Builds the tile set of every tile kind and every edge piece from the tile page (D-667, D-1321).</summary>
     /// <param name="atlas">The pages of the atlas, as textures (D-666).</param>
-    /// <returns>The set, with one tile for each kind of <see cref="TileKind"/>.</returns>
-    /// <exception cref="ArgumentNullException">The atlas is null (T-2).</exception>
-    /// <exception cref="ContentException">The atlas holds no drawing of a tile kind (T-2).</exception>
+    /// <param name="rules">Each edge rule, whose pieces the edge layers of a map draw (D-501).</param>
+    /// <returns>The set, with one tile for each kind of <see cref="TileKind"/> and one for each edge piece.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="ContentException">The atlas holds no drawing of a tile kind or of an edge piece (T-2).</exception>
     /// <exception cref="InvalidOperationException">A call of the engine made no tile (T-2, F-45).</exception>
-    public static TileSet Build(GameAtlas atlas)
+    public static TileSet Build(GameAtlas atlas, IEnumerable<EdgeRule> rules)
     {
         ArgumentNullException.ThrowIfNull(atlas);
+        ArgumentNullException.ThrowIfNull(rules);
 
         var source = new TileSetAtlasSource
         {
@@ -49,15 +57,14 @@ public static class MapTileSet
         // reads the drawing of each kind in the atlas (D-1118).
         foreach (TileKind kind in Enum.GetValues<TileKind>())
         {
-            Vector2I cell = CellOf(atlas, kind);
+            AddTile(source, atlas, TileIds.Of(kind));
+        }
 
-            // `CreateTile` returns no value, and it reports a failure in the log alone. Thus
-            // the result takes a check right after the call (T-2, F-45, D-667).
-            source.CreateTile(cell);
-            if (!source.HasTile(cell))
+        foreach (EdgeRule rule in rules)
+        {
+            foreach (ContentId piece in rule.Pieces)
             {
-                throw new InvalidOperationException(
-                    $"Godot made no tile at the cell {cell} of the tile page for '{TileIds.Of(kind).Value}' (T-2, D-667).");
+                AddTile(source, atlas, piece);
             }
         }
 
@@ -73,11 +80,21 @@ public static class MapTileSet
     /// <exception cref="ArgumentNullException">The atlas is null (T-2).</exception>
     /// <exception cref="ContentException">The atlas holds no drawing of that kind (T-2).</exception>
     /// <exception cref="InvalidOperationException">The drawing does not sit on the grid of a tile page (T-2).</exception>
-    public static Vector2I CellOf(GameAtlas atlas, TileKind kind)
+    public static Vector2I CellOf(GameAtlas atlas, TileKind kind) => CellOf(atlas, TileIds.Of(kind));
+
+    /// <summary>Gives the cell of one tile or one edge piece on the tile page (D-667, D-1321).</summary>
+    /// <param name="atlas">The pages of the atlas.</param>
+    /// <param name="content">The id of the tile, such as `tile.water`, or of the piece, such as `edge.water_north`.</param>
+    /// <returns>The column and the row of that tile on the page.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="ContentException">The atlas holds no drawing of that id (T-2).</exception>
+    /// <exception cref="InvalidOperationException">The drawing does not sit on the grid of a tile page (T-2).</exception>
+    public static Vector2I CellOf(GameAtlas atlas, ContentId content)
     {
         ArgumentNullException.ThrowIfNull(atlas);
+        ArgumentNullException.ThrowIfNull(content);
 
-        AtlasEntry entry = atlas.Index.Entry(TileIds.Of(kind), TileIds.MapUse);
+        AtlasEntry entry = atlas.Index.Entry(content, TileIds.MapUse);
         AtlasFrame place = entry.Frames[0];
         if (place.X % TilePixels != 0 || place.Y % TilePixels != 0 ||
             entry.Width != TilePixels || entry.Height != TilePixels)
@@ -88,5 +105,19 @@ public static class MapTileSet
         }
 
         return new Vector2I(place.X / TilePixels, place.Y / TilePixels);
+    }
+
+    private static void AddTile(TileSetAtlasSource source, GameAtlas atlas, ContentId content)
+    {
+        Vector2I cell = CellOf(atlas, content);
+
+        // `CreateTile` returns no value, and it reports a failure in the log alone. Thus
+        // the result takes a check right after the call (T-2, F-45, D-667).
+        source.CreateTile(cell);
+        if (!source.HasTile(cell))
+        {
+            throw new InvalidOperationException(
+                $"Godot made no tile at the cell {cell} of the tile page for '{content.Value}' (T-2, D-667).");
+        }
     }
 }

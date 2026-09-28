@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Edges;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Tools;
 using TheThingBelow.Tools.Content;
@@ -113,6 +114,35 @@ public sealed class PreviewCommandTests : IDisposable
         }
 
         Assert.True(sprites >= 5, $"The hub gave {sprites} sprites alone.");
+    }
+
+    [Fact]
+    public void EachEdgePieceOfTheFixtureOverworldShowsOnItsTile()
+    {
+        // PR-53: the preview draws the edge file of each map (D-501). The last piece of a tile
+        // draws over the others, so each of its opaque pixels shows.
+        const string OverworldId = "map.fixture_overworld";
+        (int code, _, string errors) = this.Run("--map", OverworldId);
+        Assert.True(code == 0, $"The command failed: {errors}");
+        PngImage image = PngReader.ReadFile(Path.Combine(this.folder, "fixture_overworld.png"));
+        ContentSet content = Content.Value;
+        GameMap map = content.Map(ContentId.Parse(OverworldId, "test", "map"));
+        SortedDictionary<string, PngImage> pages = MapPreview.ReadPages(RepositoryRoot.Find(), content.Atlas);
+
+        bool[] covered = SpriteCells(map, content.Atlas);
+        int compared = 0;
+        foreach (EdgeTile tile in content.Edges.EdgesOf(map.Id).Tiles)
+        {
+            if (!covered[(tile.At.Y * map.Width) + tile.At.X])
+            {
+                AtlasEntry entry = content.Atlas.Entry(tile.Pieces[^1], TileIds.MapUse);
+                AssertSprite(image, tile.At, pages[entry.Page], entry, flip: false);
+                compared += 1;
+            }
+        }
+
+        // The lake of the fixture overworld gives 9 tiles with edge pieces, and no sprite covers one.
+        Assert.True(compared >= 9, $"The test compared {compared} edge tiles alone.");
     }
 
     [Fact]

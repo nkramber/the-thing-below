@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Effects;
+using TheThingBelow.Core.Edges;
 using TheThingBelow.Core.Light;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Notices;
@@ -50,6 +51,7 @@ public sealed class ContentSet
         BotRules bots,
         OverworldPlan? overworld,
         LightContent light,
+        EdgeContent edges,
         EffectContent effects,
         SortedDictionary<string, RuleFixtureEntry> ruleEntries,
         SortedDictionary<string, GameMap> maps,
@@ -68,6 +70,7 @@ public sealed class ContentSet
         this.Bots = bots;
         this.Overworld = overworld;
         this.Light = light;
+        this.Edges = edges;
         this.Effects = effects;
         this.ruleEntries = ruleEntries;
         this.maps = maps;
@@ -110,6 +113,9 @@ public sealed class ContentSet
 
     /// <summary>The decor, the light setups, the carried light, and the effect budget (D-523, D-843, D-844, D-847).</summary>
     public LightContent Light { get; }
+
+    /// <summary>The edge rules and the edge file of each map, which Game and the map preview draw (D-501, D-1321).</summary>
+    public EdgeContent Edges { get; }
 
     /// <summary>The battle file and the hit files (D-182, D-879, D-883).</summary>
     public EffectContent Effects { get; }
@@ -175,6 +181,7 @@ public sealed class ContentSet
         var normalPageFiles = new SortedSet<string>(StringComparer.Ordinal);
         List<NormalOverride> overrides = [];
         List<ContentFile> lightFiles = [];
+        List<ContentFile> edgeFiles = [];
         List<ContentFile> effectFiles = [];
         var paths = new SortedSet<string>(StringComparer.Ordinal);
 
@@ -334,6 +341,12 @@ public sealed class ContentSet
                 // Each grid needs its drawing, so the check runs after the loop (D-839).
                 overrides.Add(NormalOverride.Read(file.Bytes, file.Path));
             }
+            else if (EdgeContent.IsEdgeContent(file.Path))
+            {
+                // An edge file needs the maps and the atlas, so the reader of the edge files runs
+                // after the loop (D-501).
+                edgeFiles.Add(file);
+            }
             else if (LightContent.IsLightFile(file.Path))
             {
                 // A light file needs the maps, the palette, and the atlas, so the reader of the
@@ -421,6 +434,7 @@ public sealed class ContentSet
             readBots,
             plan,
             light,
+            EdgeContent.Load(edgeFiles, maps, readAtlas),
             EffectContent.Load(effectFiles, new AmbientWorld(maps, battle, light, drawings, readPalette)),
             ruleEntries,
             maps,

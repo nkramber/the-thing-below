@@ -182,7 +182,10 @@ Tools terms from the roadmaps PR of 2026-09-14:
 
 | Term | Use for | Do not use |
 |---|---|---|
-| edge file | the generated file of the edge and corner tiles of one map, outside the rule files (D-501) | tile cache, edge map |
+| edge file | the generated file that lists each tile of one map with its edge pieces, outside the rule files (D-501, D-1326) | tile cache, edge map |
+| edge piece | one of the 8 transparent drawings of a tile kind, a side or an inner corner, that draws over a tile of that kind (D-1321) | rim tile, border tile, transition tile |
+| edge rule | the file of one tile kind that names the kinds that join it and its 8 edge pieces (D-1322, D-1327) | edge set, autotile rule |
+| join | a neighbour kind that meets a kind with no edge piece, as the bridge joins the water (D-1322, D-1325) | blend, merge |
 | text helper | the one Game helper that puts a string table entry on screen (D-499) | text wrapper, label helper |
 
 CI terms from the roadmaps PR of 2026-09-14:

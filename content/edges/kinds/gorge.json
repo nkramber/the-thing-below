@@ -1,0 +1,15 @@
+{
+ "comment": "The edge rule of the gorge (D-1290, D-1321, D-1322). The lip of the gorge draws on each gorge tile beside another kind, and the far wall shows its face under the north lip. No kind joins the gorge (D-1325). The pieces are placeholders (D-1323).",
+ "kind": "gorge",
+ "joins": [],
+ "pieces": {
+  "north": "edge.gorge_north",
+  "east": "edge.gorge_east",
+  "south": "edge.gorge_south",
+  "west": "edge.gorge_west",
+  "north_east": "edge.gorge_north_east",
+  "south_east": "edge.gorge_south_east",
+  "south_west": "edge.gorge_south_west",
+  "north_west": "edge.gorge_north_west"
+ }
+}

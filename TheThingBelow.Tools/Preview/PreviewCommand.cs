@@ -80,7 +80,7 @@ public static class PreviewCommand
         Directory.CreateDirectory(folder);
         foreach (GameMap map in maps)
         {
-            PngImage image = MapPreview.Render(map, content.Light.DecorOf(map.Id), content.Atlas, pages);
+            PngImage image = MapPreview.Render(map, content.Edges.EdgesOf(map.Id), content.Light.DecorOf(map.Id), content.Atlas, pages);
             string path = Path.Combine(folder, $"{map.Id.Name}.png");
             PngWriter.WriteFile(path, image);
             output.WriteLine($"{Name}: wrote {path}, {image.Width} by {image.Height} pixels.");

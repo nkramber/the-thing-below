@@ -7,6 +7,7 @@ using TheThingBelow.Tools.ChangedPaths;
 using TheThingBelow.Tools.CodexReview;
 using TheThingBelow.Tools.Content;
 using TheThingBelow.Tools.DetLint;
+using TheThingBelow.Tools.Edges;
 using TheThingBelow.Tools.Evaluator;
 using TheThingBelow.Tools.Identity;
 using TheThingBelow.Tools.Import;
@@ -115,6 +116,11 @@ public static class Program
             return PreviewCommand.Run(args[1..], output, errors);
         }
 
+        if (command == EdgesCommand.Name)
+        {
+            return EdgesCommand.Run(args[1..], output, errors);
+        }
+
         if (command == ChangedPathsCommand.Name)
         {
             return ChangedPathsCommand.Run(args[1..], output, errors);
@@ -210,6 +216,7 @@ public static class Program
         errors.WriteLine($"  {ScreensCommand.Name}: ready");
         errors.WriteLine($"  {PictureCommand.Name}: ready");
         errors.WriteLine($"  {PreviewCommand.Name}: ready");
+        errors.WriteLine($"  {EdgesCommand.Name}: ready");
         errors.WriteLine($"  {ChangedPathsCommand.Name}: ready");
         errors.WriteLine($"  {CodexReviewCommand.Name}: ready");
         errors.WriteLine($"  {EvaluatorCostCommand.Name}: ready");

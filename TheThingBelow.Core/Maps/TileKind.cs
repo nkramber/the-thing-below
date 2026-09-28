@@ -217,6 +217,26 @@ public static class TileKinds
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no tile kind (D-528)"),
     };
 
+    /// <summary>Gives the kind of one name, as an edge rule writes it (D-1327).</summary>
+    /// <param name="name">The name, such as `water`.</param>
+    /// <param name="kind">The kind of that name, when the name names one.</param>
+    /// <returns>True when the name names a kind.</returns>
+    public static bool TryOfName(string name, out TileKind kind)
+    {
+        ArgumentNullException.ThrowIfNull(name);
+
+        foreach (char character in EveryCharacter)
+        {
+            if (TryOf(character, out kind) && string.CompareOrdinal(NameOf(kind), name) == 0)
+            {
+                return true;
+            }
+        }
+
+        kind = TileKind.Floor;
+        return false;
+    }
+
     /// <summary>Tells whether the party can stand on a tile of this kind.</summary>
     /// <param name="kind">The kind of the tile.</param>
     /// <returns>True when a step onto the tile holds.</returns>
