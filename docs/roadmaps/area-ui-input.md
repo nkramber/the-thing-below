@@ -279,7 +279,7 @@ Built by PR-41 and every UI PR. Phase file: `phase-2-first-playable.md`.
 | Part | Area file | PR |
 |---|---|---|
 | The light and the effects inside the frame, with the style of each one | `area-effects.md` | PR-56 to PR-60 |
-| The drawings of the window frames and the icons | `area-art.md` | PR-17 and the art PRs |
+| The drawings of the window frames and the icons | `area-art.md` | The art PRs after PR-17 (D-1328) |
 | The intents, the run record, and the tick of a menu | `area-core.md` | PR-6 |
 | The screen-test job and its baselines | `area-ci.md` | PR-41 |
 | The menu sounds | `area-audio.md` | PR-70 |
@@ -316,7 +316,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 9. PR-68: the story scene runner, before PR-12 (D-541, D-556).
 10. PR-12, PR-13, PR-14, and PR-16: one screen for each system.
 11. PR-36: the dialogue box. PR-35: the overworld on the map scene.
-12. PR-17: the first playable, read on the Deck (M-6).
+12. PR-17 and PR-112 to PR-115: the first playable, read on the Deck (M-6).
 13. **← GATE 2 (first playable).**
 15. PR-33: the title screen, the version line, and the credits.
 16. PR-78 and PR-39: the Steam binding, then the Deck checklist (D-565).

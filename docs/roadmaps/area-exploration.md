@@ -277,7 +277,7 @@ Built by PR-35, PR-109, PR-110, and PR-111. Phase file: `phase-2-first-playable.
 | PR-110 | The overworld of region one, its generator, its marks, its gates, and the region of each zone | D-1270 to D-1302 |
 | PR-111 | The treasure of the overworld | D-1298 |
 | PR-21 | The switches, the blocks, the light and dark, and the secrets | D-41 |
-| PR-17 | The village, the land near it, the mining town, and the hanging cells | D-313, D-362, D-369 |
+| PR-17 | The village, the land near it, the mining town, and the hanging cells | D-313, D-362, D-369, D-1331 |
 | PR-23 to PR-27 | The deep mine, the second visit to the cells, the border fort, the ice crossing, and the second hub, the refuge | D-313, D-327, D-574 |
 | PR-81 | The sealed gallery, the fifth dungeon, with its second passage | D-343, D-562, D-575 |
 
@@ -289,7 +289,7 @@ Built by PR-35, PR-109, PR-110, and PR-111. Phase file: `phase-2-first-playable.
 | The battle that an encounter starts | `area-battle.md` | PR-9 |
 | The frame, the camera input, the map HUD, and the dungeon map screen | `area-ui-input.md` | PR-61 and PR-62 |
 | The light setup and the ambient effects of each map | `area-effects.md` | PR-56 and PR-58 |
-| The tile sets, the edge tiles, and the map preview | `area-art.md` and `area-tools.md` | PR-17, PR-52, and PR-53 |
+| The tile sets, the edge tiles, and the map preview | `area-art.md` and `area-tools.md` | PR-52, PR-53, and PR-112 |
 | The story scenes that play on a map, and their triggers | `area-story.md` | PR-68 and PR-36 |
 | The lessons, the gear, and the items that a chest holds | `area-progression.md` | PR-12 and PR-13 |
 

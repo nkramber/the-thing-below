@@ -315,7 +315,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 1. PR-6: the game version in the run record header (D-448).
 2. PR-44: the game version in the crash file. PR-61 adds the studio address to the message (D-473, D-559).
 3. PR-54: the export job, right before PR-7 (D-503).
-4. PR-17: the first playable.
+4. PR-17 and PR-112 to PR-115: the first playable (D-1328).
 5. **← GATE 2 (first playable).** The owner plays on both machines and signs off on feel (D-52, D-362).
 6. PR-74: the capture in a development build (D-551).
 7. PR-75: the store text and the owner checklist (D-550).

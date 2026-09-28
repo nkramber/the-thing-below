@@ -281,7 +281,7 @@ Built by PR-53. Phase file: `phase-2-first-playable.md`.
 - A test proves that each edge file matches its map and the edge rules (D-501). `make edges` writes the files again.
 - Game reads the map and its edge file, and the rules of Core read the map alone (D-501, G-1). The map preview draws the same pieces.
 - An edge rule with an absent piece fails the load with the file and the place (T-2, D-1321).
-- PR-53 draws placeholder pieces for the water and the gorge alone. The tile sets of PR-17 and later add the other kinds (D-1323).
+- PR-53 draws placeholder pieces for the water and the gorge alone. The tile sets of PR-112 and later add the other kinds (D-1323, D-1328).
 
 > *In plain English:* a map names the ground, such as snow or rock, and this tool picks the right border tile for each edge. The picks live in a file of their own, so a new border drawing never breaks an old replay.
 

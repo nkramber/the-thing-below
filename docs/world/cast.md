@@ -65,7 +65,7 @@ The four 16 by 16 test sprites of D-233 became Bergit, Dagvar, Elio, and Ottild 
 
 ### Marrek, the lead
 
-Marrek grew up under the ban in a small village on the road below the mining town (D-284, D-368). He fights up close with what a miner carries (D-285). A parent of Marrek went down into the deep mine and did not come back, and he goes down to learn why (D-291). His road starts at the thing below. He fights alone at first, near the village (D-370). In the deep mine, he finds the sealed crew but not his parent, and the mark of the parent leads toward the pass (D-311, D-344).
+Marrek grew up under the ban in a small village on the road below the mining town (D-284, D-368). He fights up close with what a miner carries (D-285). The father of Marrek went down into the deep mine and did not come back, and Marrek goes down to learn why (D-291, D-1345). His road starts at the thing below. He fights alone at first, near the village (D-370). In the deep mine, he finds the sealed crew but not his father, and the mark of his father leads toward the pass (D-311, D-344).
 
 ### Bergit, the warden
 
@@ -73,7 +73,7 @@ The guild took the mark of Bergit because she refused to seal a level of the dee
 
 ### Dagvar, the hexer
 
-Dagvar casts with no church license, so the law can hang him (D-130). He keeps the old-faith rites at the waystones that the church breaks, and the road of Marrek passes the stones (D-295). He was an adult when the ban came, so he remembers the faith before it (D-298). He kept rites at a waystone in the deep mine and saw the parent of Marrek go down (D-337). The church holds him in the hanging cells to hang, and Marrek and Bergit break him out (D-330). He crosses the pass to find waystones beyond the reach of the church (D-348).
+Dagvar casts with no church license, so the law can hang him (D-130). He keeps the old-faith rites at the waystones that the church breaks, and the road of Marrek passes the stones (D-295). He was an adult when the ban came, so he remembers the faith before it (D-298). He kept rites at a waystone in the deep mine and saw the father of Marrek go down (D-337). The church holds him in the hanging cells to hang, and Marrek and Bergit break him out (D-330). He crosses the pass to find waystones beyond the reach of the church (D-348).
 
 ### Ottild, the cutpurse
 
@@ -110,6 +110,6 @@ The names follow the two sound palettes of `setting.md` (D-159). The four local 
 ## Open items
 
 - The region of the death of Elio (D-321).
-- The fate of the parent of Marrek past the crawlway (D-291, D-344).
+- The fate of the father of Marrek past the crawlway (D-291, D-344).
 - The personal task of each character, which PR-28 and PR-29 propose (D-282, D-352).
 - The two new characters and the replacement (D-299).

@@ -820,7 +820,7 @@ How to file a question (D-19, D-24):
     - A quarter of the hit, rounded down, the recommendation and the proposal of the owner. The rate falls to 2500. An absorb stays a real gain for the target, and a wrong spell costs less.
     - The full hit, as it stands. Nothing changes. A wrong spell on a boss can undo many turns of damage.
     - Half of the hit, rounded down. The rate falls to 5000. The cost of a wrong spell sits between the two other options.
-249. **OQ-249. The experience of the reserve on screen.** A reserve character earns half the experience of a battle won (D-73, D-974), and PR-14 adds that award. The battle summary names the party alone. A reserve character can thus gain a level with no line on the screen. Does the summary show the reserve? Raised 2026-09-25. Blocks PR-17, the first PR with a reserve in the shipped content (D-1144).
+249. **OQ-249. The experience of the reserve on screen.** A reserve character earns half the experience of a battle won (D-73, D-974), and PR-14 adds that award. The battle summary names the party alone. A reserve character can thus gain a level with no line on the screen. Does the summary show the reserve? Raised 2026-09-25. It blocked PR-17 as the first PR with a reserve in the shipped content (D-1144). On 2026-09-28, D-1330 found no reserve in PR-17, because three characters fight. The question now blocks PR-23, the first PR that adds a fourth character.
     - A line for each reserve character in the summary, the recommendation. The player sees the half share and each level of the reserve.
     - A line for the level of a reserve character alone. The summary stays short, and a level still shows.
     - No line. The Status window shows each level, and the summary stays as it is.
@@ -840,3 +840,6 @@ How to file a question (D-19, D-24):
 254. **OQ-254. The wipe loop of the greedy bot.** A greedy run can save at the waystone of the fixture hub with a hurt party. The rats then wipe the party, and the reload puts it back at the waystone. The rats trigger lies nearer than the rest (D-1260). About one dungeon run in five then plays its whole budget. Does the greedy bot rest first with a hurt party, or does the careful policy of PR-90 take that job? Raised 2026-09-27. Blocks no PR yet.
     - The careful policy of PR-90 rests when hurt, the recommendation. The greedy bot stays simple, and PR-90 measures the rest rule with its balance metrics.
     - The greedy bot rests first below half health. Fewer greedy runs play the whole budget, and the counts can grow again. The greedy bot then holds a second rule of play.
+255. **OQ-255. The name of the father of Marrek.** D-1345 makes the parent of D-291 the father of Marrek. The text of PR-17 calls him father and gives no name. What is his name? Raised 2026-09-28. Blocks PR-28, the arc of region one.
+    - The session proposes three names in the style of the world, and the owner picks one, the recommendation.
+    - The owner gives the name.

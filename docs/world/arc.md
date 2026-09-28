@@ -14,7 +14,7 @@ Region one is a fixed story with set choices (D-328, D-350). The party grows fro
 |---|---|---|
 | Start | The village of Marrek, on the road in | Marrek fights winter beasts alone, and Bergit finds him (D-370, D-373) |
 | First dungeon | The hanging cells | The party frees Dagvar (D-330) |
-| Second dungeon | The deep mine | The sealed crew, the trace of the parent, and a wrong thing (D-311, D-312, D-344) |
+| Second dungeon | The deep mine | The sealed crew, the trace of the father, and a wrong thing (D-311, D-312, D-344) |
 | First dungeon, again | The hanging cells | The party breaks out and kills the bishop (D-319, D-327) |
 | Third dungeon and flight | The sealed gallery and the refuge | The party shelters with the old faith and leaves before the wardens come (D-331, D-340, D-575) |
 | Flight | The mining town, by night | The party passes the town to the road up (D-333, D-343) |
@@ -33,7 +33,7 @@ The guild is neither evil nor good (D-324). The seal was a hard choice, and the 
 
 Bergit refused the order to seal the level, and the guild took her mark (D-294, D-311). She knows that the crew was alive behind the seal, that the collapse is a lie, and where the level is. She does not know what waits below, or who was in the crew (D-338).
 
-In the deep mine, Marrek opens the sealed level and finds the crew, but not his parent (D-311). Pick marks open a crawlway out of the level, and the parent cut a miner's mark at turns that climb toward the pass (D-344). The parent left the level alive, and the trail leads over the pass (D-314). Dagvar kept rites at a waystone in the deep mine and saw the parent go down (D-337).
+In the deep mine, Marrek opens the sealed level and finds the crew, but not his father (D-311). Pick marks open a crawlway out of the level, and the father cut a miner's mark at turns that climb toward the pass (D-344). The father left the level alive, and the trail leads over the pass (D-314). Dagvar kept rites at a waystone in the deep mine and saw the father go down (D-337).
 
 ## The thing below in region one
 
@@ -47,7 +47,7 @@ Church wardens, the armed men of the church, capture the party and later hunt it
 
 ## The story in order
 
-1. The game starts in the village where Marrek grew up, below the mining town (D-368, D-371). His parent went down into the deep mine and did not come back (D-291).
+1. The game starts in the village where Marrek grew up, below the mining town (D-368, D-371). His father went down into the deep mine and did not come back (D-291, D-1345).
 2. Marrek fights hungry winter beasts near the village alone (D-336, D-370, D-373).
 3. Bergit, who guards carts on the road for coin, finds him. She needs a witness that the crew went down alive (D-342, D-372).
 4. The witness is Dagvar, a hexer who waits to hang in the cells (D-337).
@@ -56,7 +56,7 @@ Church wardens, the armed men of the church, capture the party and later hunt it
 7. Elio joins the party and says that he comes to help in the deep mine.
 8. Ottild joins with her tunnels, the way into the deep mine (D-342).
 9. In the deep mine, the party finds the sealed crew and fights the wrong thing (D-311, D-312).
-10. Marrek finds the mark of his parent at turns that climb toward the pass (D-344).
+10. Marrek finds the mark of his father at turns that climb toward the pass (D-344).
 11. Elio sees what lives below and grows discontent. He does not confess, and he does not report (D-317).
 12. Church wardens and a priest confront the party. The priest names Elio as a spy (D-318, D-332).
 13. The party and Elio wake as prisoners in the hanging cells (D-327).
@@ -83,7 +83,7 @@ Each character needs a reason to follow the party out of region one (D-315). The
 
 | Character | Joins | Reason to cross the pass |
 |---|---|---|
-| Marrek | At the start | The trail of his parent leads over the pass (D-314, D-344) |
+| Marrek | At the start | The trail of his father leads over the pass (D-314, D-344) |
 | Bergit | Near the village, first (D-342, D-370) | Nothing is left for her in region one (D-347) |
 | Dagvar | In the hanging cells (D-330) | To find waystones beyond the reach of the church (D-348) |
 | Elio | After the cells (D-316) | Loyalty to the party, and the goal to stop the foreign church (D-320) |
@@ -120,6 +120,6 @@ Two months pass after region one, and the arc of region two sets what they chang
 - The names of the bishop, the priest, the captain of the wardens, and the survivor of the raid.
 - Where the wardens and the priest confront the party, before the party wakes in the cells (D-318, D-327).
 - The layout of the second passage in the gallery (D-343).
-- The fate of the parent of Marrek past the crawlway (D-291, D-344).
+- The fate of the father of Marrek past the crawlway (D-291, D-344).
 - The region of the death of Elio (D-321).
 - The replacement and the two new characters (D-299, D-321).

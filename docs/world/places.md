@@ -49,9 +49,18 @@ Four landmarks stand off the road (D-1299):
 
 - Kind: a small start area of a few houses, with story scenes and people, and no shop or rest service (D-369).
 - Place: on the road in, below the high valley, a short walk from the mining town (D-371). The supply road of the occupier passes it.
-- Marrek grew up here, and his parent walked from here to work the deep mine (D-368).
+- Marrek grew up here, and his father walked from here to work the deep mine (D-368, D-1345).
 - Marrek fights hungry winter beasts near the village alone, and Bergit, who guards the road for coin, finds him there (D-370, D-372, D-373).
 - The story of region one never returns to the village, because the flight at the end climbs away from it (D-371). The player can walk back until the breakout (D-1281).
+- The game opens in the empty house of Marrek. A neighbor brings word that the beasts came down and that the ore carts are late (D-1344).
+- Three villagers stand in the lanes, and each one speaks a few lines (D-1344).
+- The village is at day, and it turns to night when the first playable ends (D-1338).
+
+## The land near the village
+
+- A small map beside the village, which the party enters from the overworld (D-1331).
+- Marrek fights the beasts there alone: a lean wolf, a snow crow, and a starving boar. Bergit joins there (D-1331, D-1332).
+- The land is at dusk, when the beasts come down (D-1338).
 
 ## The mining town
 
@@ -61,6 +70,15 @@ Four landmarks stand off the road (D-1299):
 - The first dungeon in the town: the cells under the chapel, where hexers wait to hang (D-149, D-244).
 - The second dungeon: the deep mine, which the war dug past its limit, down to the old ground (D-128, D-244).
 - The cells return: the party wakes there as prisoners and breaks out to the chapel (D-327).
+- The town holds a trader and an inn. A waystone that the church broke still stands in a back yard of the inn (D-1339).
+- The town is at dusk (D-1338).
+
+## The hanging cells
+
+- Two floors under the chapel, with ten rooms or more (D-1340).
+- A turnkey opens the upper door for a bribe in gold. Below the door, the jailers, their hound, and the cell rats fight the party (D-1333, D-1334, D-1335).
+- The church walled the stump of a waystone into a low cell (D-1339).
+- Dagvar waits in a cell, and the first playable ends when he joins (D-362, D-1337).
 
 ## The cave community
 

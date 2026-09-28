@@ -174,6 +174,8 @@ The shop window takes a count, and it shows the change of each fighter for a pie
 
 2026-09-27 region one pass: the one overworld of the game holds region one at 160 tiles by 128 (D-1274, D-1297). A generator in Tools writes the land from a settings file, and a test proves that the map matches it (D-1294 to D-1296). A place with no map yet is a mark, and each zone names its region (D-1271, D-1285, D-1289). PR-111 adds the treasure of the overworld (D-1298).
 
+2026-09-28 first playable pass: PR-17 writes the places of the first playable as rule content and text, with stand-in drawings (D-1328, D-1329). PR-112 to PR-115 then draw the tile sets and the edges, the sprites and the poses, the backdrops, and the light and the effects. PR-17 also builds a paid scene step for the bribe of the turnkey, by owner choice (D-1335, D-1336). OQ-249 now blocks PR-23, because no character of the first playable waits in reserve (D-1330).
+
 External facts, each with the date of its check:
 
 - The GitHub repository `nkramber/the-thing-below` is public. Its name changed from the working title on 2026-09-14 (D-410). Source: `gh repo view`, run 2026-09-14.
@@ -613,7 +615,7 @@ Phase file: `docs/roadmaps/phase-1-foundations.md`.
 
 ### Phase 2: First playable (gate: the owner plays the village, one hub, and one dungeon with lessons and a shop, on the desktop and on the Deck, D-51, D-92, D-268, D-362, D-369)
 
-Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase: 59 PRs, and 56 of them land before Gate 2. Each system, each tool, and each group of screens takes an id of its own (D-486, G-8).
+Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase: 63 PRs, and 60 of them land before Gate 2. Each system, each tool, and each group of screens takes an id of its own (D-486, G-8).
 
 1. Owner: set the fonts, Terminus TTF and Terminus TTF Bold (D-263, D-264).
 2. PR-54: the export job, right before PR-7 (D-449, D-503).
@@ -670,8 +672,8 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 53. PR-51: the PNG import, with the hand-edit mode, the generator mode, and the frame PNG (D-107, D-497, D-688, D-1313).
 54. PR-52: the map preview as a PNG, with the sprites of a map and no hidden part (D-165, D-497, D-1317 to D-1320).
 55. PR-53: the tile-edge tool, the edge files, and the placeholder edge pieces of the water and the gorge (D-204, D-501, D-1321 to D-1327).
-56. PR-17: the village, the mining town, and the hanging cells as content (D-362, D-369, D-370).
-57. PR-38: the synthesizer, the two note formats, the render hashes, and the `listen` command, right after PR-17 (D-432, D-438, D-1079).
+56. PR-17: the village, the mining town, and the hanging cells as content (D-362, D-369, D-370, D-1328). PR-112 to PR-115 follow it with the art and the effects of the first playable (D-1328).
+57. PR-38: the synthesizer, the two note formats, the render hashes, and the `listen` command, right after PR-115 (D-432, D-438, D-1079, D-1328).
 58. PR-69: the audio player, the four buses, and the mute (D-435, D-546).
 59. PR-70: every rule of what plays when (D-413, D-546).
 60. PR-71: the sound room in a development build (D-439, D-546).
@@ -780,7 +782,7 @@ Section 7 gives the same order inside each phase, with a link to each phase file
 22. PR-15 adds the `bots` check to the protection of `main` (D-1186). The PR-49 session adds `night-gate` after the first night passes (D-1192).
 23. PR-16, PR-64, PR-35, PR-109, PR-110, PR-111 (D-1254, D-1298).
 24. PR-51, PR-52, PR-53.
-25. PR-17.
+25. PR-17, PR-112, PR-113, PR-114, PR-115 (D-1328).
 26. PR-38, PR-69, PR-70, PR-71, PR-72 (D-1079).
 27. M-3, M-4, M-6.
 28. Owner: set the M-4 band from the M-4 numbers (D-571).

@@ -103,7 +103,7 @@ Built by PR-68, and used by PR-7, PR-14, and PR-16. Phase file: `phase-2-first-p
 - A story scene plays on a hub map or a dungeon map, and one code path draws both (D-112, D-114, `area-exploration.md` section 7.11).
 - A trigger fires from the tick of Core, so a replay starts each story scene at the same tick (T-7, G-5).
 - A story scene that plays once sets a flag, and its condition then refuses it (D-542).
-- The village holds a placeholder story scene until the arc content lands (D-292, PR-17).
+- The village holds a placeholder story scene until the arc content lands (D-1344, PR-17).
 - Four kinds of event fire a trigger: a tile, a talk with an NPC, the entry to the map, and a won battle (D-1004). A battle end trigger names a patrol of its map (D-1011). PR-14 fires the talk kind with the NPCs (D-1005).
 
 > *In plain English:* a story scene starts because you walked somewhere, spoke to somebody, or finished a fight. The map file says where and when.
@@ -157,7 +157,7 @@ Built by PR-50. Phase file: `phase-2-first-playable.md`.
 Built by PR-17, PR-28, and PR-29. Phase files: `phase-2-first-playable.md` and `phase-4-region-one.md`.
 
 - The file `docs/world/arc.md` holds the arc, step by step, and each step cites its decision (D-309 onward).
-- PR-17 writes the text of Marrek, Bergit, and Dagvar and a placeholder story scene, for the first playable (D-292, D-362).
+- PR-17 writes the text of Marrek, Bergit, and Dagvar and a placeholder story scene, for the first playable (D-362, D-1344).
 - PR-28 and PR-29 write region one in two batches (D-56, D-57, D-350, D-352). Each batch holds story scenes, set choices, portraits, personal tasks, and cast text.
 - The party grows from Marrek alone to five characters, in the order that D-342 sets.
 - The region ends on the ice crossing with the choice of D-354, and two months pass before region two (D-345, D-353).
@@ -206,7 +206,7 @@ Built by PR-68, PR-18, PR-19, PR-15, and PR-49. Phase files: `phase-2-first-play
 | PR-50 | The screenplay tool | D-173, D-545 |
 | PR-18 | The branches, the choice effects, and the lost ally | D-40, D-301, D-329 |
 | PR-19 | The quest state, the rumor board, and the personal tasks | D-59, D-282, D-375, D-538 |
-| PR-17 | The text of three characters and a placeholder story scene | D-292, D-362 |
+| PR-17 | The text of three characters and a placeholder story scene | D-362, D-1344 |
 | PR-28 and PR-29 | The story scenes, the choices, the joins, the portraits, the tasks, and the night light of the mining town | D-56, D-57, D-350 to D-355, D-442, D-563 |
 
 ### 7.13 Story that other area files hold
@@ -215,7 +215,7 @@ Built by PR-68, PR-18, PR-19, PR-15, and PR-49. Phase files: `phase-2-first-play
 |---|---|---|
 | The content reader, the snapshot, and the migrations | `area-core.md` | PR-5 and PR-43 |
 | The UI base, the dialogue box, and the text speed | `area-ui-input.md` | PR-61, PR-36, and PR-63 |
-| The portraits and the sprites that a story scene moves | `area-art.md` | PR-34 and PR-17 |
+| The portraits and the sprites that a story scene moves | `area-art.md` | PR-34 and PR-113 |
 | The maps and the triggers that a story scene plays on | `area-exploration.md` | PR-7, PR-14, and PR-16 |
 | The gates of the overworld that a condition closes | `area-exploration.md` | PR-35 |
 | The side aptitude that a personal task unlocks | `area-progression.md` | PR-12 |

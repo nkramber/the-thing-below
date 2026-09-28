@@ -251,7 +251,7 @@ Built by PR-58. Phase file: `phase-2-first-playable.md`.
 - The test content holds one ambient file of each kind for the fixture dungeon, and the shipped dungeon takes dust and drips (D-889).
 - Fog and each other full-screen ambient effect count against the effect budget (D-523). A fog counts as one pass, whatever its count of layers (D-898).
 - The ambience of each map matches its ambient effects, and `area-audio.md` holds the sound (D-424).
-- PR-17 adds the ambient effects of the village, the land near it, the mining town, and the hanging cells (D-362, D-369, D-520).
+- PR-115 adds the ambient effects of the village, the land near it, the mining town, and the hanging cells (D-362, D-369, D-520, D-1328).
 
 > *In plain English:* each place has its own weather: snow in the pass, smoke by a fire, dust in the mine. The weather never hides an enemy that the player needs to see.
 
@@ -347,7 +347,8 @@ Built by PR-41 and every effect PR. Phase file: `phase-2-first-playable.md`.
 | PR-92 | The tilt-shift blur, the vignette, and the light shafts of the HD-2D look | D-849 |
 | PR-60 | The ten transitions, the table of kinds and pools, and the fades of the hand-off | D-195, D-196, D-934 to D-941 |
 | PR-106 | The light budget counts the widest flicker of each torch, a fight counts the weather and both bursts, and each light texture builds one time | D-1129 |
-| PR-17 | The light setups, the ambient effects, and the effect files of the first places | D-362, D-520 |
+| PR-17 | The light setups of the first places | D-442, D-1338 |
+| PR-115 | The ambient effects, the added lights, and the effect files of the first places | D-362, D-520, D-1328 |
 | PR-21 | The light of the puzzles of light and dark | D-41 |
 | PR-23 to PR-27 and PR-81 | The light setups and the effects of each later place, the sealed gallery included | D-313, D-575 |
 
@@ -419,7 +420,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 13. PR-59: glow.
 14. PR-92: the three passes of the HD-2D look, after a new Deck sweep (D-849).
 15. PR-60: the transitions.
-16. PR-17: the first places with their light and effects.
+16. PR-17, then PR-115: the light setups of the first places, then their effects (D-1328).
 17. M-6: the Deck against the effect budget.
 18. **← GATE 2 (first playable).** The owner plays every effect on the Deck (D-161).
 
