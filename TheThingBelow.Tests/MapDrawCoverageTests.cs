@@ -19,17 +19,17 @@ namespace TheThingBelow.Tests;
 /// </remarks>
 public sealed class MapDrawCoverageTests
 {
-    /// <summary>The use of a map drawing, which `MapScreen.MapUse` of Game holds (D-519).</summary>
-    private const string MapUse = "map_front";
+    /// <summary>The use of a map drawing, which `MapDrawings` of Core holds (D-519).</summary>
+    private const string MapUse = MapDrawings.FigureUse;
 
-    /// <summary>The use of the drawing of the lead with the torch, which `MapScreen.TorchUse` of Game holds (D-1069).</summary>
-    private const string TorchUse = "map_torch";
+    /// <summary>The use of the drawing of the lead with the torch, which `MapDrawings` of Core holds (D-1069).</summary>
+    private const string TorchUse = MapDrawings.TorchUse;
 
-    /// <summary>The use of the drawing of a thing with one view, which `MapScreen.ThingUse` of Game holds (D-1142).</summary>
-    private const string ThingUse = "map";
+    /// <summary>The use of the drawing of a thing with one view, which `MapDrawings` of Core holds (D-1142).</summary>
+    private const string ThingUse = MapDrawings.ThingUse;
 
-    /// <summary>The use of the open drawing of a door or a chest, which `MapScreen.OpenUse` of Game holds (D-1223).</summary>
-    private const string OpenUse = "map_open";
+    /// <summary>The use of the open drawing of a door or a chest, which `MapDrawings` of Core holds (D-1223).</summary>
+    private const string OpenUse = MapDrawings.OpenUse;
 
     /// <summary>The id that the lead draws as, which `MapScreen.LeadContentId` of Game holds.</summary>
     private const string LeadId = "cast.marrek";
@@ -232,7 +232,7 @@ public sealed class MapDrawCoverageTests
                     missing.Add($"{point.Id.Value} {ThingUse} on {map.Id.Value}");
                 }
 
-                bool open = (bool)GameValue.Static("MapScreen", "HasOpenLook", point.Kind)!;
+                bool open = MapDrawings.HasOpenLook(point.Kind);
                 if (open && !atlas.Draws(point.Id, OpenUse))
                 {
                     missing.Add($"{point.Id.Value} {OpenUse} on {map.Id.Value}");
@@ -243,13 +243,13 @@ public sealed class MapDrawCoverageTests
         return missing;
     }
 
-    /// <summary>Gives each thing that `MapScreen.Draws` of Game draws, in the order of the map file (D-1223).</summary>
+    /// <summary>Gives each thing that `MapDrawings.Draws` of Core draws, in the order of the map file (D-1223).</summary>
     private static List<MapThing> DrawnThingsOf(GameMap map)
     {
         List<MapThing> points = [];
         foreach (MapThing thing in map.Things)
         {
-            if ((bool)GameValue.Static("MapScreen", "Draws", thing.Kind)!)
+            if (MapDrawings.Draws(thing.Kind))
             {
                 points.Add(thing);
             }

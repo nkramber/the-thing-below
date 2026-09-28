@@ -13,6 +13,7 @@ using TheThingBelow.Tools.Import;
 using TheThingBelow.Tools.Night;
 using TheThingBelow.Tools.Notify;
 using TheThingBelow.Tools.Pictures;
+using TheThingBelow.Tools.Preview;
 using TheThingBelow.Tools.ReviewGate;
 using TheThingBelow.Tools.Screens;
 using TheThingBelow.Tools.Screenplay;
@@ -109,6 +110,11 @@ public static class Program
             return PictureCommand.Run(args[1..], output, errors);
         }
 
+        if (command == PreviewCommand.Name)
+        {
+            return PreviewCommand.Run(args[1..], output, errors);
+        }
+
         if (command == ChangedPathsCommand.Name)
         {
             return ChangedPathsCommand.Run(args[1..], output, errors);
@@ -203,6 +209,7 @@ public static class Program
         errors.WriteLine($"  {OverworldCommand.Name}: ready");
         errors.WriteLine($"  {ScreensCommand.Name}: ready");
         errors.WriteLine($"  {PictureCommand.Name}: ready");
+        errors.WriteLine($"  {PreviewCommand.Name}: ready");
         errors.WriteLine($"  {ChangedPathsCommand.Name}: ready");
         errors.WriteLine($"  {CodexReviewCommand.Name}: ready");
         errors.WriteLine($"  {EvaluatorCostCommand.Name}: ready");

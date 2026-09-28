@@ -260,7 +260,9 @@ Built by PR-51. Phase file: `phase-2-first-playable.md`.
 Built by PR-52. Phase file: `phase-2-first-playable.md`.
 
 - The command renders a map file as a PNG from the atlas, for the owner's approval (D-165). It lands before PR-17 (D-497).
-- The session attaches each preview to the PR description (D-514).
+- It draws the tiles and each sprite of the start of the map, at full light, and no hidden part (D-1317, D-1318).
+- `make preview` renders each map, and `make preview MAP=<id>` renders one (D-1319).
+- The session attaches the preview of each changed map to the PR description, and the reviewer checks it (D-514, D-1320).
 - `area-exploration.md` holds the layout format.
 - From PR-53 on, the preview draws the tiles of the edge file of each map (D-501).
 
