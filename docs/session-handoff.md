@@ -13,11 +13,11 @@ Session: review PR #93 (PR-35). Repository: the-thing-below. Branch: `review/pr-
 ### The state of the build
 
 - `make verify` passed locally with 4,318 tests and no skips. CI run 36359846898 passed every implementation check on all three systems.
-- The remote head before this metadata commit is `5f2ba3b4c9d7c29ad49666a6b6fa23ba4f26d17f`. The only failing check is review-gate RG 3, which awaits this record.
+- The implementation head is `5f2ba3b4c9d7c29ad49666a6b6fa23ba4f26d17f`. Metadata head `ed09141` passed review-gate, night-gate, changed-paths, STE, and Gitar. Its implementation matrix jobs skipped.
 
 ### What is in flight
 
-- Commit this record and handoff entry together. Push to `feat/pr-35-region-map`, then verify the remote head and review-gate.
+- Commit this record and handoff update together. Push to `feat/pr-35-region-map`, then verify the remote head and checks.
 
 ### Traps and gotchas
 
@@ -30,7 +30,7 @@ None for PR-35.
 
 ### The next concrete action
 
-Run `make where`, `make ste-check`, and `git diff --cached --check`. Commit the review record and handoff files, push, then verify the remote head and review-gate.
+Run `make where`, `make ste-check`, and `git diff --cached --check`. Commit the review record and handoff files, push, then verify the remote head and checks.
 
 ## Session 375: 2026-09-27, Claude Code
 
