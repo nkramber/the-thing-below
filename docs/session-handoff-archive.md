@@ -1,3 +1,37 @@
+## Session 371: 2026-09-27, Codex
+
+Author: Codex
+Session: review PR #92 (PR-64). Repository: the-thing-below. Branch: `review/pr-92`, tracking `origin/feat/pr-64-traps-hazards`. Role: reviewer. Base: `b7eb8bc`.
+
+### What this session did, and why
+
+- Reviewed effective head `869cc599ee1c3c9e4fc4412a66f311af16b7788a`, the traps, hazards, map status effects, wipe, saves, and HUD (D-1226 to D-1241).
+- Inspected all 92 changed baseline frames in CI artifact `screen-captures`. No visual fault was found.
+- Wrote `docs/reviews/pr-92.md` with `Changes required` for the effective head. P2-1 finds a missing down notice when a damage trap downs a fighter but does not wipe the party.
+- Answered the review-gate evidence in the review record. RG 3 failed before publication because the record was absent (D-964).
+
+### The state of the build
+
+- Local `make verify` passed with 4,269 tests and no skips.
+- CI run 36347245729 passed each implementation job on the effective head. The review-gate result awaits the metadata commit.
+- The first remote metadata head was `0250ca3f9f982a46843da5d7120c7e531760b578`. The effective head remains `869cc599ee1c3c9e4fc4412a66f311af16b7788a`.
+
+### What is in flight
+
+- The author must correct P2-1. Then repeat the review of the new effective head (D-582).
+
+### Traps and gotchas
+
+- The review branch is `review/pr-92`; push with `git push origin HEAD:feat/pr-64-traps-hazards`.
+- The full `make sheet` join exceeds 65,535 rows. The CI capture artifact holds the frames.
+
+### The questions that block progress
+
+None for PR-64. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Wait for the author correction, then review its regression test and update this review record.
 # Session handoff archive
 
 ## Session 370: 2026-09-27, Claude Code

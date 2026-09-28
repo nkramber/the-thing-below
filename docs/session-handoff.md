@@ -1,3 +1,35 @@
+## Session 381: 2026-09-28, Codex
+
+Author: Codex
+Session: review PR #95 (PR-110). Repository: the-thing-below. Branch: `review/pr-95`, tracking `origin/feat/pr-110-region-one-overworld`. Role: reviewer. Base: `5e6fb493c0d92db79409109941b47078179ca544`.
+
+### What this session did, and why
+
+- Reviewed effective head `1d6612758d84c020615d561b2f785389a901a945` against the region-one overworld scope and contracts.
+- Read every changed path, the PR comments, and the required screen-test artifact. The review found P2-1: the PR description lacks the required art review sheets for 23 drawings.
+- Recorded `Changes required` in `docs/reviews/pr-95.md`. Gitar's CI-analysis claim about RG 3 matches the job log and has the author's answer (D-964).
+
+### The state of the build
+
+- Local `make verify` passed with 4,438 tests and no skips. The implementation checks pass in CI on the effective head.
+- The remote head before this metadata commit is `1d6612758d84c020615d561b2f785389a901a945`. `review-gate` failed RG 3 before the record existed, and this record leaves RG 4 red until P2-1 closes.
+
+### What is in flight
+
+- The author must attach the required art review sheets and request a repeat review (D-582).
+
+### Traps and gotchas
+
+- The review branch is `review/pr-95`. Push with `git push origin HEAD:feat/pr-110-region-one-overworld`.
+- The current review record applies to effective head `1d6612758d84c020615d561b2f785389a901a945`.
+
+### The questions that block progress
+
+None for PR-110.
+
+### The next concrete action
+
+Attach the review sheets for the 23 drawings to the PR description, list each drawing and the commit shown, then request a repeat review.
 ## Session 380: 2026-09-28, Claude Code
 
 Author: Claude Code
@@ -298,38 +330,3 @@ None for PR-64. OQ-251 blocks PR-35.
 ### The next concrete action
 
 Wait for green CI and the Gitar pass on this head, then run `make codex-review PR=92` in the background.
-
-## Session 371: 2026-09-27, Codex
-
-Author: Codex
-Session: review PR #92 (PR-64). Repository: the-thing-below. Branch: `review/pr-92`, tracking `origin/feat/pr-64-traps-hazards`. Role: reviewer. Base: `b7eb8bc`.
-
-### What this session did, and why
-
-- Reviewed effective head `869cc599ee1c3c9e4fc4412a66f311af16b7788a`, the traps, hazards, map status effects, wipe, saves, and HUD (D-1226 to D-1241).
-- Inspected all 92 changed baseline frames in CI artifact `screen-captures`. No visual fault was found.
-- Wrote `docs/reviews/pr-92.md` with `Changes required` for the effective head. P2-1 finds a missing down notice when a damage trap downs a fighter but does not wipe the party.
-- Answered the review-gate evidence in the review record. RG 3 failed before publication because the record was absent (D-964).
-
-### The state of the build
-
-- Local `make verify` passed with 4,269 tests and no skips.
-- CI run 36347245729 passed each implementation job on the effective head. The review-gate result awaits the metadata commit.
-- The first remote metadata head was `0250ca3f9f982a46843da5d7120c7e531760b578`. The effective head remains `869cc599ee1c3c9e4fc4412a66f311af16b7788a`.
-
-### What is in flight
-
-- The author must correct P2-1. Then repeat the review of the new effective head (D-582).
-
-### Traps and gotchas
-
-- The review branch is `review/pr-92`; push with `git push origin HEAD:feat/pr-64-traps-hazards`.
-- The full `make sheet` join exceeds 65,535 rows. The CI capture artifact holds the frames.
-
-### The questions that block progress
-
-None for PR-64. OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Wait for the author correction, then review its regression test and update this review record.
