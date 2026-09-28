@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Maps;
+using TheThingBelow.Core.Notices;
 using TheThingBelow.Core.Runs;
 using TheThingBelow.Core.Story;
 using TheThingBelow.Tools.Content;
@@ -12,7 +13,8 @@ namespace TheThingBelow.Tests;
 
 /// <summary>
 /// The overworld of region one of PR-110 on the content set of the checkout: its size, its marks,
-/// its gates, its zones, and the walk from the village to the mining town (D-1270 to D-1296).
+/// its gates, its zones, the walk from the village to the mining town, and the treasure of PR-111
+/// (D-1270 to D-1296, D-1304 to D-1308).
 /// </summary>
 /// <remarks>
 /// Each test reads the tile of each mark and each gate from the map, and finds each walk with a
@@ -195,6 +197,91 @@ public sealed class RegionOneOverworldTests
     }
 
     [Fact]
+    public void FourTreasuresLieOneInTheLowLandTwoInTheValleyAndOneInThePass()
+    {
+        // D-1307, D-1308: four cairns, and the valley, which stays open the longest, holds two.
+        // The tiles within one tile of a thing take the road zone, so the land comes from the ring
+        // two tiles out, where every zone of the ring names one land.
+        List<string> lands = [];
+        foreach (MapThing chest in Overworld.Things.Where(thing => thing.Kind == MapThingKind.Chest))
+        {
+            List<string> near = [];
+            for (int dy = -2; dy <= 2; dy += 1)
+            {
+                for (int dx = -2; dx <= 2; dx += 1)
+                {
+                    string? zone = Math.Max(Math.Abs(dx), Math.Abs(dy)) == 2 ? Overworld.ZoneAt(new TilePoint(chest.At.X + dx, chest.At.Y + dy))?.Id.Value : null;
+                    near.AddRange(LandOf(zone));
+                }
+            }
+
+            string land = Assert.Single(near.Distinct());
+            lands.Add(land);
+        }
+
+        Assert.Equal(["low", "pass", "valley", "valley"], lands.Order(StringComparer.Ordinal));
+    }
+
+    [Fact]
+    public void EachTreasureStandsOffTheRoadBeforeEachStoryGateAndCutsNoPath()
+    {
+        // D-1301, D-1305, D-1306: the land hides a treasure at the end of a side route. The lead
+        // reaches it with the mine mouth and the sealed door shut, and the solid cairn closes no
+        // tile that the lead reaches past it.
+        GameMap map = Overworld;
+        HashSet<TilePoint> storyGates = [At("gate.overworld_mine_mouth"), At("gate.overworld_sealed_door")];
+        HashSet<TilePoint> open = Reach(map, map.Spawn, storyGates);
+        MapThing[] chests = [.. map.Things.Where(thing => thing.Kind == MapThingKind.Chest)];
+        Assert.Equal(4, chests.Length);
+        foreach (MapThing chest in chests)
+        {
+            Assert.Contains(chest.At, open);
+            for (int dy = -3; dy <= 3; dy += 1)
+            {
+                for (int dx = -3; dx <= 3; dx += 1)
+                {
+                    var near = new TilePoint(chest.At.X + dx, chest.At.Y + dy);
+                    bool inside = near.X >= 0 && near.Y >= 0 && near.X < map.Width && near.Y < map.Height;
+                    Assert.False(inside && map.TileAt(near) == TileKind.Road, $"The road at {near} lies within three tiles of '{chest.Id.Value}'.");
+                }
+            }
+        }
+
+        HashSet<TilePoint> pastCairns = Reach(map, map.Spawn, [.. storyGates, .. chests.Select(chest => chest.At)]);
+        open.ExceptWith(chests.Select(chest => chest.At));
+        Assert.Equal(open.Count, pastCairns.Count);
+        Assert.Subset(open, pastCairns);
+    }
+
+    [Fact]
+    public void ThePartyTakesATreasureOneTimeAndTheSaveKeepsItTaken()
+    {
+        // Exit test 1 of PR-111 (D-1298, D-1304): the first confirm gives the chest form of D-1220
+        // with the notices of D-1224, and the memory of the place reaches the save and the state hash.
+        Simulation run = Start();
+        ContentId cairn = Id("chest.overworld_cairn_west_field");
+        (TilePoint side, StepDirection face) = OpenSideOf(At(cairn.Value));
+        WalkTo(run, side);
+        HubWalks.Face(run, face);
+        _ = run.TakeNotices();
+
+        HubWalks.Confirm(run);
+        Assert.Equal(["notice.chest_gold 20", "notice.chest_found item.fixture_draught", "notice.chest_found item.fixture_draught"], Posted(run));
+        HubWalks.Confirm(run);
+        Assert.Equal([ChestRules.EmptyNotice.Value], Posted(run));
+
+        string line = RunSnapshotText.Write(run.Snapshot());
+        var reader = new ContentReader(System.Text.Encoding.UTF8.GetBytes(line), "the test");
+        Simulation resumed = Simulation.Resume(Seed, RunSnapshotText.Read(ref reader), MapSet.Of(Content.Value.Maps), Content.Value.Battle, Content.Value.Notices, Content.Value.Story, DebugIntentHandlers.None);
+
+        Assert.Contains("\"chests\":[{\"chest\":\"chest.overworld_cairn_west_field\",\"left\":[]}]", line, StringComparison.Ordinal);
+        Assert.Equal(run.StateHash(), resumed.StateHash());
+        Assert.Empty(resumed.State.Party.Place.LeftIn(cairn)!);
+        HubWalks.Confirm(resumed);
+        Assert.Equal([ChestRules.EmptyNotice.Value], Posted(resumed));
+    }
+
+    [Fact]
     public void TheRoadCrossesWaterOnABridge()
     {
         // D-1302: the map holds a bridge, and each bridge stands in the water with the road on it.
@@ -268,7 +355,44 @@ public sealed class RegionOneOverworldTests
         return run.State.Party.LeadAt;
     }
 
-    /// <summary>Gives the steps of a shortest path over the walkable tiles, with each gate open.</summary>
+    /// <summary>Gives the land of a zone of region one, or no land for no zone and for the road zone (D-1283).</summary>
+    private static string[] LandOf(string? zone) => zone switch
+    {
+        null or "zone.overworld_road" => [],
+        "zone.overworld_low_field" or "zone.overworld_low_forest" => ["low"],
+        "zone.overworld_valley_field" or "zone.overworld_valley_forest" => ["valley"],
+        "zone.overworld_pass" => ["pass"],
+        _ => throw new InvalidOperationException($"The zone '{zone}' is in no land of region one."),
+    };
+
+    /// <summary>Gives the first side of a solid thing, in the order of the neighbors, where the lead stands, and the direction to the thing.</summary>
+    private static (TilePoint Side, StepDirection Face) OpenSideOf(TilePoint thing)
+    {
+        foreach ((StepDirection step, TilePoint next) in Neighbors(thing))
+        {
+            if (Walkable(Overworld, next) && !Solid(Overworld, next))
+            {
+                return (next, StepDirections.Opposite(step));
+            }
+        }
+
+        throw new InvalidOperationException($"No side of the thing at {thing} is open.");
+    }
+
+    /// <summary>Gives each posted notice as its id, then its thing or its count.</summary>
+    private static List<string> Posted(Simulation run)
+    {
+        List<string> lines = [];
+        foreach (PostedNotice notice in run.TakeNotices())
+        {
+            string value = notice.Thing?.Value ?? notice.Count?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
+            lines.Add(value.Length == 0 ? notice.Id.Value : $"{notice.Id.Value} {value}");
+        }
+
+        return lines;
+    }
+
+    /// <summary>Gives the steps of a shortest path over the walkable tiles, with each gate open and around each solid thing.</summary>
     private static List<StepDirection> PathOf(TilePoint from, TilePoint to)
     {
         GameMap map = Overworld;
@@ -280,7 +404,7 @@ public sealed class RegionOneOverworldTests
             TilePoint at = todo.Dequeue();
             foreach ((StepDirection step, TilePoint next) in Neighbors(at))
             {
-                if (Walkable(map, next) && seen.Add(next))
+                if (Walkable(map, next) && !Solid(map, next) && seen.Add(next))
                 {
                     came[next] = (at, step);
                     todo.Enqueue(next);
@@ -325,6 +449,8 @@ public sealed class RegionOneOverworldTests
         (StepDirection.East, new TilePoint(at.X + 1, at.Y)),
         (StepDirection.West, new TilePoint(at.X - 1, at.Y)),
     ];
+
+    private static bool Solid(GameMap map, TilePoint at) => map.ThingsAt(at).Any(thing => MapThingKinds.IsSolid(thing.Kind));
 
     private static bool Walkable(GameMap map, TilePoint at) =>
         at.X >= 0 && at.Y >= 0 && at.X < map.Width && at.Y < map.Height && TileKinds.CanWalk(map.TileAt(at));

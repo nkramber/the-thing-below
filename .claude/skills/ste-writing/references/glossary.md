@@ -75,6 +75,7 @@ Game terms from the roadmap interview of 2026-09-12:
 | story lock | a lock that its key alone opens, and no Theft drill (D-386, D-1219) | key lock, plot lock |
 | pickable lock | a lock that a Theft drill of a standing character of the party opens (D-386) | weak lock, easy lock |
 | chest entry | one item, piece of gear, or lesson of a chest, with its count (D-1220) | chest slot, loot line |
+| treasure | a chest of the overworld at the end of a side route, which a cairn shows (D-1298, D-1304 to D-1306) | hidden item, cache, secret, loot |
 | memory of a map | the killed enemies, the open doors, what stays in each chest, and the spent traps of one map, which lasts past the exit (D-555, D-1229) | map state, map save, persistence |
 | exit | the thing of a map whose tile enters the map that it names (D-1216) | door out, warp, portal |
 | reopen | the story event that brings the killed enemies of a place back at the next entry, and arms each spent trap again (D-555, D-1229) | respawn, reset |

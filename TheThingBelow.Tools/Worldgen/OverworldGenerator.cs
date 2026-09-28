@@ -42,6 +42,9 @@ public sealed class OverworldGenerator
     private static readonly TilePoint[] Four = [new(1, 0), new(-1, 0), new(0, 1), new(0, -1)];
     private static readonly TilePoint[] Eight = [new(1, 0), new(-1, 0), new(0, 1), new(0, -1), new(1, 1), new(1, -1), new(-1, 1), new(-1, -1)];
     private static readonly int[] ThreeSteps = [12, 6, 3];
+
+    /// <summary>The eight tiles around a tile, in turn from the north, so each tile touches the next.</summary>
+    private static readonly TilePoint[] Ring = [new(0, -1), new(1, -1), new(1, 0), new(1, 1), new(0, 1), new(-1, 1), new(-1, 0), new(-1, -1)];
     private static readonly OverworldRole[] Landmarks = [OverworldRole.BrokenWaystone, OverworldRole.DeadMineHead, OverworldRole.WarGraves, OverworldRole.BanditLookout];
 
     private readonly OverworldPlan plan;
@@ -153,6 +156,13 @@ public sealed class OverworldGenerator
         foreach (OverworldRole landmark in Landmarks)
         {
             this.Place(landmark, this.Nearest(this.Near(landmark), offRoad), lowPass);
+        }
+
+        // A treasure is a chest, which is solid, so it takes no tile whose closure cuts a path (D-1306).
+        foreach (OverworldTreasure treasure in this.plan.Treasures)
+        {
+            List<TilePoint> spots = this.OffRoad(spawn).FindAll(this.CutsNoPath);
+            this.PlaceAt(treasure.Id, this.Nearest(treasure.Near, spots), lowPass);
         }
 
         foreach (OverworldFix fix in this.plan.Fixes)
@@ -1019,8 +1029,11 @@ public sealed class OverworldGenerator
     private TilePoint Near(OverworldRole role) =>
         this.plan.Of(role).Near ?? throw new InvalidOperationException($"The role '{OverworldPlan.NameOf(role)}' holds no tile, and the generator reads one (D-1295).");
 
-    /// <summary>Puts a thing on its tile, and turns the tile into open ground when the cover took it.</summary>
-    private void Place(OverworldRole role, TilePoint at, List<TilePoint> lowPass)
+    /// <summary>Puts the thing of one role on its tile.</summary>
+    private void Place(OverworldRole role, TilePoint at, List<TilePoint> lowPass) => this.PlaceAt(this.plan.Of(role).Id, at, lowPass);
+
+    /// <summary>Puts the thing of one id on its tile, and turns the tile into open ground when the cover took it.</summary>
+    private void PlaceAt(ContentId id, TilePoint at, List<TilePoint> lowPass)
     {
         int index = this.Index(at);
         char tile = this.tiles[index];
@@ -1029,7 +1042,7 @@ public sealed class OverworldGenerator
             this.tiles[index] = this.LandAt(at.X, at.Y, lowPass) == OverworldLand.Low ? TileKinds.GrassCharacter : TileKinds.SnowfieldCharacter;
         }
 
-        this.placed[this.plan.Of(role).Id.Value] = at;
+        this.placed[id.Value] = at;
     }
 
     /// <summary>Gives the tiles of a pass whose closure cuts one tile from another, in the order of the pass.</summary>
@@ -1114,6 +1127,11 @@ public sealed class OverworldGenerator
             things.Add((placement.Id, this.placed[placement.Id.Value]));
         }
 
+        foreach (OverworldTreasure treasure in this.plan.Treasures)
+        {
+            things.Add((treasure.Id, this.placed[treasure.Id.Value]));
+        }
+
         return things;
     }
 
@@ -1129,6 +1147,20 @@ public sealed class OverworldGenerator
             if (placement.Role != OverworldRole.Refuge && !every.Contains(this.Index(at)))
             {
                 throw this.Broken($"the lead cannot reach '{placement.Id.Value}' at {at}");
+            }
+        }
+
+        foreach (OverworldTreasure treasure in this.plan.Treasures)
+        {
+            TilePoint at = this.placed[treasure.Id.Value];
+            if (!every.Contains(this.Index(at)))
+            {
+                throw this.Broken($"the lead cannot reach the treasure '{treasure.Id.Value}' at {at}");
+            }
+
+            if (!this.CutsNoPath(at))
+            {
+                throw this.Broken($"the solid treasure '{treasure.Id.Value}' at {at} cuts a path, so a lead cannot go around it (D-1306)");
             }
         }
 
@@ -1202,6 +1234,41 @@ public sealed class OverworldGenerator
     }
 
     private TilePoint PlacedOf(OverworldRole role) => this.placed[this.plan.Of(role).Id.Value];
+
+    /// <summary>
+    /// Tells whether a solid thing on a tile leaves each path open: the walkable sides of the tile
+    /// lie in one run of walkable tiles of the ring around it, so a lead goes around the thing.
+    /// </summary>
+    private bool CutsNoPath(TilePoint at)
+    {
+        int start = Array.FindIndex(Ring, step => !this.Walkable(at.X + step.X, at.Y + step.Y));
+        if (start < 0)
+        {
+            return true;
+        }
+
+        // The walk ends on the first shut tile again, so it closes the last run. An even index is a side.
+        int runsWithASide = 0;
+        bool inRun = false;
+        bool runHasASide = false;
+        for (int offset = 1; offset <= Ring.Length; offset += 1)
+        {
+            int index = (start + offset) % Ring.Length;
+            if (this.Walkable(at.X + Ring[index].X, at.Y + Ring[index].Y))
+            {
+                inRun = true;
+                runHasASide = runHasASide || index % 2 == 0;
+            }
+            else if (inRun)
+            {
+                runsWithASide += runHasASide ? 1 : 0;
+                inRun = false;
+                runHasASide = false;
+            }
+        }
+
+        return runsWithASide == 1;
+    }
 
     /// <summary>Gives each tile that the lead reaches from a start with four-way steps, past no shut tile.</summary>
     private HashSet<int> Reach(TilePoint start, IReadOnlyList<TilePoint> shut)

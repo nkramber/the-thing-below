@@ -97,6 +97,14 @@ public sealed record OverworldPass(string From, string To, int X, int Zig);
 /// </param>
 public sealed record OverworldPlacement(OverworldRole Role, ContentId Id, TilePoint? Near);
 
+/// <summary>
+/// One treasure of the overworld: a chest at the end of a side route, which the lead takes one time
+/// (D-1298, D-1304, D-1305). The generator puts it on the tile off the road nearest its hint.
+/// </summary>
+/// <param name="Id">The id of the chest in the map file.</param>
+/// <param name="Near">The tile near which the generator puts the chest.</param>
+public sealed record OverworldTreasure(ContentId Id, TilePoint Near);
+
 /// <summary>One river: a winding line of water from one tile to another, inside the basins (D-1301).</summary>
 /// <param name="From">The tile where the river starts.</param>
 /// <param name="To">The tile where the river ends, such as the shore of a lake.</param>
@@ -109,7 +117,7 @@ public sealed record OverworldFix(TilePoint At, TileKind Tile);
 
 /// <summary>
 /// The settings of the generator of the overworld: the seed, the size, the basins, the passes,
-/// the road, the ridges, the gorge, the lakes, the rivers, the things, and the tile fixes (D-1294, D-1295, D-1301). No rule of
+/// the road, the ridges, the gorge, the lakes, the rivers, the things, the treasures, and the tile fixes (D-1294, D-1295, D-1301, D-1307). No rule of
 /// the run reads it. The `overworld` command of Tools writes the map from it, and a test proves
 /// that the committed map matches.
 /// </summary>
@@ -155,6 +163,7 @@ public sealed class OverworldPlan
         IReadOnlyList<OverworldBasin> lakes,
         IReadOnlyList<OverworldRiver> rivers,
         IReadOnlyList<OverworldPlacement> things,
+        IReadOnlyList<OverworldTreasure> treasures,
         IReadOnlyList<OverworldFix> fixes)
     {
         this.Map = map;
@@ -171,6 +180,7 @@ public sealed class OverworldPlan
         this.Lakes = lakes;
         this.Rivers = rivers;
         this.Things = things;
+        this.Treasures = treasures;
         this.Fixes = fixes;
     }
 
@@ -222,6 +232,9 @@ public sealed class OverworldPlan
     /// <summary>Each thing that the generator places, one for each role, in the order of the file.</summary>
     public IReadOnlyList<OverworldPlacement> Things { get; }
 
+    /// <summary>Each treasure that the generator places, in the order of the file (D-1307).</summary>
+    public IReadOnlyList<OverworldTreasure> Treasures { get; }
+
     /// <summary>The tile fixes, in the order of the file.</summary>
     public IReadOnlyList<OverworldFix> Fixes { get; }
 
@@ -265,7 +278,8 @@ public sealed class OverworldPlan
     /// <returns>The settings.</returns>
     /// <exception cref="ContentException">
     /// A field is absent, repeated, or unknown, a value lies outside the map, a pass names an
-    /// absent basin, a role is absent or repeated, or a fix names an unknown tile (G-6, T-2).
+    /// absent basin, a role is absent or repeated, a treasure repeats an id or lies outside the map, or a fix
+    /// names an unknown tile (G-6, T-2).
     /// </exception>
     public static OverworldPlan Read(ReadOnlySpan<byte> bytes, string file)
     {
@@ -285,6 +299,7 @@ public sealed class OverworldPlan
         List<OverworldBasin>? lakes = null;
         List<OverworldRiver>? rivers = null;
         List<OverworldPlacement>? things = null;
+        List<OverworldTreasure>? treasures = null;
         List<OverworldFix>? fixes = null;
 
         int depth = reader.ReadObjectStart();
@@ -334,6 +349,9 @@ public sealed class OverworldPlan
                 case "things":
                     things = ReadList(ref reader, ReadPlacement);
                     break;
+                case "treasures":
+                    treasures = ReadList(ref reader, ReadTreasure);
+                    break;
                 case "fixes":
                     fixes = ReadList(ref reader, ReadFix);
                     break;
@@ -358,6 +376,7 @@ public sealed class OverworldPlan
             reader.Require(lakes, depth, "lakes"),
             reader.Require(rivers, depth, "rivers"),
             reader.Require(things, depth, "things"),
+            reader.Require(treasures, depth, "treasures"),
             reader.Require(fixes, depth, "fixes"));
         reader.ReadFileEnd();
 
@@ -640,6 +659,33 @@ public sealed class OverworldPlan
         return new OverworldPlacement(readRole, readId, new TilePoint(reader.RequireInt(x, depth, "x"), reader.RequireInt(y, depth, "y")));
     }
 
+    private static OverworldTreasure ReadTreasure(ref ContentReader reader)
+    {
+        ContentId? id = null;
+        int? x = null, y = null;
+
+        int depth = reader.ReadObjectStart();
+        while (reader.ReadNextField(depth, out string field))
+        {
+            switch (field)
+            {
+                case "id":
+                    id = reader.ReadContentId(MapThingKinds.NameOf(MapThingKind.Chest));
+                    break;
+                case "x":
+                    x = reader.ReadInt();
+                    break;
+                case "y":
+                    y = reader.ReadInt();
+                    break;
+                default:
+                    throw reader.UnknownField(field);
+            }
+        }
+
+        return new OverworldTreasure(reader.Require(id, depth, "id"), new TilePoint(reader.RequireInt(x, depth, "x"), reader.RequireInt(y, depth, "y")));
+    }
+
     private static OverworldRole ReadRole(ref ContentReader reader)
     {
         string name = reader.ReadString();
@@ -687,7 +733,7 @@ public sealed class OverworldPlan
         return new OverworldFix(new TilePoint(reader.RequireInt(x, depth, "x"), reader.RequireInt(y, depth, "y")), kind);
     }
 
-    /// <summary>Refuses a pass of an absent basin, a role that no thing or two things take, and a tile outside the map (T-2).</summary>
+    /// <summary>Refuses a pass of an absent basin, a role that no thing or two things take, a repeated id, and a tile outside the map (T-2).</summary>
     private void RefuseCrossErrors(string file)
     {
         var names = new SortedSet<string>(StringComparer.Ordinal);
@@ -723,6 +769,25 @@ public sealed class OverworldPlan
             if (count != 1)
             {
                 throw ContentException.ForField(file, "things", $"{count} things take the role '{NameOf(role)}', and each role takes one (D-1295)");
+            }
+        }
+
+        var ids = new SortedSet<string>(StringComparer.Ordinal);
+        foreach (OverworldPlacement thing in this.Things)
+        {
+            _ = ids.Add(thing.Id.Value);
+        }
+
+        foreach (OverworldTreasure treasure in this.Treasures)
+        {
+            if (!ids.Add(treasure.Id.Value))
+            {
+                throw ContentException.ForField(file, "treasures", $"the treasure '{treasure.Id.Value}' takes an id that another thing of the file takes, and an id is permanent (D-166)");
+            }
+
+            if (treasure.Near.X < 0 || treasure.Near.Y < 0 || treasure.Near.X >= this.Width || treasure.Near.Y >= this.Height)
+            {
+                throw ContentException.ForField(file, "treasures", $"the treasure '{treasure.Id.Value}' names the tile {treasure.Near}, which lies outside the map of {this.Width} by {this.Height} (D-1295)");
             }
         }
 

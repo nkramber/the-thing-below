@@ -124,8 +124,47 @@ public sealed class ScreensCommandTests : IDisposable
 
         Assert.Equal(string.Empty, errors.ToString());
         Assert.Equal(0, exitCode);
-        Assert.True(File.Exists(sheet));
-        Assert.Contains("the sheet holds 'map-1x.png'", output.ToString(), StringComparison.Ordinal);
+        Assert.True(File.Exists(Path.Combine(this.root, "sheets", "contact-sheet-1.png")));
+        Assert.False(File.Exists(Path.Combine(this.root, "sheets", "contact-sheet-2.png")));
+        Assert.Contains("page 1 holds 'map-1x.png'", output.ToString(), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ASheetHigherThanOnePngTakesMorePages()
+    {
+        // D-1309, regression: 70 captures of 1000 rows need 70,552 rows, above the 65,535 of a
+        // PNG. The old sheet failed on the height, and the new sheet writes two pages.
+        string captures = Path.Combine(this.root, "tall");
+        Directory.CreateDirectory(captures);
+        for (int at = 0; at < 70; at++)
+        {
+            PngWriter.WriteFile(Path.Combine(captures, $"frame-{at:D2}.png"), new PngImage(1, 1000, PngColorKind.Rgba, new byte[1000 * 4]));
+        }
+
+        string sheet = Path.Combine(this.root, "sheets", "contact-sheet.png");
+        using StringWriter output = new();
+        using StringWriter errors = new();
+
+        int exitCode = ScreensCommand.Run(["--captures", captures, "--sheet", sheet], output, errors);
+
+        Assert.Equal(string.Empty, errors.ToString());
+        Assert.Equal(0, exitCode);
+        Assert.Contains("the sheet of 70 capture(s) takes 2 page(s)", output.ToString(), StringComparison.Ordinal);
+        Assert.Contains("page 2 holds 'frame-69.png'", output.ToString(), StringComparison.Ordinal);
+        PngImage first = PngReader.ReadFile(Path.Combine(this.root, "sheets", "contact-sheet-1.png"));
+        PngImage second = PngReader.ReadFile(Path.Combine(this.root, "sheets", "contact-sheet-2.png"));
+        Assert.True(first.Height <= PngImage.MaxSize);
+        Assert.Equal((70 * 1000) + (68 * ContactSheet.GapPixels), first.Height + second.Height);
+    }
+
+    [Theory]
+    [InlineData("artifacts/contact-sheet.png", 1, "artifacts/contact-sheet-1.png")]
+    [InlineData("artifacts/contact-sheet.png", 12, "artifacts/contact-sheet-12.png")]
+    [InlineData("sheet.png", 2, "sheet-2.png")]
+    public void EachPageTakesTheNameOfTheSheetWithItsNumber(string sheet, int page, string file)
+    {
+        // D-1309: the page number goes before the type of the file.
+        Assert.Equal(file.Replace('/', Path.DirectorySeparatorChar), ScreensCommand.PageFileOf(sheet, page).Replace('/', Path.DirectorySeparatorChar));
     }
 
     [Fact]

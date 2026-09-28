@@ -2959,23 +2959,35 @@ Area file: `area-exploration.md` section 7.13.
 
 **Scope.**
 
-- A hidden spot on the overworld that gives an item one time, in the side routes of region one (D-1298, D-1301).
+- Four treasures in the side routes of region one: one in the low land, two in the valley, and one in the pass (D-1298, D-1301, D-1307, D-1308).
+- Each treasure is a chest of the form of D-1220, with fixture items until the content PRs of region one (D-1304).
+- The land hides each treasure, and a cairn shows it, with a scattered look after the party opens it (D-1305, D-1306).
+- The settings of the generator list each treasure with a hint tile. The generator puts it off the road, on no tile whose closure cuts a path (D-1306, D-1307).
+- The `screens` command writes the contact sheet in pages, so `make sheet` works again (D-1309).
 
 **Out of scope.**
 
 - The treasure of a dungeon, which PR-16 built (D-1220).
+- The real contents of each treasure (PR-42 and the content PRs of region one).
 
 **Exit tests.**
 
 1. The party takes a treasure of the overworld one time, and the save keeps it taken.
+2. The four treasures lie one in the low land, two in the valley, and one in the pass (D-1308).
+3. Each treasure stands off the road, and the lead reaches it with the mine mouth and the sealed door shut. No cairn cuts a path (D-1306).
+4. A broken treasure of the settings fails with the reason. So does a fix that shuts a treasure in or cuts a path (T-2).
+5. The atlas matches the grids of the cairn by pixel (D-107), and the author reads each frame of `make sheet`.
+6. A sheet above the height limit of a PNG takes more pages, and each page stays inside the limit (D-1309).
 
 **Review focus.**
 
 - The memory of each treasure reaches the save and the state hash (T-7).
+- The check of a cut path of the generator, which reads the ring of eight tiles around a treasure (D-1306).
+- The split of the sheet into pages (D-1309).
 
-**Questions.** What a treasure holds, how it shows, and whether it hides. PR-111 asks each one when it starts (D-487).
+**Questions.** None. D-1304 to D-1308 hold the answers to the three questions of D-1298 and to the count, and D-1309 adds the fix of the sheet.
 
-> *In plain English:* a reward for a walk off the road. It waits until the map of region one exists.
+> *In plain English:* four piles of stones now wait at the ends of side paths. A walk off the road finds them, and each one gives its items one time.
 
 ## 8. Sequence
 

@@ -6,7 +6,8 @@ namespace TheThingBelow.Tools.Screens;
 
 /// <summary>
 /// The contact sheet of the screen tests (D-172, D-735). It stacks every capture of one
-/// local run into one picture, which the owner reads with the real renderer of the machine.
+/// local run into pages, which the owner reads with the real renderer of the machine. A page
+/// stays inside the height limit of a PNG (D-1309).
 /// </summary>
 /// <remarks>
 /// A sheet holds no text, so the PR description names each capture in order, as D-668 asks
@@ -25,7 +26,10 @@ public static class ContactSheet
     /// <summary>The red, green, and blue of the ground of the sheet, which shows the black bars.</summary>
     public const int GroundLevel = 96;
 
-    /// <summary>Builds the sheet of every capture, in the order that the caller gives.</summary>
+    /// <summary>The largest height of one page of the sheet, in pixels: the limit of a PNG (D-1309).</summary>
+    public const int MaxPageHeight = PngImage.MaxSize;
+
+    /// <summary>Builds one page of the sheet from every capture of the list, in the order that the caller gives.</summary>
     /// <param name="captures">The decoded captures, in the order that they stack.</param>
     /// <returns>The sheet, with four channels for each pixel.</returns>
     /// <exception cref="ArgumentNullException">The list is null (T-2).</exception>
@@ -71,6 +75,51 @@ public static class ContactSheet
         }
 
         return new PngImage(width, height, PngColorKind.Rgba, sheet);
+    }
+
+    /// <summary>
+    /// Splits the captures, in the order that the caller gives, into pages of the sheet. A page
+    /// takes each next capture while its height stays at <paramref name="pageHeight"/> or less (D-1309).
+    /// </summary>
+    /// <param name="captures">The decoded captures, in the order that they stack.</param>
+    /// <param name="pageHeight">The largest height of one page, in pixels, such as the limit of a PNG.</param>
+    /// <returns>The index of the first capture and the count of captures of each page, in order.</returns>
+    /// <exception cref="ArgumentNullException">The list is null (T-2).</exception>
+    /// <exception cref="ArgumentException">The list is empty, or one capture alone is higher than a page (T-2).</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The page height is not above zero (T-2).</exception>
+    public static IReadOnlyList<(int First, int Count)> PagesOf(IReadOnlyList<PngImage> captures, int pageHeight)
+    {
+        ArgumentNullException.ThrowIfNull(captures);
+        ArgumentOutOfRangeException.ThrowIfLessThan(pageHeight, 1);
+
+        if (captures.Count == 0)
+        {
+            throw new ArgumentException("A contact sheet needs one capture or more (T-2).", nameof(captures));
+        }
+
+        var pages = new List<(int First, int Count)>();
+        int first = 0;
+        int height = 0;
+        for (int at = 0; at < captures.Count; at++)
+        {
+            int drawn = captures[at].Height / StepOf(captures[at].Width);
+            if (drawn > pageHeight)
+            {
+                throw new ArgumentException($"The capture {at} is {drawn} pixels high on the sheet, and a page holds {pageHeight} (T-2).", nameof(captures));
+            }
+
+            if (at > first && height + GapPixels + drawn > pageHeight)
+            {
+                pages.Add((first, at - first));
+                first = at;
+                height = 0;
+            }
+
+            height += (at > first ? GapPixels : 0) + drawn;
+        }
+
+        pages.Add((first, captures.Count - first));
+        return pages;
     }
 
     /// <summary>
