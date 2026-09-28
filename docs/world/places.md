@@ -47,23 +47,26 @@ Four landmarks stand off the road (D-1299):
 
 ## The village
 
+- Name: Ostby (D-1354).
 - Kind: a small start area of a few houses, with story scenes and people, and no shop or rest service (D-369).
 - Place: on the road in, below the high valley, a short walk from the mining town (D-371). The supply road of the occupier passes it.
 - Marrek grew up here, and his father walked from here to work the deep mine (D-368, D-1345).
 - Marrek fights hungry winter beasts near the village alone, and Bergit, who guards the road for coin, finds him there (D-370, D-372, D-373).
 - The story of region one never returns to the village, because the flight at the end climbs away from it (D-371). The player can walk back until the breakout (D-1281).
-- The game opens in the empty house of Marrek. A neighbor brings word that the beasts came down and that the ore carts are late (D-1344).
-- Three villagers stand in the lanes, and each one speaks a few lines (D-1344).
+- The game opens in the empty house of Marrek. Hadda, a neighbor, brings word that the beasts came down and that the ore carts are late (D-1344).
+- Three villagers, Orrin, Brenna, and Aldo, stand in the lanes, and each one speaks a few lines (D-1344, D-1354).
 - The village is at day, and it turns to night when the first playable ends (D-1338).
 
 ## The land near the village
 
+- Name: Ostby Pasture (D-1354).
 - A small map beside the village, which the party enters from the overworld (D-1331).
 - Marrek fights the beasts there alone: a lean wolf, a snow crow, and a starving boar. Bergit joins there (D-1331, D-1332).
 - The land is at dusk, when the beasts come down (D-1338).
 
 ## The mining town
 
+- Name: Gruvhald (D-1354).
 - Kind: a walled mining town in a high valley (D-243).
 - Power: the miners' guild runs the mines and the streets, and a crown governor takes the tax (D-247). The foreign church holds the chapel and the license office.
 - Law: the license office of the church stamps rites (D-275), and the guild marks its wardens (D-294).

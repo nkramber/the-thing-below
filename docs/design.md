@@ -174,7 +174,7 @@ The shop window takes a count, and it shows the change of each fighter for a pie
 
 2026-09-27 region one pass: the one overworld of the game holds region one at 160 tiles by 128 (D-1274, D-1297). A generator in Tools writes the land from a settings file, and a test proves that the map matches it (D-1294 to D-1296). A place with no map yet is a mark, and each zone names its region (D-1271, D-1285, D-1289). PR-111 adds the treasure of the overworld (D-1298).
 
-2026-09-28 first playable pass: PR-17 writes the places of the first playable as rule content and text, with stand-in drawings (D-1328, D-1329). PR-112 to PR-115 then draw the tile sets and the edges, the sprites and the poses, the backdrops, and the light and the effects. By owner choice, PR-17 also builds three Core changes (D-1336, D-1347, D-1348). They are a paid scene step, a gate on every map, and the time of a map set by a flag (D-1335, D-1349). OQ-249 now blocks PR-23, because no character of the first playable waits in reserve (D-1330).
+2026-09-28 first playable pass: PR-17 writes the places of the first playable as rule content and text, with stand-in drawings (D-1328, D-1329). PR-112 to PR-115 then draw the tile sets and the edges, the sprites and the poses, the backdrops, and the light and the effects. By owner choice, PR-17 also builds five Core changes (D-1336, D-1347, D-1348, D-1350, D-1353). They are a paid step, a gate on every map, the time set by a flag, the kit of a newcomer, and the cover. OQ-249 now blocks PR-23, because no character of the first playable waits in reserve (D-1330).
 
 External facts, each with the date of its check:
 
