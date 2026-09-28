@@ -42,7 +42,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-58 | No check can see the conversation of a session | PR-3: the document rules read the diff and the description alone (D-579) |
 | F-82 | The Tools scan of det-lint asked for a reference set that its own process already holds | PR-47: the scan takes the framework list (D-614) |
 | F-83 | Five commands read an empty option value with no check at the parse, and five values ended with a stack trace | PR-34 and PR-87: every command reads its option values through one helper (D-678, D-679) |
-| F-87 | The Sprite Fusion generator does not hold the size of the call, and it returned up to 42 pixels | PR-51: the generator mode crops the border and sets a frame of 32 or 64 pixels (D-689) |
+| F-87 | The Sprite Fusion generator does not hold the size of the call, and it returned up to 42 pixels | PR-51: the generator mode crops the border and puts the content in the frame of the target drawing file, 32 or 64 pixels (D-689, D-1310) |
 | F-89 | A picture of that generator uses 206 to 1275 colors, and almost none of them is a palette color | PR-51: the generator mode maps each pixel to the nearest color (D-688) |
 
 ## 7. Roadmap
@@ -243,14 +243,17 @@ Built by PR-50. Phase file: `phase-2-first-playable.md`.
 Built by PR-51. Phase file: `phase-2-first-playable.md`.
 
 - The command holds two modes: the hand-edit mode and the generator mode (D-688). It lands before PR-17 (D-497).
-- The hand-edit mode reads a PNG that the owner edited by hand, and it writes the frame of its drawing file again (D-107, D-515).
+- Each mode replaces one frame of an existing drawing file. The file keeps its id, its page, its draws, and its ticks (D-1311).
+- The `frame-png` command writes one frame at 1x to a PNG, the frame PNG, which the owner edits (D-1313).
+- The hand-edit mode reads a frame PNG that the owner edited by hand, and it writes the frame of its drawing file again (D-107, D-515).
 - A pixel with a color outside the palette fails in that mode, with the file, the pixel, and the color. It never picks a near color (T-2).
-- The generator mode reads a picture of the Sprite Fusion generator (D-686). It crops the blank border, then it sets a frame of 32 or 64 pixels (D-689).
-- That mode maps each pixel to the nearest color of the palette of 64, and it reports the count of the mapped pixels (D-181, D-688).
-- The generator mode fails when the content does not fit the frame of 64 pixels, with the file and the size (D-689, T-2).
+- The generator mode reads a picture of the Sprite Fusion generator (D-686). It crops the blank border, then it puts the content at the center of the frame of the target drawing file (D-689, D-1310, D-1312).
+- That mode maps each pixel to the nearest color of the palette of 64 by the squared RGB distance (D-181, D-1314). It reports the count of the mapped pixels (D-688).
+- The generator mode fails when the content does not fit the frame of the target, with the file and the size (D-1310, T-2).
+- A pixel of partial alpha fails in both modes (D-1315). The import writes no atlas, and it names the `atlas` command after each write (D-1316).
 - The PNG code refuses an indexed PNG, so a hand edit exports as RGB or RGBA (D-176).
 
-> *In plain English:* the owner can fix a sprite in a paint program, and this tool writes the edited image as a text grid again. It refuses any color that the palette lacks. A second mode reads a picture from the art tool, trims it, and pulls each color to the closest palette color.
+> *In plain English:* the owner can fix a sprite in a paint program, and this tool writes the edited image as a text grid again. It refuses any color that the palette lacks. A second mode reads a picture from the art tool, trims it, and pulls each color to the closest palette color. A third command writes one frame as a PNG, so the owner has a file to edit.
 
 ### 7.12 The map preview
 

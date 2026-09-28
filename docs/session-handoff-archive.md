@@ -1,4 +1,34 @@
 # Session handoff archive
+## Session 380: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-110, round 2. Repository: the-thing-below. Branch: `feat/pr-110-region-one-overworld`. PR: #95. Role: author. Base: `5e6fb49`.
+
+### What this session did, and why
+
+- Read the Gitar pass of `5ab1c85`: the code review approved it with no finding. Its CI analysis names RG 3 of `review-gate`, which waits for the record of the cross-provider review (T-4).
+- Took the six new baselines from the screen-test artifact of run 36377274609 (D-733): the three `region-one` frames, and the three `overworld` frames that the frosted grass changes. The author read each frame.
+
+### The state of the build
+
+- On each CI leg, the three absent baselines were the only failed tests, so each leg makes the same map as the committed one (D-1296). The replay identity passed on each leg.
+
+### What is in flight
+
+- The Gitar pass of this round, then `make codex-review PR=95`.
+
+### Traps and gotchas
+
+- The baselines of this round move the effective head, so the Gitar pass runs again.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Answer each Gitar item of this round, then run `make codex-review PR=95` in the background.
+
 ## Session 379: 2026-09-28, Claude Code
 
 Author: Claude Code

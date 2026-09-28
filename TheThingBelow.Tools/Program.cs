@@ -9,6 +9,7 @@ using TheThingBelow.Tools.Content;
 using TheThingBelow.Tools.DetLint;
 using TheThingBelow.Tools.Evaluator;
 using TheThingBelow.Tools.Identity;
+using TheThingBelow.Tools.Import;
 using TheThingBelow.Tools.Night;
 using TheThingBelow.Tools.Notify;
 using TheThingBelow.Tools.Pictures;
@@ -168,6 +169,16 @@ public static class Program
             return NightWatchInstallCommand.Run(args[1..], output, errors);
         }
 
+        if (command == ImportCommand.Name)
+        {
+            return ImportCommand.Run(args[1..], output, errors);
+        }
+
+        if (command == FramePngCommand.Name)
+        {
+            return FramePngCommand.Run(args[1..], output, errors);
+        }
+
         if (PlannedCommands.TryGetValue(command, out string? pullRequest))
         {
             errors.WriteLine(
@@ -205,6 +216,8 @@ public static class Program
         errors.WriteLine($"  {PushoverCommand.Name}: ready");
         errors.WriteLine($"  {NightWatchCommand.Name}: ready");
         errors.WriteLine($"  {NightWatchInstallCommand.Name}: ready");
+        errors.WriteLine($"  {ImportCommand.Name}: ready");
+        errors.WriteLine($"  {FramePngCommand.Name}: ready");
         errors.WriteLine("The planned commands, with the PR that adds each one:");
         foreach (KeyValuePair<string, string> entry in PlannedCommands)
         {

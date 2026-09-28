@@ -201,6 +201,9 @@ Art terms from the roadmaps PR of 2026-09-14:
 | Term | Use for | Do not use |
 |---|---|---|
 | drawing file | the JSON file of one drawing: its id, its size, the content ids that it draws, and its frames of grids (D-515, D-519) | grid file, sprite file |
+| frame PNG | the PNG at 1x of one frame of a drawing file, which the `frame-png` command writes for a hand edit (D-1313) | export, which names a build of the Game (D-481), dump |
+| hand-edit mode | the mode of the `import` command that reads a frame PNG and takes an exact color of the palette alone (D-688) | strict mode, manual import |
+| generator mode | the mode of the `import` command that reads a picture of the Sprite Fusion generator, crops it, and maps each pixel to the nearest color (D-688, D-1310) | auto mode, AI import |
 | piece | a drawing file that a large picture places, such as a 64 by 64 rock (D-516) | part, chunk, or tile, when the text means a piece |
 | large picture | the JSON file that places pieces to make a backdrop layer, full-screen art, or a store image (D-516) | layout, which names a map file (D-39), and composition |
 | atlas index | the committed file that gives the place of each frame in the atlas (D-517) | frame list, atlas map |

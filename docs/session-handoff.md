@@ -1,3 +1,39 @@
+## Session 390: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-51, round 1. Repository: the-thing-below. Branch: `feat/pr-51-png-import`. PR: opened by this round. Role: author. Base: `e9294ec`.
+
+### What this session did, and why
+
+- Asked the owner seven questions that the roadmap and D-686 to D-689 left open, then recorded D-1310 to D-1316.
+- D-1310 revises D-689 in part: the target drawing file sets the frame. A scan of the 84 spike pictures at `e3c50b4` found 26 of 42 map sprites above 32 pixels.
+- Built the `import` command, with the hand-edit mode and the generator mode, and the `frame-png` command (D-688, D-1313).
+- Each import replaces the rows of one frame alone, and a read back through the reader of Core guards the write (D-1311, T-2).
+- Added 40 tests, one for each exit test of section 7.52 and more. Added `docs/runbooks/art-import.md` and three glossary terms.
+
+### The state of the build
+
+- The remote head of `main` is `e9294ec`. This round pushes the branch and opens the PR.
+- `make verify` ran on the Mac before the push. The PR description records the result.
+
+### What is in flight
+
+- The Gitar pass of round 1, then `make codex-review`.
+
+### Traps and gotchas
+
+- The word export names a build of the Game (D-481), so the command of D-1313 is `frame-png`.
+- The generator mode centers the content (D-1312). A character of less than the full height stands above the bottom row, unlike the current Marrek drawings.
+- The fixture drawing files hold each frame on one line. A write puts one row on each line, and a file of the repository keeps each byte.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Answer each Gitar item of round 1, then run `make codex-review PR=<n>` in the background.
+
 ## Session 389: 2026-09-28, Codex
 
 Author: Codex
@@ -287,32 +323,3 @@ None for PR-110.
 ### The next concrete action
 
 Attach the review sheets for the 23 drawings to the PR description, list each drawing and the commit shown, then request a repeat review.
-## Session 380: 2026-09-28, Claude Code
-
-Author: Claude Code
-Session: author PR-110, round 2. Repository: the-thing-below. Branch: `feat/pr-110-region-one-overworld`. PR: #95. Role: author. Base: `5e6fb49`.
-
-### What this session did, and why
-
-- Read the Gitar pass of `5ab1c85`: the code review approved it with no finding. Its CI analysis names RG 3 of `review-gate`, which waits for the record of the cross-provider review (T-4).
-- Took the six new baselines from the screen-test artifact of run 36377274609 (D-733): the three `region-one` frames, and the three `overworld` frames that the frosted grass changes. The author read each frame.
-
-### The state of the build
-
-- On each CI leg, the three absent baselines were the only failed tests, so each leg makes the same map as the committed one (D-1296). The replay identity passed on each leg.
-
-### What is in flight
-
-- The Gitar pass of this round, then `make codex-review PR=95`.
-
-### Traps and gotchas
-
-- The baselines of this round move the effective head, so the Gitar pass runs again.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Answer each Gitar item of this round, then run `make codex-review PR=95` in the background.
