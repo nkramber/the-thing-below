@@ -1,3 +1,36 @@
+## Session 378: 2026-09-28, Codex
+
+Author: Codex
+Session: review PR #94 (PR-109). Repository: the-thing-below. Branch: `review/pr-94`, which tracks `origin/feat/pr-109-overworld-encounters`. Role: reviewer. Base: `db0320b3`.
+
+### What this session did, and why
+
+- Reviewed effective head `1819fab9` against the PR-109 scope and contracts. Found no defect and recorded `Ready for owner merge` in `docs/reviews/pr-94.md` (T-4, D-17).
+- Verified the Gitar CI-analysis claim against run 36364168926. RG 3 alone failed because the review record was not yet present (D-964).
+- Corrected the `docs/reviews/` Documents row in the PR description (D-577).
+
+### The state of the build
+
+- `make verify` passed with 4,369 tests, no failures, and no skips. CI implementation checks passed at `1819fab9` on all three systems.
+- The remote head before this metadata commit is `1819fab9`. The Gitar pass is current; its CI-analysis claim has the author's answer.
+
+### What is in flight
+
+- Commit the review record and this handoff entry together. Push with `git push origin HEAD:feat/pr-109-overworld-encounters`, then verify the remote head and review-gate.
+
+### Traps and gotchas
+
+- The review record names the effective head, `1819fab9`, and the metadata commit does not change it.
+- OQ-254 tracks the greedy wipe loop and blocks no PR. PR-90 owns its resolution (D-1260).
+
+### The questions that block progress
+
+None for PR-109.
+
+### The next concrete action
+
+Run `make where`, `make ste-check`, and `git diff --cached --check`. Commit the review record and handoff files together, push to the PR branch, then verify the remote head and checks.
+
 ## Session 377: 2026-09-28, Claude Code
 
 Author: Claude Code
@@ -300,34 +333,3 @@ None for PR-64. OQ-251 blocks PR-35.
 ### The next concrete action
 
 Push, open the PR, run the Gitar poll, and then commit the baselines of CI.
-
-## Session 368: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-16, round 4. Repository: the-thing-below. Branch: `feat/pr-16-dungeon-parts`. PR: #91. Role: author. Base: `78b0d24`.
-
-### What this session did, and why
-
-- The repeat review approved the effective head `9ad7f4b0`: `Ready for owner merge`, with no open finding (T-4, D-17). The record is `docs/reviews/pr-91.md`, in `3df2092`.
-- Gitar approved `9ad7f4b0` and the review commit with no thread. Each CI claim on RG 3 to RG 5 has its answer in a PR comment (D-964).
-
-### The state of the build
-
-- CI run 36340357804 on `9ad7f4b0` passed each leg. The `review-gate` run 36341304057 passed on `3df2092`.
-- The remote head before this push is `3df2092`, the review record.
-
-### What is in flight
-
-- The checks of this metadata commit, then the merge question to the owner (D-933, D-942). The PR then waits for the auto-merge (D-930).
-
-### Traps and gotchas
-
-- The review commit adds a handoff entry of its own, so the author reads the top number again before each entry.
-
-### The questions that block progress
-
-None for PR-16. OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Ask the owner to confirm the merge with the summary of D-942, then turn on the auto-merge (D-930).
