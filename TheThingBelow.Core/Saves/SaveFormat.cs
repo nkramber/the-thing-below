@@ -106,7 +106,8 @@ public static class SaveFormat
     /// <para>
     /// PR-17 raised it to 21. The map of the snapshot gained the time of day that the party took at
     /// its entry, which a time change of the map can set (D-1349). A save of an older format takes
-    /// the time that its flags give, as an entry to the map does.
+    /// the time that its flags give, as an entry to the map does. The battle of the snapshot gained
+    /// the covers of its holders (D-1352), and a battle of an older format holds no cover.
     /// </para>
     /// </remarks>
     public const int Current = 21;

@@ -12,7 +12,8 @@ namespace TheThingBelow.Core.Battles;
 /// The text of the party and the battle inside one snapshot line, from save format 4 (D-531,
 /// D-652, D-765). `RunSnapshotText` calls it for the two objects. Save format 5 adds the
 /// statuses of each character and each combatant, and drops the push rate, which haste and
-/// slow now set (D-792, D-800). Save format 15 adds the reserve of the party (D-1136).
+/// slow now set (D-792, D-800). Save format 15 adds the reserve of the party (D-1136). Save
+/// format 21 adds the covers of a battle (D-1352).
 /// </summary>
 public static class BattleSnapshotText
 {
@@ -215,6 +216,18 @@ public static class BattleSnapshotText
 
         writer.WriteEndArray();
         writer.WriteEndObject();
+        IReadOnlyList<CoverValues> covers = battle.Covers ?? throw new ArgumentException("The battle holds no covers, and a snapshot of this build writes them (D-1352).", nameof(battle));
+        writer.WriteStartArray("covers");
+        foreach (CoverValues cover in covers)
+        {
+            writer.WriteStartObject();
+            writer.WriteString("side", BattleSides.NameOf(cover.Side));
+            writer.WriteNumber("holder", cover.Holder);
+            writer.WriteNumber("ally", cover.Ally);
+            writer.WriteEndObject();
+        }
+
+        writer.WriteEndArray();
         writer.WriteEndObject();
     }
 
@@ -329,7 +342,7 @@ public static class BattleSnapshotText
 
     /// <summary>Reads the object `battle`.</summary>
     /// <param name="reader">The reader of the snapshot line.</param>
-    /// <param name="format">The save format of the line, 4 or later. Format 4 holds a push rate and no status (D-792).</param>
+    /// <param name="format">The save format of the line, 4 or later. Format 4 holds a push rate and no status (D-792). Format 20 and older hold no cover (D-1352).</param>
     /// <returns>The battle.</returns>
     /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
     public static BattleValues ReadBattle(ref ContentReader reader, int format)
@@ -340,6 +353,7 @@ public static class BattleSnapshotText
         BattleOutcome? outcome = null;
         List<CombatantValues>? combatants = null;
         StealValues? steals = null;
+        List<CoverValues>? covers = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -363,6 +377,17 @@ public static class BattleSnapshotText
                 case "steals" when format >= 11:
                     steals = ReadSteals(ref reader);
                     break;
+
+                // Save format 21 adds the covers (D-1352).
+                case "covers" when format >= 21:
+                    covers = [];
+                    int coversDepth = reader.ReadArrayStart();
+                    while (reader.ReadNextElement(coversDepth, covers.Count))
+                    {
+                        covers.Add(ReadCover(ref reader));
+                    }
+
+                    break;
                 case "combatants":
                     combatants = [];
                     int combatantsDepth = reader.ReadArrayStart();
@@ -383,7 +408,36 @@ public static class BattleSnapshotText
             reader.RequireValue(now, depth, "now"),
             reader.RequireValue(outcome, depth, "outcome"),
             reader.Require(combatants, depth, "combatants"),
-            format >= 11 ? reader.Require(steals, depth, "steals") : null);
+            format >= 11 ? reader.Require(steals, depth, "steals") : null,
+            format >= 21 ? reader.Require(covers, depth, "covers") : null);
+    }
+
+    private static CoverValues ReadCover(ref ContentReader reader)
+    {
+        BattleSide? side = null;
+        int? holder = null;
+        int? ally = null;
+
+        int depth = reader.ReadObjectStart();
+        while (reader.ReadNextField(depth, out string field))
+        {
+            switch (field)
+            {
+                case "side":
+                    side = ReadSide(ref reader);
+                    break;
+                case "holder":
+                    holder = reader.ReadInt();
+                    break;
+                case "ally":
+                    ally = reader.ReadInt();
+                    break;
+                default:
+                    throw reader.UnknownField(field);
+            }
+        }
+
+        return new CoverValues(reader.RequireValue(side, depth, "side"), reader.RequireInt(holder, depth, "holder"), reader.RequireInt(ally, depth, "ally"));
     }
 
     private static StealValues ReadSteals(ref ContentReader reader)

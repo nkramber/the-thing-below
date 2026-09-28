@@ -78,6 +78,10 @@
    "text": "Step forward"
   },
   {
+   "id": "battle.cover",
+   "text": "{actor} covers {target}."
+  },
+  {
    "id": "battle.defend",
    "text": "{actor} braces."
   },
@@ -312,6 +316,10 @@
   {
    "id": "battle.summary_gain",
    "text": "+{amount} {stat}"
+  },
+  {
+   "id": "battle.take_blow",
+   "text": "{actor} takes the blow."
   },
   {
    "id": "battle.win_gold",

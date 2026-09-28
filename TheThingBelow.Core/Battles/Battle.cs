@@ -68,13 +68,21 @@ public sealed record CombatantValues(
 /// <param name="Outcome">How the battle ended, or `running`.</param>
 /// <param name="Combatants">Every combatant, the party first, each side in slot order.</param>
 /// <param name="Steals">The steal tries of the fight and the entries taken, from save format 11 (D-1045). Null in a snapshot of an older format, which holds no try.</param>
+/// <param name="Covers">Each cover that holds, in the order of the combatants, from save format 21 (D-1352). Null in a snapshot of an older format, which holds no cover.</param>
 public sealed record BattleValues(
     ContentId Enemy,
     ContentId Group,
     long Now,
     BattleOutcome Outcome,
     IReadOnlyList<CombatantValues> Combatants,
-    StealValues? Steals);
+    StealValues? Steals,
+    IReadOnlyList<CoverValues>? Covers);
+
+/// <summary>One cover that holds: a holder takes each melee strike that aims at one ally of its side (D-1352).</summary>
+/// <param name="Side">The side of the holder and of the ally.</param>
+/// <param name="Holder">The slot of the holder.</param>
+/// <param name="Ally">The slot of the ally that the holder covers.</param>
+public sealed record CoverValues(BattleSide Side, int Holder, int Ally);
 
 /// <summary>One entry that a steal took in a fight. It leaves that enemy for the rest of the fight (D-1044).</summary>
 /// <param name="Enemy">The slot of the enemy.</param>
@@ -149,6 +157,12 @@ public sealed class Combatant
 
     /// <summary>True while a defend holds, until the next turn of the combatant (D-755).</summary>
     public bool Defending { get; internal set; }
+
+    /// <summary>
+    /// The slot of the ally of the same side that this combatant covers, or no value (D-1352).
+    /// The cover holds until the next turn of this combatant, its fall, or the end of the battle.
+    /// </summary>
+    public int? Covering { get; internal set; }
 
     /// <summary>The affinity to each element: the table of the enemy record, or the table of the worn gear of a character (D-790, D-794, D-1037).</summary>
     public ElementTable Elements { get; }
@@ -403,6 +417,7 @@ public sealed class Battle
             Outcome = values.Outcome,
         };
         battle.PutSteals(content, values.Steals ?? new StealValues(0, []), source);
+        battle.PutCovers(values.Covers ?? [], source);
         return battle;
     }
 
@@ -454,6 +469,38 @@ public sealed class Battle
         }
 
         this.StealTries = steals.Tries;
+    }
+
+    /// <summary>
+    /// Puts the stored covers back, and refuses a set that no fight can make: a cover after the
+    /// end, out of the order of the combatants, of a holder off the field, of the holder itself, of
+    /// a slot that the side lacks, or two covers of one ally (D-1352).
+    /// </summary>
+    private void PutCovers(IReadOnlyList<CoverValues> covers, string source)
+    {
+        Refuse(covers.Count > 0 && this.Outcome != BattleOutcome.Running, source, $"it ended as '{OutcomeName(this.Outcome)}' and holds {covers.Count} covers, and a cover ends with the battle (D-1352)");
+        CoverValues? last = null;
+        foreach (CoverValues cover in covers)
+        {
+            ArgumentNullException.ThrowIfNull(cover);
+            Combatant[] side = cover.Side == BattleSide.Party ? this.party : this.enemies;
+            string where = $"{BattleSides.NameOf(cover.Side)} {cover.Holder}";
+            Refuse(cover.Holder < 0 || cover.Holder >= side.Length, source, $"a cover names the holder {where}, which the fight lacks (D-1352)");
+            Refuse(cover.Ally < 0 || cover.Ally >= side.Length || cover.Ally == cover.Holder, source, $"the cover of {where} names the ally slot {cover.Ally}, and a cover names another slot of its side (D-1352)");
+            Refuse(
+                last is not null && (cover.Side < last.Side || (cover.Side == last.Side && cover.Holder <= last.Holder)),
+                source,
+                $"the cover of {where} leaves the order of the combatants, or repeats a holder, and one holder covers one ally (D-1352)");
+            Combatant holder = side[cover.Holder];
+            Refuse(holder.Place != CombatantPlace.Field, source, $"the holder {where} covers from the place '{PlaceName(holder.Place)}', and a fall ends a cover (D-1352)");
+            foreach (Combatant other in side)
+            {
+                Refuse(other.Covering == cover.Ally, source, $"two holders cover the ally slot {cover.Ally}, and the latest cover of an ally wins (D-1352)");
+            }
+
+            holder.Covering = cover.Ally;
+            last = cover;
+        }
     }
 
     /// <summary>Gives the rate on each push that the statuses of a combatant set: haste, slow, or none (D-768, D-800).</summary>
@@ -635,7 +682,16 @@ public sealed class Battle
                 combatant.Statuses.Values()));
         }
 
-        return new BattleValues(this.Enemy, this.Group.Id, this.Now, this.Outcome, combatants, new StealValues(this.StealTries, new List<StolenEntry>(this.stolen)));
+        List<CoverValues> covers = [];
+        foreach (Combatant combatant in this.All())
+        {
+            if (combatant.Covering is int ally)
+            {
+                covers.Add(new CoverValues(combatant.Side, combatant.Slot, ally));
+            }
+        }
+
+        return new BattleValues(this.Enemy, this.Group.Id, this.Now, this.Outcome, combatants, new StealValues(this.StealTries, new List<StolenEntry>(this.stolen)), covers);
     }
 
     /// <summary>Adds every value of the battle to the state hash, in one fixed order (G-5).</summary>
@@ -658,6 +714,14 @@ public sealed class Battle
             hasher.AddInt64(combatant.ReadyAt);
             hasher.AddInt32(combatant.PushRate);
             hasher.AddBoolean(combatant.Defending);
+
+            // D-1352: whether the combatant covers an ally, then the slot of that ally.
+            hasher.AddBoolean(combatant.Covering is not null);
+            if (combatant.Covering is int ally)
+            {
+                hasher.AddInt32(ally);
+            }
+
             combatant.Statuses.Hash(hasher);
         }
 

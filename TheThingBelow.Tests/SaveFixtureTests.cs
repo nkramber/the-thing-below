@@ -48,7 +48,7 @@ namespace TheThingBelow.Tests;
 /// map on its start tile and opens the NPC stream at its first value from the seed of the header
 /// (D-1137).
 /// Format 20 and older predate the time of the map, and the migration takes the time that the
-/// flags give (D-1349).
+/// flags give (D-1349). They predate the covers too, and a battle then holds none (D-1352).
 /// </para>
 /// </remarks>
 public sealed class SaveFixtureTests
@@ -964,13 +964,16 @@ public sealed class SaveFixtureTests
     /// each stock at the count of its shop file, so no stock value (D-1152). The memory of the maps
     /// holds the dead enemies of the map of the snapshot alone (D-555). The danger count starts at
     /// zero (D-1249). The map takes the time that the flags give, and no map of an older fixture
-    /// holds a time change, so it takes its base time (D-1349).
+    /// holds a time change, so it takes its base time (D-1349). A battle holds no cover (D-1352).
     /// </summary>
     private static RunSnapshot AsThisFormat(RunSnapshot snapshot, GameMap map)
     {
         RunSnapshot withDanger = snapshot with { Danger = snapshot.Danger ?? 0 };
         RunSnapshot withNpcs = withDanger.Map is null ? withDanger : withDanger with { Map = withDanger.Map with { Npcs = withDanger.Map.Npcs ?? [], Time = withDanger.Map.Time ?? map.BaseTime } };
         RunSnapshot withStock = withNpcs with { Stock = withNpcs.Stock ?? [], Places = withNpcs.Places ?? PlacesOf(withNpcs.Map) };
+
+        // D-1352: a battle of format 20 or older holds no cover.
+        withStock = withStock.Battle is null ? withStock : withStock with { Battle = withStock.Battle with { Covers = withStock.Battle.Covers ?? [] } };
         return withStock.Characters is null ? withStock : withStock with { Characters = withStock.Characters with { Reserve = withStock.Characters.Reserve ?? [] } };
     }
 
@@ -996,9 +999,9 @@ public sealed class SaveFixtureTests
             ? story
             : story with { Scene = story.Scene with { StepId = ContentId.Parse(stepId, "test", "step_id") } };
 
-    /// <summary>Gives the battle of a save of format 10 or older as the migration gives it: no steal try (D-166, D-1045).</summary>
+    /// <summary>Gives the battle of a save of format 10 or older as the migration gives it: no steal try and no cover (D-166, D-1045, D-1352).</summary>
     private static BattleValues? WithSteals(BattleValues? battle) =>
-        battle is null ? null : battle with { Steals = battle.Steals ?? new StealValues(0, []) };
+        battle is null ? null : battle with { Steals = battle.Steals ?? new StealValues(0, []), Covers = battle.Covers ?? [] };
 
     private static Simulation ResumeInBattle(SaveDocument save) =>
         Simulation.Resume(save.Header.Seed, save.Snapshot, BattleRuns.Map("group.test_pair"), TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);

@@ -365,7 +365,7 @@ public static class StoryRules
                 story.Next();
                 break;
             case JoinStep join:
-                state.Characters.Join(state.BattleContent.Character(join.Character), state.BattleContent.Rules, context);
+                state.Characters.Join(state.BattleContent.Character(join.Character), state.BattleContent, context);
                 log.Add(Entry(state, LogLevel.Info, "a cast member joined the party", [new LogField("character", join.Character.Value)]));
                 story.Next();
                 break;

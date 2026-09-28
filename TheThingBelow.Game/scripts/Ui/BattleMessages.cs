@@ -128,6 +128,8 @@ public static class BattleMessages
             BattleEventKind.Drop => Line("battle.drop", Actor(played, view, strings), Item(played, strings)),
             BattleEventKind.DropLost => Line("battle.drop_lost", Item(played, strings)),
             BattleEventKind.WinGold => Line("battle.win_gold", Amount(played)),
+            BattleEventKind.Cover => Line("battle.cover", Actor(played, view, strings), Target(played, view, strings)),
+            BattleEventKind.TakeBlow => Line("battle.take_blow", Actor(played, view, strings)),
             _ => throw new ArgumentOutOfRangeException(
                 nameof(played), played.Kind, $"The battle event '{played.Kind}' has no message line (G-20, T-2)."),
         };

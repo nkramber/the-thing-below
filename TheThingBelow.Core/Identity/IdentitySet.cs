@@ -491,11 +491,12 @@ public static partial class IdentitySet
 
     private const string GearFile = """
     {
-     "comment": "The gear file of the identity set. PR-13 added it.",
+     "comment": "The gear file of the identity set. PR-13 added it, and PR-17 added the vest that the friend joins with.",
      "gear": [
       { "id": "gear.identity_blade", "slot": "weapon", "limit": 1, "value": 20, "attack": 3, "magic": 0, "defense": 0, "resistance": 0, "speed": -2, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
       { "id": "gear.identity_ring", "slot": "accessory", "limit": 1, "value": 20, "attack": 0, "magic": 0, "defense": 1, "resistance": 2, "speed": 0, "elements": { "fire": "resist", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
-      { "id": "gear.identity_charm", "slot": "accessory", "limit": 1, "value": 20, "attack": 0, "magic": 2, "defense": 0, "resistance": 0, "speed": 4, "elements": { "fire": "weak", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } }
+      { "id": "gear.identity_charm", "slot": "accessory", "limit": 1, "value": 20, "attack": 0, "magic": 2, "defense": 0, "resistance": 0, "speed": 4, "elements": { "fire": "weak", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
+      { "id": "gear.identity_vest", "slot": "body", "limit": 1, "value": 20, "attack": 0, "magic": 0, "defense": 3, "resistance": 1, "speed": 0, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } }
      ]
     }
     """;
@@ -511,25 +512,26 @@ public static partial class IdentitySet
     }
     """;
 
-    /// <summary>The ability file of this set (D-785). PR-80 added it, and it never changes.</summary>
+    /// <summary>The ability file of this set (D-785). PR-80 added it, and PR-17 added the cover (D-1352).</summary>
     private const string AbilityFile = """
     {
-     "comment": "The ability file of the identity set. PR-11 gave each ability its effect and added the mend. PR-12 gave the strike its status field and added the moves of the lessons, PR-13 added the steal, and PR-99 added the stat of a strike and the base and the power of a heal.",
+     "comment": "The ability file of the identity set. PR-11 gave each ability its effect and added the mend. PR-12 gave the strike its status field and added the moves of the lessons, PR-13 added the steal, PR-99 added the stat of a strike and the base and the power of a heal, and PR-17 added the cover.",
      "abilities": [
       { "id": "ability.identity_strike", "kind": "strike", "delay": 120, "power": 14000, "stat": "magic", "element": "fire", "reach": "any", "status": "none" },
       { "id": "ability.identity_mend", "kind": "heal", "delay": 100, "base": 12, "power": 5000 },
       { "id": "ability.identity_blast", "kind": "strike", "delay": 130, "power": 20000, "stat": "magic", "element": "fire", "reach": "any", "status": "poison", "chance": 5000 },
       { "id": "ability.identity_purge", "kind": "cure", "delay": 90, "statuses": ["poison", "blind", "silence"] },
       { "id": "ability.identity_haste", "kind": "boon", "delay": 90, "status": "haste" },
-      { "id": "ability.identity_pilfer", "kind": "steal", "delay": 100 }
+      { "id": "ability.identity_pilfer", "kind": "steal", "delay": 100 },
+      { "id": "ability.identity_cover", "kind": "cover", "delay": 90 }
      ]
     }
     """;
 
-    /// <summary>The lesson file of this set (D-1026). PR-12 added it.</summary>
+    /// <summary>The lesson file of this set (D-1026). PR-12 added it, and PR-17 added the cover drill (D-1352).</summary>
     private const string LessonFile = """
     {
-     "comment": "The lesson file of the identity set. PR-12 added it, and PR-13 added the steal drill.",
+     "comment": "The lesson file of the identity set. PR-12 added it, PR-13 added the steal drill, and PR-17 added the cover drill that the friend joins with.",
      "lessons": [
       { "id": "lesson.identity_blast", "kind": "harm", "forms": [
        { "ability": "ability.identity_strike", "points": 0, "ap": 3, "description": "lesson.identity_strike" },
@@ -541,7 +543,9 @@ public static partial class IdentitySet
       { "id": "lesson.identity_haste", "kind": "boon", "forms": [
        { "ability": "ability.identity_haste", "points": 0, "ap": 2, "description": "lesson.identity_haste" } ] },
       { "id": "lesson.identity_pilfer", "kind": "theft", "forms": [
-       { "ability": "ability.identity_pilfer", "points": 0, "ap": 2, "description": "lesson.identity_pilfer" } ] }
+       { "ability": "ability.identity_pilfer", "points": 0, "ap": 2, "description": "lesson.identity_pilfer" } ] },
+      { "id": "lesson.identity_cover", "kind": "guard", "forms": [
+       { "ability": "ability.identity_cover", "points": 0, "ap": 1, "description": "lesson.identity_cover" } ] }
      ]
     }
     """;
@@ -611,10 +615,10 @@ public static partial class IdentitySet
     /// </summary>
     private static readonly string BattleFixtureFile = $$"""
     {
-     "comment": "The battle fixture of the identity set. PR-9 added it, PR-80 moved its enemies to the enemy records, PR-11 moved its groups to the group file, PR-68 added the friend who joins in the story run, PR-12 added the aptitudes, the start lessons, and the lesson pack, PR-13 moved the item to the item file and added the gear, PR-99 added the magic and the resistance, and PR-91 added the torch.",
+     "comment": "The battle fixture of the identity set. PR-9 added it, PR-80 moved its enemies to the enemy records, PR-11 moved its groups to the group file, PR-68 added the friend who joins in the story run, PR-12 added the aptitudes, the start lessons, and the lesson pack, PR-13 moved the item to the item file and added the gear, PR-99 added the magic and the resistance, PR-91 added the torch, and PR-17 added the kit that the friend joins with.",
      "characters": [
-      { "id": "character.identity_hero", "row": "front", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.identity_side", "curve": {{StatCurve.FlatText(new StatRow(90, 20, 14, 6, 4, 3, 100))}} },
-      { "id": "character.identity_friend", "row": "back", "join_level": 1, "main_aptitude": "mend", "side_aptitude": "harm", "side_flag": "flag.identity_side", "curve": {{StatCurve.FlatText(new StatRow(70, 30, 10, 14, 3, 6, 110))}} }
+      { "id": "character.identity_hero", "row": "front", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.identity_side", "join_lessons": [], "join_gear": [], "curve": {{StatCurve.FlatText(new StatRow(90, 20, 14, 6, 4, 3, 100))}} },
+      { "id": "character.identity_friend", "row": "back", "join_level": 1, "main_aptitude": "mend", "side_aptitude": "harm", "side_flag": "flag.identity_side", "join_lessons": ["lesson.identity_cover"], "join_gear": ["gear.identity_vest"], "curve": {{StatCurve.FlatText(new StatRow(70, 30, 10, 14, 3, 6, 110))}} }
      ],
      "start_party": ["character.identity_hero"],
      "pack": [{ "item": "item.identity_draught", "count": 9 }, { "item": "item.torch", "count": 1 }, { "gear": "gear.identity_charm", "count": 1 }],

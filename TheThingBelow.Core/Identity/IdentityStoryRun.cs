@@ -170,6 +170,7 @@ public static partial class IdentitySet
         int turns = 0;
         bool savedPause = false;
         bool savedBattle = false;
+        bool blowTaken = false;
 
         for (int step = 0; step < StoryTickCount; step += 1)
         {
@@ -184,6 +185,7 @@ public static partial class IdentitySet
             foreach (BattleEvent battleEvent in simulation.TakeBattleEvents())
             {
                 hasher.AddText(battleEvent.Describe());
+                blowTaken |= battleEvent.Kind == BattleEventKind.TakeBlow;
             }
 
             if (!savedPause && simulation.State.Story.Paused)
@@ -205,6 +207,12 @@ public static partial class IdentitySet
             "the story run of the identity set ended with the offer unpaid, so the set holds no pay (D-1335)",
             simulation.State.Context("identity"));
 
+        // The friend covers the hero, and a melee strike at the hero meets the friend (D-1352).
+        CoreAssert.That(
+            blowTaken,
+            "the story run of the identity set ended with no blow that a holder took, so the set holds no cover (D-1352)",
+            simulation.State.Context("identity"));
+
         string text = RunRecordText.Write(recorder.Build());
         RunState replayed = RunReplay.Play(
             RunRecordText.Read(text), ReplayContentHash, map, content, ReplayNotices(), story, DebugIntentHandlers.None);
@@ -218,7 +226,8 @@ public static partial class IdentitySet
     /// <summary>
     /// The script of the story run. It reads the state, and the record holds each intent, so
     /// the replay needs no script (D-493). It answers each wait intent at once, as a bot does
-    /// (D-540), picks the first option, and pauses the wait step once.
+    /// (D-540), picks the first option, and pauses the wait step once. In the fight the friend
+    /// covers the hero on each third turn (D-1352).
     /// </summary>
     /// <remarks>
     /// The pause starts when the wait holds 10 ticks, and it ends on a tick that is a multiple
@@ -226,8 +235,19 @@ public static partial class IdentitySet
     /// </remarks>
     private static IReadOnlyList<Intent> IntentsOfStoryTick(RunState state, int turns)
     {
-        if (state.Battle is not null)
+        if (state.Battle is Battle battle)
         {
+            // D-1350, D-1352: the friend joined with the cover drill, and it covers the hero on
+            // each third turn that the rules allow, so the set holds a cover and a blow that its
+            // holder takes.
+            ContentId cover = ContentId.Parse("lesson.identity_cover", "identity-set-story", "lesson");
+            var hero = new BattleTarget(BattleSide.Party, 0);
+            BattleChoice covers = new(BattleAction.Lesson, hero, null, cover, 0);
+            if (turns % 3 == 0 && battle.Next() is { Side: BattleSide.Party, Slot: 1 } && BattleTurns.RefusalOf(state, covers) is null)
+            {
+                return [Intent.OfBattleLesson(cover, 0, hero)];
+            }
+
             return IntentsOfBattleTick(state, turns, 0);
         }
 

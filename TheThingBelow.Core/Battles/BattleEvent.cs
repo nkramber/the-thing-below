@@ -119,6 +119,12 @@ public enum BattleEventKind
 
     /// <summary>A character regained AP in a fight: a basic attack that hit, or a fall of an enemy. The actor is the character, and the amount is the AP. No message shows it (D-1198, D-1211).</summary>
     Regain,
+
+    /// <summary>A character began a cover. The actor is the holder, and the target is the ally that it covers (D-1352).</summary>
+    Cover,
+
+    /// <summary>A holder took a melee strike that aimed at the ally that it covers. The actor is the holder, and the target is the ally. The events of the strike on the holder follow (D-1352).</summary>
+    TakeBlow,
 }
 
 /// <summary>One event of a battle (D-168, D-532).</summary>
@@ -191,6 +197,8 @@ public static class BattleEvents
         BattleEventKind.StealGear => "steal gear",
         BattleEventKind.WinGold => "win gold",
         BattleEventKind.Regain => "regain",
+        BattleEventKind.Cover => "cover",
+        BattleEventKind.TakeBlow => "take blow",
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no battle event (D-532)"),
     };
 }

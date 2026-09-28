@@ -466,8 +466,9 @@ public static class BattleTurns
 
     /// <summary>
     /// Gives the reason that the rules refuse a lesson use: the lesson rules of the form, then
-    /// the target of its effect. A strike aims at an enemy that its reach reaches, and a heal, a
-    /// cure, and a boon aim at a character on the field (D-377, D-955, D-1029).
+    /// the target of its effect. A strike aims at an enemy that its reach reaches, a heal, a cure,
+    /// and a boon aim at a character on the field, and a cover aims at another character on the
+    /// field (D-377, D-955, D-1029, D-1352).
     /// </summary>
     private static string? RefusalOfLesson(RunState state, Battle battle, Combatant actor, BattleChoice choice)
     {
@@ -517,6 +518,11 @@ public static class BattleTurns
             return $"the target {target.Describe()}, and '{ability.Id.Value}' aims at a character slot from 0 to {battle.Party.Count - 1} (D-1029)";
         }
 
+        if (ability is CoverAbility && target.Slot == actor.Slot)
+        {
+            return $"the target {target.Describe()}, the user, and a cover aims at another ally (D-1352)";
+        }
+
         return battle.Party[target.Slot].Place == CombatantPlace.Field
             ? null
             : $"the target {target.Describe()}, and '{ability.Id.Value}' reaches a character who stands (D-36, D-1029)";
@@ -525,7 +531,8 @@ public static class BattleTurns
     /// <summary>
     /// Uses one form of a lesson (D-1027). The character spends the AP, and the effect takes the
     /// aptitude bonus: the power and the status chance of a strike, and the health of a heal
-    /// (D-1028). A cure ends its statuses on the target, and a boon gives its status (D-1029).
+    /// (D-1028). A cure ends its statuses on the target, a boon gives its status (D-1029), and a
+    /// cover puts the user in front of the target (D-1352).
     /// </summary>
     private static void UseLesson(RunState state, Battle battle, Combatant actor, BattleChoice choice, RunContext context, List<LogEntry> log)
     {
@@ -563,6 +570,10 @@ public static class BattleTurns
                 LootRules.Steal(state, battle, actor, aimed, context);
                 PushBack(actor, steal.Delay, context);
                 break;
+            case CoverAbility cover:
+                Cover(state, battle, actor, aimed, context);
+                PushBack(actor, cover.Delay, context);
+                break;
             default:
                 throw new SimulationException($"the form '{ability.Id.Value}', whose effect names no rule (T-2)", context);
         }
@@ -584,6 +595,54 @@ public static class BattleTurns
         target.PushRate = Battle.PushRateOf(target, state.BattleContent.Rules);
         PushBack(healer, cure.Delay, context);
     }
+
+    /// <summary>
+    /// A cover of another ally on the field (D-1352). One holder covers one ally, so a new cover of
+    /// the holder replaces its old one. The latest cover of an ally wins, so the cover of any other
+    /// holder of that ally ends.
+    /// </summary>
+    private static void Cover(RunState state, Battle battle, Combatant holder, BattleTarget aimed, RunContext context)
+    {
+        Combatant ally = battle.At(aimed, context);
+        if (aimed.Side != holder.Side || ReferenceEquals(ally, holder) || ally.Place != CombatantPlace.Field)
+        {
+            throw new SimulationException(
+                $"a cover of {holder.Target.Describe()} on {aimed.Describe()}, and a cover reaches another ally on the field (D-1352)",
+                context);
+        }
+
+        foreach (Combatant other in SideOf(battle, holder.Side))
+        {
+            if (other.Covering == aimed.Slot)
+            {
+                other.Covering = null;
+            }
+        }
+
+        holder.Covering = aimed.Slot;
+        state.AddEvent(new BattleEvent(BattleEventKind.Cover, holder.Target, ally.Target, 0));
+    }
+
+    /// <summary>
+    /// Gives the holder that takes a melee strike aimed at a combatant: the combatant of the same
+    /// side on the field that covers it, or no value (D-1352). The rules keep one cover for each
+    /// ally, so one holder at most matches.
+    /// </summary>
+    private static Combatant? CoverOf(Battle battle, Combatant aimed)
+    {
+        foreach (Combatant holder in SideOf(battle, aimed.Side))
+        {
+            if (holder.Covering == aimed.Slot && holder.Place == CombatantPlace.Field && !ReferenceEquals(holder, aimed))
+            {
+                return holder;
+            }
+        }
+
+        return null;
+    }
+
+    private static IReadOnlyList<Combatant> SideOf(Battle battle, BattleSide side) =>
+        side == BattleSide.Party ? battle.Party : battle.Enemies;
 
     private static Battle RunningBattle(RunState state, RunContext context)
     {
@@ -660,8 +719,8 @@ public static class BattleTurns
 
     /// <summary>
     /// Begins the turn of the next combatant (D-755, D-798, D-799, D-802). The timeline moves
-    /// to its tick, each status whose end the timeline reached ends, and the defend of the
-    /// actor ends. Then poison, bleed, and regen act, in the order of D-75. A sleeper passes
+    /// to its tick, each status whose end the timeline reached ends, and the defend and the
+    /// cover of the actor end (D-1352). Then poison, bleed, and regen act, in the order of D-75. A sleeper passes
     /// its turn with one attack push.
     /// </summary>
     /// <returns>True when the actor acts, and false when a share put it down or it sleeps.</returns>
@@ -671,6 +730,9 @@ public static class BattleTurns
         battle.Now = actor.ReadyAt;
         EndStatuses(state, battle);
         actor.Defending = false;
+
+        // D-1352: the cover of the actor holds until its next turn.
+        actor.Covering = null;
 
         TakeShare(state, battle, actor, StatusKind.Poison, rules.PoisonShare, context, log);
         TakeShare(state, battle, actor, StatusKind.Bleed, rules.BleedShare, context, log);
@@ -871,7 +933,8 @@ public static class BattleTurns
     /// Resolves one strike (D-376). A melee strike reaches the targets of D-377, and a strike
     /// of any reach reaches each combatant of the other side on the field (D-955). The basic
     /// attack command of a character sets <paramref name="basicAttack"/>, and its hit gives the
-    /// attacker the hit regain before a fall gives the fall regain (D-1198, D-1210).
+    /// attacker the hit regain before a fall gives the fall regain (D-1198, D-1210). A holder takes
+    /// a melee strike at the ally that it covers (D-1352).
     /// </summary>
     private static void Strike(
         RunState state,
@@ -894,6 +957,16 @@ public static class BattleTurns
             throw new SimulationException(
                 $"a strike of {attacker.Target.Describe()} at {aimed.Describe()}, which a strike of the reach '{(melee ? "melee" : "any")}' does not reach (D-377, D-955)",
                 context);
+        }
+
+        // D-1352: a holder takes a melee strike that aims at the ally that it covers, whatever its
+        // row, and the whole strike then reads the holder: the miss, the hit, the damage, the
+        // status, and the fall. A strike of any reach goes where it aims. One cover moves a
+        // strike one time, so a cover of the holder moves it no further.
+        if (melee && CoverOf(battle, target) is Combatant holder)
+        {
+            state.AddEvent(new BattleEvent(BattleEventKind.TakeBlow, holder.Target, target.Target, 0));
+            target = holder;
         }
 
         RandomStream stream = state.Stream(StreamId.Battle);
@@ -1085,7 +1158,7 @@ public static class BattleTurns
     }
 
     /// <summary>
-    /// Puts a combatant down (D-36), and takes every status off it (D-801). A fallen enemy
+    /// Puts a combatant down (D-36), and takes every status and its cover off it (D-801, D-1352). A fallen enemy
     /// gives each character who is not down the fall regain of AP (D-1198), and it lets the next
     /// waiting enemy of the group step into its row, one attack push out (D-761, D-778).
     /// </summary>
@@ -1093,6 +1166,9 @@ public static class BattleTurns
     {
         fallen.Place = CombatantPlace.Down;
         fallen.Defending = false;
+
+        // D-1352: a fall ends the cover of the fallen holder.
+        fallen.Covering = null;
         foreach (StatusKind status in Statuses.All)
         {
             fallen.Statuses.Remove(status);
@@ -1193,11 +1269,17 @@ public static class BattleTurns
     /// <summary>
     /// Ends the battle, and copies the health of each character back to the party (D-36,
     /// D-765). Poison, blind, and silence go back with it, and every other status ends with
-    /// the fight (D-390, D-792).
+    /// the fight (D-390, D-792). Each cover ends (D-1352).
     /// </summary>
     private static void End(RunState state, Battle battle, BattleOutcome outcome, List<LogEntry> log)
     {
         battle.Outcome = outcome;
+
+        // D-1352: each cover ends with the battle.
+        foreach (Combatant combatant in battle.All())
+        {
+            combatant.Covering = null;
+        }
         for (int slot = 0; slot < battle.Party.Count; slot += 1)
         {
             Combatant character = battle.Party[slot];

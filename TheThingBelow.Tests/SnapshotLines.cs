@@ -35,10 +35,10 @@ internal static partial class SnapshotLines
     /// <returns>The line in the shape of save format 19.</returns>
     public static string AsFormatNineteen(string line) => EncounterStream().Replace(Danger().Replace(AsFormatTwenty(line), string.Empty), string.Empty);
 
-    /// <summary>Drops the time of the map, which save format 21 added (D-1349).</summary>
+    /// <summary>Drops the time of the map and the covers of a battle, which save format 21 added (D-1349, D-1352).</summary>
     /// <param name="line">A snapshot line of this build.</param>
     /// <returns>The line in the shape of save format 20.</returns>
-    public static string AsFormatTwenty(string line) => MapTime().Replace(line, "$1");
+    public static string AsFormatTwenty(string line) => BattleCovers().Replace(MapTime().Replace(line, "$1"), string.Empty);
 
     /// <summary>Drops the danger count and the encounter stream of save format 20, and the empty memory of the maps, which save format 18 added (D-555).</summary>
     /// <param name="line">A snapshot line of this build, whose memory of the maps is empty. No older format holds one.</param>
@@ -110,4 +110,8 @@ internal static partial class SnapshotLines
 
     [GeneratedRegex(""","steals":\{"tries":\d+,"taken":\[[^\]]*\]\}""")]
     private static partial Regex BattleSteals();
+
+    // The covers hold objects with no nested array, so the first `]` ends the array (D-1352).
+    [GeneratedRegex(""","covers":\[[^\]]*\]""")]
+    private static partial Regex BattleCovers();
 }
