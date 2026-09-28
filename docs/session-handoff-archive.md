@@ -1,4 +1,41 @@
 # Session handoff archive
+## Session 379: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-110, round 1. Repository: the-thing-below. Branch: `feat/pr-110-region-one-overworld`. PR: opened by this round. Role: author. Base: `5e6fb49`.
+
+### What this session did, and why
+
+- Asked the owner each question of the layout, the terrain, the zones, the gates, and the art. D-1270 to D-1302 record the answers. D-1289 corrects a premise of the session in D-1286.
+- Built the one overworld of the game with region one at 160 by 128 (D-1274, D-1297), from a generator in Tools with a settings file (D-1294 to D-1296).
+- Added the tile kinds road, snowfield, gorge, snow peak, and bridge, the frosted grass, and the thing kind `mark` (D-1271, D-1277, D-1278, D-1302). The simulation version is 39.
+- Gave each zone its region, which names its group file and its pool (D-1285, D-1289). The fixture maps moved to `region.fixture` in the transition table.
+- Filed PR-111, the treasure of the overworld, right after PR-110 (D-1298).
+
+### The state of the build
+
+- 4,434 tests pass locally. The three new screen baselines of `region-one` come from CI (D-733), and the fixture overworld baselines change with the frosted grass.
+- The owner approved the terrain, the marks, the landmarks, and the map at each review stop of D-1287.
+
+### What is in flight
+
+- The first push, the Gitar pass, and the new baselines from the screen-test artifact.
+
+### Traps and gotchas
+
+- Never edit the rows of `content/rules/maps/overworld.json` by hand. Change `content/worldgen/overworld.json`, run `make overworld`, and read the map. A test fails a hand edit.
+- The generator uses integer math and PCG streams alone, so each CI leg makes the same map.
+- The content set reads the settings file only when it is present. The generator test reads the checkout file itself.
+- Python stays out of the repository (D-406). The draft scripts of this session lived in the scratchpad alone.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push, run the Gitar poll, then commit the CI baselines of the screen-test artifact after reading each frame.
+
 ## Session 378: 2026-09-28, Codex
 
 Author: Codex

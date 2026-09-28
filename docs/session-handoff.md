@@ -1,3 +1,37 @@
+## Session 389: 2026-09-28, Codex
+
+Author: Codex
+Session: repeat review PR #96 (PR-111). Repository: the-thing-below. Branch: `review/pr-96`, tracking `origin/feat/pr-111-overworld-treasure`. Role: reviewer. Base: `2ac46b6e7280a5000c9397b4b592fcbf1889949c`.
+
+### What this session did, and why
+
+- Re-reviewed effective head `d56432a9dd281d48bcbce2a411862392aaa4d325`. The author added both required art sheets to the PR description.
+- Opened and checked both sheets. They show the cairn drawings at the required scales, grounds, and light directions (D-514, D-521, D-668).
+- Closed P2-1 under the unchanged-head rule of D-1303. The record now gives `Ready for owner merge`.
+- Verified the author's answer to Gitar's RG 4 analysis. Its clean code approval has no item (D-964).
+
+### The state of the build
+
+- The effective head stays `d56432a9dd281d48bcbce2a411862392aaa4d325`. The remote tip before this metadata commit is `1a8bbd0d64fc638e9bb16d9e43db48fd190dc1bb`.
+- Implementation checks passed on macOS, Ubuntu, and Windows. The review-gate failed RG 4 because the prior verdict remained in the record.
+
+### What is in flight
+
+- The review record and this entry need one metadata commit and a push to the PR branch.
+
+### Traps and gotchas
+
+- Push with `git push origin HEAD:feat/pr-111-overworld-treasure`.
+- Session 379 moves to the archive to keep ten current entries.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit the review record and this entry together. Push, fetch, check the remote head, then read the new review-gate result.
+
 ## Session 388: 2026-09-28, Claude Code
 
 Author: Claude Code
@@ -282,40 +316,3 @@ None.
 ### The next concrete action
 
 Answer each Gitar item of this round, then run `make codex-review PR=95` in the background.
-
-## Session 379: 2026-09-28, Claude Code
-
-Author: Claude Code
-Session: author PR-110, round 1. Repository: the-thing-below. Branch: `feat/pr-110-region-one-overworld`. PR: opened by this round. Role: author. Base: `5e6fb49`.
-
-### What this session did, and why
-
-- Asked the owner each question of the layout, the terrain, the zones, the gates, and the art. D-1270 to D-1302 record the answers. D-1289 corrects a premise of the session in D-1286.
-- Built the one overworld of the game with region one at 160 by 128 (D-1274, D-1297), from a generator in Tools with a settings file (D-1294 to D-1296).
-- Added the tile kinds road, snowfield, gorge, snow peak, and bridge, the frosted grass, and the thing kind `mark` (D-1271, D-1277, D-1278, D-1302). The simulation version is 39.
-- Gave each zone its region, which names its group file and its pool (D-1285, D-1289). The fixture maps moved to `region.fixture` in the transition table.
-- Filed PR-111, the treasure of the overworld, right after PR-110 (D-1298).
-
-### The state of the build
-
-- 4,434 tests pass locally. The three new screen baselines of `region-one` come from CI (D-733), and the fixture overworld baselines change with the frosted grass.
-- The owner approved the terrain, the marks, the landmarks, and the map at each review stop of D-1287.
-
-### What is in flight
-
-- The first push, the Gitar pass, and the new baselines from the screen-test artifact.
-
-### Traps and gotchas
-
-- Never edit the rows of `content/rules/maps/overworld.json` by hand. Change `content/worldgen/overworld.json`, run `make overworld`, and read the map. A test fails a hand edit.
-- The generator uses integer math and PCG streams alone, so each CI leg makes the same map.
-- The content set reads the settings file only when it is present. The generator test reads the checkout file itself.
-- Python stays out of the repository (D-406). The draft scripts of this session lived in the scratchpad alone.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Push, run the Gitar poll, then commit the CI baselines of the screen-test artifact after reading each frame.
