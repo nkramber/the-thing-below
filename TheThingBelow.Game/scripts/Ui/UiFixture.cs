@@ -46,7 +46,9 @@ public partial class UiFixture : Control
         var title = new Label { ThemeTypeVariation = UiTheme.TitleVariation };
         @base.Text.Put(title, ContentId.Parse(TitleId, StringTable.Path, "id"));
 
-        var longest = new Label();
+        // A dialogue line of PR-17 is the longest plain string, and a dialogue line wraps at a word
+        // in the dialogue box (D-241), so the label wraps at a word inside the panel too.
+        var longest = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart };
         @base.Text.Put(longest, LongestPlainId(strings));
 
         lines.AddChild(title);
