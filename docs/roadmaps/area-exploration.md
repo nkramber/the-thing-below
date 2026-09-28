@@ -244,7 +244,9 @@ Built by PR-35, PR-109, and PR-110. Phase file: `phase-2-first-playable.md`.
 - A step costs nothing, because no clock runs (D-442, D-1243).
 - The autosave writes on each step onto the overworld (D-1246).
 - The story sets the time and the dark of the overworld, and one track plays at every time (D-1252).
-- PR-109 adds the invisible encounters: a step counter, and zones that name a rate, a weighted list of groups, and an optional condition (D-1247 to D-1251).
+- PR-109 adds the invisible encounters: a step counter, and zones that name a rate, a weighted list of groups, and a condition (D-1247 to D-1251, D-1269).
+- A zone grid marks the zone of each walkable tile. Each step onto a live zone adds its rate to the danger count of the run, and draws against it (D-1261, D-1262).
+- A safe zone and a visit to a place keep the count, and an encounter sets it to zero. An encounter of a zone has no side from behind (D-1263 to D-1266).
 - PR-110 lays out the overworld of region one from `docs/world/places.md` (D-250, D-255, D-371, D-1244).
 
 > *In plain English:* between places the party walks a small map of the region, as in Final Fantasy VI. The story opens and closes its roads.

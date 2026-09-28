@@ -118,7 +118,11 @@ Game terms from the roadmap interview of 2026-09-12:
 | overworld | the walkable map between the places of a region, at the scale of Final Fantasy VI (D-1242, D-1245, D-1253) | region map, world map |
 | entrance | a thing of the overworld that enters the map of a place on a step onto it (D-1243) | exit, which names the thing of a place that leads out |
 | gate | a thing of the overworld that the party passes only while its condition holds (D-1243). A process gate always takes its qualifier: PR gate, phase gate, night gate | barrier, block, story gate |
-| zone | an area of the overworld with an encounter rate, a weighted list of groups, and an optional condition (D-1250, D-1251) | region, band, for this area |
+| zone | an area of the overworld with a rate, a weighted list of groups, and a condition (D-1250, D-1251, D-1269) | region, band, for this area |
+| rate | the danger in basis points that each step onto a tile of a zone adds to the danger count (D-1261) | encounter rate, chance, when the text means this value |
+| danger count | the one count of the run, from 0 to 10000, that a draw of each step reads, and that each encounter of a zone sets to zero (D-1249, D-1264) | step counter, threat, when the text means the value |
+| zone grid | the rows of zone keys of an overworld, one for each tile of the terrain, with `.` on each blocked tile (D-1262) | zone map, encounter map |
+| encounter stream | the random stream of the draws of the zones of the overworld (D-1249) | exploration stream, when the text means this stream |
 | story scene | a scripted story beat on the map, which Core runs (D-114, D-540, D-572) | cutscene, event, scene alone |
 | map scene | the Game screen that draws a map (D-572) | scene alone |
 | battle scene | the Game screen that draws a fight (D-572) | scene alone |

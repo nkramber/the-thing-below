@@ -170,6 +170,8 @@ The shop window takes a count, and it shows the change of each fighter for a pie
 
 2026-09-27 overworld pass: a walkable overworld at the scale of Final Fantasy VI replaces the node map (D-1242, D-1245). The glossary retires the term region map (D-1253). The overworld is a map file of the kind `overworld`. An entrance leads to a place, and a gate opens with a condition (D-1243). The autosave writes on each step onto the overworld (D-1246). PR-109 adds invisible encounters with a step counter and zones, and PR-110 lays out region one (D-1247 to D-1251, D-1254).
 
+2026-09-27 overworld encounter pass: each step onto a live zone adds the rate of the zone to the danger count of the run (D-1261, D-1264). The step then draws on the encounter stream (D-1249). A zone grid marks each walkable tile of the overworld, and each zone holds a required condition (D-1262, D-1269). An encounter of a zone has no side from behind, and a win fires no battle end trigger (D-1265, D-1266). The transition of an encounter with no patrol names its source, which fixes the encounter trap of PR-64 (D-1268).
+
 External facts, each with the date of its check:
 
 - The GitHub repository `nkramber/the-thing-below` is public. Its name changed from the working title on 2026-09-14 (D-410). Source: `gh repo view`, run 2026-09-14.

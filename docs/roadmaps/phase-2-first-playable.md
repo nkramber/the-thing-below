@@ -2882,9 +2882,12 @@ Area file: `area-exploration.md` section 7.13.
 **Scope.**
 
 - Invisible encounters in the style of Final Fantasy VI, on the overworld alone (D-1247).
-- The step counter: each step adds the rate of its zone to a danger count (D-1249). The step then rolls against the count from a stream of its own, and a fight sets the count to zero.
-- The zones of the overworld map. Each zone names its rate, a weighted list of groups, and an optional condition of the PR-68 form (D-543, D-1250, D-1251).
-- The count in the snapshot and the save, and the zones of the fixture overworld.
+- The step counter: each step onto a live zone adds the rate of the zone, in basis points, to the danger count. The step then draws on the encounter stream, and a draw under the count starts an encounter (D-1249, D-1261).
+- An encounter sets the count to zero. A safe zone and a visit to a place keep the count (D-1263, D-1264).
+- The zones of the overworld map: a zone grid of the size of the terrain, and a zone list. Each zone names its rate, a weighted list of groups, and a condition of the PR-68 form (D-543, D-1250, D-1251, D-1262, D-1269).
+- An encounter of a zone has no side from behind, and a win fires no battle end trigger (D-1265, D-1266).
+- The count in the snapshot and the save, at save format 20, and the four zones of the fixture overworld (D-1267).
+- The transition of an encounter with no patrol, which also fixes the encounter trap of PR-64 (D-1268).
 
 **Out of scope.**
 
@@ -2905,7 +2908,7 @@ Area file: `area-exploration.md` section 7.13.
 - The encounter stream reads no other stream, and the state hash covers the count (T-7, G-4).
 - The simulation version changes (G-17).
 
-**Questions.** None. D-1247 to D-1251 hold the answers.
+**Questions.** None. D-1247 to D-1251 and D-1261 to D-1269 hold the answers.
 
 > *In plain English:* the walk between places now has fights that the player cannot see coming, as in Final Fantasy VI. The map decides where the danger is and when the story turns it off.
 
