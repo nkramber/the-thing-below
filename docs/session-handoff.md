@@ -12,6 +12,7 @@ Session: repeat review PR #97 (PR-51). Repository: the-thing-below. Branch: `rev
 ### The state of the build
 
 - The remote head before this metadata commit is `7ca7b25106e18b8ed8234b0c66824c9e2e21d411`.
+- The first metadata commit, `41f06f11738ea9f868fe1e1564a14eb4a76153f4`, is pushed and verified as the PR head.
 - The CI build, test, format, smoke, bots, replay identity, screen-test, det-lint, night-gate, STE, and Gitar checks pass. `review-gate` fails RG 4 and RG 5 while P2-1 remains open.
 - `make build` passed. The focused frame-png tests passed, 5 of 5. `make test` returned `No test projects were found`.
 
