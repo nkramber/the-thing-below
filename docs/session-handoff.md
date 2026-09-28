@@ -12,6 +12,7 @@ Session: author of PR-17. Repository: the-thing-below. Branch: `feat/pr-17-first
 
 ### The state of the build
 
+- An agent of this session read each of the 156 frames of `make sheet`. The one new fault, the long line of the ui fixture, is fixed.
 - Local head `eb280ee` and later commits. Local checks pass: 4719 tests, format, det-lint, STE, content hash, atlas, identity, overworld, edges, and `make smoke`.
 - The remote PR branch holds nothing yet. `origin/main` is `9a567d6`.
 
@@ -28,11 +29,11 @@ Session: author of PR-17. Repository: the-thing-below. Branch: `feat/pr-17-first
 
 ### The questions that block progress
 
-None. OQ-255 and OQ-256 block no step of PR-17.
+None. OQ-255, OQ-256, and OQ-257 block no step of PR-17. OQ-257 holds the fault of the shop windows at 1x, which came before PR-17.
 
 ### The next concrete action
 
-Read each frame of `make sheet`, push, open the PR with the Documents section, the three text batches, and the map previews, then run the Gitar poll.
+Push, open the PR with the Documents section, the three text batches, and the map previews, then run the Gitar poll.
 
 ## Session 401: 2026-09-28, Codex
 
