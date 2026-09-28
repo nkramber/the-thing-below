@@ -157,7 +157,7 @@ public static class CostFight
      "label": "label.cost_fight",
      "time": "day",
      "dark": false,
-     "kind": "dungeon", "npcs": [], "services": [], "reopen": [],
+     "kind": "dungeon", "npcs": [], "services": [], "zones": [], "zone_grid": [], "reopen": [],
      "terrain": [
       "#######",
       "#.....#",

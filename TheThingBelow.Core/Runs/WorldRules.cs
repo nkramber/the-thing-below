@@ -20,8 +20,8 @@ namespace TheThingBelow.Core.Runs;
 /// or not the player moves (D-162, D-1137).
 /// <para>
 /// The tick runs in one fixed order: the harm of poison and bad air, the beat of a mark, the party,
-/// the exit, the trap, the encounter of a step into a body, the NPCs, the confirm, and then the
-/// enemies and the sight (D-168, D-1131, D-1137, D-1216, D-1226, D-1234). A wipe on the map holds the
+/// the exit, the trap, the fight of a zone, the encounter of a step into a body, the NPCs, the confirm, and then the
+/// enemies and the sight (D-168, D-1131, D-1137, D-1216, D-1226, D-1234, D-1249). A wipe on the map holds the
 /// run from the tick of the last down (D-397). An encounter
 /// starts its battle on the same tick. While the encounter runs, no map system ticks, so the
 /// patrols, the NPCs, and the grace time all stand still (D-531). A snapshot of save format 3
@@ -147,6 +147,13 @@ public static class WorldRules
             {
                 return;
             }
+        }
+
+        // A step onto a live zone of the overworld can start a fight, after the trap, so a trap fight
+        // of the same tick starts no zone fight. The overworld holds no enemy to step into (D-1247, D-1249).
+        if (step.Arrived && EncounterRules.Arrive(state, step.At, log))
+        {
+            return;
         }
 
         if (step.Bumped is ContentId bumped)

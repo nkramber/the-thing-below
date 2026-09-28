@@ -776,10 +776,11 @@ public sealed class GameRun
     /// <summary>
     /// Picks the transition of the fight that started on this tick, and starts it (D-934, D-935,
     /// D-937). The kind comes from the boss flag of the group, the side of the encounter, and the
-    /// size of its patrol.
+    /// size of its patrol. A fight with no patrol, from a story scene, a trap, or a zone, takes the
+    /// side of its source and the largest body of its group (D-998, D-1231, D-1265).
     /// </summary>
     /// <returns>The log entry of the start, with the kind and the transition.</returns>
-    /// <exception cref="InvalidOperationException">The run holds no fight or no encounter, or no patrol has the id of the encounter (T-2).</exception>
+    /// <exception cref="InvalidOperationException">The run holds no fight, the fight has no source, or no patrol has the id of the encounter (T-2).</exception>
     private LogEntry StartTransition()
     {
         RunState state = this.simulation.State;
@@ -798,10 +799,23 @@ public sealed class GameRun
             // size of a patrol is (D-788, D-937).
             kind = EncounterKinds.Of(battle.Group.Boss, EncounterSide.None, LargestOf(state.BattleContent, battle.Group));
         }
+        else if (battle.FromTrap)
+        {
+            // An encounter trap starts a fight in which the enemies act first, so it takes the kind
+            // of an ambush. No patrol takes part, so the size is the largest body of the group
+            // (D-937, D-1231, D-1268).
+            kind = EncounterKinds.Of(battle.Group.Boss, EncounterSide.Enemy, LargestOf(state.BattleContent, battle.Group));
+        }
+        else if (battle.FromZone)
+        {
+            // A zone of the overworld starts a fight with no side from behind and no patrol (D-1265,
+            // D-1266, D-1268).
+            kind = EncounterKinds.Of(battle.Group.Boss, EncounterSide.None, LargestOf(state.BattleContent, battle.Group));
+        }
         else
         {
             throw new InvalidOperationException(
-                $"The fight of the group '{battle.Group.Id.Value}' started at tick {tick}, and the map holds no encounter and no story scene waits for it (D-531, D-998, T-2).");
+                $"The fight of the group '{battle.Group.Id.Value}' started at tick {tick}, and the map holds no encounter, no story scene waits for it, and no trap or zone started it (D-531, D-998, D-1231, D-1266, T-2).");
         }
         Transition picked = this.transitions.Pick(kind, state.Party.Map.Id, state.Seed, tick, this.lastCommon);
         if (kind == EncounterKind.Common)

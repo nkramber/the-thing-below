@@ -118,6 +118,37 @@ public static class BattleTurns
         RunUntilCharacter(state, battle, log);
     }
 
+    /// <summary>
+    /// Starts the battle of a zone of the overworld, and runs each enemy turn before the first turn
+    /// of a character (D-770, D-1249). No side comes from behind, and no patrol of the map takes
+    /// part, so the battle names the zone in place of a patrol (D-1265, D-1266).
+    /// </summary>
+    /// <param name="state">The run, which holds no battle and no encounter.</param>
+    /// <param name="zone">The id of the zone that the party stepped onto.</param>
+    /// <param name="group">The enemy group that the draw of the zone picked.</param>
+    /// <param name="log">The log entries of this tick (D-179).</param>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="SimulationException">A battle or an encounter already runs (T-2).</exception>
+    public static void BeginZone(RunState state, ContentId zone, ContentId group, List<LogEntry> log)
+    {
+        ArgumentNullException.ThrowIfNull(state);
+        ArgumentNullException.ThrowIfNull(zone);
+        ArgumentNullException.ThrowIfNull(group);
+        ArgumentNullException.ThrowIfNull(log);
+
+        RunContext context = state.Context($"battle/begin/{zone.Value}");
+        if (state.Battle is not null || state.Party.Patrols.Encounter is not null)
+        {
+            throw new SimulationException("a start of the battle of a zone, and a battle or an encounter already runs (D-531, D-1249)", context);
+        }
+
+        Battle battle = Battle.Start(state.BattleContent, new MapEncounter(zone, group, EncounterSide.None), state.Characters, context);
+        state.SetBattle(battle);
+        state.AddEvent(new BattleEvent(BattleEventKind.Started, new BattleTarget(BattleSide.Enemy, 0), null, 0));
+        log.Add(Entry(state, LogLevel.Info, "a battle of a zone started", [new LogField("group", battle.Group.Id.Value), new LogField("zone", zone.Value)]));
+        RunUntilCharacter(state, battle, log);
+    }
+
     /// <summary>Resolves the choice of the character whose turn it is, then each enemy turn up to the next turn of a character (D-532).</summary>
     /// <param name="state">The run.</param>
     /// <param name="choice">The choice.</param>
@@ -343,6 +374,19 @@ public static class BattleTurns
                 LogLevel.Info,
                 "the battle of a trap ended and the map runs again",
                 [new LogField("trap", battle.Enemy.Value), new LogField("outcome", Battle.OutcomeName(battle.Outcome))]));
+            return;
+        }
+
+        if (battle.FromZone)
+        {
+            // A battle of a zone has no patrol. A win fires no battle end trigger, and no grace
+            // time follows a flee, because no enemy stays on the map (D-1266).
+            state.SetBattle(null);
+            log.Add(Entry(
+                state,
+                LogLevel.Info,
+                "the battle of a zone ended and the map runs again",
+                [new LogField("zone", battle.Enemy.Value), new LogField("outcome", Battle.OutcomeName(battle.Outcome))]));
             return;
         }
 

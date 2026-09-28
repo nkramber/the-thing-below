@@ -296,6 +296,21 @@ public sealed class BattleContent
                     $"the encounter trap names the group '{trapGroup.Value}', and '{region.File}' of the region '{map.Region.Value}' holds no such group (D-957, D-1231)");
             }
         }
+
+        // A zone fight draws no body on the map, so its groups take no size check (D-1250).
+        foreach (EncounterZone zone in map.Zones)
+        {
+            foreach (ZoneGroup entry in zone.Groups)
+            {
+                if (region.Find(entry.Group) is null)
+                {
+                    throw ContentException.ForField(
+                        map.File,
+                        $"zones.{zone.Id.Value}",
+                        $"the zone names the group '{entry.Group.Value}', and '{region.File}' of the region '{map.Region.Value}' holds no such group (D-957, D-1250)");
+                }
+            }
+        }
     }
 
     /// <summary>

@@ -55,6 +55,11 @@ public sealed class GameMap
     private readonly Npc[] npcs;
     private readonly MapService[] services;
     private readonly ContentId[] reopenFlags;
+    private readonly EncounterZone[] zones;
+
+    // The index of the zone of each tile in `zones`, in the order of the terrain, or -1 on a tile
+    // that holds no zone (D-1262). The encounter rule reads it on each step onto the overworld.
+    private readonly int[] zoneOf;
 
     // True for each tile that holds a solid thing, in the order of the terrain (D-1142). The
     // step rule reads it on each step, so it holds no walk of the things.
@@ -77,6 +82,8 @@ public sealed class GameMap
         MapService[] services,
         SceneTrigger[] triggers,
         ContentId[] reopenFlags,
+        EncounterZone[] zones,
+        int[] zoneOf,
         TilePoint spawn)
     {
         this.File = file;
@@ -95,6 +102,8 @@ public sealed class GameMap
         this.services = services;
         this.triggers = triggers;
         this.reopenFlags = reopenFlags;
+        this.zones = zones;
+        this.zoneOf = zoneOf;
         this.Spawn = spawn;
         this.solid = new bool[tiles.Length];
         foreach (MapThing thing in things)
@@ -159,6 +168,42 @@ public sealed class GameMap
     /// of them turns on, each killed enemy of the map comes back at the next entry.
     /// </summary>
     public IReadOnlyList<ContentId> ReopenFlags => this.reopenFlags;
+
+    /// <summary>Every zone of the overworld, in the order of the file. A hub and a dungeon hold none (D-1247, D-1262, G-4).</summary>
+    public IReadOnlyList<EncounterZone> Zones => this.zones;
+
+    /// <summary>Finds one zone by its id (D-1262).</summary>
+    /// <param name="id">The id of the zone.</param>
+    /// <returns>The zone, or no value when the map holds no zone of that id.</returns>
+    /// <exception cref="ArgumentNullException">The id is null (T-2).</exception>
+    public EncounterZone? ZoneOf(ContentId id)
+    {
+        ArgumentNullException.ThrowIfNull(id);
+
+        foreach (EncounterZone zone in this.zones)
+        {
+            if (string.CompareOrdinal(zone.Id.Value, id.Value) == 0)
+            {
+                return zone;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>Finds the zone of one tile (D-1262).</summary>
+    /// <param name="at">The tile, which can lie outside the map.</param>
+    /// <returns>The zone, or no value on a tile outside the map, a blocked tile, or a map that is not an overworld.</returns>
+    public EncounterZone? ZoneAt(TilePoint at)
+    {
+        if (!this.Holds(at))
+        {
+            return null;
+        }
+
+        int index = this.zoneOf[(at.Y * this.Width) + at.X];
+        return index < 0 ? null : this.zones[index];
+    }
 
     /// <summary>Finds the door on one tile (D-41).</summary>
     /// <param name="at">The tile, which can lie outside the map.</param>
@@ -386,6 +431,8 @@ public sealed class GameMap
         List<Npc>? npcs = null;
         List<MapService>? services = null;
         List<ContentId>? reopen = null;
+        List<EncounterZone>? zones = null;
+        List<string>? zoneGrid = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -436,6 +483,12 @@ public sealed class GameMap
                 case "reopen":
                     reopen = ReadReopenFlags(ref reader);
                     break;
+                case "zones":
+                    zones = EncounterZone.ReadAll(ref reader);
+                    break;
+                case "zone_grid":
+                    zoneGrid = ReadRows(ref reader);
+                    break;
                 default:
                     throw reader.UnknownField(field);
             }
@@ -456,7 +509,9 @@ public sealed class GameMap
             reader.Require(kind, depth, "kind"),
             reader.Require(npcs, depth, "npcs"),
             reader.Require(services, depth, "services"),
-            reader.Require(reopen, depth, "reopen"));
+            reader.Require(reopen, depth, "reopen"),
+            reader.Require(zones, depth, "zones"),
+            reader.Require(zoneGrid, depth, "zone_grid"));
     }
 
     private static List<ContentId> ReadReopenFlags(ref ContentReader reader)
@@ -610,7 +665,9 @@ public sealed class GameMap
         string kind,
         List<Npc> npcs,
         List<MapService> services,
-        List<ContentId> reopen)
+        List<ContentId> reopen,
+        List<EncounterZone> zones,
+        List<string> zoneGrid)
     {
         if (!TimesOfDay.TryOf(time, out TimeOfDay parsed))
         {
@@ -627,7 +684,8 @@ public sealed class GameMap
         TileKind[] tiles = ReadTerrain(ref reader, rows, out int width, out int height);
         MapThing[] things = BuildThings(ref reader, lines, tiles, width, height);
         TilePoint spawn = OneSpawn(ref reader, things);
-        var map = new GameMap(reader.File, id, region, label, parsedKind, parsed, dark, width, height, tiles, things, [.. patrols], [.. npcs], [.. services], [.. triggers], [.. reopen], spawn);
+        int[] zoneOf = ReadZoneGrid(ref reader, parsedKind, zones, zoneGrid, tiles, width);
+        var map = new GameMap(reader.File, id, region, label, parsedKind, parsed, dark, width, height, tiles, things, [.. patrols], [.. npcs], [.. services], [.. triggers], [.. reopen], [.. zones], zoneOf, spawn);
 
         // The map is complete here, so each check of a patrol reads the terrain and the
         // spawn point through the map itself and never through a second copy of them (T-1).
@@ -687,6 +745,97 @@ public sealed class GameMap
         }
 
         return tiles;
+    }
+
+    /// <summary>
+    /// Reads the zone grid of an overworld, and gives the index of the zone of each tile, or -1 on
+    /// a blocked tile (D-1262). A hub and a dungeon hold no zone and no grid, because every other
+    /// map keeps its visible enemies alone (D-1247).
+    /// </summary>
+    /// <remarks>
+    /// The grid refuses a walkable tile with no zone, because an absent zone is an error and never
+    /// a rate of zero (T-2). It also refuses a zone on a blocked tile, and a zone that holds no tile,
+    /// because each reads like a mistake.
+    /// </remarks>
+    private static int[] ReadZoneGrid(ref ContentReader reader, MapKind kind, List<EncounterZone> zones, List<string> rows, TileKind[] tiles, int width)
+    {
+        int[] zoneOf = new int[tiles.Length];
+        Array.Fill(zoneOf, -1);
+        if (kind != MapKind.Overworld)
+        {
+            if (zones.Count > 0 || rows.Count > 0)
+            {
+                throw reader.Refuse($"the map is a {MapKinds.NameOf(kind)}, and it holds {zones.Count} zones and {rows.Count} rows of the zone grid. An overworld alone holds zones, and each other map keeps its visible enemies (D-1247, D-1262)");
+            }
+
+            return zoneOf;
+        }
+
+        int height = tiles.Length / width;
+        if (rows.Count != height)
+        {
+            throw reader.Refuse($"the zone grid holds {rows.Count} rows, and the terrain holds {height}. The zone grid takes the size of the terrain (D-1262)");
+        }
+
+        int[] tilesOfZone = new int[zones.Count];
+        for (int row = 0; row < height; row += 1)
+        {
+            string line = rows[row];
+            if (line.Length != width)
+            {
+                throw reader.Refuse($"the zone grid row {row} holds {line.Length} characters, and the terrain holds {width} columns. The zone grid takes the size of the terrain (D-1262)");
+            }
+
+            for (int column = 0; column < width; column += 1)
+            {
+                TileKind ground = tiles[(row * width) + column];
+                int zone = ZoneIndexOf(zones, line[column]);
+                if (line[column] != EncounterZone.NoZone && zone < 0)
+                {
+                    throw reader.Refuse($"the zone grid holds the key '{line[column]}' at the tile ({column}, {row}), and no zone takes that key (D-1262)");
+                }
+
+                if (TileKinds.CanWalk(ground) && zone < 0)
+                {
+                    throw reader.Refuse($"the {TileKinds.NameOf(ground)} tile ({column}, {row}) holds no zone, and each walkable tile of an overworld holds one. An absent zone is an error, never a rate of zero (D-1262, T-2)");
+                }
+
+                if (!TileKinds.CanWalk(ground) && zone >= 0)
+                {
+                    throw reader.Refuse($"the {TileKinds.NameOf(ground)} tile ({column}, {row}) holds the zone '{zones[zone].Id.Value}', and a blocked tile holds '{EncounterZone.NoZone}' (D-1262)");
+                }
+
+                if (zone >= 0)
+                {
+                    zoneOf[(row * width) + column] = zone;
+                    tilesOfZone[zone] += 1;
+                }
+            }
+        }
+
+        for (int index = 0; index < zones.Count; index += 1)
+        {
+            if (tilesOfZone[index] == 0)
+            {
+                throw reader.Refuse($"the zone '{zones[index].Id.Value}' holds no tile of the zone grid, and a zone that no step reaches reads like a mistake (D-1262)");
+            }
+        }
+
+        return zoneOf;
+    }
+
+    /// <summary>Gives the index of the zone of one key, or -1 when no zone takes it (D-1262).</summary>
+    private static int ZoneIndexOf(List<EncounterZone> zones, char key)
+    {
+        for (int index = 0; index < zones.Count; index += 1)
+        {
+            if (zones[index].Key == key)
+            {
+                return index;
+            }
+        }
+
+        return -1;
     }
 
     private static MapThing[] BuildThings(

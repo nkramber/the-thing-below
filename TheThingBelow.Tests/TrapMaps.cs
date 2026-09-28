@@ -40,7 +40,7 @@ public static class TrapMaps
      "label": "label.test_room",
      "time": "day",
      "dark": false,
-     "kind": "dungeon", "npcs": [], "services": [], "reopen": [],
+     "kind": "dungeon", "npcs": [], "services": [], "zones": [], "zone_grid": [], "reopen": [],
      "terrain": [
       "#############",
       "#...........#",
@@ -66,7 +66,7 @@ public static class TrapMaps
      "label": "label.test_room",
      "time": "day",
      "dark": false,
-     "kind": "dungeon", "npcs": [], "services": [], "reopen": [],
+     "kind": "dungeon", "npcs": [], "services": [], "zones": [], "zone_grid": [], "reopen": [],
      "terrain": [
       "############",
       "#..**......#",

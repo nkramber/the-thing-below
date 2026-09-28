@@ -383,7 +383,7 @@ public sealed class ContentSet
         {
             story.RequireScenesOf(map);
             story.RequireServicesOf(map);
-            story.RequireGatesOf(map);
+            story.RequireGatesAndZonesOf(map);
             story.RequireReopenFlagsOf(map);
             RequireGateNoticesOf(map, notices ?? throw AbsentFile(NoticeList.Path));
         }

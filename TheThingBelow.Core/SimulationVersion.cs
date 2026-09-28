@@ -132,6 +132,10 @@ public static class SimulationVersion
     /// puts the party on the marker that it names (D-1243, D-1255). The lead steps onto a gate only while its
     /// condition holds, and a confirm at a closed gate posts its notice (D-1243, D-1257). The entry to the overworld
     /// asks for the autosave (D-1246).
+    /// PR-109 raised it to 38. Each arrival on a live zone of the overworld adds the rate of the zone to the danger
+    /// count and draws on the encounter stream, and a draw under the count starts a fight of a group that the weights
+    /// of the zone pick (D-1249 to D-1251, D-1261). A fight sets the count to zero, a zone at rate zero or with a failed
+    /// condition draws nothing, and the state hash holds the count (D-1263, D-1264).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number
@@ -140,5 +144,5 @@ public static class SimulationVersion
     /// hash differs from this build takes the drift rules of D-1111 and D-1112. A change of this
     /// number also changes the expected hashes of the identity file (D-504).
     /// </remarks>
-    public const int Current = 37;
+    public const int Current = 38;
 }

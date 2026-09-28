@@ -86,6 +86,8 @@
   { "id": "service.fixture_hub_rest", "kind": "rest", "npc": "npc.fixture_hub_keeper", "condition": { "always": true }, "price": 10 },
   { "id": "service.fixture_hub_shop", "kind": "shop", "npc": "npc.fixture_hub_trader", "condition": { "always": true }, "shop": "shop.fixture_hub_trader" }
  ],
+ "zones": [],
+ "zone_grid": [],
  "reopen": [],
  "triggers": [
   {

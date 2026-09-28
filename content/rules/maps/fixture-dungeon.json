@@ -106,6 +106,8 @@
  ],
  "npcs": [],
  "services": [],
+ "zones": [],
+ "zone_grid": [],
  "reopen": ["flag.fixture_hub_yes"],
  "triggers": []
 }

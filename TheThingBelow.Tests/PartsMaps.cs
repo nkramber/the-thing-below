@@ -49,7 +49,7 @@ public static class PartsMaps
      "label": "label.test_room",
      "time": "day",
      "dark": false,
-     "kind": "dungeon", "npcs": [], "services": [], "reopen": ["flag.test_victor"],
+     "kind": "dungeon", "npcs": [], "services": [], "zones": [], "zone_grid": [], "reopen": ["flag.test_victor"],
      "terrain": [
       "############",
       "#..........#",
