@@ -1,3 +1,37 @@
+## Session 401: 2026-09-28, Codex
+
+Author: Codex
+Session: review PR #99 (PR-53). Repository: the-thing-below. Branch: `review/pr-99`, tracking `origin/feat/pr-53-tile-edges`. Role: reviewer. Base: `f0db11584f575a90ac628f0d9aaa99115ac969c9`.
+
+### What this session did, and why
+
+- Reviewed effective head `eee30909a50681222d09553b82db4a1361bb827b`, the complete 62-path diff, the PR comments, the decisions, and the PR-53 exit tests.
+- Verified both Gitar items. The repeated-piece finding is fixed and confirmed by Gitar. RG 3 alone failed because the review record was absent (D-964).
+- Found no defect. All 4,583 tests passed in `make verify`. The screen-test artifact shows the overworld shore at each changed size.
+
+### The state of the build
+
+- CI on `eee30909a50681222d09553b82db4a1361bb827b` passed every check except review-gate RG 3. Required checks passed on macOS, Ubuntu, and Windows. Local `make verify` passed.
+- The remote PR head before this metadata commit is `eee30909a50681222d09553b82db4a1361bb827b`.
+
+### What is in flight
+
+- The review record and this entry form one metadata commit (D-610).
+
+### Traps and gotchas
+
+- RG 3 failed before this review record existed. The other review-gate rules passed.
+- Push with `git push origin HEAD:feat/pr-53-tile-edges`.
+- Session 391 moves to `docs/session-handoff-archive.md` to keep ten current entries.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push the metadata commit, fetch, check the branch status and PR head, then confirm that review-gate passes.
+
 ## Session 400: 2026-09-28, Claude Code
 
 Author: Claude Code
@@ -302,38 +336,3 @@ None.
 ### The next concrete action
 
 Answer each Gitar item of round 2, then run `make codex-review PR=97` in the background.
-
-## Session 391: 2026-09-28, Codex
-
-Author: Codex
-Session: review PR #97 (PR-51). Repository: the-thing-below. Branch: `review/pr-97`, tracking `origin/feat/pr-51-png-import`. Role: reviewer. Base: `e9294ec0bb29d30d0ebcdcc47fa5e251cf63cda7`.
-
-### What this session did, and why
-
-- Reviewed effective head `0cbf3ca8ca9fef24187344199707fc723ee8b2e6`, the full 23-path diff, PR comments, decisions, and PR-51 exit tests.
-- Found P2-1: `frame-png` overwrites its source drawing when `--drawing` and `--out` name the same path (D-1313, T-2).
-- Verified the author's answer to Gitar's CI claim. RG 3 alone failed because the review record was absent. The clean approval has no item (D-964).
-- `make verify` passed with 4,498 tests. Required CI checks passed except the expected `review-gate` RG 3 fault.
-
-### The state of the build
-
-- The remote head before this metadata commit is `0cbf3ca8ca9fef24187344199707fc723ee8b2e6`.
-- The review record gives `Changes required` for P2-1. The `review-gate` check failed RG 3 before the record existed.
-
-### What is in flight
-
-- The author must reject a `frame-png` output path that matches the drawing path and add a regression test.
-
-### Traps and gotchas
-
-- A same-path reproduction returned success and replaced drawing JSON with a valid PNG.
-- Push with `git push origin HEAD:feat/pr-51-png-import`.
-- Session 381 moves to `docs/session-handoff-archive.md` to keep ten current entries.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Fix P2-1, then request a repeat review of the new effective head.

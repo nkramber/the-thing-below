@@ -1,4 +1,39 @@
 # Session handoff archive
+## Session 391: 2026-09-28, Codex
+
+Author: Codex
+Session: review PR #97 (PR-51). Repository: the-thing-below. Branch: `review/pr-97`, tracking `origin/feat/pr-51-png-import`. Role: reviewer. Base: `e9294ec0bb29d30d0ebcdcc47fa5e251cf63cda7`.
+
+### What this session did, and why
+
+- Reviewed effective head `0cbf3ca8ca9fef24187344199707fc723ee8b2e6`, the full 23-path diff, PR comments, decisions, and PR-51 exit tests.
+- Found P2-1: `frame-png` overwrites its source drawing when `--drawing` and `--out` name the same path (D-1313, T-2).
+- Verified the author's answer to Gitar's CI claim. RG 3 alone failed because the review record was absent. The clean approval has no item (D-964).
+- `make verify` passed with 4,498 tests. Required CI checks passed except the expected `review-gate` RG 3 fault.
+
+### The state of the build
+
+- The remote head before this metadata commit is `0cbf3ca8ca9fef24187344199707fc723ee8b2e6`.
+- The review record gives `Changes required` for P2-1. The `review-gate` check failed RG 3 before the record existed.
+
+### What is in flight
+
+- The author must reject a `frame-png` output path that matches the drawing path and add a regression test.
+
+### Traps and gotchas
+
+- A same-path reproduction returned success and replaced drawing JSON with a valid PNG.
+- Push with `git push origin HEAD:feat/pr-51-png-import`.
+- Session 381 moves to `docs/session-handoff-archive.md` to keep ten current entries.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Fix P2-1, then request a repeat review of the new effective head.
+
 ## Session 390: 2026-09-28, Claude Code
 
 Author: Claude Code
