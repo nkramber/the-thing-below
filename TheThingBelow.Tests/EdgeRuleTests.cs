@@ -68,6 +68,20 @@ public sealed class EdgeRuleTests
         Assert.Contains(reason, error.Message, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void APieceAtTwoPlacesFailsWithTheFileAndBothPlaces()
+    {
+        // One piece at two places would give a tile the same piece two times, and the tile set
+        // of Game one tile two times, which Godot reports in the log alone (D-1321, T-2).
+        string text = EdgeFixtures.WaterRuleText.Replace("\"south\": \"edge.water_south\"", "\"south\": \"edge.water_north\"", StringComparison.Ordinal);
+
+        ContentException error = Assert.Throws<ContentException>(() => EdgeFixtures.Rule(text));
+
+        Assert.Equal(EdgeFixtures.WaterRulePath, error.File);
+        Assert.Equal("pieces.south", error.Field);
+        Assert.Contains("'edge.water_north' is also the piece of the place 'north'", error.Message, StringComparison.Ordinal);
+    }
+
     [Theory]
     [InlineData(" \"comment\": \"a test edge rule\",\n")]
     [InlineData(" \"joins\": [\"bridge\"],\n")]

@@ -105,6 +105,24 @@ public sealed class EdgeContentTests
     }
 
     [Fact]
+    public void APieceOfTwoRulesFailsWithBothRules()
+    {
+        // The tile set of Game holds each piece one time, so two rules never share one (D-1321, T-2).
+        List<ContentFile> files =
+        [
+            EdgeFixtures.Of(EdgeFixtures.WaterRulePath, EdgeFixtures.WaterRuleText),
+            EdgeFixtures.Of(EdgeFixtures.GorgeRulePath, EdgeFixtures.GorgeRuleText.Replace("\"north\": \"edge.gorge_north\"", "\"north\": \"edge.water_north\"", StringComparison.Ordinal)),
+            EdgeFixtures.Of(EdgeFixtures.EdgePath, EdgeFixtures.FileText(string.Empty)),
+        ];
+
+        ContentException error = Assert.Throws<ContentException>(() => EdgeContent.Load(files, Maps(), EdgeFixtures.Atlas(EdgeFixtures.AtlasText())));
+
+        Assert.Equal(EdgeFixtures.GorgeRulePath, error.File);
+        Assert.Equal("pieces.north", error.Field);
+        Assert.Contains($"a piece of the rule '{EdgeFixtures.WaterRulePath}'", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void APieceOffTheTilePageFailsWithTheRuleAndThePage()
     {
         // Game draws each piece on a layer of tiles, so a piece on another page draws nothing (D-667).

@@ -1,3 +1,36 @@
+## Session 400: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-53, round 2. Repository: the-thing-below. Branch: `feat/pr-53-tile-edges`. PR: #99. Role: author. Base: `f0db115`.
+
+### What this session did, and why
+
+- Read the Gitar pass of `7c9a40a`: approved with one finding and one CI claim.
+- The finding had merit. A piece at two places of one rule, or a piece of two rules, loaded and then failed each load of the edge file, and Godot made one tile two times with a log line alone. `EdgeRule.Read` and `EdgeContent.Load` now refuse both, with the file and both places or both rules.
+- Two tests fail on the old code and pass on the fix: `EdgeRuleTests.APieceAtTwoPlacesFailsWithTheFileAndBothPlaces` and `EdgeContentTests.APieceOfTwoRulesFailsWithBothRules`.
+- The CI claim: RG 3 alone failed, because the review record does not exist before the review.
+- Took the three `overworld` baselines from the screen-test artifact of run 36464212466 (D-733). The author read each frame: the lake shows its shore. No other capture changed.
+
+### The state of the build
+
+- Each CI job of `7c9a40a` passed on every leg but the screen-test, which failed on the three `overworld` frames alone, and the review-gate (RG 3).
+
+### What is in flight
+
+- The push of round 2, the Gitar pass, then `make codex-review PR=99`.
+
+### Traps and gotchas
+
+- The rules load in the order of their kind, so a piece of two rules fails on the rule of the later kind.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Reply on the Gitar thread with the commit, run the Gitar poll, then run `make codex-review PR=99` when every check of the head is green but the review-gate.
+
 ## Session 399: 2026-09-28, Claude Code
 
 Author: Claude Code
@@ -304,39 +337,3 @@ None.
 ### The next concrete action
 
 Fix P2-1, then request a repeat review of the new effective head.
-
-## Session 390: 2026-09-28, Claude Code
-
-Author: Claude Code
-Session: author PR-51, round 1. Repository: the-thing-below. Branch: `feat/pr-51-png-import`. PR: opened by this round. Role: author. Base: `e9294ec`.
-
-### What this session did, and why
-
-- Asked the owner seven questions that the roadmap and D-686 to D-689 left open, then recorded D-1310 to D-1316.
-- D-1310 revises D-689 in part: the target drawing file sets the frame. A scan of the 84 spike pictures at `e3c50b4` found 26 of 42 map sprites above 32 pixels.
-- Built the `import` command, with the hand-edit mode and the generator mode, and the `frame-png` command (D-688, D-1313).
-- Each import replaces the rows of one frame alone, and a read back through the reader of Core guards the write (D-1311, T-2).
-- Added 40 tests, one for each exit test of section 7.52 and more. Added `docs/runbooks/art-import.md` and three glossary terms.
-
-### The state of the build
-
-- The remote head of `main` is `e9294ec`. This round pushes the branch and opens the PR.
-- `make verify` ran on the Mac before the push. The PR description records the result.
-
-### What is in flight
-
-- The Gitar pass of round 1, then `make codex-review`.
-
-### Traps and gotchas
-
-- The word export names a build of the Game (D-481), so the command of D-1313 is `frame-png`.
-- The generator mode centers the content (D-1312). A character of less than the full height stands above the bottom row, unlike the current Marrek drawings.
-- The fixture drawing files hold each frame on one line. A write puts one row on each line, and a file of the repository keeps each byte.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Answer each Gitar item of round 1, then run `make codex-review PR=<n>` in the background.

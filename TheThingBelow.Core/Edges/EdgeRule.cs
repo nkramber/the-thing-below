@@ -194,6 +194,20 @@ public sealed class EdgeRule
             }
         }
 
+        // One piece at two places would give a tile the same piece two times, and the tile set
+        // one tile two times (D-1321, T-2).
+        var seen = new SortedDictionary<string, EdgePlace>(StringComparer.Ordinal);
+        foreach (EdgePlace place in EdgePlaces.All)
+        {
+            if (!seen.TryAdd(pieces[place].Value, place))
+            {
+                throw reader.RefuseField(
+                    depth,
+                    EdgePlaces.NameOf(place),
+                    $"'{pieces[place].Value}' is also the piece of the place '{EdgePlaces.NameOf(seen[pieces[place].Value])}', and each place of a rule has its own piece (D-1321)");
+            }
+        }
+
         return pieces;
     }
 

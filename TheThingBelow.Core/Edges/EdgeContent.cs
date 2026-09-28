@@ -106,12 +106,20 @@ public sealed class EdgeContent
     private void RefuseAbsentDrawing(AtlasIndex atlas)
     {
         string tilePage = AtlasPages.NameOf(AtlasPageKind.Tiles);
+        var owners = new SortedDictionary<string, string>(StringComparer.Ordinal);
         foreach (EdgeRule rule in this.rules.Values)
         {
             foreach (EdgePlace place in EdgePlaces.All)
             {
                 ContentId piece = rule.PieceOf(place);
                 string field = $"pieces.{EdgePlaces.NameOf(place)}";
+
+                // A piece of two rules would give the tile set of Game one tile two times, and an
+                // edge file could not tell the two kinds apart (D-1321, T-2).
+                if (!owners.TryAdd(piece.Value, rule.File))
+                {
+                    throw ContentException.ForField(rule.File, field, $"'{piece.Value}' is also a piece of the rule '{owners[piece.Value]}', and each rule has its own pieces (D-1321)");
+                }
 
                 // Game draws each piece on a layer of tiles over the ground, so each piece is a tile (D-667).
                 if (!atlas.Draws(piece, TileIds.MapUse))
