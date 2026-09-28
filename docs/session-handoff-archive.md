@@ -1,4 +1,37 @@
 # Session handoff archive
+## Session 392: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-51, round 2. Repository: the-thing-below. Branch: `feat/pr-51-png-import`. PR: #97. Role: author. Base: `e9294ec`.
+
+### What this session did, and why
+
+- Gitar approved `0cbf3ca` with no thread. Its CI analysis named the RG 3 fault, which waited for the review record, and a PR comment answered it (D-964).
+- Every other CI check passed on the three legs. `make codex-review PR=97` gave `Changes required` with P2-1: `frame-png` could write its PNG over the drawing file.
+- P2-1 has full merit. The command now refuses an output path of the drawing file, and a regression test failed on `0cbf3ca` before the correction.
+- `docs/reviews/pr-97-response.md` records the answer, and the runbook adds the message to its table of errors.
+
+### The state of the build
+
+- The remote head before this round is `7e49b7f`, the review record on `0cbf3ca`. `make verify` passed on the Mac before the push.
+
+### What is in flight
+
+- The Gitar pass of round 2, then a repeat `make codex-review PR=97`.
+
+### Traps and gotchas
+
+- The path compare ignores case, because the disk of the Mac ignores it.
+- The Documents line of `docs/reviews/` now names the record and the response file.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Answer each Gitar item of round 2, then run `make codex-review PR=97` in the background.
+
 ## Session 391: 2026-09-28, Codex
 
 Author: Codex

@@ -1,3 +1,39 @@
+## Session 402: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author of PR-17. Repository: the-thing-below. Branch: `feat/pr-17-first-playable-content`. Role: author. Base: `9a567d6`.
+
+### What this session did, and why
+
+- Asked the owner every question of PR-17. D-1328 to D-1361 hold the answers. PR-17 split: the places as rule content and text with stand-in drawings, then PR-112 to PR-115 for the art and the effects (D-1328, D-1329).
+- OQ-249 now blocks PR-23, because no character of the first playable waits in reserve (D-1330). OQ-245 is resolved as the cover (D-1352). New questions: OQ-255 and OQ-256.
+- Built six Core changes by owner choice: the pay step (D-1335), a gate on every map (D-1347), the time of a map set by a flag with save format 21 and record format 6 (D-1349), the kit of a newcomer (D-1350), the cover (D-1352), and the cap of 9,999 (D-1357). Also the battle line of two lines that scrolls in a box of one line (D-1356, D-1359), the capital of a common name (D-1358), and the wait fix of D-1360.
+- Wrote the content: Ostby, Ostby Pasture, Gruvhald, and the Hanging Cells on two floors, the enemies, the cast kits, the lessons, the gear, the items, the shop, the inn, the scenes, and the night after the end. The owner approved three text batches (D-1354, D-1355, D-1361).
+
+### The state of the build
+
+- Local head `eb280ee` and later commits. Local checks pass: 4719 tests, format, det-lint, STE, content hash, atlas, identity, overworld, edges, and `make smoke`.
+- The remote PR branch holds nothing yet. `origin/main` is `9a567d6`.
+
+### What is in flight
+
+- The first push, the PR, the map previews, and the Gitar pass. The screen baselines change with the battle line and the new start, and the CI artifact gives the new baselines.
+
+### Traps and gotchas
+
+- The first run starts in `map.village` now. `GameRun.StartFixture` keeps the fixture dungeon and the fixture kit for the smoke session and the screen fixtures.
+- An exit to a map that is not the overworld arrives on the spawn point of that map. The town spawn sits by the chapel stair.
+- The whole-run test needs 34 clean runs of 40, and it gets 34. A weaker party can tip it.
+- The generator of the overworld rewrites the terrain, the zone grid, and the places of its things alone. The pasture entrance and the arrival markers are hand-written.
+
+### The questions that block progress
+
+None. OQ-255 and OQ-256 block no step of PR-17.
+
+### The next concrete action
+
+Read each frame of `make sheet`, push, open the PR with the Documents section, the three text batches, and the map previews, then run the Gitar poll.
+
 ## Session 401: 2026-09-28, Codex
 
 Author: Codex
@@ -304,35 +340,3 @@ None.
 
 Correct P2-1 for file aliases, then request a repeat review of the new effective head.
 
-## Session 392: 2026-09-28, Claude Code
-
-Author: Claude Code
-Session: author PR-51, round 2. Repository: the-thing-below. Branch: `feat/pr-51-png-import`. PR: #97. Role: author. Base: `e9294ec`.
-
-### What this session did, and why
-
-- Gitar approved `0cbf3ca` with no thread. Its CI analysis named the RG 3 fault, which waited for the review record, and a PR comment answered it (D-964).
-- Every other CI check passed on the three legs. `make codex-review PR=97` gave `Changes required` with P2-1: `frame-png` could write its PNG over the drawing file.
-- P2-1 has full merit. The command now refuses an output path of the drawing file, and a regression test failed on `0cbf3ca` before the correction.
-- `docs/reviews/pr-97-response.md` records the answer, and the runbook adds the message to its table of errors.
-
-### The state of the build
-
-- The remote head before this round is `7e49b7f`, the review record on `0cbf3ca`. `make verify` passed on the Mac before the push.
-
-### What is in flight
-
-- The Gitar pass of round 2, then a repeat `make codex-review PR=97`.
-
-### Traps and gotchas
-
-- The path compare ignores case, because the disk of the Mac ignores it.
-- The Documents line of `docs/reviews/` now names the record and the response file.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Answer each Gitar item of round 2, then run `make codex-review PR=97` in the background.
