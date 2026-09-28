@@ -110,6 +110,33 @@ public sealed class FramePngCommandTests : IDisposable
         Assert.Equal([1, 2, 3], File.ReadAllBytes(png));
     }
 
+    /// <summary>A failed write removes the part that it wrote, so the next run can use the path (T-2).</summary>
+    [Fact]
+    public void AFailedWriteRemovesThePartThatItWrote()
+    {
+        string png = Path.Combine(this.checkout.Root, "frame.png");
+
+        ImportException fault = Assert.Throws<ImportException>(() => FramePngCommand.WriteNewFile(png, stream =>
+        {
+            stream.Write([1, 2, 3]);
+            throw new IOException("the disk is full");
+        }));
+
+        Assert.Equal(png, fault.File);
+        Assert.Contains("removed the part that it wrote. the disk is full", fault.Message);
+        Assert.False(File.Exists(png));
+    }
+
+    [Fact]
+    public void AWriteMakesTheNewFile()
+    {
+        string png = Path.Combine(this.checkout.Root, "frame.png");
+
+        FramePngCommand.WriteNewFile(png, stream => stream.Write([4, 5, 6]));
+
+        Assert.Equal([4, 5, 6], File.ReadAllBytes(png));
+    }
+
     [Fact]
     public void AnAbsentOptionFailsWithTheUsage()
     {

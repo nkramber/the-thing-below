@@ -1,3 +1,36 @@
+## Session 395: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-51, round 4. Repository: the-thing-below. Branch: `feat/pr-51-png-import`. PR: #97. Role: author. Base: `e9294ec`.
+
+### What this session did, and why
+
+- Gitar gave round 3 at `3aec94f` one item: a failed write of `frame-png` left a part of the PNG, and the next run refused the path. The item has full merit.
+- `FramePngCommand.WriteNewFile` now removes the file that it made when the write fails. A failed removal gives a message that names the part (T-2).
+- The fault prefix of `frame-png` is now `stopped`, because a failed removal leaves a part and "wrote nothing" is then false.
+- Two tests cover the helper. The Gitar fix removed the file on an `IOException` alone. This fix covers a denied access and a failed removal too (D-1072).
+- The CI analysis named RG 4 and RG 5 again. They wait for the repeat review, and the comment of round 2 answers them.
+
+### The state of the build
+
+- The remote head before this round is `3aec94f`. `make verify` passed on the Mac before the push.
+
+### What is in flight
+
+- The Gitar pass of round 4, then a repeat `make codex-review PR=97`. The review of P2-1 is in its third round, so a third open round gives the three-strike stop (D-929).
+
+### Traps and gotchas
+
+- No test makes the removal fail, because no portable way exists. The message path is plain code with no branch.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Reply on the Gitar thread with the commit, then run `make codex-review PR=97` in the background after CI.
+
 ## Session 394: 2026-09-28, Claude Code
 
 Author: Claude Code
@@ -300,34 +333,3 @@ None.
 ### The next concrete action
 
 Push, open the PR, run the Gitar poll, then `make codex-review`.
-
-## Session 385: 2026-09-28, Codex
-
-Author: Codex
-Session: repeat review PR #95 (PR-110). Repository: the-thing-below. Branch: `review/pr-95`, tracking `origin/feat/pr-110-region-one-overworld`. Role: reviewer. Base: `5e6fb493c0d92db79409109941b47078179ca544`.
-
-### What this session did, and why
-
-- Re-reviewed effective head `0d1b34b3ca7db19302ab3e4f5638185cb997d88e`. Verified D-1303's finding-round fix and its regression tests.
-- Confirmed P2-1 stays fixed. Updated `docs/reviews/pr-95.md` to approve the new head and answer the Gitar CI-analysis item about RG 5 (D-964).
-- Ran `make verify`: 4,442 tests passed with no failures or skips. CI implementation checks passed on all legs.
-
-### The state of the build
-
-- The remote effective head is `0d1b34b3ca7db19302ab3e4f5638185cb997d88e`. The local review commit `2a8c6fc4` passed review-gate, Gitar, night-gate, STE, and each implementation check.
-
-### What is in flight
-
-- The metadata commit `2a8c6fc4` is on the PR branch. The fresh Gitar dashboard approves the effective head and has no review item.
-
-### Traps and gotchas
-
-- The new head changes Tools, so the review must name it. The metadata commit leaves the effective head unchanged (D-610).
-
-### The questions that block progress
-
-None for PR-110.
-
-### The next concrete action
-
-Verify the final metadata push, then end this review session for PR #95.

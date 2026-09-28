@@ -1,4 +1,35 @@
 # Session handoff archive
+## Session 385: 2026-09-28, Codex
+
+Author: Codex
+Session: repeat review PR #95 (PR-110). Repository: the-thing-below. Branch: `review/pr-95`, tracking `origin/feat/pr-110-region-one-overworld`. Role: reviewer. Base: `5e6fb493c0d92db79409109941b47078179ca544`.
+
+### What this session did, and why
+
+- Re-reviewed effective head `0d1b34b3ca7db19302ab3e4f5638185cb997d88e`. Verified D-1303's finding-round fix and its regression tests.
+- Confirmed P2-1 stays fixed. Updated `docs/reviews/pr-95.md` to approve the new head and answer the Gitar CI-analysis item about RG 5 (D-964).
+- Ran `make verify`: 4,442 tests passed with no failures or skips. CI implementation checks passed on all legs.
+
+### The state of the build
+
+- The remote effective head is `0d1b34b3ca7db19302ab3e4f5638185cb997d88e`. The local review commit `2a8c6fc4` passed review-gate, Gitar, night-gate, STE, and each implementation check.
+
+### What is in flight
+
+- The metadata commit `2a8c6fc4` is on the PR branch. The fresh Gitar dashboard approves the effective head and has no review item.
+
+### Traps and gotchas
+
+- The new head changes Tools, so the review must name it. The metadata commit leaves the effective head unchanged (D-610).
+
+### The questions that block progress
+
+None for PR-110.
+
+### The next concrete action
+
+Verify the final metadata push, then end this review session for PR #95.
+
 ## Session 384: 2026-09-28, Claude Code
 
 Author: Claude Code

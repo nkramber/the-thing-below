@@ -73,7 +73,8 @@ public static class FramePngCommand
             Palette palette = FrameTarget.ReadPalette(root);
             var canvas = new AtlasCanvas(target.Drawing.Width, target.Drawing.Height);
             canvas.Draw(target.Drawing, frame, palette, 0, 0, 1);
-            WriteNewFile(png, PngWriter.Write(canvas.ToImage()));
+            byte[] bytes = PngWriter.Write(canvas.ToImage());
+            WriteNewFile(png, stream => stream.Write(bytes));
             output.WriteLine(
                 $"{Name}: wrote frame {frame} of {drawing} to {png}, {target.Drawing.Width} by {target.Drawing.Height} pixels. Save an edit as RGB or RGBA (D-176).");
             return 0;
@@ -82,24 +83,64 @@ public static class FramePngCommand
             fault is IOException or UnauthorizedAccessException or ContentException
                 or PngException or ImportException or InvalidOperationException)
         {
-            errors.WriteLine($"Error: {Name} wrote nothing: {fault.Message}");
+            errors.WriteLine($"Error: {Name} stopped: {fault.Message}");
             return Program.FaultExitCode;
         }
     }
 
-    // The command never writes over a file. A path, a symbolic link, or a hard link can each
-    // name the drawing file, and no compare of paths finds every alias. The mode CreateNew
-    // makes the system refuse any name that exists, so a write never reaches a drawing (T-2).
-    private static void WriteNewFile(string png, byte[] bytes)
+    /// <summary>
+    /// Writes a new file, and never writes over a file. A path, a symbolic link, or a hard
+    /// link can each name a drawing file, and no compare of paths finds every alias. The mode
+    /// CreateNew makes the system refuse any name that exists, so a write never reaches a
+    /// drawing (T-2).
+    /// </summary>
+    /// <param name="path">The path of the new file.</param>
+    /// <param name="write">The action that writes the bytes into the stream of the new file.</param>
+    /// <exception cref="ImportException">
+    /// The path names a file or a link, or the write failed. After a failed write the file
+    /// that this call made is gone, or the message names it (T-2).
+    /// </exception>
+    public static void WriteNewFile(string path, Action<Stream> write)
     {
-        if (File.Exists(png) || new FileInfo(png).LinkTarget is not null)
+        ArgumentException.ThrowIfNullOrEmpty(path);
+        ArgumentNullException.ThrowIfNull(write);
+
+        if (File.Exists(path) || new FileInfo(path).LinkTarget is not null)
         {
             throw ImportException.For(
-                png,
+                path,
                 $"the output already exists, and {Name} never writes over a file. Remove it, or name another {OutOption} file");
         }
 
-        using var stream = new FileStream(png, FileMode.CreateNew, FileAccess.Write);
-        stream.Write(bytes);
+        var stream = new FileStream(path, FileMode.CreateNew, FileAccess.Write);
+        try
+        {
+            using (stream)
+            {
+                write(stream);
+            }
+        }
+        catch (Exception fault) when (fault is IOException or UnauthorizedAccessException)
+        {
+            RemovePart(path, fault);
+            throw ImportException.For(path, $"the write failed, and the command removed the part that it wrote. {fault.Message}");
+        }
+    }
+
+    // This call made the file, so its removal takes nothing that was there before. A removal
+    // that fails leaves a part, and the message names it so the next run does not refuse the
+    // path with no reason (T-2).
+    private static void RemovePart(string path, Exception writeFault)
+    {
+        try
+        {
+            File.Delete(path);
+        }
+        catch (Exception removeFault) when (removeFault is IOException or UnauthorizedAccessException)
+        {
+            throw ImportException.For(
+                path,
+                $"the write failed, and a part of the file stays because its removal failed too. Remove it by hand. The write: {writeFault.Message} The removal: {removeFault.Message}");
+        }
     }
 }
