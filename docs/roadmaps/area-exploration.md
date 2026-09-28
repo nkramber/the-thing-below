@@ -114,7 +114,7 @@ Built by PR-7. Phase file: `phase-2-first-playable.md`.
 - D-566 resolved OQ-116, because no fog exists to remember.
 - The time of day of the map sets the sight range, the routes, and the enemies, and the story sets the time (D-193, D-442).
 - The wrong things keep no time rule, and the story places each one (D-446).
-- A story flag can change the time of day while the party stands on the map. The light and the music then change on the spot (D-428, D-442).
+- A story flag can change the time of day of a map. The new time takes effect at the next entry of the party, and it holds until the story changes it again (D-442, D-1349).
 - The light of the screen never reaches a rule of sight (G-1, `area-effects.md` section 7.1).
 
 > *In plain English:* the ground of a place is always on screen, and the party sees only the things near it. At night it sees less, so a guard comes out of the dark. A guard sees the quarter that it faces, and the party can pass behind it. The game remembers each square that the party walked.
