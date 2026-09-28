@@ -1,4 +1,37 @@
 # Session handoff archive
+## Session 383: 2026-09-28, Codex
+
+Author: Codex
+Session: repeat review PR #95 (PR-110). Repository: the-thing-below. Branch: `review/pr-95`, tracking `origin/feat/pr-110-region-one-overworld`. Role: reviewer. Base: `5e6fb493c0d92db79409109941b47078179ca544`.
+
+### What this session did, and why
+
+- Re-reviewed effective head `1d6612758d84c020615d561b2f785389a901a945`. The new PR description attaches six art sheets for all 23 drawings, which closes P2-1 (D-514).
+- Updated `docs/reviews/pr-95.md` and retained the earlier verdict and finding history.
+- Read each drawing sheet. The art review evidence meets D-514, D-668, and G-25.
+
+### The state of the build
+
+- All implementation checks pass on metadata tip `67526933d7ccac94070b0962ae1fd8da5d2f2d9c`. The prior review-gate run failed RG 4 because the record still said `Changes required`.
+- The remote head before this commit is `67526933d7ccac94070b0962ae1fd8da5d2f2d9c`.
+
+### What is in flight
+
+- Publish this review record and handoff as one metadata commit. The fresh review-gate result must read this verdict.
+
+### Traps and gotchas
+
+- The review branch is `review/pr-95`. Push with `git push origin HEAD:feat/pr-110-region-one-overworld`.
+- The metadata commits leave the effective head at `1d6612758d84c020615d561b2f785389a901a945` (D-610).
+
+### The questions that block progress
+
+None for PR-110.
+
+### The next concrete action
+
+Push the metadata commit, fetch, and verify the PR head and review-gate result.
+
 ## Session 382: 2026-09-28, Claude Code
 
 Author: Claude Code

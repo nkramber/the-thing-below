@@ -1,3 +1,37 @@
+## Session 393: 2026-09-28, Codex
+
+Author: Codex
+Session: repeat review PR #97 (PR-51). Repository: the-thing-below. Branch: `review/pr-97`, tracking `origin/feat/pr-51-png-import`. Role: reviewer. Base: `e9294ec0bb29d30d0ebcdcc47fa5e251cf63cda7`.
+
+### What this session did, and why
+
+- Re-reviewed effective head `7ca7b25106e18b8ed8234b0c66824c9e2e21d411` and the full 25-path diff.
+- Checked the fix for P2-1. A symlink output still truncates the drawing file, so P2-1 remains open (T-2, D-1313).
+- Read the current Gitar CI claim and reply. The job log confirms RG 4 and RG 5 wait for this repeat review (D-964).
+
+### The state of the build
+
+- The remote head before this metadata commit is `7ca7b25106e18b8ed8234b0c66824c9e2e21d411`.
+- The CI build, test, format, smoke, bots, replay identity, screen-test, det-lint, night-gate, STE, and Gitar checks pass. `review-gate` fails RG 4 and RG 5 while P2-1 remains open.
+- `make build` passed. The focused frame-png tests passed, 5 of 5. `make test` returned `No test projects were found`.
+
+### What is in flight
+
+- The author must prevent output aliases, including symlinks, from overwriting the drawing and add regression tests.
+
+### Traps and gotchas
+
+- `Path.GetFullPath` does not resolve a symlink. The `frame-png` writer follows it and replaces the drawing bytes.
+- Push with `git push origin HEAD:feat/pr-51-png-import`.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Correct P2-1 for file aliases, then request a repeat review of the new effective head.
+
 ## Session 392: 2026-09-28, Claude Code
 
 Author: Claude Code
@@ -295,36 +329,3 @@ None.
 ### The next concrete action
 
 Run the Gitar poll, wait for CI, then run `make codex-review PR=95` in the background.
-
-## Session 383: 2026-09-28, Codex
-
-Author: Codex
-Session: repeat review PR #95 (PR-110). Repository: the-thing-below. Branch: `review/pr-95`, tracking `origin/feat/pr-110-region-one-overworld`. Role: reviewer. Base: `5e6fb493c0d92db79409109941b47078179ca544`.
-
-### What this session did, and why
-
-- Re-reviewed effective head `1d6612758d84c020615d561b2f785389a901a945`. The new PR description attaches six art sheets for all 23 drawings, which closes P2-1 (D-514).
-- Updated `docs/reviews/pr-95.md` and retained the earlier verdict and finding history.
-- Read each drawing sheet. The art review evidence meets D-514, D-668, and G-25.
-
-### The state of the build
-
-- All implementation checks pass on metadata tip `67526933d7ccac94070b0962ae1fd8da5d2f2d9c`. The prior review-gate run failed RG 4 because the record still said `Changes required`.
-- The remote head before this commit is `67526933d7ccac94070b0962ae1fd8da5d2f2d9c`.
-
-### What is in flight
-
-- Publish this review record and handoff as one metadata commit. The fresh review-gate result must read this verdict.
-
-### Traps and gotchas
-
-- The review branch is `review/pr-95`. Push with `git push origin HEAD:feat/pr-110-region-one-overworld`.
-- The metadata commits leave the effective head at `1d6612758d84c020615d561b2f785389a901a945` (D-610).
-
-### The questions that block progress
-
-None for PR-110.
-
-### The next concrete action
-
-Push the metadata commit, fetch, and verify the PR head and review-gate result.
