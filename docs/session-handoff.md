@@ -1,3 +1,38 @@
+## Session 391: 2026-09-28, Codex
+
+Author: Codex
+Session: review PR #97 (PR-51). Repository: the-thing-below. Branch: `review/pr-97`, tracking `origin/feat/pr-51-png-import`. Role: reviewer. Base: `e9294ec0bb29d30d0ebcdcc47fa5e251cf63cda7`.
+
+### What this session did, and why
+
+- Reviewed effective head `0cbf3ca8ca9fef24187344199707fc723ee8b2e6`, the full 23-path diff, PR comments, decisions, and PR-51 exit tests.
+- Found P2-1: `frame-png` overwrites its source drawing when `--drawing` and `--out` name the same path (D-1313, T-2).
+- Verified the author's answer to Gitar's CI claim. RG 3 alone failed because the review record was absent. The clean approval has no item (D-964).
+- `make verify` passed with 4,498 tests. Required CI checks passed except the expected `review-gate` RG 3 fault.
+
+### The state of the build
+
+- The remote head before this metadata commit is `0cbf3ca8ca9fef24187344199707fc723ee8b2e6`.
+- The review record gives `Changes required` for P2-1. The `review-gate` check failed RG 3 before the record existed.
+
+### What is in flight
+
+- The author must reject a `frame-png` output path that matches the drawing path and add a regression test.
+
+### Traps and gotchas
+
+- A same-path reproduction returned success and replaced drawing JSON with a valid PNG.
+- Push with `git push origin HEAD:feat/pr-51-png-import`.
+- Session 381 moves to `docs/session-handoff-archive.md` to keep ten current entries.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Fix P2-1, then request a repeat review of the new effective head.
+
 ## Session 390: 2026-09-28, Claude Code
 
 Author: Claude Code
@@ -290,36 +325,3 @@ None.
 ### The next concrete action
 
 Run the Gitar poll, then run `make codex-review PR=95` in the background.
-
-## Session 381: 2026-09-28, Codex
-
-Author: Codex
-Session: review PR #95 (PR-110). Repository: the-thing-below. Branch: `review/pr-95`, tracking `origin/feat/pr-110-region-one-overworld`. Role: reviewer. Base: `5e6fb493c0d92db79409109941b47078179ca544`.
-
-### What this session did, and why
-
-- Reviewed effective head `1d6612758d84c020615d561b2f785389a901a945` against the region-one overworld scope and contracts.
-- Read every changed path, the PR comments, and the required screen-test artifact. The review found P2-1: the PR description lacks the required art review sheets for 23 drawings.
-- Recorded `Changes required` in `docs/reviews/pr-95.md`. Gitar's CI-analysis claim about RG 3 matches the job log and has the author's answer (D-964).
-
-### The state of the build
-
-- Local `make verify` passed with 4,438 tests and no skips. The implementation checks pass in CI on the effective head.
-- The remote head before this metadata commit is `1d6612758d84c020615d561b2f785389a901a945`. `review-gate` failed RG 3 before the record existed, and this record leaves RG 4 red until P2-1 closes.
-
-### What is in flight
-
-- The author must attach the required art review sheets and request a repeat review (D-582).
-
-### Traps and gotchas
-
-- The review branch is `review/pr-95`. Push with `git push origin HEAD:feat/pr-110-region-one-overworld`.
-- The current review record applies to effective head `1d6612758d84c020615d561b2f785389a901a945`.
-
-### The questions that block progress
-
-None for PR-110.
-
-### The next concrete action
-
-Attach the review sheets for the 23 drawings to the PR description, list each drawing and the commit shown, then request a repeat review.
