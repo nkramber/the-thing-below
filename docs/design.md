@@ -172,6 +172,8 @@ The shop window takes a count, and it shows the change of each fighter for a pie
 
 2026-09-27 overworld encounter pass: each step onto a live zone adds the rate of the zone to the danger count of the run (D-1261, D-1264). The step then draws on the encounter stream (D-1249). A zone grid marks each walkable tile of the overworld, and each zone holds a required condition (D-1262, D-1269). An encounter of a zone has no side from behind, and a win fires no battle end trigger (D-1265, D-1266). The transition of an encounter with no patrol names its source, which fixes the encounter trap of PR-64 (D-1268).
 
+2026-09-27 region one pass: the one overworld of the game holds region one at 160 tiles by 128 (D-1274, D-1297). A generator in Tools writes the land from a settings file, and a test proves that the map matches it (D-1294 to D-1296). A place with no map yet is a mark, and each zone names its region (D-1271, D-1285, D-1289). PR-111 adds the treasure of the overworld (D-1298).
+
 External facts, each with the date of its check:
 
 - The GitHub repository `nkramber/the-thing-below` is public. Its name changed from the working title on 2026-09-14 (D-410). Source: `gh repo view`, run 2026-09-14.
@@ -664,7 +666,7 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 49. PR-15 requires the bot check on `main` (D-1186). After its merge, the PR-49 session requires `night-gate` after the first night passes (D-1192).
 50. PR-16: the treasure, the doors, the keys, and the save points (D-41, D-555).
 51. PR-64: the traps, the hazards, and the statuses that last on the map (D-390, D-529).
-52. PR-35: the overworld, its entrances, its gates, and its autosave (D-1242 to D-1246). PR-109, the encounters of the overworld, comes next, then PR-110, the overworld of region one (D-1247 to D-1251, D-1254).
+52. PR-35: the overworld, its entrances, its gates, and its autosave (D-1242 to D-1246). PR-109, the encounters of the overworld, comes next, then PR-110, the overworld of region one, and PR-111, its treasure (D-1247 to D-1251, D-1254, D-1298).
 53. PR-51: the PNG import for a hand edit (D-107, D-497).
 54. PR-52: the map preview as a PNG (D-165, D-497).
 55. PR-53: the tile-edge tool and the edge files (D-204, D-501).
@@ -776,7 +778,7 @@ Section 7 gives the same order inside each phase, with a link to each phase file
 20. PR-36.
 21. PR-15, PR-49, PR-108, PR-107. After the merge of PR-49, a night runs on `main`, then `night-gate` joins the protection of `main` (D-1192).
 22. PR-15 adds the `bots` check to the protection of `main` (D-1186). The PR-49 session adds `night-gate` after the first night passes (D-1192).
-23. PR-16, PR-64, PR-35, PR-109, PR-110 (D-1254).
+23. PR-16, PR-64, PR-35, PR-109, PR-110, PR-111 (D-1254, D-1298).
 24. PR-51, PR-52, PR-53.
 25. PR-17.
 26. PR-38, PR-69, PR-70, PR-71, PR-72 (D-1079).

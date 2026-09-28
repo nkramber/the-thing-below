@@ -49,7 +49,7 @@ public static class OverworldMaps
           { "id": "gate.test_overworld_pass", "kind": "gate", "x": 6, "y": 2, "condition": { "flag": "flag.fixture_hub_rats" }, "notice": "notice.fixture_gate_shut" }
          ],
          "zones": [
-          { "id": "zone.test_overworld_road", "key": "r", "rate": 0, "groups": [], "condition": { "always": true } }
+          { "id": "zone.test_overworld_road", "key": "r", "region": "region.test", "rate": 0, "groups": [], "condition": { "always": true } }
          ],
          "zone_grid": [
           ".........",

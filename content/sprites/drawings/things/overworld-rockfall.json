@@ -1,0 +1,48 @@
+{
+ "id": "drawing.overworld_rockfall",
+ "page": "map_sprites",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "gate.overworld_mine_mouth", "use": "map" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "....kkkkkkkkkkkkkkkkkkkkkkkk....",
+    "....kkkkkkkkkkkkkkkkkkkkkkkk....",
+    "..kkBBttttttttttttttttttttBBkk..",
+    "..kkBBttttttttttttttttttttBBkk..",
+    "..kkBBkkkkhhkkkkhhkkkkhhkkBBkk..",
+    "..kkBBkkkkhhkkkkhhkkkkhhkkBBkk..",
+    "..kkBBhhhhHHhhhhhhHHhhhhhhBBkk..",
+    "..kkBBhhhhHHhhhhhhHHhhhhhhBBkk..",
+    "..kkBBhhHHHHhhkkhhhhHHHHhhBBkk..",
+    "..kkBBhhHHHHhhkkhhhhHHHHhhBBkk..",
+    "..kkhhhhhhhhhhhhhhhhhhhhhhhhkk..",
+    "..kkhhhhhhhhhhhhhhhhhhhhhhhhkk..",
+    "kkhhhhHHhhhhhhhhHHhhhhhhHHhhhhkk",
+    "kkhhhhHHhhhhhhhhHHhhhhhhHHhhhhkk",
+    "kkHHHHHHkkHHHHHHHHHHkkHHHHHHHHkk",
+    "kkHHHHHHkkHHHHHHHHHHkkHHHHHHHHkk",
+    "..kkkkkkkkkkkkkkkkkkkkkkkkkkkk..",
+    "..kkkkkkkkkkkkkkkkkkkkkkkkkkkk..",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................"
+   ]
+  }
+ ]
+}

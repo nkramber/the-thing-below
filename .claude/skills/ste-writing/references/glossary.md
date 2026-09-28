@@ -115,14 +115,20 @@ Game terms from the roadmap interview of 2026-09-12:
 | atlas | the PNG the tool renders from every grid (D-107) | sheet, texture |
 | portrait | the 64 by 64 face in the dialogue box (D-109, D-234) | avatar, face |
 | backdrop | the battle background of a place (D-111) | background, stage |
-| overworld | the walkable map between the places of a region, at the scale of Final Fantasy VI (D-1242, D-1245, D-1253) | region map, world map |
+| overworld | the one walkable map between the places of the game, at the scale of Final Fantasy VI. Each region adds its land at an edge (D-1242, D-1245, D-1253, D-1274) | region map, world map |
 | entrance | a thing of the overworld that enters the map of a place on a step onto it (D-1243) | exit, which names the thing of a place that leads out |
 | gate | a thing of the overworld that the party passes only while its condition holds (D-1243). A process gate always takes its qualifier: PR gate, phase gate, night gate | barrier, block, story gate |
-| zone | an area of the overworld with a rate, a weighted list of groups, and a condition (D-1250, D-1251, D-1269) | region, band, for this area |
+| zone | an area of the overworld with a region, a rate, a weighted list of groups, and a condition (D-1250, D-1251, D-1269, D-1285) | region, band, for this area |
 | rate | the danger in basis points that each step onto a tile of a zone adds to the danger count (D-1261) | encounter rate, chance, when the text means this value |
 | danger count | the one count of the run, from 0 to 10000, that a draw of each step reads, and that each encounter of a zone sets to zero (D-1249, D-1264) | step counter, threat, when the text means the value |
 | zone grid | the rows of zone keys of an overworld, one for each tile of the terrain, with `.` on each blocked tile (D-1262) | zone map, encounter map |
 | encounter stream | the random stream of the draws of the zones of the overworld (D-1249) | exploration stream, when the text means this stream |
+| mark | a thing of the overworld that draws a place with no map yet, which the lead walks over and which the PR of the place makes an entrance (D-1271, D-1272). The mark of the sight of a patrol and a mark of the mark view keep their own sense | marker, which names a named tile, icon |
+| landmark | a mark off the road that rewards a walk, such as the broken waystone (D-1299) | point of interest, sight |
+| side route | a loop or a dead-end valley off the road of the overworld (D-1301) | detour, branch, when the text means this land |
+| generator settings | the file `content/worldgen/overworld.json`, which the `overworld` command reads to write the land of the overworld (D-1295) | seed file, world config |
+| tile fix | one tile of the generator settings that the generator sets after every other step (D-1295) | override, patch |
+| bridge | a tile kind of the overworld over water, which the lead walks (D-1302) | ford, crossing, when the text means this tile |
 | story scene | a scripted story beat on the map, which Core runs (D-114, D-540, D-572) | cutscene, event, scene alone |
 | map scene | the Game screen that draws a map (D-572) | scene alone |
 | battle scene | the Game screen that draws a fight (D-572) | scene alone |

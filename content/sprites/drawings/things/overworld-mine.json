@@ -1,0 +1,48 @@
+{
+ "id": "drawing.overworld_mine",
+ "page": "map_sprites",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "mark.overworld_mine", "use": "map" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "....kkkkkkkkkkkkkkkkkkkkkkkk....",
+    "....kkkkkkkkkkkkkkkkkkkkkkkk....",
+    "..kkBBttttttttttttttttttttBBkk..",
+    "..kkBBttttttttttttttttttttBBkk..",
+    "..kkBBkkkkkkkkkkkkkkkkkkkkBBkk..",
+    "..kkBBkkkkkkkkkkkkkkkkkkkkBBkk..",
+    "..kkBBkk~~~~~~~~~~~~~~~~kkBBkk..",
+    "..kkBBkk~~~~~~~~~~~~~~~~kkBBkk..",
+    "..kkBBkk~~~~~~~~~~~~~~~~kkBBkk..",
+    "..kkBBkk~~~~~~~~~~~~~~~~kkBBkk..",
+    "..kkBBkk~~~~~~~~~~~~~~~~kkBBkk..",
+    "..kkBBkk~~~~~~~~~~~~~~~~kkBBkk..",
+    "..kkBBkk~~~~~~~~~~~~~~~~kkBBkk..",
+    "..kkBBkk~~~~~~~~~~~~~~~~kkBBkk..",
+    "kkddBBkk~~~~~~~~~~~~~~~~kkBBddkk",
+    "kkddBBkk~~~~~~~~~~~~~~~~kkBBddkk",
+    "kkddddkkkkkkkkkkkkkkkkkkkkddddkk",
+    "kkddddkkkkkkkkkkkkkkkkkkkkddddkk",
+    "..kkkkkkkkkkkkkkkkkkkkkkkkkkkk..",
+    "..kkkkkkkkkkkkkkkkkkkkkkkkkkkk..",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................"
+   ]
+  }
+ ]
+}

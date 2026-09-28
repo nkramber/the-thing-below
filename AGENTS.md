@@ -137,6 +137,7 @@ The solution and the project names follow D-217. Run each command from the check
 - Build: `make build`. Test: `make test`. Format check: `make format`.
 - STE check: `make ste-check`. Determinism and string lint: `make lint`.
 - Identity check: `make identity`. Content hash: `make content`. Atlas check: `make atlas`.
+- Overworld map: `make overworld` (D-1295).
 - Godot build and the smoke session: `make smoke`. Contact sheet: `make sheet` (D-735). Walk frames: `make walk` (D-782).
 - Coverage report: `dotnet test --solution TheThingBelow.slnx --no-build -- --filter-not-trait "Category=Smoke" --coverlet --coverlet-output-format cobertura --results-directory artifacts/coverage`
 - A Tools command with its options: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- atlas --root . --check`

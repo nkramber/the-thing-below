@@ -63,40 +63,55 @@ public sealed class TransitionContent
             : throw ContentException.ForFile(Transition.Folder, $"no transition file holds the id '{id.Value}' (D-195)");
     }
 
+    /// <summary>Gives the region of the table that holds one map (D-936).</summary>
+    /// <param name="map">The id of the map.</param>
+    /// <returns>The id of the region.</returns>
+    /// <exception cref="ArgumentNullException">The map is null (T-2).</exception>
+    /// <exception cref="ContentException">No region holds the map (D-936, T-2).</exception>
+    public ContentId RegionOf(ContentId map)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+
+        return this.regionOf.TryGetValue(map.Value, out TransitionRegion? region)
+            ? region.Id
+            : throw ContentException.ForField(TransitionTable.Path, "regions", $"no region holds the map '{map.Value}', and each map belongs to one (D-936)");
+    }
+
     /// <summary>Gives the transition of a fight (D-934, D-935, D-937).</summary>
     /// <param name="kind">The kind of the encounter, from <see cref="EncounterKinds.Of"/>.</param>
-    /// <param name="map">The id of the map of the encounter, which names the region of the pool.</param>
+    /// <param name="region">
+    /// The region of the pool: the region of the zone for a zone fight, and the region of the map,
+    /// from <see cref="RegionOf"/>, for every other fight (D-1285).
+    /// </param>
     /// <param name="seed">The seed of the run.</param>
     /// <param name="tick">The tick of the run that starts the fight.</param>
     /// <param name="lastCommon">The id of the transition of the last common fight that the screen showed, or null.</param>
     /// <returns>The transition.</returns>
-    /// <exception cref="ArgumentNullException">The map is null (T-2).</exception>
-    /// <exception cref="ContentException">No region holds the map (D-936, T-2).</exception>
+    /// <exception cref="ArgumentNullException">The region is null (T-2).</exception>
+    /// <exception cref="ContentException">The table holds no such region (D-936, T-2).</exception>
     /// <remarks>
     /// A fixed kind takes its transition from the table. A common fight takes one from the pool of
     /// its region, with a hash of the seed and the tick, and it skips the last pick of a common
     /// fight. The hash draws on no rule stream, so the pick never changes the state (G-4, D-935).
     /// </remarks>
-    public Transition Pick(EncounterKind kind, ContentId map, ulong seed, long tick, ContentId? lastCommon)
+    public Transition Pick(EncounterKind kind, ContentId region, ulong seed, long tick, ContentId? lastCommon)
     {
-        ArgumentNullException.ThrowIfNull(map);
+        ArgumentNullException.ThrowIfNull(region);
 
         if (kind != EncounterKind.Common)
         {
             return this.TransitionOf(this.Table.FixedOf(kind));
         }
 
-        if (!this.regionOf.TryGetValue(map.Value, out TransitionRegion? region))
-        {
-            throw ContentException.ForField(TransitionTable.Path, "regions", $"no region holds the map '{map.Value}', and each map belongs to one (D-936)");
-        }
+        TransitionRegion entry = this.Table.RegionById(region)
+            ?? throw ContentException.ForField(TransitionTable.Path, "regions", $"the table holds no region '{region.Value}' (D-936, D-1285)");
 
-        var choices = new List<ContentId>(region.Pool.Count);
-        foreach (ContentId entry in region.Pool)
+        var choices = new List<ContentId>(entry.Pool.Count);
+        foreach (ContentId transition in entry.Pool)
         {
-            if (lastCommon is null || string.CompareOrdinal(entry.Value, lastCommon.Value) != 0)
+            if (lastCommon is null || string.CompareOrdinal(transition.Value, lastCommon.Value) != 0)
             {
-                choices.Add(entry);
+                choices.Add(transition);
             }
         }
 
@@ -160,7 +175,29 @@ public sealed class TransitionContent
 
         RefuseAbsentTransition(readTable, transitionOf);
         RefuseFixedInPool(readTable);
+        RefuseZoneOutsideTable(readTable, maps);
         return new TransitionContent(transitions, readTable, transitionOf, RegionsOf(readTable, maps));
+    }
+
+    /// <summary>
+    /// Refuses a zone whose region the table does not hold, because a common fight of a zone takes
+    /// the pool of its region (D-1285, D-1286). The error names the map file and the zone (T-2).
+    /// </summary>
+    private static void RefuseZoneOutsideTable(TransitionTable table, SortedDictionary<string, GameMap> maps)
+    {
+        foreach (GameMap map in maps.Values)
+        {
+            foreach (EncounterZone zone in map.Zones)
+            {
+                if (table.RegionById(zone.Region) is null)
+                {
+                    throw ContentException.ForField(
+                        map.File,
+                        $"zones.{zone.Id.Value}",
+                        $"the zone names the region '{zone.Region.Value}', and '{TransitionTable.Path}' holds no such region (D-1285, D-1286)");
+                }
+            }
+        }
     }
 
     /// <summary>Tells whether a content path is a transition file or the table file.</summary>
@@ -252,7 +289,10 @@ public sealed class TransitionContent
         }
     }
 
-    /// <summary>Gives the region of each map, and refuses a map of the table that the rules do not hold, a map in two regions, and a map in none (D-936).</summary>
+    /// <summary>
+    /// Gives the region of each map, and refuses a map of the table that the rules do not hold, a
+    /// map in two regions, a map in none, and a map whose file names another region (D-936, D-1289).
+    /// </summary>
     private static SortedDictionary<string, TransitionRegion> RegionsOf(TransitionTable table, SortedDictionary<string, GameMap> maps)
     {
         var regionOf = new SortedDictionary<string, TransitionRegion>(StringComparer.Ordinal);
@@ -277,6 +317,12 @@ public sealed class TransitionContent
                 if (!regionOf.TryAdd(map, entry))
                 {
                     throw ContentException.ForField(TransitionTable.Path, field, $"the region '{regionOf[map].Id.Value}' holds the map '{map}' too, and a map belongs to one region (D-936)");
+                }
+
+                ContentId named = maps[map].Region;
+                if (string.CompareOrdinal(named.Value, entry.Id.Value) != 0)
+                {
+                    throw ContentException.ForField(TransitionTable.Path, field, $"the table puts the map '{map}' in the region '{entry.Id.Value}', and the map file names the region '{named.Value}'. The two agree (D-1289)");
                 }
             }
         }

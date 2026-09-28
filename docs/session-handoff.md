@@ -1,3 +1,40 @@
+## Session 379: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-110, round 1. Repository: the-thing-below. Branch: `feat/pr-110-region-one-overworld`. PR: opened by this round. Role: author. Base: `5e6fb49`.
+
+### What this session did, and why
+
+- Asked the owner each question of the layout, the terrain, the zones, the gates, and the art. D-1270 to D-1302 record the answers. D-1289 corrects a premise of the session in D-1286.
+- Built the one overworld of the game with region one at 160 by 128 (D-1274, D-1297), from a generator in Tools with a settings file (D-1294 to D-1296).
+- Added the tile kinds road, snowfield, gorge, snow peak, and bridge, the frosted grass, and the thing kind `mark` (D-1271, D-1277, D-1278, D-1302). The simulation version is 39.
+- Gave each zone its region, which names its group file and its pool (D-1285, D-1289). The fixture maps moved to `region.fixture` in the transition table.
+- Filed PR-111, the treasure of the overworld, right after PR-110 (D-1298).
+
+### The state of the build
+
+- 4,434 tests pass locally. The three new screen baselines of `region-one` come from CI (D-733), and the fixture overworld baselines change with the frosted grass.
+- The owner approved the terrain, the marks, the landmarks, and the map at each review stop of D-1287.
+
+### What is in flight
+
+- The first push, the Gitar pass, and the new baselines from the screen-test artifact.
+
+### Traps and gotchas
+
+- Never edit the rows of `content/rules/maps/overworld.json` by hand. Change `content/worldgen/overworld.json`, run `make overworld`, and read the map. A test fails a hand edit.
+- The generator uses integer math and PCG streams alone, so each CI leg makes the same map.
+- The content set reads the settings file only when it is present. The generator test reads the checkout file itself.
+- Python stays out of the repository (D-406). The draft scripts of this session lived in the scratchpad alone.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push, run the Gitar poll, then commit the CI baselines of the screen-test artifact after reading each frame.
+
 ## Session 378: 2026-09-28, Codex
 
 Author: Codex
@@ -297,39 +334,3 @@ None for PR-64. OQ-251 blocks PR-35.
 ### The next concrete action
 
 Wait for green CI and the Gitar pass on this head, then run `make codex-review PR=92` in the background.
-
-## Session 369: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-64, round 1. Repository: the-thing-below. Branch: `feat/pr-64-traps-hazards`. PR: the PR-64 intent, with no GitHub number before the push. Role: author. Base: `b7eb8bc`.
-
-### What this session did, and why
-
-- The owner answered OQ-119, OQ-120, and the batches of detail: D-1226 to D-1241, with the look of the ice and the text batch.
-- Core: a trap fires one time on the arrival of the lead: a share of full health, a lasting status, or a fight in which the enemies act first. The memory of the map keeps it spent (D-1226, D-1229 to D-1231). A Theft drill shows a trap at 2 steps, and a confirm disarms it (D-1228).
-- Core: deep snow doubles a step, and ice slides the lead until a stop. A load check proves that each field of ice has a way out (D-1232, D-1233).
-- Core: each 60 world ticks, poison hurts each poisoned character, the reserve included, and bad air hurts each fighter. A down of each fighter holds a wipe on the map (D-397, D-1234 to D-1236). Save format 19, simulation version 36.
-- Game: the map HUD at the top left, the trap looks, the drain of a wipe on the map, and the frame `pit-trap-1x`. The art holds 3 tiles, 2 trap looks, and 5 faces (D-1237 to D-1239).
-
-### The state of the build
-
-- Local: the build, 4269 tests, format, det-lint, content, identity, atlas, smoke, and the bots pass. `make sheet` wrote every frame, and its joined sheet passes the PNG height limit, so the session read the frames alone.
-- The remote head before this push is `b7eb8bc`, the base.
-
-### What is in flight
-
-- The first push, the PR, the Gitar poll, and the screen baselines from the capture artifact of CI.
-
-### Traps and gotchas
-
-- `RunState.MapWiped` comes from the party alone: no battle and no fighter who stands. A test that downs the only fighter on the map now meets a wipe, so two item tests take a partner.
-- The owner chose darker snow and ice (D-1240). The ice now sits in the dark, and the snow on a base of snow shade still reads pale.
-- The full `make sheet` fails in the join, because the sheet passes 65535 rows. `make sheet FIXTURE=pit` joins one fixture.
-
-### The questions that block progress
-
-None for PR-64. OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Push, open the PR, run the Gitar poll, and then commit the baselines of CI.

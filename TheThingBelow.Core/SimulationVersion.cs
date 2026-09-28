@@ -136,6 +136,9 @@ public static class SimulationVersion
     /// count and draws on the encounter stream, and a draw under the count starts a fight of a group that the weights
     /// of the zone pick (D-1249 to D-1251, D-1261). A fight sets the count to zero, a zone at rate zero or with a failed
     /// condition draws nothing, and the state hash holds the count (D-1263, D-1264).
+    /// PR-110 raised it to 39. The overworld gains road, snowfield, gorge, snow peak, and bridge tiles, and a mark of a
+    /// place with no map, which the lead walks over (D-1271, D-1272, D-1277, D-1302). A zone names its region, which gives its groups
+    /// (D-1285, D-1289).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number
@@ -144,5 +147,5 @@ public static class SimulationVersion
     /// hash differs from this build takes the drift rules of D-1111 and D-1112. A change of this
     /// number also changes the expected hashes of the identity file (D-504).
     /// </remarks>
-    public const int Current = 38;
+    public const int Current = 39;
 }

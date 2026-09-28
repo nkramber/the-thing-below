@@ -93,6 +93,7 @@ public static class ConfirmRules
                 case MapThingKind.Marker:
                 case MapThingKind.Exit:
                 case MapThingKind.Entrance:
+                case MapThingKind.Mark:
                     break;
                 default:
                     throw new SimulationException($"the thing '{thing.Id.Value}' takes the kind {thing.Kind}, which the confirm rule does not read (D-1131)", state.Context("confirm"));

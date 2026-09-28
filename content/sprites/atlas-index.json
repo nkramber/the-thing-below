@@ -2,7 +2,7 @@
  "comment": "The place of every frame in the atlas (D-666). The atlas command of Tools writes this file and each page beside it, and no session edits either one by hand (D-107). A page holds one kind of drawing, and a tile page is a strict grid of 32 by 32 cells (D-667). Run the command again after a change to a drawing file.",
  "pages": [
   { "kind": "tiles", "number": 1, "width": 2048, "height": 32 },
-  { "kind": "map_sprites", "number": 1, "width": 704, "height": 32 },
+  { "kind": "map_sprites", "number": 1, "width": 1248, "height": 32 },
   { "kind": "battle_sprites", "number": 1, "width": 160, "height": 64 },
   { "kind": "portraits", "number": 1, "width": 192, "height": 64 },
   { "kind": "ui", "number": 1, "width": 480, "height": 32 },
@@ -22,6 +22,18 @@
    ]
   },
   {
+   "id": "drawing.tile_bridge",
+   "page": "tiles",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "tile.bridge", "use": "map" }
+   ],
+   "frames": [
+    { "x": 32, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
    "id": "drawing.tile_doorway",
    "page": "tiles",
    "width": 32,
@@ -30,7 +42,7 @@
     { "content": "tile.doorway", "use": "map" }
    ],
    "frames": [
-    { "x": 32, "y": 0, "ticks": 0 }
+    { "x": 64, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -42,7 +54,7 @@
     { "content": "tile.floor", "use": "map" }
    ],
    "frames": [
-    { "x": 64, "y": 0, "ticks": 0 }
+    { "x": 96, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -54,7 +66,19 @@
     { "content": "tile.forest", "use": "map" }
    ],
    "frames": [
-    { "x": 96, "y": 0, "ticks": 0 }
+    { "x": 128, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.tile_gorge",
+   "page": "tiles",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "tile.gorge", "use": "map" }
+   ],
+   "frames": [
+    { "x": 160, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -66,7 +90,7 @@
     { "content": "tile.grass", "use": "map" }
    ],
    "frames": [
-    { "x": 128, "y": 0, "ticks": 0 }
+    { "x": 192, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -78,7 +102,7 @@
     { "content": "tile.ice", "use": "map" }
    ],
    "frames": [
-    { "x": 160, "y": 0, "ticks": 0 }
+    { "x": 224, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -90,7 +114,19 @@
     { "content": "tile.mountain", "use": "map" }
    ],
    "frames": [
-    { "x": 192, "y": 0, "ticks": 0 }
+    { "x": 256, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.tile_road",
+   "page": "tiles",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "tile.road", "use": "map" }
+   ],
+   "frames": [
+    { "x": 288, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -102,7 +138,31 @@
     { "content": "tile.snow", "use": "map" }
    ],
    "frames": [
-    { "x": 224, "y": 0, "ticks": 0 }
+    { "x": 320, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.tile_snow_peak",
+   "page": "tiles",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "tile.snow_peak", "use": "map" }
+   ],
+   "frames": [
+    { "x": 352, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.tile_snowfield",
+   "page": "tiles",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "tile.snowfield", "use": "map" }
+   ],
+   "frames": [
+    { "x": 384, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -114,7 +174,7 @@
     { "content": "tile.wall", "use": "map" }
    ],
    "frames": [
-    { "x": 256, "y": 0, "ticks": 0 }
+    { "x": 416, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -126,7 +186,7 @@
     { "content": "tile.water", "use": "map" }
    ],
    "frames": [
-    { "x": 288, "y": 0, "ticks": 0 }
+    { "x": 448, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -411,6 +471,214 @@
    ],
    "frames": [
     { "x": 672, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.overworld_bandit_lookout",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "mark.overworld_bandit_lookout", "use": "map" }
+   ],
+   "frames": [
+    { "x": 704, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.overworld_barrier",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "gate.overworld_town_road", "use": "map" },
+    { "content": "gate.overworld_road_up", "use": "map" },
+    { "content": "gate.overworld_village_road", "use": "map" }
+   ],
+   "frames": [
+    { "x": 736, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.overworld_barrier_open",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "gate.overworld_town_road", "use": "map_open" },
+    { "content": "gate.overworld_road_up", "use": "map_open" },
+    { "content": "gate.overworld_village_road", "use": "map_open" }
+   ],
+   "frames": [
+    { "x": 768, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.overworld_broken_waystone",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "mark.overworld_broken_waystone", "use": "map" }
+   ],
+   "frames": [
+    { "x": 800, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.overworld_dead_mine_head",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "mark.overworld_dead_mine_head", "use": "map" }
+   ],
+   "frames": [
+    { "x": 832, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.overworld_fort",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "mark.overworld_fort", "use": "map" }
+   ],
+   "frames": [
+    { "x": 864, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.overworld_gallery",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "mark.overworld_gallery", "use": "map" }
+   ],
+   "frames": [
+    { "x": 896, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.overworld_ice_crossing",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "mark.overworld_ice_crossing", "use": "map" }
+   ],
+   "frames": [
+    { "x": 928, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.overworld_mine",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "mark.overworld_mine", "use": "map" }
+   ],
+   "frames": [
+    { "x": 960, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.overworld_refuge",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "mark.overworld_refuge", "use": "map" }
+   ],
+   "frames": [
+    { "x": 992, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.overworld_rockfall",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "gate.overworld_mine_mouth", "use": "map" }
+   ],
+   "frames": [
+    { "x": 1024, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.overworld_rockfall_open",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "gate.overworld_mine_mouth", "use": "map_open" }
+   ],
+   "frames": [
+    { "x": 1056, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.overworld_sealed_door",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "gate.overworld_sealed_door", "use": "map" }
+   ],
+   "frames": [
+    { "x": 1088, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.overworld_sealed_door_open",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "gate.overworld_sealed_door", "use": "map_open" }
+   ],
+   "frames": [
+    { "x": 1120, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.overworld_town",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "mark.overworld_town", "use": "map" }
+   ],
+   "frames": [
+    { "x": 1152, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.overworld_village",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "mark.overworld_village", "use": "map" }
+   ],
+   "frames": [
+    { "x": 1184, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.overworld_war_graves",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "mark.overworld_war_graves", "use": "map" }
+   ],
+   "frames": [
+    { "x": 1216, "y": 0, "ticks": 0 }
    ]
   },
   {

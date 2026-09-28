@@ -2918,29 +2918,63 @@ Area file: `area-exploration.md` section 7.13. World file: `docs/world/places.md
 
 **Scope.**
 
-- The overworld of region one, which follows `docs/world/places.md` (D-250, D-255, D-371, D-1244).
-- The terrain tiles of the overworld and the mark of each place, as grids (D-107, D-1245).
-- The entrance of each place that exists, and the zones of region one with the rule of PR-109 (D-1250, D-1254).
-- The gates of the story, such as the sealed door of the gorge crossing (D-251, D-1243).
+- The overworld of region one on the one overworld of the game, 160 tiles wide by 128 high, on the plan of `docs/world/places.md` (D-1274, D-1276, D-1297).
+- A generator in Tools, the `overworld` command, which writes the terrain, the zone grid, and the tile of each thing from a settings file. A test proves that the map matches its settings (D-1294 to D-1296).
+- Land that looks natural: rock ridges and clusters that split the middle, side routes, rivers, lakes, and a road that winds (D-1293, D-1300, D-1301).
+- The terrain kinds road, snowfield, gorge, snow peak, and bridge, the frosted grass, and the mark of each place, as grids (D-1277, D-1278, D-1290 to D-1292, D-1302).
+- The mark, a thing with no link for a place with no map yet, and four side landmarks (D-1270 to D-1272, D-1299).
+- The five gates of the story, with their flags and their notices (D-1281, D-1282, D-1288).
+- Six zones at rate 0, each with the region of its groups and its pool (D-1283 to D-1286, D-1289).
 
 **Out of scope.**
 
-- The places themselves (PR-17, PR-23 to PR-27, PR-81).
+- The places themselves and their entrances (PR-17, PR-23 to PR-27, PR-81).
+- The enemies and the rates of the zones (PR-17).
+- The treasure of the overworld (PR-111, D-1298).
+- The rims of the gorge and of each other kind (PR-53, D-1290).
 
 **Exit tests.**
 
-1. A test walks the lead from the village to the mining town and to the hanging cells.
-2. The atlas matches the grids by pixel (D-107).
-3. A screen test captures the overworld of region one, and the author reads each frame of `make sheet`.
+1. A test walks the lead from the mark of the village to the mark of the town (D-1270).
+2. Each gate is the one way through its wall, and the refuge is out of reach (D-1280, D-1281).
+3. The committed map matches the output of its settings (D-1295).
+4. A seed loop gives a map, or an error that names its seed (T-2).
+5. The atlas matches the grids by pixel (D-107).
+6. A screen test captures the overworld of region one, and the author reads each frame of `make sheet`.
 
 **Review focus.**
 
 - The layout matches `docs/world/places.md`.
-- The owner reads the contact sheet before the merge.
+- The generator uses integer math, so each CI leg makes the same map (D-502, D-1296).
+- The owner read each review stop of D-1287 before the merge.
 
-**Questions.** None yet. The PR asks each question of the layout when it starts (D-487).
+**Questions.** None. D-1270 to D-1302 hold the answers.
 
-> *In plain English:* the real map of the first region replaces the test map. The village, the town, the gorge, and the high pass stand where they belong.
+> *In plain English:* the real map of the first region replaces the test map. It is big, with valleys, rivers, and side paths, and a tool rebuilds it from a short settings file after each playtest.
+
+### 7.70 PR-111: the treasure of the overworld
+
+Area file: `area-exploration.md` section 7.13.
+
+**Scope.**
+
+- A hidden spot on the overworld that gives an item one time, in the side routes of region one (D-1298, D-1301).
+
+**Out of scope.**
+
+- The treasure of a dungeon, which PR-16 built (D-1220).
+
+**Exit tests.**
+
+1. The party takes a treasure of the overworld one time, and the save keeps it taken.
+
+**Review focus.**
+
+- The memory of each treasure reaches the save and the state hash (T-7).
+
+**Questions.** What a treasure holds, how it shows, and whether it hides. PR-111 asks each one when it starts (D-487).
+
+> *In plain English:* a reward for a walk off the road. It waits until the map of region one exists.
 
 ## 8. Sequence
 
@@ -2956,7 +2990,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 8. PR-36: the dialogue box.
 9. PR-15, PR-49, PR-108, PR-107: the bots, the night job and the night gate, night recovery, and ability power (D-1196, D-1200).
 10. PR-15 requires the bot check (D-1186). The PR-49 session requires `night-gate` after the first night on `main` (D-1192).
-11. PR-16, PR-64, PR-35, PR-109, PR-110: the dungeon, the overworld, its encounters, and the overworld of region one (D-1254).
+11. PR-16, PR-64, PR-35, PR-109, PR-110, PR-111: the dungeon, the overworld, its encounters, the overworld of region one, and its treasure (D-1254, D-1298).
 12. PR-51, PR-52, PR-53: the PNG import, the map preview, and the tile-edge tool.
 13. PR-17: the village, the mining town, and the hanging cells.
 14. PR-38, PR-69, PR-70, PR-71: the audio tool, the player, the rules, and the sound room (D-1079).

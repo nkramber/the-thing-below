@@ -1,0 +1,48 @@
+{
+ "id": "drawing.tile_snow_peak",
+ "page": "tiles",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "tile.snow_peak", "use": "map" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE",
+    "EEEEEEEEfEEEEEHEEEEEEEEEEEEEEEEE",
+    "EEEEEEEEEEEEEEHEEEEEEEEEEEEfEEEE",
+    "EEfEEEEEEEEEEHwHEEEEEEEEEEEEEEEE",
+    "EEEEEEEEEEEEEHwHEEEEEEEEEEEEEEEE",
+    "EEEEEEEEEEEEHwweHEEEEEEEEEEEEEEE",
+    "EEEEEEEEEEEEHwweeHEEEEEEEEEEEEEE",
+    "EEEEEfEEEEEHwwweeHEEEEEEEEEEEEEE",
+    "EEEEEEEEEEEHwwweefHEEEEEEEEEEfEE",
+    "EEEEEEEEEEHwwwwweeHfEEEEEEEEEEEE",
+    "EEEEEEEEEEHwwewefefHfEEEEEEEEEEE",
+    "EEEEEEEEEHweeweeffffHffEEEEEEEEE",
+    "EEEEEEEEeHeeeeewffffHfffEEEEEEEE",
+    "EEEEEEeeHeeeeeewffFHfHffffEEEEEE",
+    "EEEEEeffHfweeeewfffFHHfffffEEEEE",
+    "EEEeeffHfweeewewfffffHHffffefEEE",
+    "EEeffffHeeeeeeeewffffffHffffffEE",
+    "eeffffHeeeeeeeeewffffffHffffffff",
+    "ffffffHeeeeeeeeewFHfffffHfffffff",
+    "fffffHeeeeefweeewffHffffHfffffff",
+    "fffffHeeeefweeeewffffffffHffffff",
+    "ffffHeeeeeeeeewewfffffFHffHfffff",
+    "ffffHefweeeeeeeewffffffFHfHfffff",
+    "fffHefweeeeeeeeewffffffffHfHffff",
+    "fffHeeeeeeeeeeeeewfffffffffHffff",
+    "ffHeeeeeeeeefweeewfFHfffffffHfff",
+    "ffHeeeeeeeefweeeewffFHfffffffHff",
+    "fHeefweeeefeeeeeewffffHfffFHfHff",
+    "fHefweeeeeeeeeeeewffffffffffHfHf",
+    "HeeeeeeeeeeeeeeeewffffffffffffHf",
+    "HeeeeeeeeeeeeeeeewfffffffffffffH",
+    "HeeeeeeeeeeeeeeeeewffffffffffffH"
+   ]
+  }
+ ]
+}

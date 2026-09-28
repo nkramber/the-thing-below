@@ -558,16 +558,16 @@ public sealed partial class CaptureSession : Node
     }
 
     /// <summary>
-    /// Builds the running screen on the fixture overworld: the run starts on the first map, and the
-    /// debug command `goto` puts the party on the spawn point of the overworld (exit test 8 of PR-35,
-    /// D-1133). The map on screen follows the party by the path of a play session.
+    /// Builds the running screen on an overworld: the run starts on the first map, and the debug
+    /// command `goto` puts the party on the spawn point of the overworld (exit test 8 of PR-35, exit
+    /// test 3 of PR-110, D-1133). The map on screen follows the party by the path of a play session.
     /// </summary>
     /// <exception cref="InvalidOperationException">The command put the party on no overworld, or a tick wrote an error (T-2).</exception>
-    private void BuildOverworld(FrameRoot built, UiBase @base)
+    private void BuildOverworld(FrameRoot built, UiBase @base, string map)
     {
         GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
         MapScreen first = MapFixture.Build(built, @base, open, this.content, seekParticles: true);
-        GoToMap(open, ScreenCaptures.OverworldMap);
+        GoToMap(open, map);
         MapScreen drawn = MapFixture.Follow(first, built, @base, open, this.content);
         drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld, open.TheftCarried, open.Flags);
         drawn.ShowWeather(open.Tick, seek: true);
@@ -923,7 +923,13 @@ public sealed partial class CaptureSession : Node
 
         if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.OverworldFixture) == 0)
         {
-            this.BuildOverworld(built, @base);
+            this.BuildOverworld(built, @base, ScreenCaptures.OverworldMap);
+            return;
+        }
+
+        if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.RegionOneFixture) == 0)
+        {
+            this.BuildOverworld(built, @base, ScreenCaptures.RegionOneMap);
             return;
         }
 

@@ -48,6 +48,7 @@ public sealed class ContentSet
         NoticeList notices,
         StoryContent story,
         BotRules bots,
+        OverworldPlan? overworld,
         LightContent light,
         EffectContent effects,
         SortedDictionary<string, RuleFixtureEntry> ruleEntries,
@@ -65,6 +66,7 @@ public sealed class ContentSet
         this.Notices = notices;
         this.Story = story;
         this.Bots = bots;
+        this.Overworld = overworld;
         this.Light = light;
         this.Effects = effects;
         this.ruleEntries = ruleEntries;
@@ -98,6 +100,13 @@ public sealed class ContentSet
 
     /// <summary>The bot rules of the headless runner: the goal flag and the tick budget (D-1181, D-1184).</summary>
     public BotRules Bots { get; }
+
+    /// <summary>
+    /// The settings of the generator of the overworld, which no rule reads (D-1295), or no value for
+    /// a content set of a test that holds no overworld. The test of the generator reads the file of
+    /// the checkout itself, so an absent file of the checkout still fails a test (T-2).
+    /// </summary>
+    public OverworldPlan? Overworld { get; }
 
     /// <summary>The decor, the light setups, the carried light, and the effect budget (D-523, D-843, D-844, D-847).</summary>
     public LightContent Light { get; }
@@ -151,6 +160,7 @@ public sealed class ContentSet
         NoticeList? notices = null;
         FlagList? flags = null;
         BotRules? bots = null;
+        OverworldPlan? plan = null;
         List<StoryScene> scenes = [];
         List<EnemyRecord> enemies = [];
         List<GroupFile> groups = [];
@@ -187,6 +197,12 @@ public sealed class ContentSet
             else if (string.CompareOrdinal(file.Path, AtlasIndex.Path) == 0)
             {
                 atlas = AtlasIndex.Read(file.Bytes, file.Path);
+            }
+            else if (string.CompareOrdinal(file.Path, OverworldPlan.Path) == 0)
+            {
+                // No rule reads the settings of the generator. The check against its map runs
+                // after the loop (D-1295).
+                plan = OverworldPlan.Read(file.Bytes, file.Path);
             }
             else if (string.CompareOrdinal(file.Path, UiStyle.Path) == 0)
             {
@@ -388,6 +404,11 @@ public sealed class ContentSet
             RequireGateNoticesOf(map, notices ?? throw AbsentFile(NoticeList.Path));
         }
 
+        if (plan is not null)
+        {
+            RequirePlanOf(plan, maps);
+        }
+
         LightContent light = LightContent.Load(lightFiles, maps, readPalette, readAtlas);
         var set = new ContentSet(
             readPalette,
@@ -398,6 +419,7 @@ public sealed class ContentSet
             notices ?? throw AbsentFile(NoticeList.Path),
             story,
             readBots,
+            plan,
             light,
             EffectContent.Load(effectFiles, new AmbientWorld(maps, battle, light, drawings, readPalette)),
             ruleEntries,
@@ -638,6 +660,36 @@ public sealed class ContentSet
         }
 
         return strikes;
+    }
+
+    /// <summary>
+    /// Checks that the settings of the generator name an overworld of the content, and that each
+    /// thing of the settings is a thing of that map of the kind of its role (D-1295, T-2).
+    /// </summary>
+    private static void RequirePlanOf(OverworldPlan plan, SortedDictionary<string, GameMap> maps)
+    {
+        if (!maps.TryGetValue(plan.Map.Value, out GameMap? map) || map.Kind != MapKind.Overworld)
+        {
+            throw ContentException.ForField(OverworldPlan.Path, "map", $"the settings name the map '{plan.Map.Value}', and the content holds no overworld of that id (D-1295)");
+        }
+
+        foreach (OverworldPlacement placement in plan.Things)
+        {
+            MapThingKind kind = placement.Role switch
+            {
+                OverworldRole.Spawn => MapThingKind.SpawnPoint,
+                OverworldRole.MineGate or OverworldRole.SealedDoor or OverworldRole.TownRoad
+                    or OverworldRole.VillageRoad or OverworldRole.RoadUp => MapThingKind.Gate,
+                _ => MapThingKind.Mark,
+            };
+            if (map.ThingOf(placement.Id, kind) is null)
+            {
+                throw ContentException.ForField(
+                    OverworldPlan.Path,
+                    "things",
+                    $"the role '{OverworldPlan.NameOf(placement.Role)}' names the thing '{placement.Id.Value}', and '{map.File}' holds no {MapThingKinds.NameOf(kind)} of that id (D-1295)");
+            }
+        }
     }
 
     /// <summary>

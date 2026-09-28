@@ -38,6 +38,21 @@ public enum TileKind
 
     /// <summary>Water of the overworld. The party cannot walk it, and sight passes over it (D-1256).</summary>
     Water,
+
+    /// <summary>A road of the overworld. The party walks it, and sight passes over it (D-1277).</summary>
+    Road,
+
+    /// <summary>A snowfield of the overworld. The party walks it with no double time, and sight passes over it (D-1277).</summary>
+    Snowfield,
+
+    /// <summary>A gorge of the overworld. The party cannot walk it, and sight passes over it (D-1277).</summary>
+    Gorge,
+
+    /// <summary>A snow peak of the overworld. The party cannot walk it, and it stops sight (D-1277).</summary>
+    SnowPeak,
+
+    /// <summary>A bridge of the overworld over water. The party walks it, and sight passes over it (D-1302).</summary>
+    Bridge,
 }
 
 /// <summary>The character, the step rule, and the sight rule of each tile kind (D-515, D-528).</summary>
@@ -77,8 +92,23 @@ public static class TileKinds
     /// <summary>Water of the overworld, as a terrain row writes it (D-1256).</summary>
     public const char WaterCharacter = '-';
 
+    /// <summary>A road of the overworld, as a terrain row writes it (D-1277).</summary>
+    public const char RoadCharacter = '_';
+
+    /// <summary>A snowfield of the overworld, as a terrain row writes it (D-1277).</summary>
+    public const char SnowfieldCharacter = ';';
+
+    /// <summary>A gorge of the overworld, as a terrain row writes it (D-1277).</summary>
+    public const char GorgeCharacter = ':';
+
+    /// <summary>A snow peak of the overworld, as a terrain row writes it (D-1277).</summary>
+    public const char SnowPeakCharacter = 'A';
+
+    /// <summary>A bridge of the overworld, as a terrain row writes it (D-1302).</summary>
+    public const char BridgeCharacter = 'H';
+
     /// <summary>The characters of every kind, for the error of an unknown character (T-2).</summary>
-    public const string EveryCharacter = ".#+*=~,%^-";
+    public const string EveryCharacter = ".#+*=~,%^-_;:AH";
 
     /// <summary>Gives the kind of one character of a terrain row.</summary>
     /// <param name="character">The character, such as `#`.</param>
@@ -118,6 +148,21 @@ public static class TileKinds
             case WaterCharacter:
                 kind = TileKind.Water;
                 return true;
+            case RoadCharacter:
+                kind = TileKind.Road;
+                return true;
+            case SnowfieldCharacter:
+                kind = TileKind.Snowfield;
+                return true;
+            case GorgeCharacter:
+                kind = TileKind.Gorge;
+                return true;
+            case SnowPeakCharacter:
+                kind = TileKind.SnowPeak;
+                return true;
+            case BridgeCharacter:
+                kind = TileKind.Bridge;
+                return true;
             default:
                 kind = TileKind.Floor;
                 return false;
@@ -140,6 +185,11 @@ public static class TileKinds
         TileKind.Forest => ForestCharacter,
         TileKind.Mountain => MountainCharacter,
         TileKind.Water => WaterCharacter,
+        TileKind.Road => RoadCharacter,
+        TileKind.Snowfield => SnowfieldCharacter,
+        TileKind.Gorge => GorgeCharacter,
+        TileKind.SnowPeak => SnowPeakCharacter,
+        TileKind.Bridge => BridgeCharacter,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no tile kind (D-528)"),
     };
 
@@ -159,6 +209,11 @@ public static class TileKinds
         TileKind.Forest => "forest",
         TileKind.Mountain => "mountain",
         TileKind.Water => "water",
+        TileKind.Road => "road",
+        TileKind.Snowfield => "snowfield",
+        TileKind.Gorge => "gorge",
+        TileKind.SnowPeak => "snow_peak",
+        TileKind.Bridge => "bridge",
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no tile kind (D-528)"),
     };
 
@@ -178,6 +233,11 @@ public static class TileKinds
         TileKind.Forest => true,
         TileKind.Mountain => false,
         TileKind.Water => false,
+        TileKind.Road => true,
+        TileKind.Snowfield => true,
+        TileKind.Gorge => false,
+        TileKind.SnowPeak => false,
+        TileKind.Bridge => true,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no tile kind (D-528)"),
     };
 
@@ -201,6 +261,11 @@ public static class TileKinds
         TileKind.Forest => false,
         TileKind.Mountain => true,
         TileKind.Water => false,
+        TileKind.Road => false,
+        TileKind.Snowfield => false,
+        TileKind.Gorge => false,
+        TileKind.SnowPeak => true,
+        TileKind.Bridge => false,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no tile kind (D-528)"),
     };
 }

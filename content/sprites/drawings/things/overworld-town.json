@@ -1,0 +1,48 @@
+{
+ "id": "drawing.overworld_town",
+ "page": "map_sprites",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "mark.overworld_town", "use": "map" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "..............kk................",
+    "..............kk................",
+    "............kkLLkk..............",
+    "............kkLLkk..............",
+    "............kkLLkk..............",
+    "............kkLLkk..............",
+    "kk..kk....kkLLjjLLkk....kk..kk..",
+    "kk..kk....kkLLjjLLkk....kk..kk..",
+    "kkGGkk....kkLLLLLLkk....kkGGkk..",
+    "kkGGkk....kkLLLLLLkk....kkGGkk..",
+    "kkGGGGkkkkkkLLLLLLkkkkkkGGGGkk..",
+    "kkGGGGkkkkkkLLLLLLkkkkkkGGGGkk..",
+    "kkGGeeeeeeeeeeeeeeeeeeeeeeGGkk..",
+    "kkGGeeeeeeeeeeeeeeeeeeeeeeGGkk..",
+    "kkGGggGGggGGggGGggGGggGGggGGkk..",
+    "kkGGggGGggGGggGGggGGggGGggGGkk..",
+    "kkGGGGGGGGGGkkkkkkGGGGGGGGGGkk..",
+    "kkGGGGGGGGGGkkkkkkGGGGGGGGGGkk..",
+    "kkggGGGGGGkkbbbbbbkkGGGGGGggkk..",
+    "kkggGGGGGGkkbbbbbbkkGGGGGGggkk..",
+    "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkk..",
+    "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkk..",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................"
+   ]
+  }
+ ]
+}

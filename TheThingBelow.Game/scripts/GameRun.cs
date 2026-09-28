@@ -817,7 +817,7 @@ public sealed class GameRun
             throw new InvalidOperationException(
                 $"The fight of the group '{battle.Group.Id.Value}' started at tick {tick}, and the map holds no encounter, no story scene waits for it, and no trap or zone started it (D-531, D-998, D-1231, D-1266, T-2).");
         }
-        Transition picked = this.transitions.Pick(kind, state.Party.Map.Id, state.Seed, tick, this.lastCommon);
+        Transition picked = this.transitions.Pick(kind, this.PoolRegionOf(battle, tick), state.Seed, tick, this.lastCommon);
         if (kind == EncounterKind.Common)
         {
             this.lastCommon = picked.Id;
@@ -827,6 +827,24 @@ public sealed class GameRun
         return this.HandOffEntry(
             "the screen started the transition into a fight",
             [new LogField("kind", EncounterKinds.NameOf(kind)), new LogField("transition", picked.Id.Value)]);
+    }
+
+    /// <summary>
+    /// Gives the region whose pool serves a fight: the region of its zone for a zone fight, and
+    /// the region of the map for every other fight (D-934, D-1285).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">A zone fight names a zone that the map does not hold (T-2).</exception>
+    private ContentId PoolRegionOf(Battle battle, long tick)
+    {
+        GameMap map = this.simulation.State.Party.Map;
+        if (!battle.FromZone)
+        {
+            return this.transitions.RegionOf(map.Id);
+        }
+
+        EncounterZone zone = map.ZoneOf(battle.Enemy) ?? throw new InvalidOperationException(
+            $"The fight at tick {tick} names the zone '{battle.Enemy.Value}', and the map '{map.Id.Value}' holds no such zone (D-1285, T-2).");
+        return zone.Region;
     }
 
     /// <summary>Gives the size of the patrol of an encounter, which the kind of the encounter reads (D-937).</summary>

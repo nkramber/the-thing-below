@@ -69,9 +69,10 @@ public sealed class OverworldLoadTests
     [Theory]
     [InlineData("""{ "id": "entrance.test_room_in", "kind": "entrance", "x": 3, "y": 1, "to": "map.test_place" }""", "entrance.test_room_in")]
     [InlineData("""{ "id": "gate.test_room_pass", "kind": "gate", "x": 3, "y": 1, "condition": { "always": true }, "notice": "notice.fixture_gate_shut" }""", "gate.test_room_pass")]
-    public void APlaceWithAnEntranceOrAGateIsAnError(string thing, string id)
+    [InlineData("""{ "id": "mark.test_room_town", "kind": "mark", "x": 3, "y": 1 }""", "mark.test_room_town")]
+    public void APlaceWithAnEntranceAGateOrAMarkIsAnError(string thing, string id)
     {
-        // D-1243: an overworld alone holds entrances and gates.
+        // D-1243, D-1271: an overworld alone holds entrances, gates, and marks.
         string text = PlaceText().Replace(
             "\"kind\": \"spawn_point\", \"x\": 1, \"y\": 1 }",
             $"\"kind\": \"spawn_point\", \"x\": 1, \"y\": 1 }},\n  {thing}",
@@ -80,7 +81,7 @@ public sealed class OverworldLoadTests
         ContentException error = Assert.Throws<ContentException>(() => GameMap.Read(Encoding.UTF8.GetBytes(text), "test-place.json"));
 
         Assert.Contains(id, error.Message, StringComparison.Ordinal);
-        Assert.Contains("An overworld alone holds entrances and gates", error.Message, StringComparison.Ordinal);
+        Assert.Contains("An overworld alone holds entrances, gates, and marks", error.Message, StringComparison.Ordinal);
     }
 
     [Theory]
@@ -122,6 +123,68 @@ public sealed class OverworldLoadTests
     }
 
     [Fact]
+    public void AMarkLoadsOnTheOverworldAndDrawsOnItsTile()
+    {
+        // D-1271: a mark stands for a place with no map, and no rule reads it.
+        string text = OverworldMaps.OverworldText.Replace(
+            "\"kind\": \"marker\", \"x\": 1, \"y\": 2 }",
+            "\"kind\": \"marker\", \"x\": 1, \"y\": 2 },\n  { \"id\": \"mark.test_overworld_town\", \"kind\": \"mark\", \"x\": 3, \"y\": 3 }",
+            StringComparison.Ordinal);
+
+        GameMap map = OverworldMaps.Read(text);
+
+        MapThing mark = Assert.Single(map.ThingsAt(new TilePoint(3, 3)));
+        Assert.Equal(MapThingKind.Mark, mark.Kind);
+        Assert.Null(mark.To);
+        Assert.Null(mark.Gate);
+        Assert.False(MapThingKinds.IsSolid(MapThingKind.Mark));
+    }
+
+    [Theory]
+    [InlineData(", \"to\": \"map.test_place\"", "which an exit or an entrance alone holds")]
+    [InlineData(", \"arrive\": \"marker.test_overworld_place\"", "which an exit alone holds")]
+    [InlineData(", \"condition\": { \"always\": true }", "which a gate alone holds")]
+    public void AMarkWithTheFieldOfAnotherKindIsAnError(string field, string reason)
+    {
+        // D-1271, T-2: a mark holds no link, no arrival, and no condition.
+        string text = OverworldMaps.OverworldText.Replace(
+            "\"kind\": \"marker\", \"x\": 1, \"y\": 2 }",
+            $"\"kind\": \"marker\", \"x\": 1, \"y\": 2 }},\n  {{ \"id\": \"mark.test_overworld_town\", \"kind\": \"mark\", \"x\": 3, \"y\": 3{field} }}",
+            StringComparison.Ordinal);
+
+        ContentException error = Assert.Throws<ContentException>(() => OverworldMaps.Read(text));
+
+        Assert.Contains("mark.test_overworld_town", error.Message, StringComparison.Ordinal);
+        Assert.Contains(reason, error.Message, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData('_')]
+    [InlineData(';')]
+    public void AThingSitsOnTheRoadAndTheSnowfield(char ground)
+    {
+        // D-1291: the road and the snowfield are open ground, as the grass is.
+        string text = WithSpawnGround(ground);
+
+        GameMap map = OverworldMaps.Read(text);
+
+        Assert.Equal(new TilePoint(4, 2), map.Spawn);
+        Assert.True(TileKinds.TryOf(ground, out TileKind kind));
+        Assert.Equal(kind, map.TileAt(map.Spawn));
+    }
+
+    [Fact]
+    public void AThingInTheForestIsAnError()
+    {
+        // D-1291: the forest stays out of the open ground.
+        string text = WithSpawnGround('%');
+
+        ContentException error = Assert.Throws<ContentException>(() => OverworldMaps.Read(text));
+
+        Assert.Contains("on a forest tile", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void AThingOnAMountainIsAnError()
     {
         // D-528, D-1256: a thing sits on floor or grass, and a mountain takes no step.
@@ -132,7 +195,7 @@ public sealed class OverworldLoadTests
 
         ContentException error = Assert.Throws<ContentException>(() => OverworldMaps.Read(text));
 
-        Assert.Contains("on a mountain tile, and a spawn_point sits on a floor or grass tile", error.Message, StringComparison.Ordinal);
+        Assert.Contains("on a mountain tile, and a spawn_point sits on a floor, grass, road, or snowfield tile", error.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -263,6 +326,16 @@ public sealed class OverworldLoadTests
 
         Assert.True(found, $"The checkout holds no file '{path}'.");
         return files;
+    }
+
+    /// <summary>Gives the text of the test overworld with another ground under the spawn point, at (4, 2).</summary>
+    private static string WithSpawnGround(char ground)
+    {
+        const string Row = "\"^,,,,,,,^\"";
+        int first = OverworldMaps.OverworldText.IndexOf(Row, StringComparison.Ordinal);
+        int second = OverworldMaps.OverworldText.IndexOf(Row, first + Row.Length, StringComparison.Ordinal);
+        Assert.True(first >= 0 && second > first, "The test overworld holds no second grass row.");
+        return string.Concat(OverworldMaps.OverworldText.AsSpan(0, second), $"\"^,,,{ground},,,^\"", OverworldMaps.OverworldText.AsSpan(second + Row.Length));
     }
 
     /// <summary>Gives the text of the test place, which a load test changes.</summary>

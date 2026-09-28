@@ -164,7 +164,7 @@ internal static class EffectFixtures
     public const string Kinds =
         """{ "ambush": "transition.color_split", "elite": "transition.swirl", "boss": "transition.shatter", "wrong_thing": "transition.ripple" }""";
 
-    /// <summary>The pool of region one of the tests, with the six transitions of D-940.</summary>
+    /// <summary>The pool of the test region, with the six transitions of D-940.</summary>
     public const string Pool =
         "\"transition.pixel_dissolve\", \"transition.mosaic\", \"transition.crt_power_off\", \"transition.snow_whiteout\", \"transition.blinds\", \"transition.scanline_sweep\"";
 
@@ -175,7 +175,7 @@ internal static class EffectFixtures
     /// <param name="regions">Other regions, as JSON objects with a comma before each one.</param>
     /// <returns>The body.</returns>
     public static string TableBody(string kinds = Kinds, string maps = "", string pool = Pool, string regions = "") =>
-        $$"""{ "comment": "a test table", "fade_ticks": 20, "back_cover": "k", "kinds": {{kinds}}, "regions": [{ "region": "region.one", "maps": [{{maps}}], "pool": [{{pool}}] }{{regions}}] }""";
+        $$"""{ "comment": "a test table", "fade_ticks": 20, "back_cover": "k", "kinds": {{kinds}}, "regions": [{ "region": "region.test", "maps": [{{maps}}], "pool": [{{pool}}] }{{regions}}] }""";
 
     /// <summary>Makes a content file of a text body.</summary>
     /// <param name="path">The path under `content/`.</param>

@@ -62,6 +62,7 @@ The run starts in the fixture dungeon. The exit of the dungeon leads to the fixt
 7. Face the trader in the north-east of the yard, and press confirm. The shop window opens (D-1149).
 8. Step onto the exit on the east wall of the yard. The party stands on the overworld beside the mark of the inn.
 9. Face the barricade of the north pass, and press confirm. The notice of the closed gate shows, until the party beat the rats of the inn (D-1257).
+10. Type `goto map.overworld` to walk the overworld of region one. No link leads there until PR-17, and each place is a mark (D-1270).
 
 ## The Steam Deck
 

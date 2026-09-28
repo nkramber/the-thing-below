@@ -11,8 +11,8 @@ namespace TheThingBelow.Core.Maps;
 public sealed record ZoneGroup(ContentId Group, int Weight);
 
 /// <summary>
-/// One zone of the overworld: its key on the zone grid, its rate, its weighted groups, and its
-/// condition (D-1250, D-1251, D-1262).
+/// One zone of the overworld: its key on the zone grid, its region, its rate, its weighted groups,
+/// and its condition (D-1250, D-1251, D-1262, D-1285).
 /// </summary>
 /// <remarks>
 /// Each step onto a tile of a live zone adds the rate to the danger count of the run, and the
@@ -26,10 +26,14 @@ public sealed record ZoneGroup(ContentId Group, int Weight);
 /// </remarks>
 /// <param name="Id">The permanent id of the zone, of the kind `zone` (D-646).</param>
 /// <param name="Key">The one character that marks the tiles of the zone on the zone grid (D-1262).</param>
+/// <param name="Region">
+/// The region of the zone, which names the group file of its groups and the pool of the transition
+/// of its common fights (D-1285, D-1289). One overworld holds the land of each region (D-1274).
+/// </param>
 /// <param name="Rate">The danger that each step adds, in basis points from 0 to 10000 (D-1261).</param>
 /// <param name="Groups">The groups of the fights of the zone, in the order of the file (G-4).</param>
 /// <param name="Condition">The condition that lets the zone start a fight, which the always leaf writes for a zone that no flag gates (D-1002, D-1269).</param>
-public sealed record EncounterZone(ContentId Id, char Key, int Rate, IReadOnlyList<ZoneGroup> Groups, Condition Condition)
+public sealed record EncounterZone(ContentId Id, char Key, ContentId Region, int Rate, IReadOnlyList<ZoneGroup> Groups, Condition Condition)
 {
     /// <summary>The kind of the id of a zone (D-646).</summary>
     public const string IdKind = "zone";
@@ -107,7 +111,7 @@ public sealed record EncounterZone(ContentId Id, char Key, int Rate, IReadOnlyLi
     /// </exception>
     /// <remarks>
     /// The map checks the zone grid against the terrain and the keys. The content set checks each
-    /// group against the region and each flag of each condition (T-2).
+    /// group against the group file of the region of its zone, and each flag of each condition (T-2, D-1289).
     /// </remarks>
     public static List<EncounterZone> ReadAll(ref ContentReader reader)
     {
@@ -135,6 +139,7 @@ public sealed record EncounterZone(ContentId Id, char Key, int Rate, IReadOnlyLi
     {
         ContentId? id = null;
         string? key = null;
+        ContentId? region = null;
         int? rate = null;
         List<ZoneGroup>? groups = null;
         Condition? condition = null;
@@ -149,6 +154,9 @@ public sealed record EncounterZone(ContentId Id, char Key, int Rate, IReadOnlyLi
                     break;
                 case "key":
                     key = reader.ReadString();
+                    break;
+                case "region":
+                    region = reader.ReadContentId(Battles.GroupFile.RegionKind);
                     break;
                 case "rate":
                     rate = reader.ReadInt();
@@ -188,7 +196,7 @@ public sealed record EncounterZone(ContentId Id, char Key, int Rate, IReadOnlyLi
             throw reader.RefuseField(depth, "groups", $"the zone '{readId.Value}' takes the rate {readRate} and holds no group, and a zone above rate 0 holds one group or more (D-1250)");
         }
 
-        return new EncounterZone(readId, readKey[0], readRate, readGroups, reader.Require(condition, depth, "condition"));
+        return new EncounterZone(readId, readKey[0], reader.Require(region, depth, "region"), readRate, readGroups, reader.Require(condition, depth, "condition"));
     }
 
     private static List<ZoneGroup> ReadGroups(ref ContentReader reader)

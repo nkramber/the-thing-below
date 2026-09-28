@@ -870,12 +870,12 @@ public partial class MapScreen : Node2D
 
     /// <summary>Tells whether a thing of one kind draws a sprite on the map (D-1142, D-1223).</summary>
     /// <param name="kind">The kind of the thing.</param>
-    /// <returns>True for a service point, a save point, a door, a chest, a trap, an exit, an entrance, and a gate.</returns>
+    /// <returns>True for a service point, a save point, a door, a chest, a trap, an exit, an entrance, a gate, and a mark.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The value names no kind (T-2).</exception>
     public static bool Draws(MapThingKind kind) => kind switch
     {
         MapThingKind.ServicePoint or MapThingKind.SavePoint or MapThingKind.Door or MapThingKind.Chest or MapThingKind.Trap
-            or MapThingKind.Exit or MapThingKind.Entrance or MapThingKind.Gate => true,
+            or MapThingKind.Exit or MapThingKind.Entrance or MapThingKind.Gate or MapThingKind.Mark => true,
         MapThingKind.Lock or MapThingKind.SpawnPoint or MapThingKind.Marker => false,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "The value names no map thing kind (D-528, T-2)."),
     };
