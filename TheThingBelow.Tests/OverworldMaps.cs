@@ -48,6 +48,16 @@ public static class OverworldMaps
           { "id": "marker.test_overworld_place", "kind": "marker", "x": 1, "y": 2 },
           { "id": "gate.test_overworld_pass", "kind": "gate", "x": 6, "y": 2, "condition": { "flag": "flag.fixture_hub_rats" }, "notice": "notice.fixture_gate_shut" }
          ],
+         "zones": [
+          { "id": "zone.test_overworld_road", "key": "r", "rate": 0, "groups": [], "condition": { "always": true } }
+         ],
+         "zone_grid": [
+          ".........",
+          ".rrrrrrr.",
+          ".rrrrrrr.",
+          ".rrrrrrr.",
+          "........."
+         ],
          "enemies": [], "npcs": [], "services": [], "reopen": [], "triggers": []
         }
         """;
@@ -73,7 +83,7 @@ public static class OverworldMaps
           { "id": "spawn_point.test_place_start", "kind": "spawn_point", "x": 1, "y": 1 },
           { "id": "exit.test_place_out", "kind": "exit", "x": 5, "y": 1, "to": "map.test_overworld", "arrive": "marker.test_overworld_place" }
          ],
-         "enemies": [], "npcs": [], "services": [], "reopen": [], "triggers": []
+         "enemies": [], "npcs": [], "services": [], "zones": [], "zone_grid": [], "reopen": [], "triggers": []
         }
         """);
 

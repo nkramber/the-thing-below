@@ -176,11 +176,11 @@ public sealed class StoryContent
         }
     }
 
-    /// <summary>Checks that the condition of each gate of a map names declared flags alone (D-543, D-1243, T-2).</summary>
+    /// <summary>Checks that the condition of each gate and each zone of a map names declared flags alone (D-543, D-1243, D-1251, T-2).</summary>
     /// <param name="map">The map.</param>
     /// <exception cref="ArgumentNullException">The map is null (T-2).</exception>
-    /// <exception cref="ContentException">A condition names an undeclared flag. The error names the map and the gate.</exception>
-    public void RequireGatesOf(GameMap map)
+    /// <exception cref="ContentException">A condition names an undeclared flag. The error names the map and the gate or the zone.</exception>
+    public void RequireGatesAndZonesOf(GameMap map)
     {
         ArgumentNullException.ThrowIfNull(map);
 
@@ -190,6 +190,12 @@ public sealed class StoryContent
             {
                 gate.Condition.RequireDeclared(this.Flags, map.File, $"things.{thing.Id.Value}.{GameMap.ConditionField}");
             }
+        }
+
+        // A zone joins the readers of the one condition form (D-543, D-1251).
+        foreach (EncounterZone zone in map.Zones)
+        {
+            zone.Condition.RequireDeclared(this.Flags, map.File, $"zones.{zone.Id.Value}.{GameMap.ConditionField}");
         }
     }
 

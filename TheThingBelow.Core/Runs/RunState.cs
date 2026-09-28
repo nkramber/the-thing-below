@@ -62,8 +62,10 @@ public sealed class RunState
         NoticeLog noticeLog,
         StoryState story,
         ShopState shops,
-        PlaceMemory places)
+        PlaceMemory places,
+        int danger)
     {
+        this.Danger = danger;
         this.Shops = shops;
         this.Places = places;
         this.Maps = maps;
@@ -89,6 +91,13 @@ public sealed class RunState
 
     /// <summary>The memory of each map: each killed enemy, each open door, and what stays in each chest (D-385, D-555).</summary>
     public PlaceMemory Places { get; }
+
+    /// <summary>
+    /// The danger count of the overworld, in basis points from 0 to 10000 (D-1249, D-1261). Each
+    /// step onto a live zone adds its rate, and a fight of a zone sets the count to zero. The run
+    /// holds one count, so a visit to a place keeps it (D-1264).
+    /// </summary>
+    public int Danger { get; private set; }
 
     /// <summary>The count of ticks since the start of the run (D-164, D-650).</summary>
     public long Tick { get; private set; }
@@ -201,7 +210,8 @@ public sealed class RunState
             NoticeLog.Empty(),
             StoryState.Start(story),
             ShopState.Start(),
-            places);
+            places,
+            0);
     }
 
     /// <summary>
@@ -299,7 +309,8 @@ public sealed class RunState
             snapshot.Notices is null ? NoticeLog.Empty() : NoticeLog.Resume(snapshot.Notices, notices, "this run"),
             storyState,
             ShopState.Resume(battleContent.Shops, snapshot.Stock, "this run", drift),
-            places);
+            places,
+            snapshot.Danger ?? 0);
     }
 
     /// <summary>
@@ -439,6 +450,23 @@ public sealed class RunState
             return Battle.Resume(battleContent, stored, characters, "this run");
         }
 
+        // The battle of a zone names the zone. The zone lies on the map of the party and holds the
+        // group, and no encounter of a patrol runs beside it (D-1249, D-1266). The check of the
+        // snapshot proves that the fight set the danger count to zero.
+        if (string.CompareOrdinal(stored.Enemy.Kind, EncounterZone.IdKind) == 0)
+        {
+            if (party.Map.ZoneOf(stored.Enemy) is not EncounterZone zone
+                || !zone.HoldsGroup(stored.Group)
+                || party.Patrols.Encounter is not null)
+            {
+                throw new ArgumentException(
+                    $"The snapshot holds a battle of the zone '{stored.Enemy.Value}' and the group '{stored.Group.Value}', and the map '{party.Map.Id.Value}' holds no zone of both, or an encounter of a patrol runs too (T-2, D-1266).",
+                    nameof(snapshot));
+            }
+
+            return Battle.Resume(battleContent, stored, characters, "this run");
+        }
+
         if (party.Patrols.Encounter is not MapEncounter encounter
             || string.CompareOrdinal(encounter.Enemy.Value, stored.Enemy.Value) != 0
             || string.CompareOrdinal(encounter.Group.Value, stored.Group.Value) != 0)
@@ -501,7 +529,8 @@ public sealed class RunState
             this.Story.Values(),
             ReadPositions(this.streams),
             this.Shops.Values(),
-            this.Places.Values());
+            this.Places.Values(),
+            this.Danger);
 
     /// <summary>Computes the state hash that a replay and the identity job compare (G-5).</summary>
     /// <returns>The hash of every value of this state.</returns>
@@ -526,6 +555,7 @@ public sealed class RunState
         this.Story.Hash(hasher);
         this.Shops.Hash(hasher);
         this.Places.Hash(hasher);
+        hasher.AddInt32(this.Danger);
 
         foreach (RandomStream stream in this.streams)
         {
@@ -872,6 +902,22 @@ public sealed class RunState
 
     /// <summary>Holds one save that a rule asked for, for Game (D-1132).</summary>
     internal void RequestSave(SaveRequestKind kind) => this.saves.Add(kind);
+
+    /// <summary>Adds the rate of a zone to the danger count, which stops at 10000 (D-1249, D-1261).</summary>
+    /// <param name="rate">The rate of the zone, from 0 to 10000 basis points.</param>
+    /// <exception cref="SimulationException">The rate lies outside 0 to 10000, which the load of a zone refuses (T-2).</exception>
+    internal void AddDanger(int rate)
+    {
+        if (rate < 0 || rate > BasisPoints.One)
+        {
+            throw new SimulationException($"a danger rate of {rate}, which is outside 0 to {BasisPoints.One} (D-1261)", this.Context("danger"));
+        }
+
+        this.Danger = Math.Min(checked(this.Danger + rate), BasisPoints.One);
+    }
+
+    /// <summary>Sets the danger count to zero, as each fight of a zone does (D-1249).</summary>
+    internal void ClearDanger() => this.Danger = 0;
 
     /// <summary>Sets the battle, or ends it with null (D-531).</summary>
     internal void SetBattle(Battle? battle) => this.Battle = battle;

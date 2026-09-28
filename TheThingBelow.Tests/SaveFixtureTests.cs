@@ -101,6 +101,7 @@ public sealed class SaveFixtureTests
                 new(StreamId.Story, 0x9881a20135b0f29e, 0x0000000000000009),
                 EvaluatorAtFirstValue(save.Header.Seed),
                 NpcAtFirstValue(save.Header.Seed),
+                EncounterAtFirstValue(save.Header.Seed),
             },
             save.Snapshot.Streams);
     }
@@ -613,7 +614,7 @@ public sealed class SaveFixtureTests
         ChestLeft left = Assert.Single(Assert.Single(place.Chests).Left);
         Assert.Equal(("item.fixture_draught", 2), (left.Thing.Value, left.Count));
         Assert.True(Assert.Single(run.State.Party.Patrols.All).Dead);
-        Assert.Equal(RunSnapshotText.Write(save.Snapshot), RunSnapshotText.Write(run.Snapshot()));
+        Assert.Equal(RunSnapshotText.Write(AsThisFormat(save.Snapshot)), RunSnapshotText.Write(run.Snapshot()));
     }
 
     [Fact]
@@ -634,7 +635,44 @@ public sealed class SaveFixtureTests
             Assert.Equal([StatusKind.Poison], member.Statuses);
         }
 
+        Assert.Equal(RunSnapshotText.Write(AsThisFormat(save.Snapshot)), RunSnapshotText.Write(run.Snapshot()));
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatTwentyHoldsTheDangerCountOfTheOverworld()
+    {
+        // PR-109 wrote format 20 from the test overworld: three steps onto a zone at rate 1 and no
+        // fight, so the count holds 3 (D-1249, D-1261).
+        SaveDocument save = ReadFormat(20);
+        GameMap map = EncounterMaps.Of(1);
+        Simulation run = EncounterMaps.Resume(save.Header.Seed, map, save.Snapshot);
+
+        Assert.Equal(38, save.Header.SimulationVersion);
+        Assert.Equal(3, save.Snapshot.Danger);
+        Assert.Equal(3, run.State.Danger);
         Assert.Equal(RunSnapshotText.Write(save.Snapshot), RunSnapshotText.Write(run.Snapshot()));
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatNineteenStartsTheDangerCountAtZeroAndTheEncounterStreamAtItsFirstValue()
+    {
+        // D-1249: no build before PR-109 drew from the encounter stream or held a count.
+        SaveDocument save = ReadFormat(19);
+
+        Assert.Null(save.Snapshot.Danger);
+        Assert.Equal(EncounterAtFirstValue(save.Header.Seed), save.Snapshot.Streams[^1]);
+        Simulation run = Simulation.Resume(save.Header.Seed, save.Snapshot, TrapMaps.Hall, TestParty.FourContent, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
+        Assert.Equal(0, run.State.Danger);
+    }
+
+    [Fact]
+    public void ASnapshotOfFormatNineteenWithADangerCountIsAnError()
+    {
+        // D-166, D-1249: format 19 predates the count, so the field fails the read of that format.
+        string line = RunSnapshotText.Write(EncounterMaps.Start(SaveRuns.Seed, EncounterMaps.Of(1)).Snapshot());
+        ContentException error = Assert.Throws<ContentException>(() => ReadAsFormatNineteen(line));
+
+        Assert.Contains("predates it (D-1249)", error.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -902,11 +940,13 @@ public sealed class SaveFixtureTests
     /// Gives a snapshot of an older format as the migration of this format gives it: the NPCs of
     /// its map, which places none, so the list is empty (D-1137), an empty reserve (D-1136), and
     /// each stock at the count of its shop file, so no stock value (D-1152). The memory of the maps
-    /// holds the dead enemies of the map of the snapshot alone (D-555).
+    /// holds the dead enemies of the map of the snapshot alone (D-555). The danger count starts at
+    /// zero (D-1249).
     /// </summary>
     private static RunSnapshot AsThisFormat(RunSnapshot snapshot)
     {
-        RunSnapshot withNpcs = snapshot.Map is null ? snapshot : snapshot with { Map = snapshot.Map with { Npcs = snapshot.Map.Npcs ?? [] } };
+        RunSnapshot withDanger = snapshot with { Danger = snapshot.Danger ?? 0 };
+        RunSnapshot withNpcs = withDanger.Map is null ? withDanger : withDanger with { Map = withDanger.Map with { Npcs = withDanger.Map.Npcs ?? [] } };
         RunSnapshot withStock = withNpcs with { Stock = withNpcs.Stock ?? [], Places = withNpcs.Places ?? PlacesOf(withNpcs.Map) };
         return withStock.Characters is null ? withStock : withStock with { Characters = withStock.Characters with { Reserve = withStock.Characters.Reserve ?? [] } };
     }
@@ -982,6 +1022,18 @@ public sealed class SaveFixtureTests
         }
 
         return texts;
+    }
+
+    private static RunSnapshot ReadAsFormatNineteen(string line)
+    {
+        var reader = new ContentReader(System.Text.Encoding.UTF8.GetBytes(line), "the test");
+        return RunSnapshotText.ReadFormatNineteen(ref reader, SaveRuns.Seed);
+    }
+
+    private static StreamPosition EncounterAtFirstValue(ulong seed)
+    {
+        RandomStream encounters = RandomStreams.Open(seed, StreamId.Encounter);
+        return new StreamPosition(StreamId.Encounter, encounters.Generator.State, encounters.Generator.Increment);
     }
 
     private static StreamPosition NpcAtFirstValue(ulong seed)

@@ -30,10 +30,15 @@ internal static partial class SnapshotLines
     /// <returns>The line in the shape of save format 12.</returns>
     public static string AsFormatTwelve(string line) => PartyTorch().Replace(AsFormatFourteen(line), string.Empty);
 
-    /// <summary>Drops the empty memory of the maps, which save format 18 added (D-555).</summary>
+    /// <summary>Drops the danger count and the encounter stream, which save format 20 added (D-1249).</summary>
+    /// <param name="line">A snapshot line of this build.</param>
+    /// <returns>The line in the shape of save format 19.</returns>
+    public static string AsFormatNineteen(string line) => EncounterStream().Replace(Danger().Replace(line, string.Empty), string.Empty);
+
+    /// <summary>Drops the danger count and the encounter stream of save format 20, and the empty memory of the maps, which save format 18 added (D-555).</summary>
     /// <param name="line">A snapshot line of this build, whose memory of the maps is empty. No older format holds one.</param>
     /// <returns>The line in the shape of save format 17.</returns>
-    public static string AsFormatSeventeen(string line) => EmptyPlaces().Replace(line, string.Empty);
+    public static string AsFormatSeventeen(string line) => EmptyPlaces().Replace(AsFormatNineteen(line), string.Empty);
 
     /// <summary>Drops the empty memory of the maps of save format 18, and names the pool of each character `mp`, as each format before save format 17 does (D-1197).</summary>
     /// <param name="line">A snapshot line of this build.</param>
@@ -87,6 +92,12 @@ internal static partial class SnapshotLines
 
     [GeneratedRegex(""",\{"stream":6,"state":"0x[0-9a-f]+","increment":"0x[0-9a-f]+"\}""")]
     private static partial Regex NpcStream();
+
+    [GeneratedRegex(""","danger":\d+""")]
+    private static partial Regex Danger();
+
+    [GeneratedRegex(""",\{"stream":7,"state":"0x[0-9a-f]+","increment":"0x[0-9a-f]+"\}""")]
+    private static partial Regex EncounterStream();
 
     [GeneratedRegex(""","steals":\{"tries":\d+,"taken":\[[^\]]*\]\}""")]
     private static partial Regex BattleSteals();

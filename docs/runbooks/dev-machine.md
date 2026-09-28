@@ -51,7 +51,7 @@ The battle screen lands in PR-10. Until then, the console takes the turn of a ch
 
 ## The hub and the overworld
 
-The run starts in the fixture dungeon. The exit of the dungeon leads to the fixture overworld, and the mark of the inn there leads to the hub (D-1216, D-1243). The console can also move the party to a map (D-1133).
+The run starts in the fixture dungeon. The exit of the dungeon leads to the fixture overworld, and the mark of the inn there leads to the hub (D-1216, D-1243). The console can also move the party to a map (D-1133). On the overworld, a step onto the grass, the forest, or the valley can start an encounter. The road next to each mark holds none (D-1267).
 
 1. Walk to the way up in the north of the dungeon. The party stands on the overworld beside the mark of the cut, and the autosave writes (D-1246, D-1255).
 2. Walk east to the mark of the inn, and step onto it. The party stands on the spawn point of the hub, and the autosave writes (D-224, D-1132).

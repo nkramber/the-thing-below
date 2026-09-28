@@ -696,7 +696,7 @@ public sealed class ContentSetTests
              "label": "{{label}}",
              "time": "day",
              "dark": false,
-             "kind": "dungeon", "npcs": [], "services": [], "reopen": [],
+             "kind": "dungeon", "npcs": [], "services": [], "zones": [], "zone_grid": [], "reopen": [],
              "terrain": [ "###", "#.#", "###" ],
              "things": [
               { "id": "spawn_point.one_start", "kind": "spawn_point", "x": 1, "y": 1 }

@@ -65,7 +65,7 @@ public sealed record AmbientWorld(
 
     /// <summary>
     /// Gives each drawing of an enemy that a map shows: the map sprite of each patrol, and the
-    /// battle sprite of each enemy of the group of each patrol (D-738, D-885).
+    /// battle sprite of each enemy of the group of each patrol and of each zone (D-738, D-885, D-1250).
     /// </summary>
     /// <param name="map">The map.</param>
     /// <returns>The drawings, in the order of the id of the drawing.</returns>
@@ -85,6 +85,19 @@ public sealed record AmbientWorld(
             foreach (GroupEntry entry in this.Battle.Group(patrol.Group).Entries)
             {
                 shown.Add(entry.Enemy.Value);
+            }
+        }
+
+        // A fight of a zone shows the battle sprite of each enemy of each group of the zone, and the
+        // check of D-957 proves each group at load (D-1250).
+        foreach (EncounterZone zone in map.Zones)
+        {
+            foreach (ZoneGroup group in zone.Groups)
+            {
+                foreach (GroupEntry entry in this.Battle.Group(group.Group).Entries)
+                {
+                    shown.Add(entry.Enemy.Value);
+                }
             }
         }
 

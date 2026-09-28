@@ -216,6 +216,9 @@ public sealed class Battle
     /// <summary>True when an encounter trap started the battle, which names the trap in place of a patrol (D-1231).</summary>
     public bool FromTrap => string.CompareOrdinal(this.Enemy.Kind, MapThingKinds.NameOf(MapThingKind.Trap)) == 0;
 
+    /// <summary>True when a step onto a zone of the overworld started the battle, which names the zone in place of a patrol (D-1266).</summary>
+    public bool FromZone => string.CompareOrdinal(this.Enemy.Kind, EncounterZone.IdKind) == 0;
+
     /// <summary>The group (D-766).</summary>
     public GroupRecord Group { get; }
 

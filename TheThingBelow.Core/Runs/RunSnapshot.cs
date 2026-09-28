@@ -109,6 +109,7 @@ public sealed record PartySnapshot(IReadOnlyList<CharacterValues> Characters, IR
 /// The memory of each map that holds a dead enemy, an open door, or an opened chest, or no value
 /// on a snapshot before save format 18 (D-385, D-555).
 /// </param>
+/// <param name="Danger">The danger count of the overworld, from 0 to 10000, or no value on a snapshot before save format 20 (D-1249, D-1261).</param>
 public sealed record RunSnapshot(
     long Tick,
     bool MenuOpen,
@@ -120,7 +121,8 @@ public sealed record RunSnapshot(
     StoryValues? Story,
     IReadOnlyList<StreamPosition> Streams,
     IReadOnlyList<StockValues>? Stock,
-    IReadOnlyList<PlaceValues>? Places)
+    IReadOnlyList<PlaceValues>? Places,
+    int? Danger)
 {
     /// <summary>
     /// The id of the map to load for this snapshot (D-166). A snapshot of save format 1
@@ -150,9 +152,17 @@ public sealed record RunSnapshot(
             $"the world tick is {this.WorldTick}, and the tick is {this.Tick}, which is lower");
         this.CheckMap(source);
         Refuse(
-            this.Battle is not null && (this.Characters is null || (this.Map?.Encounter is null && !this.StoryWaitsForBattle() && !this.BattleOfTrap())),
+            this.Battle is not null && (this.Characters is null || (this.Map?.Encounter is null && !this.StoryWaitsForBattle() && !this.BattleOfKind(MapThingKinds.NameOf(MapThingKind.Trap)) && !this.BattleOfKind(EncounterZone.IdKind))),
             source,
-            "it holds a battle with no party, or with no encounter, no story scene that waits for it, and no trap, and a battle needs a party and one of the three (D-531, D-998, D-1231)");
+            "it holds a battle with no party, or with no encounter, no story scene that waits for it, no trap, and no zone, and a battle needs a party and one of the four (D-531, D-998, D-1231, D-1266)");
+        Refuse(
+            this.Danger is < 0 or > BasisPoints.One,
+            source,
+            $"the danger count is {this.Danger}, and the range is 0 to {BasisPoints.One} (D-1261)");
+        Refuse(
+            this.BattleOfKind(EncounterZone.IdKind) && this.Danger != 0,
+            source,
+            $"it holds a battle of a zone and the danger count {this.Danger}, and each fight of a zone sets the count to zero (D-1249)");
         Refuse(
             this.Notices is not null && this.Notices.Count > NoticeLog.MostEntries,
             source,
@@ -238,8 +248,8 @@ public sealed record RunSnapshot(
     /// <summary>Tells whether a story scene waits for the battle of its start battle step (D-998).</summary>
     private bool StoryWaitsForBattle() => this.Story?.Scene?.Phase == ScenePhase.Battle;
 
-    /// <summary>True when the battle names a trap. The resume of the run checks the trap on its map (D-1231).</summary>
-    private bool BattleOfTrap() => this.Battle is BattleValues battle && string.CompareOrdinal(battle.Enemy.Kind, MapThingKinds.NameOf(MapThingKind.Trap)) == 0;
+    /// <summary>True when the battle names an id of one kind: a trap or a zone. The resume of the run checks the trap or the zone on its map (D-1231, D-1266).</summary>
+    private bool BattleOfKind(string kind) => this.Battle is BattleValues battle && string.CompareOrdinal(battle.Enemy.Kind, kind) == 0;
 
     private static void Refuse(bool broken, string source, string reason)
     {

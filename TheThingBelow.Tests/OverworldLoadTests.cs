@@ -283,7 +283,7 @@ public sealed class OverworldLoadTests
          "things": [
           { "id": "spawn_point.test_place_start", "kind": "spawn_point", "x": 1, "y": 1 }
          ],
-         "enemies": [], "npcs": [], "services": [], "reopen": [], "triggers": []
+         "enemies": [], "npcs": [], "services": [], "zones": [], "zone_grid": [], "reopen": [], "triggers": []
         }
         """;
 }

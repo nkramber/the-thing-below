@@ -603,6 +603,68 @@ public sealed class GameRunTests
         Assert.Equal(15, run.State.Characters.Gold);
     }
 
+    [Fact]
+    public void TheFightOfAnEncounterTrapStartsTheTransitionOfAnAmbush()
+    {
+        // A regression test of D-1268: the start of the transition knew a patrol and a story scene
+        // alone, so a step onto the encounter trap of the fixture dungeon threw. The trap fight
+        // takes the kind of an ambush, because the enemies act first (D-937, D-1231).
+        Run start = Run.Start();
+        SaveDocument save = start.Save();
+        MapSnapshot map = save.Snapshot.Map ?? throw new InvalidOperationException("The save holds no map (T-2).");
+        TilePoint beside = new(21, 15);
+        List<string> walked = [.. map.Walked];
+        char[] row = walked[beside.Y].ToCharArray();
+        row[beside.X] = map.Walked[map.LeadY][map.LeadX];
+        walked[beside.Y] = new string(row);
+        SaveDocument moved = save with { Snapshot = save.Snapshot with { Map = map with { LeadX = beside.X, LeadY = beside.Y, Facing = StepDirection.East, Walked = walked } } };
+        Run run = Run.Reload(moved, null, Seed, []);
+
+        List<LogEntry> log = [.. run.Advance(OneTick, () => run.IntentOf("step_east"))];
+        for (int tick = 0; run.State.Battle is null; tick += 1)
+        {
+            Assert.True(tick < 60, "The step onto the trap started no fight in 60 ticks (T-2).");
+            log.AddRange(run.Advance(OneTick));
+        }
+
+        Assert.True(run.State.Battle.FromTrap);
+        Assert.Equal("ambush", KindOfTransition(log));
+    }
+
+    [Fact]
+    public void TheFightOfAZoneStartsTheTransitionOfACommonFight()
+    {
+        // D-1265, D-1268: a zone fight has no side from behind and no patrol, so the fixture pair
+        // of the grass takes the kind of a common fight. A danger count of 10000 makes the first
+        // step onto the grass a fight: the road at (13, 9) keeps it, and the grass at (12, 9) fights.
+        Run start = Run.Start(DebugAssemblyFile.Handlers());
+        _ = DebugAssemblyFile.Run("goto map.fixture_overworld", () => start.State, start.Queue);
+        start.Advance(OneTick);
+        Assert.Equal("map.fixture_overworld", start.State.Party.Map.Id.Value);
+        SaveDocument save = start.Save();
+        Run run = Run.Reload(save with { Snapshot = save.Snapshot with { Danger = BasisPoints.One } }, null, Seed, []);
+
+        StepTiles(run, "step_west", 1);
+        Assert.Null(run.State.Battle);
+        List<LogEntry> log = [.. run.Advance(OneTick, () => run.IntentOf("step_west"))];
+        for (int tick = 0; run.State.Battle is null; tick += 1)
+        {
+            Assert.True(tick < 60, "The step onto the grass started no fight in 60 ticks (T-2).");
+            log.AddRange(run.Advance(OneTick));
+        }
+
+        Assert.True(run.State.Battle.FromZone);
+        Assert.Equal("zone.fixture_overworld_grass", run.State.Battle.Enemy.Value);
+        Assert.Equal("common", KindOfTransition(log));
+    }
+
+    /// <summary>Gives the kind of the transition that a log of Game started (D-937).</summary>
+    private static string KindOfTransition(List<LogEntry> log)
+    {
+        LogEntry start = Assert.Single(log, entry => entry.Message == "the screen started the transition into a fight");
+        return Assert.Single(start.Fields, field => field.Name == "kind").Value;
+    }
+
     /// <summary>Starts the run of the group of four: three in the party and one in the reserve, on the first map (exit test 1 of PR-14, D-1144).</summary>
     private static Run GroupRun()
     {

@@ -391,7 +391,7 @@ public sealed class GameMapTests
          "label": "label.bad",
          "time": "{{time}}",
          "dark": false,
-         "kind": "dungeon", "npcs": [], "services": [], "reopen": [],
+         "kind": "dungeon", "npcs": [], "services": [], "zones": [], "zone_grid": [], "reopen": [],
          "terrain": [
         {{terrain}}
          ],

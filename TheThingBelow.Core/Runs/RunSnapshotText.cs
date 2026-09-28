@@ -50,6 +50,7 @@ public static class RunSnapshotText
             WriteStory(writer, snapshot.Story);
             WriteStock(writer, snapshot.Stock);
             WritePlaces(writer, snapshot.Places);
+            WriteDanger(writer, snapshot.Danger);
             writer.WriteStartArray("streams");
             foreach (StreamPosition position in snapshot.Streams)
             {
@@ -65,6 +66,18 @@ public static class RunSnapshotText
         }
 
         return Encoding.UTF8.GetString(bytes.WrittenSpan);
+    }
+
+    /// <summary>
+    /// Writes the danger count of the overworld (D-1249). This build writes save format 20, so the
+    /// field is always present, and it holds 0 before the first step onto a live zone.
+    /// </summary>
+    private static void WriteDanger(Utf8JsonWriter writer, int? danger)
+    {
+        int count = danger ?? throw new ArgumentException(
+            "A snapshot that this build writes holds a danger count. A snapshot with none comes from save format 19 or older, and this build never writes one (T-2, D-166).",
+            nameof(danger));
+        writer.WriteNumber("danger", count);
     }
 
     /// <summary>
@@ -441,30 +454,45 @@ public static class RunSnapshotText
     /// The read gives that value as the AP of the character.
     /// </summary>
     /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <param name="seed">The seed of the header, which opens the encounter stream (D-1249).</param>
     /// <returns>The snapshot.</returns>
     /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
-    public static RunSnapshot ReadFormatSixteen(ref ContentReader reader) => ReadLine(ref reader, 16, null);
+    public static RunSnapshot ReadFormatSixteen(ref ContentReader reader, ulong seed) => ReadLine(ref reader, 16, seed);
 
     /// <summary>
     /// Reads a snapshot of save format 17, which holds no memory of a map (D-555). The resume
     /// starts the memory with the dead enemies of the map that the party stands on.
     /// </summary>
     /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <param name="seed">The seed of the header, which opens the encounter stream (D-1249).</param>
     /// <returns>The snapshot, with no memory of a map.</returns>
     /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
-    public static RunSnapshot ReadFormatSeventeen(ref ContentReader reader) => ReadLine(ref reader, 17, null);
+    public static RunSnapshot ReadFormatSeventeen(ref ContentReader reader, ulong seed) => ReadLine(ref reader, 17, seed);
 
     /// <summary>
     /// Reads a snapshot of save format 18, whose memory of a map holds no spent trap (D-1229). Each
     /// trap of such a save stays armed.
     /// </summary>
     /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <param name="seed">The seed of the header, which opens the encounter stream (D-1249).</param>
     /// <returns>The snapshot, with no spent trap.</returns>
     /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
-    public static RunSnapshot ReadFormatEighteen(ref ContentReader reader) => ReadLine(ref reader, 18, null);
+    public static RunSnapshot ReadFormatEighteen(ref ContentReader reader, ulong seed) => ReadLine(ref reader, 18, seed);
+
+    /// <summary>
+    /// Reads a snapshot of save format 19, which holds no danger count and no encounter stream
+    /// (D-1249). The resume starts the count at zero, and the encounter stream joins at its first
+    /// value, because no build before PR-109 drew from it.
+    /// </summary>
+    /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <param name="seed">The seed of the header, which opens the encounter stream (D-1249).</param>
+    /// <returns>The snapshot, with no danger count.</returns>
+    /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
+    /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
+    public static RunSnapshot ReadFormatNineteen(ref ContentReader reader, ulong seed) => ReadLine(ref reader, 19, seed);
 
     private static RunSnapshot ReadLine(ref ContentReader reader, int format, ulong? seed)
     {
@@ -479,6 +507,7 @@ public static class RunSnapshotText
         List<StockValues>? stock = null;
         List<PlaceValues>? places = null;
         List<StreamPosition>? streams = null;
+        int? danger = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -493,6 +522,13 @@ public static class RunSnapshotText
                     break;
                 case "world":
                     world = reader.ReadLong();
+                    break;
+                // Save format 19 and older predate the danger count (D-1249).
+                case "danger" when format < 20:
+                    throw reader.Refuse(
+                        $"the snapshot of save format {format} holds a danger count, and that format predates it (D-1249)");
+                case "danger":
+                    danger = reader.ReadInt();
                     break;
                 // Save format 7 and older predate the notice log (D-985).
                 case "notices" when format < 8:
@@ -580,6 +616,12 @@ public static class RunSnapshotText
             _ = reader.Require(places, depth, "places");
         }
 
+        // Save format 20 and each later format hold the danger count (D-1249).
+        if (format >= 20)
+        {
+            _ = reader.RequireValue(danger, depth, "danger");
+        }
+
         RunSnapshot snapshot = new(
             reader.RequireValue(tick, depth, "tick"),
             reader.RequireValue(menu, depth, "menu"),
@@ -591,7 +633,8 @@ public static class RunSnapshotText
             story,
             StreamsOf(reader.Require(streams, depth, "streams"), format, seed),
             stock,
-            places);
+            places,
+            danger);
 
         snapshot.Check(reader.File);
         return snapshot;
@@ -660,6 +703,7 @@ public static class RunSnapshotText
             null,
             null,
             StreamsOf(reader.Require(streams, depth, "streams"), 1, seed),
+            null,
             null,
             null);
 
@@ -1264,26 +1308,32 @@ public static class RunSnapshotText
 
     /// <summary>
     /// Gives the streams of a snapshot of this build. Save format 5 and older predate the stream
-    /// of the evaluator, and save format 14 and older predate the NPC stream. Each stream that a
-    /// format predates joins at its first value, from the seed of the header, because no build of
-    /// that format drew from it (D-947, D-1137). A snapshot of this build holds every stream, and
+    /// of the evaluator, save format 14 and older predate the NPC stream, and save format 19 and
+    /// older predate the encounter stream. Each stream that a format predates joins at its first
+    /// value, from the seed of the header, because no build of that format drew from it (D-947,
+    /// D-1137, D-1249). A snapshot of this build holds every stream, and
     /// the check of the snapshot refuses a count other than that of <see cref="RandomStreams.All"/> (T-2).
     /// </summary>
     private static IReadOnlyList<StreamPosition> StreamsOf(List<StreamPosition> streams, int format, ulong? seed)
     {
-        if (format >= 15)
+        if (format >= 20)
         {
             return streams;
         }
 
-        ulong headerSeed = seed ?? throw new ArgumentException($"A snapshot of save format {format} needs the seed of its header to open the streams that it predates (D-947, D-1137).", nameof(seed));
+        ulong headerSeed = seed ?? throw new ArgumentException($"A snapshot of save format {format} needs the seed of its header to open the streams that it predates (D-947, D-1137, D-1249).", nameof(seed));
         var migrated = new List<StreamPosition>(streams);
         if (format <= 5)
         {
             migrated.Add(FirstPositionOf(headerSeed, StreamId.Evaluator));
         }
 
-        migrated.Add(FirstPositionOf(headerSeed, StreamId.Npc));
+        if (format <= 14)
+        {
+            migrated.Add(FirstPositionOf(headerSeed, StreamId.Npc));
+        }
+
+        migrated.Add(FirstPositionOf(headerSeed, StreamId.Encounter));
         return migrated;
     }
 

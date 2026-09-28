@@ -1,3 +1,38 @@
+## Session 377: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-109, round 1. Repository: the-thing-below. Branch: `feat/pr-109-overworld-encounters`. PR: opened by this round. Role: author. Base: `db0320b`.
+
+### What this session did, and why
+
+- Asked the owner the questions of the step counter, the zones, and the snapshot. D-1261 to D-1269 record the answers.
+- Built the invisible encounters of the overworld: the danger count, the encounter stream, the zone grid, and the zone list (D-1249, D-1261 to D-1266). Save format 20 holds the count, and the simulation version is 38.
+- Gave the fixture overworld its four zones (D-1267).
+- Fixed a fault of PR-64 in the same method: a step onto the encounter trap of the fixture dungeon stopped Game (D-1268).
+
+### The state of the build
+
+- `make verify` passed locally with 4,369 tests. The remote head is this round.
+- 2,000 greedy runs: 1,785 reach the goal, and the longest takes 4,555 ticks, so the budget of D-1259 holds. 215 runs play the whole budget (OQ-254).
+
+### What is in flight
+
+- The Gitar pass of this round, then `make codex-review`.
+
+### Traps and gotchas
+
+- Each map file holds `zones` and `zone_grid`. A hub or a dungeon holds both empty.
+- The readers of save formats 16 to 19 now take the seed of the header, because each one opens the encounter stream.
+- `SnapshotLines.AsFormatNineteen` drops the count and the encounter stream for a test of an older reader.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Answer each Gitar item of this round, then run `make codex-review PR=<n>` in the background.
+
 ## Session 376: 2026-09-27, Codex
 
 Author: Codex
@@ -296,36 +331,3 @@ None for PR-16. OQ-251 blocks PR-35.
 ### The next concrete action
 
 Ask the owner to confirm the merge with the summary of D-942, then turn on the auto-merge (D-930).
-
-## Session 367: 2026-09-27, Codex
-
-Author: Codex
-Session: review PR #91 (PR-16), round 2. Repository: the-thing-below. Branch: `review/pr-91`, which tracks `origin/feat/pr-16-dungeon-parts`. Role: reviewer. Base: `78b0d24`.
-
-### What this session did, and why
-
-- Re-reviewed effective head `9ad7f4b` and verified the fix for P2-1. The resume keeps a newly placed enemy dead when map memory holds it dead (D-555, D-1111).
-- Updated `docs/reviews/pr-91.md` to close P2-1 and approve the effective head. The new regression test fails on the prior head.
-
-### The state of the build
-
-- `make verify` passed locally, with 4,196 tests, format, lint, STE, identity, bots, content, atlas, and smoke.
-- CI passed each required leg except `review-gate`, which still read the old review record. The remote head before this metadata commit is `9ad7f4b`.
-
-### What is in flight
-
-- The review record and this entry need one metadata commit and a push to `feat/pr-16-dungeon-parts`.
-- The CI checks of that metadata commit then need verification.
-
-### Traps and gotchas
-
-- The metadata commit does not change effective head `9ad7f4b`.
-- The Gitar CI claim names RG 4 and RG 5 from the old review record. The author answered that claim in a PR comment (D-964).
-
-### The questions that block progress
-
-None for PR-16. OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Commit the review record and this entry together, push to the PR branch, then verify the remote head and checks.

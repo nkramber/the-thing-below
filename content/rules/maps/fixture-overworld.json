@@ -1,5 +1,5 @@
 {
- "comment": "The fixture overworld of PR-35 (D-1242, D-1244). The old cut lies to the west and the low inn to the east, on grass between forest, a lake, and a ring of mountains. A pass to the north opens once the party beat the rats of the inn, and the valley beyond it holds nothing yet (D-1243, D-1257). The map shows the lead alone, and each place is a mark of one tile (D-1245). The overworld holds no enemy, and PR-109 adds its invisible encounters (D-1247, D-1248). PR-110 replaces it with the overworld of region one.",
+ "comment": "The fixture overworld of PR-35 (D-1242, D-1244). The old cut lies to the west and the low inn to the east, on grass between forest, a lake, and a ring of mountains. A pass to the north opens once the party beat the rats of the inn, and the valley beyond it holds nothing yet (D-1243, D-1257). The map shows the lead alone, and each place is a mark of one tile (D-1245). The overworld holds no visible enemy (D-1247). PR-109 gives it four zones of invisible fights: the road next to each mark and the start holds none, the grass fights the pair, the forest fights the pair and at times the elite, and the valley past the pass fights the elite once the rats fell (D-1249 to D-1251, D-1267). PR-110 replaces it with the overworld of region one.",
  "id": "map.fixture_overworld",
  "region": "region.fixture",
  "label": "label.fixture_overworld",
@@ -38,6 +38,48 @@
    "condition": { "flag": "flag.fixture_hub_rats" },
    "notice": "notice.fixture_gate_shut"
   }
+ ],
+ "zones": [
+  { "id": "zone.fixture_overworld_road", "key": "r", "rate": 0, "groups": [], "condition": { "always": true } },
+  {
+   "id": "zone.fixture_overworld_grass",
+   "key": "g",
+   "rate": 100,
+   "groups": [{ "group": "group.fixture_pair", "weight": 1 }],
+   "condition": { "always": true }
+  },
+  {
+   "id": "zone.fixture_overworld_forest",
+   "key": "f",
+   "rate": 200,
+   "groups": [{ "group": "group.fixture_pair", "weight": 3 }, { "group": "group.fixture_elite", "weight": 1 }],
+   "condition": { "always": true }
+  },
+  {
+   "id": "zone.fixture_overworld_valley",
+   "key": "v",
+   "rate": 100,
+   "groups": [{ "group": "group.fixture_elite", "weight": 1 }],
+   "condition": { "flag": "flag.fixture_hub_rats" }
+  }
+ ],
+ "zone_grid": [
+  "............................",
+  "...........vvvvvvv..........",
+  "..........vvvvvvvvv.........",
+  "..........vvvvvvvvv.........",
+  "..............v.............",
+  ".....fff......g......fff....",
+  "...ggffffggggggggggggffffgg.",
+  "..ggggffggggggggggggrrffggg.",
+  "..gggg...ggggrrrggggrrrgggg.",
+  ".gggggrrrggggrrrggggrrrgggg.",
+  ".gggggrrrggggrrrggggggggggg.",
+  "..ggggggggg...ggggggggggff..",
+  "...gggffgg....gggggggggfff..",
+  "....gffffgg..gggggggggggg...",
+  "......gggggggggggggggg......",
+  "............................"
  ],
  "enemies": [],
  "npcs": [],

@@ -73,7 +73,7 @@ public static class PatrolMaps
          "label": "label.patrol_test",
          "time": "{{time}}",
          "dark": {{(dark ? "true" : "false")}},
-         "kind": "dungeon", "npcs": [], "services": [], "reopen": [],
+         "kind": "dungeon", "npcs": [], "services": [], "zones": [], "zone_grid": [], "reopen": [],
          "terrain": [
           "##########",
           "#........#",

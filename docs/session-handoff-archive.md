@@ -1,4 +1,38 @@
 # Session handoff archive
+
+## Session 367: 2026-09-27, Codex
+
+Author: Codex
+Session: review PR #91 (PR-16), round 2. Repository: the-thing-below. Branch: `review/pr-91`, which tracks `origin/feat/pr-16-dungeon-parts`. Role: reviewer. Base: `78b0d24`.
+
+### What this session did, and why
+
+- Re-reviewed effective head `9ad7f4b` and verified the fix for P2-1. The resume keeps a newly placed enemy dead when map memory holds it dead (D-555, D-1111).
+- Updated `docs/reviews/pr-91.md` to close P2-1 and approve the effective head. The new regression test fails on the prior head.
+
+### The state of the build
+
+- `make verify` passed locally, with 4,196 tests, format, lint, STE, identity, bots, content, atlas, and smoke.
+- CI passed each required leg except `review-gate`, which still read the old review record. The remote head before this metadata commit is `9ad7f4b`.
+
+### What is in flight
+
+- The review record and this entry need one metadata commit and a push to `feat/pr-16-dungeon-parts`.
+- The CI checks of that metadata commit then need verification.
+
+### Traps and gotchas
+
+- The metadata commit does not change effective head `9ad7f4b`.
+- The Gitar CI claim names RG 4 and RG 5 from the old review record. The author answered that claim in a PR comment (D-964).
+
+### The questions that block progress
+
+None for PR-16. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Commit the review record and this entry together, push to the PR branch, then verify the remote head and checks.
+
 ## Session 366: 2026-09-27, Claude Code
 
 Author: Claude Code

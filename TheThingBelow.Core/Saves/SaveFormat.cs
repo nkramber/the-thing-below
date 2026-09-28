@@ -97,6 +97,12 @@ public static class SaveFormat
     /// PR-64 raised it to 19. The memory of each map gained its spent traps (D-1229). A save of an
     /// older format holds each trap armed.
     /// </para>
+    /// <para>
+    /// PR-109 raised it to 20. The snapshot gained the danger count of the overworld, and the streams
+    /// gained the encounter stream (D-1249). A save of an older format starts the count at zero, and
+    /// it opens the encounter stream at its first value from the seed of the header, because no build
+    /// before PR-109 drew from it.
+    /// </para>
     /// </remarks>
-    public const int Current = 19;
+    public const int Current = 20;
 }
