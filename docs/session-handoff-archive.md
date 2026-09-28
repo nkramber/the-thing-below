@@ -1,5 +1,36 @@
 # Session handoff archive
 
+## Session 370: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-64, round 2. Repository: the-thing-below. Branch: `feat/pr-64-traps-hazards`. PR: #92. Role: author. Base: `b7eb8bc`.
+
+### What this session did, and why
+
+- Gitar approved `8d652b0` with no thread. Its CI analysis named the RG 3 fault, which waits for the review record, and a PR comment answers it (D-964).
+- CI run 36346460741 passed each job except the screen-test job. The 91 changed frames show the snow, the ice, or the new `pit-trap-1x` frame. The two frames of the battle pointer change in 12 and 27 pixels, because the `ui` page grew with the faces.
+- This round commits the 92 baselines of the capture artifact of that run (D-733). The captures of the artifact match them.
+
+### The state of the build
+
+- The remote head before this push is `8d652b0`.
+
+### What is in flight
+
+- The CI of this push and its Gitar pass, then `make codex-review PR=92` (D-926).
+
+### Traps and gotchas
+
+- The full `make sheet` fails in the join, because the sheet passes 65535 rows. `make sheet FIXTURE=pit` joins one fixture.
+
+### The questions that block progress
+
+None for PR-64. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Wait for green CI and the Gitar pass on this head, then run `make codex-review PR=92` in the background.
+
 ## Session 369: 2026-09-27, Claude Code
 
 Author: Claude Code

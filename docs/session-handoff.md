@@ -1,3 +1,33 @@
+## Session 380: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-110, round 2. Repository: the-thing-below. Branch: `feat/pr-110-region-one-overworld`. PR: #95. Role: author. Base: `5e6fb49`.
+
+### What this session did, and why
+
+- Read the Gitar pass of `5ab1c85`: the code review approved it with no finding. Its CI analysis names RG 3 of `review-gate`, which waits for the record of the cross-provider review (T-4).
+- Took the six new baselines from the screen-test artifact of run 36377274609 (D-733): the three `region-one` frames, and the three `overworld` frames that the frosted grass changes. The author read each frame.
+
+### The state of the build
+
+- On each CI leg, the three absent baselines were the only failed tests, so each leg makes the same map as the committed one (D-1296). The replay identity passed on each leg.
+
+### What is in flight
+
+- The Gitar pass of this round, then `make codex-review PR=95`.
+
+### Traps and gotchas
+
+- The baselines of this round move the effective head, so the Gitar pass runs again.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Answer each Gitar item of this round, then run `make codex-review PR=95` in the background.
+
 ## Session 379: 2026-09-28, Claude Code
 
 Author: Claude Code
@@ -303,34 +333,3 @@ None for PR-64. OQ-251 blocks PR-35.
 ### The next concrete action
 
 Wait for the author correction, then review its regression test and update this review record.
-
-## Session 370: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-64, round 2. Repository: the-thing-below. Branch: `feat/pr-64-traps-hazards`. PR: #92. Role: author. Base: `b7eb8bc`.
-
-### What this session did, and why
-
-- Gitar approved `8d652b0` with no thread. Its CI analysis named the RG 3 fault, which waits for the review record, and a PR comment answers it (D-964).
-- CI run 36346460741 passed each job except the screen-test job. The 91 changed frames show the snow, the ice, or the new `pit-trap-1x` frame. The two frames of the battle pointer change in 12 and 27 pixels, because the `ui` page grew with the faces.
-- This round commits the 92 baselines of the capture artifact of that run (D-733). The captures of the artifact match them.
-
-### The state of the build
-
-- The remote head before this push is `8d652b0`.
-
-### What is in flight
-
-- The CI of this push and its Gitar pass, then `make codex-review PR=92` (D-926).
-
-### Traps and gotchas
-
-- The full `make sheet` fails in the join, because the sheet passes 65535 rows. `make sheet FIXTURE=pit` joins one fixture.
-
-### The questions that block progress
-
-None for PR-64. OQ-251 blocks PR-35.
-
-### The next concrete action
-
-Wait for green CI and the Gitar pass on this head, then run `make codex-review PR=92` in the background.
