@@ -1,4 +1,38 @@
 # Session handoff archive
+## Session 386: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-111, round 1. Repository: the-thing-below. Branch: `feat/pr-111-overworld-treasure`. PR: the one PR of PR-111, before GitHub gives a number. Role: author. Base: `2ac46b6`.
+
+### What this session did, and why
+
+- Asked the three questions of D-1298 and the count. D-1304 to D-1308: the chest form, the land hides it, a cairn shows it, four treasures, one low, two valley, one pass.
+- The settings of the generator gain `treasures`. The generator puts each chest off the road, on no tile whose closure cuts a path, and checks both rules (D-1306).
+- Four chest lines on `map.overworld`, with fixture items that have a singular name, so no player string is new. Two placeholder drawings of the cairn.
+- `make sheet` failed on `main` at 107,660 rows. The owner chose the fix in this PR (D-1309): the `screens` command writes pages.
+
+### The state of the build
+
+- Local `make verify` passed: 4,458 tests, no finding. `make sheet` writes 2 pages of 156 captures. The remote head is `2ac46b6` until the first push.
+
+### What is in flight
+
+- The first push, the Gitar pass, and `make codex-review`.
+
+### Traps and gotchas
+
+- The generator gives each tile within one of a thing the road zone, so a test reads the land of a treasure two tiles out.
+- A chest entry needs a `single.` string (D-1224). Salts, the coat, and the charm have none.
+- No simulation version bump: no rule of a run reads `OverworldPlan`. The content hash changed.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push, open the PR, run the Gitar poll, then `make codex-review`.
+
 ## Session 385: 2026-09-28, Codex
 
 Author: Codex
