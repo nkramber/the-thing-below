@@ -121,6 +121,42 @@ public sealed class CodexReviewFindingRoundsTests
     }
 
     [Fact]
+    public void AFindingThatTheEarlierRecordHeldOpenAtTheSameHeadClosesThere()
+    {
+        // D-1303, the regression test of the fault of PR #95: a fix of the PR description or of the
+        // metadata set closes a finding and leaves the effective head where it was.
+        IReadOnlyList<ReviewFinding> earlier = FindingRounds.Read(Path, Record(Finding("P2-1", "open", Round2)));
+        IReadOnlyList<ReviewFinding> findings = FindingRounds.Read(Path, Record(Finding("P2-1", "fixed in `abcdef1`", Round2)));
+
+        FindingRounds.CheckHeads(Path, findings, Round2, earlier);
+
+        Assert.Empty(FindingRounds.Strikes(findings));
+    }
+
+    [Fact]
+    public void AClosedFindingThatTheEarlierRecordHeldOpenAtAnotherHeadIsStillAFault()
+    {
+        // D-929, D-1303: the exception covers the head that the earlier round recorded, alone.
+        IReadOnlyList<ReviewFinding> earlier = FindingRounds.Read(Path, Record(Finding("P2-1", "open", Round1)));
+        IReadOnlyList<ReviewFinding> findings = FindingRounds.Read(Path, Record(Finding("P2-1", "fixed in `abcdef1`", Round1, Round2)));
+
+        InvalidOperationException fault = Assert.Throws<InvalidOperationException>(
+            () => FindingRounds.CheckHeads(Path, findings, Round2, earlier));
+
+        Assert.Contains("P2-1 is not open", fault.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AClosedFindingThatTheEarlierRecordHeldClosedIsStillAFault()
+    {
+        // D-929, D-1303: a finding closed in both records never lists the effective head.
+        IReadOnlyList<ReviewFinding> earlier = FindingRounds.Read(Path, Record(Finding("P2-1", "withdrawn", Round2)));
+        IReadOnlyList<ReviewFinding> findings = FindingRounds.Read(Path, Record(Finding("P2-1", "withdrawn", Round2)));
+
+        Assert.Throws<InvalidOperationException>(() => FindingRounds.CheckHeads(Path, findings, Round2, earlier));
+    }
+
+    [Fact]
     public void AHeadListedTwoTimesIsAFault()
     {
         string record = Record("### P1-1: a fault\n\nStatus: open.\n\nOpen at: `1111111`, `1111111111`.");

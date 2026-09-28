@@ -56,8 +56,12 @@ public sealed record ReviewOutcome(
     /// <param name="path">The path of the review record.</param>
     /// <param name="recordText">The text of the record on origin, or null when origin holds none.</param>
     /// <param name="effectiveHead">The effective head of the branch on origin, or null when it has none (D-610).</param>
+    /// <param name="earlierRecordText">
+    /// The text of the record on origin before this round, or null when the round is the first. A
+    /// finding that it holds open at the effective head can close at that head (D-1303).
+    /// </param>
     /// <returns>The outcome. A fault never gives a verdict, so a stale approval never merges (T-2).</returns>
-    public static ReviewOutcome Decide(int codexExitCode, string path, string? recordText, CommitFacts? effectiveHead)
+    public static ReviewOutcome Decide(int codexExitCode, string path, string? recordText, CommitFacts? effectiveHead, string? earlierRecordText = null)
     {
         ArgumentException.ThrowIfNullOrEmpty(path);
 
@@ -92,7 +96,8 @@ public sealed record ReviewOutcome(
         try
         {
             findings = FindingRounds.Read(path, recordText);
-            FindingRounds.CheckHeads(path, findings, effectiveHead.Sha);
+            IReadOnlyList<ReviewFinding> earlier = earlierRecordText is null ? [] : FindingRounds.Read(path, earlierRecordText);
+            FindingRounds.CheckHeads(path, findings, effectiveHead.Sha, earlier);
         }
         catch (InvalidOperationException fault)
         {

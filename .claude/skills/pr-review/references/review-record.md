@@ -131,6 +131,8 @@ A withdrawn finding stays in the file with the evidence that refuted it. Never d
 
 The `Open at:` line lists the effective head of each round in which the finding is open, oldest first (D-929). In each round, add the head of the round to each finding that is open in that round. Never remove a head. A finding that is not open in a round does not get the head of that round. The `codex-review` command gives a fault when an open finding does not list the effective head, or when a closed finding lists it.
 
+One case is the exception: a fix of the PR description or of the metadata set leaves the effective head where it was. A finding that the record before the round held open at that head can then close at it, and its line keeps that head (D-1303).
+
 ## Correct the PR description
 
 A PR description is part of the documentation set. A description that names a stale head, an old count, or a superseded correction misleads the owner at the merge.

@@ -43,6 +43,21 @@ public sealed class CodexReviewOutcomeTests
         Assert.Empty(outcome.OpenFindings);
     }
 
+    [Fact]
+    public void AnApprovalOfAFixThatLeftTheHeadGivesZero()
+    {
+        // D-1303, the regression test of the fault of PR #95: the earlier record held P2-1 open at
+        // the effective head, and a fix of the PR description closed it at the same head.
+        string earlier = Record(Head, "Changes required", CodexReviewFindingRoundsTests.Finding("P2-1", "open", Head));
+        string record = Record(Head, "Ready for owner merge", CodexReviewFindingRoundsTests.Finding("P2-1", "fixed in `abcdef1`", Head));
+
+        ReviewOutcome outcome = ReviewOutcome.Decide(0, Path, record, EffectiveHead, earlier);
+        ReviewOutcome withNoEarlier = ReviewOutcome.Decide(0, Path, record, EffectiveHead);
+
+        Assert.Equal(ReviewOutcomeKind.Approve, outcome.Kind);
+        Assert.Equal(ReviewOutcomeKind.Fault, withNoEarlier.Kind);
+    }
+
     [Theory]
     [InlineData("Changes required")]
     [InlineData("Blocked")]

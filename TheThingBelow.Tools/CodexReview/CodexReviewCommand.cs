@@ -152,6 +152,9 @@ public static class CodexReviewCommand
         (string transcript, string errorLog, string lastMessage) = TranscriptPaths(root, number, head.Sha);
         output.WriteLine($"{Name}: the review runs in '{worktree}'. The transcript is '{transcript}'.");
 
+        // The record before this round, which tells a finding that a fix of the description or of
+        // the metadata set closed at an unchanged effective head (D-1303).
+        string? earlierRecord = ReadRemoteFile(root, checkout.Branch, ReviewRecordRules.RecordPath(number));
         string prompt = CodexCli.ReviewPrompt(number, checkout.Branch, localBranch, skipGitarReview);
         ProgramResult run = RunCodex(codex, CodexCli.ReviewArguments(worktree, lastMessage, prompt), worktree, transcript, ReviewLimit);
         File.WriteAllText(errorLog, run.Error);
@@ -160,7 +163,7 @@ public static class CodexReviewCommand
         string path = ReviewRecordRules.RecordPath(number);
         string? record = ReadRemoteFile(root, checkout.Branch, path);
         CommitFacts? reviewedHead = ReadEffectiveHead(root, number, checkout.Branch, baseBranch);
-        ReviewOutcome outcome = ReviewOutcome.Decide(run.ExitCode, path, record, reviewedHead);
+        ReviewOutcome outcome = ReviewOutcome.Decide(run.ExitCode, path, record, reviewedHead, earlierRecord);
 
         Report(outcome, transcript, errorLog, output);
         if (outcome.Kind == ReviewOutcomeKind.Fault)

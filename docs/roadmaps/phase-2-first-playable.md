@@ -2925,6 +2925,7 @@ Area file: `area-exploration.md` section 7.13. World file: `docs/world/places.md
 - The mark, a thing with no link for a place with no map yet, and four side landmarks (D-1270 to D-1272, D-1299).
 - The five gates of the story, with their flags and their notices (D-1281, D-1282, D-1288).
 - Six zones at rate 0, each with the region of its groups and its pool (D-1283 to D-1286, D-1289).
+- The `codex-review` command accepts a finding that a fix closed at an unchanged effective head (D-1303).
 
 **Out of scope.**
 

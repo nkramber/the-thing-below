@@ -91,13 +91,17 @@ public static class FindingRounds
 
     /// <summary>
     /// Checks each finding against the effective head of this round. An open finding lists that
-    /// head, and a finding that is not open does not list it (T-2).
+    /// head, and a finding that is not open does not list it (T-2). One case is the exception: a
+    /// finding that the record before this round held open at the same effective head. A fix of
+    /// the PR description or of the metadata set closes it and leaves the head where it was, so
+    /// the line keeps the head of the round that opened it (D-1303).
     /// </summary>
     /// <param name="path">The path of the record, for the message of a fault.</param>
     /// <param name="findings">The findings of the record.</param>
     /// <param name="effectiveHead">The full hash of the effective head (D-610).</param>
+    /// <param name="earlier">The findings of the record before this round, or none for the first round.</param>
     /// <exception cref="InvalidOperationException">A finding and its `Open at:` line disagree.</exception>
-    public static void CheckHeads(string path, IReadOnlyList<ReviewFinding> findings, string effectiveHead)
+    public static void CheckHeads(string path, IReadOnlyList<ReviewFinding> findings, string effectiveHead, IReadOnlyList<ReviewFinding>? earlier = null)
     {
         ArgumentException.ThrowIfNullOrEmpty(path);
         ArgumentNullException.ThrowIfNull(findings);
@@ -112,12 +116,26 @@ public static class FindingRounds
                     $"`{path}`: {finding.Id} is open, and its `{OpenAtLabel}` line does not list the effective head `{effectiveHead}` (D-929).");
             }
 
-            if (!finding.IsOpen && listed)
+            if (!finding.IsOpen && listed && !WasOpenAt(earlier ?? [], finding.Id, effectiveHead))
             {
                 throw new InvalidOperationException(
                     $"`{path}`: {finding.Id} is not open, and its `{OpenAtLabel}` line lists the effective head `{effectiveHead}` (D-929).");
             }
         }
+    }
+
+    /// <summary>Tells whether the record before this round held a finding open at the effective head (D-1303).</summary>
+    private static bool WasOpenAt(IReadOnlyList<ReviewFinding> earlier, string id, string effectiveHead)
+    {
+        foreach (ReviewFinding finding in earlier)
+        {
+            if (string.Equals(finding.Id, id, StringComparison.Ordinal) && finding.IsOpen && Lists(finding, effectiveHead))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>Gives each finding that stops the fix loop: open now, and open in three rounds or more.</summary>

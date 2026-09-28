@@ -1,3 +1,34 @@
+## Session 374: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-64, round 4. Repository: the-thing-below. Branch: `feat/pr-64-traps-hazards`. PR: #92. Role: author. Base: `b7eb8bc`.
+
+### What this session did, and why
+
+- The repeat review approved the effective head `fe1c5ec7`: `Ready for owner merge`, with no open finding (T-4, D-17). The record is `docs/reviews/pr-92.md`, in `65b4053`.
+- Gitar approved `fe1c5ec7` with no thread. Each CI claim on RG 3 to RG 5 has its answer in a PR comment (D-964).
+
+### The state of the build
+
+- CI on `fe1c5ec7` passed each job except the review-gate, which the record now answers.
+- The remote head before this push is `65b4053`, the review record.
+
+### What is in flight
+
+- The checks and the Gitar pass of this metadata commit, then the merge question to the owner (D-933, D-942). The PR then waits for the auto-merge (D-930).
+
+### Traps and gotchas
+
+- The review commit adds a handoff entry of its own, so the author reads the top number again before each entry.
+
+### The questions that block progress
+
+None for PR-64. OQ-251 blocks PR-35.
+
+### The next concrete action
+
+Ask the owner to confirm the merge with the summary of D-942, then turn on the auto-merge (D-930).
+
 ## Session 373: 2026-09-27, Codex
 
 Author: Codex
