@@ -1,3 +1,40 @@
+# Session handoff archive
+
+## Session 375: 2026-09-27, Claude Code
+
+Author: Claude Code
+Session: author PR-35, round 1. Repository: the-thing-below. Branch: `feat/pr-35-region-map`. PR: #93. Role: author. Base: `9d1d73f`.
+
+### What this session did, and why
+
+- The owner answered OQ-251 and OQ-122: a walkable overworld at the scale of Final Fantasy VI replaces the node map (D-1242 to D-1258). D-113 is superseded, and D-37, D-224, D-430, and D-543 are revised in part.
+- PR-35 builds the overworld: the map kind, four tile kinds, the entrance, the gate with its notice, the exit marker, and the autosave on the entry (D-1243, D-1246, D-1255 to D-1257). The fixture overworld joins the fixture dungeon and the fixture hub.
+- PR-109 (the invisible encounters) and PR-110 (the overworld of region one) join Phase 2 (D-1248, D-1254).
+- Each bot policy has its own tick budget: greedy 13,665, random 2,349. The greedy counts of CI and the night job are halved (D-1259, D-1260). OQ-254 holds the wipe loop of the greedy bot.
+- The greedy path now crosses no exit or entrance except its target, with a regression test.
+
+### The state of the build
+
+- CI run 36359224796 on `5799c14` passed the bots, the smoke, the replay identity, the det-lint, and the STE jobs on each leg. The tests failed on the three absent `overworld` baselines alone. The simulation version is 37.
+- The author read each frame of `make sheet FIXTURE=overworld`.
+
+### What is in flight
+
+- Gitar approved `5799c14` with no thread, and a PR comment answers its claim on RG 3. The second push adds the three `overworld` baselines and 12 hub baselines from the CI artifact: the hub exit now draws on the east wall of the yard (D-733). All 153 CI captures match them. Then `make codex-review PR=93`.
+
+### Traps and gotchas
+
+- The rats trigger of the hub sits on (18,10), and the capture walks cross row 5. The hub exit sits on (18,6) to stay off both.
+- The greedy bot can loop on a wipe after a save at the waystone with a hurt party. About one dungeon run in five plays its whole budget (OQ-254). The owner first chose a reset on a reload, and the session measured it, found no gain, and removed it (D-1260).
+
+### The questions that block progress
+
+None for PR-35.
+
+### The next concrete action
+
+Run the Gitar poll of the second push, wait for its checks, then run `make codex-review PR=93` in the background (D-926).
+
 ## Session 374: 2026-09-27, Claude Code
 
 Author: Claude Code
@@ -129,8 +166,6 @@ None for PR-64. OQ-251 blocks PR-35.
 ### The next concrete action
 
 Wait for the author correction, then review its regression test and update this review record.
-# Session handoff archive
-
 ## Session 370: 2026-09-27, Claude Code
 
 Author: Claude Code

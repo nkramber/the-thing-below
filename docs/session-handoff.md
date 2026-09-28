@@ -1,3 +1,34 @@
+## Session 385: 2026-09-28, Codex
+
+Author: Codex
+Session: repeat review PR #95 (PR-110). Repository: the-thing-below. Branch: `review/pr-95`, tracking `origin/feat/pr-110-region-one-overworld`. Role: reviewer. Base: `5e6fb493c0d92db79409109941b47078179ca544`.
+
+### What this session did, and why
+
+- Re-reviewed effective head `0d1b34b3ca7db19302ab3e4f5638185cb997d88e`. Verified D-1303's finding-round fix and its regression tests.
+- Confirmed P2-1 stays fixed. Updated `docs/reviews/pr-95.md` to approve the new head and answer the Gitar CI-analysis item about RG 5 (D-964).
+- Ran `make verify`: 4,442 tests passed with no failures or skips. CI implementation checks passed on all legs.
+
+### The state of the build
+
+- The remote head is `0d1b34b3ca7db19302ab3e4f5638185cb997d88e`. The CI jobs pass except review-gate, which fails RG 5 against the old record.
+
+### What is in flight
+
+- Commit this review record and handoff entry together. Push with `git push origin HEAD:feat/pr-110-region-one-overworld`.
+
+### Traps and gotchas
+
+- The new head changes Tools, so the review must name it. The metadata commit leaves the effective head unchanged (D-610).
+
+### The questions that block progress
+
+None for PR-110.
+
+### The next concrete action
+
+Run `make where` and the STE check. Commit the review record and handoff entry, push, fetch, then verify the PR head and review-gate result.
+
 ## Session 384: 2026-09-28, Claude Code
 
 Author: Claude Code
@@ -292,38 +323,3 @@ None for PR-35.
 ### The next concrete action
 
 Run `make where`, `make ste-check`, and `git diff --cached --check`. Commit the review record and handoff files, push, then verify the remote head and checks.
-
-## Session 375: 2026-09-27, Claude Code
-
-Author: Claude Code
-Session: author PR-35, round 1. Repository: the-thing-below. Branch: `feat/pr-35-region-map`. PR: #93. Role: author. Base: `9d1d73f`.
-
-### What this session did, and why
-
-- The owner answered OQ-251 and OQ-122: a walkable overworld at the scale of Final Fantasy VI replaces the node map (D-1242 to D-1258). D-113 is superseded, and D-37, D-224, D-430, and D-543 are revised in part.
-- PR-35 builds the overworld: the map kind, four tile kinds, the entrance, the gate with its notice, the exit marker, and the autosave on the entry (D-1243, D-1246, D-1255 to D-1257). The fixture overworld joins the fixture dungeon and the fixture hub.
-- PR-109 (the invisible encounters) and PR-110 (the overworld of region one) join Phase 2 (D-1248, D-1254).
-- Each bot policy has its own tick budget: greedy 13,665, random 2,349. The greedy counts of CI and the night job are halved (D-1259, D-1260). OQ-254 holds the wipe loop of the greedy bot.
-- The greedy path now crosses no exit or entrance except its target, with a regression test.
-
-### The state of the build
-
-- CI run 36359224796 on `5799c14` passed the bots, the smoke, the replay identity, the det-lint, and the STE jobs on each leg. The tests failed on the three absent `overworld` baselines alone. The simulation version is 37.
-- The author read each frame of `make sheet FIXTURE=overworld`.
-
-### What is in flight
-
-- Gitar approved `5799c14` with no thread, and a PR comment answers its claim on RG 3. The second push adds the three `overworld` baselines and 12 hub baselines from the CI artifact: the hub exit now draws on the east wall of the yard (D-733). All 153 CI captures match them. Then `make codex-review PR=93`.
-
-### Traps and gotchas
-
-- The rats trigger of the hub sits on (18,10), and the capture walks cross row 5. The hub exit sits on (18,6) to stay off both.
-- The greedy bot can loop on a wipe after a save at the waystone with a hurt party. About one dungeon run in five plays its whole budget (OQ-254). The owner first chose a reset on a reload, and the session measured it, found no gain, and removed it (D-1260).
-
-### The questions that block progress
-
-None for PR-35.
-
-### The next concrete action
-
-Run the Gitar poll of the second push, wait for its checks, then run `make codex-review PR=93` in the background (D-926).
