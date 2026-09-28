@@ -1,3 +1,36 @@
+## Session 387: 2026-09-28, Codex
+
+Author: Codex
+Session: review PR #96 (PR-111). Repository: the-thing-below. Branch: `review/pr-96`, tracking `origin/feat/pr-111-overworld-treasure`. Role: reviewer. Base: `2ac46b6e7280a5000c9397b4b592fcbf1889949c`.
+
+### What this session did, and why
+
+- Reviewed effective head `d56432a9dd281d48bcbce2a411862392aaa4d325`, the full diff, the PR comments, and the applicable contracts.
+- Ran 69 focused tests for the generator, treasure flow, and contact-sheet pages. All passed.
+- Found P2-1: the PR description does not attach the required art review sheet for the two cairn drawings (D-514, D-668, G-25).
+- Verified Gitar's CI analysis claim against the job log. RG 3 alone failed because this review record was absent, and the author answered the claim (D-964).
+
+### The state of the build
+
+- Required implementation CI passed on macOS, Ubuntu, and Windows. `review-gate` had only the expected RG 3 fault before this record existed.
+- Effective head: `d56432a9dd281d48bcbce2a411862392aaa4d325`. The review commit changes the metadata set alone (D-610).
+
+### What is in flight
+
+- The author must attach the art review sheet and request a repeat review.
+
+### Traps and gotchas
+
+- Push with `git push origin HEAD:feat/pr-111-overworld-treasure`.
+- Session 377 moved to the top of `docs/session-handoff-archive.md` to keep ten current entries.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit this review record and handoff entry together, push the metadata commit, then verify the remote head and review-gate.
 ## Session 386: 2026-09-28, Claude Code
 
 Author: Claude Code
@@ -288,38 +321,3 @@ None for PR-109.
 ### The next concrete action
 
 Run `make where`, `make ste-check`, and `git diff --cached --check`. Commit the review record and handoff files together, push to the PR branch, then verify the remote head and checks.
-
-## Session 377: 2026-09-28, Claude Code
-
-Author: Claude Code
-Session: author PR-109, round 1. Repository: the-thing-below. Branch: `feat/pr-109-overworld-encounters`. PR: opened by this round. Role: author. Base: `db0320b`.
-
-### What this session did, and why
-
-- Asked the owner the questions of the step counter, the zones, and the snapshot. D-1261 to D-1269 record the answers.
-- Built the invisible encounters of the overworld: the danger count, the encounter stream, the zone grid, and the zone list (D-1249, D-1261 to D-1266). Save format 20 holds the count, and the simulation version is 38.
-- Gave the fixture overworld its four zones (D-1267).
-- Fixed a fault of PR-64 in the same method: a step onto the encounter trap of the fixture dungeon stopped Game (D-1268).
-
-### The state of the build
-
-- `make verify` passed locally with 4,369 tests. The remote head is this round.
-- 2,000 greedy runs: 1,785 reach the goal, and the longest takes 4,555 ticks, so the budget of D-1259 holds. 215 runs play the whole budget (OQ-254).
-
-### What is in flight
-
-- The Gitar pass of this round, then `make codex-review`.
-
-### Traps and gotchas
-
-- Each map file holds `zones` and `zone_grid`. A hub or a dungeon holds both empty.
-- The readers of save formats 16 to 19 now take the seed of the header, because each one opens the encounter stream.
-- `SnapshotLines.AsFormatNineteen` drops the count and the encounter stream for a test of an older reader.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Answer each Gitar item of this round, then run `make codex-review PR=<n>` in the background.

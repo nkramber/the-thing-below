@@ -1,4 +1,36 @@
 # Session handoff archive
+## Session 377: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-109, round 1. Repository: the-thing-below. Branch: `feat/pr-109-overworld-encounters`. PR: opened by this round. Role: author. Base: `db0320b`.
+
+### What this session did, and why
+
+- Asked the owner the questions of the step counter, the zones, and the snapshot. D-1261 to D-1269 record the answers.
+- Built the invisible encounters of the overworld: the danger count, the encounter stream, the zone grid, and the zone list (D-1249, D-1261 to D-1266). Save format 20 holds the count, and the simulation version is 38.
+- Gave the fixture overworld its four zones (D-1267).
+- Fixed a fault of PR-64 in the same method: a step onto the encounter trap of the fixture dungeon stopped Game (D-1268).
+
+### The state of the build
+
+- `make verify` passed locally with 4,369 tests. The remote head is this round.
+- 2,000 greedy runs: 1,785 reach the goal, and the longest takes 4,555 ticks, so the budget of D-1259 holds. 215 runs play the whole budget (OQ-254).
+
+### What is in flight
+
+- The Gitar pass of this round, then `make codex-review`.
+
+### Traps and gotchas
+
+- Each map file holds `zones` and `zone_grid`. A hub or a dungeon holds both empty.
+- The readers of save formats 16 to 19 now take the seed of the header, because each one opens the encounter stream.
+- `SnapshotLines.AsFormatNineteen` drops the count and the encounter stream for a test of an older reader.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
 
 ## Session 376: 2026-09-27, Codex
 
