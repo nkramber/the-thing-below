@@ -67,19 +67,19 @@ public partial class MapScreen : Node2D
     public const string LeadContentId = "cast.marrek";
 
     /// <summary>The use that the map drawing of a character serves (D-519).</summary>
-    public const string MapUse = "map_front";
+    public const string MapUse = MapDrawings.FigureUse;
 
     /// <summary>The use of the map drawing of the lead with the torch in its hand (D-1069).</summary>
-    public const string TorchUse = "map_torch";
+    public const string TorchUse = MapDrawings.TorchUse;
 
     /// <summary>
     /// The use of the map drawing of a thing that has one view, such as a save point (D-519,
     /// D-1142). A decor piece and a tile take the same use.
     /// </summary>
-    public const string ThingUse = LightContent.MapUse;
+    public const string ThingUse = MapDrawings.ThingUse;
 
     /// <summary>The use of the open drawing of a door or a chest (D-1223).</summary>
-    public const string OpenUse = "map_open";
+    public const string OpenUse = MapDrawings.OpenUse;
 
     /// <summary>The role of the color of the mark of a sight, in the UI style file (D-527).</summary>
     public const string MarkRole = "text_warning";
@@ -859,7 +859,7 @@ public partial class MapScreen : Node2D
         var points = new List<MapThing>();
         foreach (MapThing thing in map.Things)
         {
-            if (Draws(thing.Kind))
+            if (MapDrawings.Draws(thing.Kind))
             {
                 points.Add(thing);
             }
@@ -868,28 +868,11 @@ public partial class MapScreen : Node2D
         return [.. points];
     }
 
-    /// <summary>Tells whether a thing of one kind draws a sprite on the map (D-1142, D-1223).</summary>
-    /// <param name="kind">The kind of the thing.</param>
-    /// <returns>True for a service point, a save point, a door, a chest, a trap, an exit, an entrance, a gate, and a mark.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The value names no kind (T-2).</exception>
-    public static bool Draws(MapThingKind kind) => kind switch
-    {
-        MapThingKind.ServicePoint or MapThingKind.SavePoint or MapThingKind.Door or MapThingKind.Chest or MapThingKind.Trap
-            or MapThingKind.Exit or MapThingKind.Entrance or MapThingKind.Gate or MapThingKind.Mark => true,
-        MapThingKind.Lock or MapThingKind.SpawnPoint or MapThingKind.Marker => false,
-        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "The value names no map thing kind (D-528, T-2)."),
-    };
-
-    /// <summary>Tells whether a thing of one kind takes an open look beside its closed look (D-1223).</summary>
-    /// <param name="kind">The kind of the thing.</param>
-    /// <returns>True for a door, a chest, a gate, and a trap, whose open look is its sprung look (D-1238, D-1243).</returns>
-    public static bool HasOpenLook(MapThingKind kind) => kind is MapThingKind.Door or MapThingKind.Chest or MapThingKind.Trap or MapThingKind.Gate;
-
     /// <summary>Gives the open look of a door or a chest, or no value for a thing with one look (D-1223).</summary>
     /// <exception cref="ContentException">The atlas holds no open drawing of a door or a chest (T-2).</exception>
     private static Texture2D? OpenTexture(GameAtlas atlas, MapThing thing)
     {
-        if (!HasOpenLook(thing.Kind))
+        if (!MapDrawings.HasOpenLook(thing.Kind))
         {
             return null;
         }

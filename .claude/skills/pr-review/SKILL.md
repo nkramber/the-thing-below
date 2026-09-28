@@ -165,6 +165,7 @@ Use the current build commands in `AGENTS.md`. Do not invent a successful comman
 - Verify CI results against the reviewed revision and configured test target.
 - Check the `replay-identity` result and the smoke result on every CI leg (G-5, D-481). Check the `bots` result on every CI leg (D-505, D-1180). Check the `night-gate` result, which reads a night inside 48 hours of the last push (G-22, D-1188).
 - For a PR that changes what a screen draws, confirm that the PR records the visual review of the author (D-784). The record names `make sheet` or `make walk`, the frames that the author read, and the result. An absent record blocks approval.
+- For a PR that changes a map file or a decor file, confirm that the description attaches the preview of each such map (D-1320). `make preview MAP=<id>` renders one. An absent preview blocks approval.
 - Read the frames of the screen-test artifact that the change reaches, the walk frames included, and report each visual fault as a finding (D-782, D-784).
 
 Use the initial-check clause only as G-16 permits.

@@ -21,7 +21,7 @@ SKIP_GITAR_REVIEW := --skip-gitar-review
 CODEX_REVIEW_FLAGS := $(filter $(SKIP_GITAR_REVIEW),$(MAKECMDGOALS))
 
 
-.PHONY: verify where hooks build test lint format ste-check identity bots content atlas overworld smoke sheet walk run clean codex-review screenplay evaluator-cost night-watch night-watch-install $(SKIP_GITAR_REVIEW)
+.PHONY: verify where hooks build test lint format ste-check identity bots content atlas overworld preview smoke sheet walk run clean codex-review screenplay evaluator-cost night-watch night-watch-install $(SKIP_GITAR_REVIEW)
 
 ## verify: every check that this machine can run.
 verify: build test format lint ste-check identity bots content atlas smoke
@@ -84,6 +84,12 @@ content:
 # and read the new map. `--check` compares and writes nothing.
 overworld:
 	dotnet run --project $(TOOLS_PROJECT) --no-build -- overworld --root .
+
+## preview: render each map as a PNG in artifacts/previews, or one map with MAP=<id> (D-1319).
+# The session attaches each preview of a changed map to the PR description (D-514, D-1320).
+preview: build
+	@rm -rf artifacts/previews
+	dotnet run --project $(TOOLS_PROJECT) --no-build -- preview --root . --out artifacts/previews $(if $(MAP),--map $(MAP))
 
 ## atlas: compare the committed atlas with the drawing files by pixel (D-666, G-24).
 #

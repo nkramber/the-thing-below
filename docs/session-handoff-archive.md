@@ -1,4 +1,38 @@
 # Session handoff archive
+## Session 387: 2026-09-28, Codex
+
+Author: Codex
+Session: review PR #96 (PR-111). Repository: the-thing-below. Branch: `review/pr-96`, tracking `origin/feat/pr-111-overworld-treasure`. Role: reviewer. Base: `2ac46b6e7280a5000c9397b4b592fcbf1889949c`.
+
+### What this session did, and why
+
+- Reviewed effective head `d56432a9dd281d48bcbce2a411862392aaa4d325`, the full diff, the PR comments, and the applicable contracts.
+- Ran 69 focused tests for the generator, treasure flow, and contact-sheet pages. All passed.
+- Found P2-1: the PR description does not attach the required art review sheet for the two cairn drawings (D-514, D-668, G-25).
+- Verified Gitar's CI analysis claim against the job log. RG 3 alone failed because this review record was absent, and the author answered the claim (D-964).
+
+### The state of the build
+
+- Required implementation CI passed on macOS, Ubuntu, and Windows. `review-gate` had only the expected RG 3 fault before this record existed.
+- Effective head: `d56432a9dd281d48bcbce2a411862392aaa4d325`. The review commit changes the metadata set alone (D-610).
+
+### What is in flight
+
+- The author must attach the art review sheet and request a repeat review.
+
+### Traps and gotchas
+
+- Push with `git push origin HEAD:feat/pr-111-overworld-treasure`.
+- Session 377 moved to the top of `docs/session-handoff-archive.md` to keep ten current entries.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit this review record and handoff entry together, push the metadata commit, then verify the remote head and review-gate.
+
 ## Session 386: 2026-09-28, Claude Code
 
 Author: Claude Code

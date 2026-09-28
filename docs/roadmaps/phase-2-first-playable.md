@@ -2359,6 +2359,9 @@ Area file: `area-tools.md` section 7.12.
 **Scope.**
 
 - The `preview` command, which renders a map file as a PNG from the atlas (D-165).
+- The layers: the tiles, and each sprite that the game draws at the start of the map, at full light (D-1317). No hidden part of the map draws (D-1318).
+- One run renders each map, or one map with the `--map` option. `make preview` writes the files to the artifacts/previews folder (D-1319).
+- The rule of the `pr-review` skill: a PR that changes a map attaches its preview (D-1320).
 - The attachment of each preview to the PR description, for the approval of the owner (D-514, G-25).
 
 **Out of scope.**
@@ -2378,7 +2381,7 @@ Area file: `area-tools.md` section 7.12.
 - The command uses the PNG code of PR-47 and the atlas of PR-34 (D-176, T-1).
 - From PR-53 on, the preview draws the edge tiles of each map (D-501).
 
-**Questions.** None.
+**Questions.** None. The owner answered the four questions of the start on 2026-09-28 (D-1317 to D-1320).
 
 > *In plain English:* maps are text files too. This tool draws a map as a picture, so the owner can see and approve a place before anyone walks it.
 
