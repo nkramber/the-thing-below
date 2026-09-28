@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Edges;
 using TheThingBelow.Core.Light;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Tools.Content;
@@ -11,8 +12,8 @@ namespace TheThingBelow.Tools.Preview;
 
 /// <summary>
 /// The render of one map as a PNG from the committed atlas, for the approval of the owner
-/// (D-165, D-1317). The preview draws the tiles, then each sprite that the map screen draws at
-/// the start of the map, at full light.
+/// (D-165, D-1317). The preview draws the tiles, the edge pieces of the edge file, then each sprite
+/// that the map screen draws at the start of the map, at full light (D-501).
 /// </summary>
 /// <remarks>
 /// The order follows the map screen of Game. The ground draws first, and each trap lies flat on
@@ -58,8 +59,9 @@ public static class MapPreview
         return pages;
     }
 
-    /// <summary>Renders one map with its decor, at 1x (D-165, D-1317).</summary>
+    /// <summary>Renders one map with its edge pieces and its decor, at 1x (D-165, D-501, D-1317).</summary>
     /// <param name="map">The map.</param>
+    /// <param name="edges">The edge file of the map (D-501).</param>
     /// <param name="decor">The decor file of the map (D-844).</param>
     /// <param name="atlas">The atlas index.</param>
     /// <param name="pages">Each page of the atlas, by its name, from <see cref="ReadPages"/>.</param>
@@ -69,12 +71,18 @@ public static class MapPreview
     /// The atlas holds no drawing of a tile or a sprite of the map, a page is absent, or a frame
     /// holds a pixel of partial alpha. The message names the map and the id (T-2).
     /// </exception>
-    public static PngImage Render(GameMap map, DecorFile decor, AtlasIndex atlas, IReadOnlyDictionary<string, PngImage> pages)
+    public static PngImage Render(GameMap map, EdgeFile edges, DecorFile decor, AtlasIndex atlas, IReadOnlyDictionary<string, PngImage> pages)
     {
         ArgumentNullException.ThrowIfNull(map);
+        ArgumentNullException.ThrowIfNull(edges);
         ArgumentNullException.ThrowIfNull(decor);
         ArgumentNullException.ThrowIfNull(atlas);
         ArgumentNullException.ThrowIfNull(pages);
+
+        if (string.CompareOrdinal(edges.Map.Value, map.Id.Value) != 0)
+        {
+            throw ContentException.ForFile(edges.File, $"the edge file serves '{edges.Map.Value}', and the preview draws '{map.Id.Value}' (T-2)");
+        }
 
         if (string.CompareOrdinal(decor.Map.Value, map.Id.Value) != 0)
         {
@@ -88,6 +96,16 @@ public static class MapPreview
             {
                 TileKind kind = map.TileAt(new TilePoint(column, row));
                 canvas.Draw(TileIds.Of(kind), TileIds.MapUse, column * TilePixels, row * TilePixels, flip: false);
+            }
+        }
+
+        // Each edge piece lies over its tile in the order of its file, as the layers of the map
+        // screen draw it (D-1321).
+        foreach (EdgeTile tile in edges.Tiles)
+        {
+            foreach (ContentId piece in tile.Pieces)
+            {
+                canvas.Draw(piece, TileIds.MapUse, tile.At.X * TilePixels, tile.At.Y * TilePixels, flip: false);
             }
         }
 

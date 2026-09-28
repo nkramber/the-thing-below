@@ -669,7 +669,7 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 52. PR-35: the overworld, its entrances, its gates, and its autosave (D-1242 to D-1246). PR-109, the encounters of the overworld, comes next, then PR-110, the overworld of region one, and PR-111, its treasure (D-1247 to D-1251, D-1254, D-1298).
 53. PR-51: the PNG import, with the hand-edit mode, the generator mode, and the frame PNG (D-107, D-497, D-688, D-1313).
 54. PR-52: the map preview as a PNG, with the sprites of a map and no hidden part (D-165, D-497, D-1317 to D-1320).
-55. PR-53: the tile-edge tool and the edge files (D-204, D-501).
+55. PR-53: the tile-edge tool, the edge files, and the placeholder edge pieces of the water and the gorge (D-204, D-501, D-1321 to D-1327).
 56. PR-17: the village, the mining town, and the hanging cells as content (D-362, D-369, D-370).
 57. PR-38: the synthesizer, the two note formats, the render hashes, and the `listen` command, right after PR-17 (D-432, D-438, D-1079).
 58. PR-69: the audio player, the four buses, and the mute (D-435, D-546).

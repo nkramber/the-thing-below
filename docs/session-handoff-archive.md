@@ -1,4 +1,109 @@
 # Session handoff archive
+## Session 391: 2026-09-28, Codex
+
+Author: Codex
+Session: review PR #97 (PR-51). Repository: the-thing-below. Branch: `review/pr-97`, tracking `origin/feat/pr-51-png-import`. Role: reviewer. Base: `e9294ec0bb29d30d0ebcdcc47fa5e251cf63cda7`.
+
+### What this session did, and why
+
+- Reviewed effective head `0cbf3ca8ca9fef24187344199707fc723ee8b2e6`, the full 23-path diff, PR comments, decisions, and PR-51 exit tests.
+- Found P2-1: `frame-png` overwrites its source drawing when `--drawing` and `--out` name the same path (D-1313, T-2).
+- Verified the author's answer to Gitar's CI claim. RG 3 alone failed because the review record was absent. The clean approval has no item (D-964).
+- `make verify` passed with 4,498 tests. Required CI checks passed except the expected `review-gate` RG 3 fault.
+
+### The state of the build
+
+- The remote head before this metadata commit is `0cbf3ca8ca9fef24187344199707fc723ee8b2e6`.
+- The review record gives `Changes required` for P2-1. The `review-gate` check failed RG 3 before the record existed.
+
+### What is in flight
+
+- The author must reject a `frame-png` output path that matches the drawing path and add a regression test.
+
+### Traps and gotchas
+
+- A same-path reproduction returned success and replaced drawing JSON with a valid PNG.
+- Push with `git push origin HEAD:feat/pr-51-png-import`.
+- Session 381 moves to `docs/session-handoff-archive.md` to keep ten current entries.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Fix P2-1, then request a repeat review of the new effective head.
+
+## Session 390: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-51, round 1. Repository: the-thing-below. Branch: `feat/pr-51-png-import`. PR: opened by this round. Role: author. Base: `e9294ec`.
+
+### What this session did, and why
+
+- Asked the owner seven questions that the roadmap and D-686 to D-689 left open, then recorded D-1310 to D-1316.
+- D-1310 revises D-689 in part: the target drawing file sets the frame. A scan of the 84 spike pictures at `e3c50b4` found 26 of 42 map sprites above 32 pixels.
+- Built the `import` command, with the hand-edit mode and the generator mode, and the `frame-png` command (D-688, D-1313).
+- Each import replaces the rows of one frame alone, and a read back through the reader of Core guards the write (D-1311, T-2).
+- Added 40 tests, one for each exit test of section 7.52 and more. Added `docs/runbooks/art-import.md` and three glossary terms.
+
+### The state of the build
+
+- The remote head of `main` is `e9294ec`. This round pushes the branch and opens the PR.
+- `make verify` ran on the Mac before the push. The PR description records the result.
+
+### What is in flight
+
+- The Gitar pass of round 1, then `make codex-review`.
+
+### Traps and gotchas
+
+- The word export names a build of the Game (D-481), so the command of D-1313 is `frame-png`.
+- The generator mode centers the content (D-1312). A character of less than the full height stands above the bottom row, unlike the current Marrek drawings.
+- The fixture drawing files hold each frame on one line. A write puts one row on each line, and a file of the repository keeps each byte.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Answer each Gitar item of round 1, then run `make codex-review PR=<n>` in the background.
+
+## Session 389: 2026-09-28, Codex
+
+Author: Codex
+Session: repeat review PR #96 (PR-111). Repository: the-thing-below. Branch: `review/pr-96`, tracking `origin/feat/pr-111-overworld-treasure`. Role: reviewer. Base: `2ac46b6e7280a5000c9397b4b592fcbf1889949c`.
+
+### What this session did, and why
+
+- Re-reviewed effective head `d56432a9dd281d48bcbce2a411862392aaa4d325`. The author added both required art sheets to the PR description.
+- Opened and checked both sheets. They show the cairn drawings at the required scales, grounds, and light directions (D-514, D-521, D-668).
+- Closed P2-1 under the unchanged-head rule of D-1303. The record now gives `Ready for owner merge`.
+- Verified the author's answer to Gitar's RG 4 analysis. Its clean code approval has no item (D-964).
+
+### The state of the build
+
+- The effective head stays `d56432a9dd281d48bcbce2a411862392aaa4d325`. The remote tip before this metadata commit is `1a8bbd0d64fc638e9bb16d9e43db48fd190dc1bb`.
+- Implementation checks passed on macOS, Ubuntu, and Windows. The review-gate failed RG 4 because the prior verdict remained in the record.
+
+### What is in flight
+
+- The review record and this entry need one metadata commit and a push to the PR branch.
+
+### Traps and gotchas
+
+- Push with `git push origin HEAD:feat/pr-111-overworld-treasure`.
+- Session 379 moves to the archive to keep ten current entries.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit the review record and this entry together. Push, fetch, check the remote head, then read the new review-gate result.
+
 ## Session 388: 2026-09-28, Claude Code
 
 Author: Claude Code

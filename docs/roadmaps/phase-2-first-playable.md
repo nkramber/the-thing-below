@@ -2391,32 +2391,34 @@ Area file: `area-tools.md` section 7.13.
 
 **Scope.**
 
-- The `edges` command, which picks the edge and corner tile for each position from the terrain and the edge rules (D-204).
-- The edge rules in content, outside the rule files (D-495, D-501).
-- One edge file for each map, which the repository commits (D-501).
-- The read of the map and its edge file in Game, where Core reads the map alone (D-501, G-1).
-- The edge tiles in the map preview of PR-52.
+- The `edges` command, which picks the edge pieces of each tile from the terrain and the edge rules (D-204, D-1321). A side piece draws where a neighbour does not join the kind. An inner corner piece draws where both sides join and the diagonal does not.
+- The edge pieces draw on the tiles of their own kind, and a neighbour outside the map joins every kind (D-1322, D-1324).
+- One edge rule for each kind with edges, in `content/edges/kinds/`, outside the rule files (D-495, D-501, D-1327).
+- One edge file for each map, in `content/edges/maps/`, which lists each tile with its pieces, and the repository commits it (D-501, D-1326).
+- The read of the map and its edge file in Game, where the rules of Core read the map alone (D-501, G-1). Game draws up to 4 edge layers over the ground.
+- The edge pieces in the map preview of PR-52.
+- The placeholder edge pieces and the edge rules of the water and the gorge. The bridge joins the water (D-1290, D-1323, D-1325).
 
 **Out of scope.**
 
-- The edge drawings themselves, which PR-17 and the later art PRs add.
+- The edge rules and the edge pieces of every other kind, which PR-17 and the later art PRs add with their tile sets (D-1323).
 - No rule reads an edge file, so the content hash never sees one (D-495).
 
 **Exit tests.**
 
 1. A test proves that each committed edge file matches its map and the edge rules (D-501).
-2. A terrain pattern that no rule covers fails with the map, the position, and the pattern.
-3. Game draws a fixture map with its edge tiles, and a screen test captures it.
-4. A test proves that Core reads no edge file (G-1).
+2. An edge rule with an absent piece fails the load with the file and the place (D-1321).
+3. Game draws a fixture map with its edge pieces, and a screen test captures it.
+4. A test proves that the rules of Core and the content hash read no edge file (G-1).
 
 **Review focus.**
 
-- The edge file stays outside the content hash, so a new border drawing never breaks a record (D-495, D-501).
-- The map preview of PR-52 draws the same edges as Game (T-1).
+- The edge file stays outside the content hash, so a new edge piece never breaks a record (D-495, D-501).
+- The map preview of PR-52 draws the same edge pieces as Game, in the same order (T-1).
 
-**Questions.** None.
+**Questions.** None. The owner answered the seven questions of the start on 2026-09-28 (D-1321 to D-1327).
 
-> *In plain English:* a map names the ground, such as snow or rock, and this tool picks the right border tile for each edge. The picks live in a file of their own.
+> *In plain English:* a map names the ground, such as water or a gorge. This tool picks the border pieces for the edge of each patch. A shore now shows on the water and a lip on the gorge. The picks live in a file of their own, so a new border drawing never breaks an old replay.
 
 ### 7.55 PR-17: the village, the first hub, and the first dungeon
 
@@ -2426,6 +2428,7 @@ Area files: every area file. The content PR touches each area.
 
 - The village and the land near it, the mining town, and the hanging cells, as content (D-28, D-39, D-313, D-369, D-370).
 - The tile sets, the layouts, and the edge files of each map (D-110, D-501).
+- The edge rules and the edge pieces of every other kind, after the water and the gorge of PR-53 (D-1323).
 - The enemies with their sprites, their profiles, and their groups (D-535).
 - The three views and the two-frame walk of each moving enemy, and a flip for each standing one (D-207, D-744).
 - The drawing of the mark of a sight, in the place of the two rectangles of PR-8 (D-208, D-744).
@@ -2945,7 +2948,7 @@ Area file: `area-exploration.md` section 7.13. World file: `docs/world/places.md
 - The places themselves and their entrances (PR-17, PR-23 to PR-27, PR-81).
 - The enemies and the rates of the zones (PR-17).
 - The treasure of the overworld (PR-111, D-1298).
-- The rims of the gorge and of each other kind (PR-53, D-1290).
+- The edge pieces of the gorge and the water (PR-53, D-1290, D-1323), and of each other kind (PR-17).
 
 **Exit tests.**
 

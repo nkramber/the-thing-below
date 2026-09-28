@@ -1,0 +1,15 @@
+{
+ "comment": "The edge rule of the water (D-1321, D-1322). A shore of foam draws on each water tile beside another kind. The bridge joins the water, so the water runs on under each bridge with no edge (D-1325). The pieces are placeholders (D-1323).",
+ "kind": "water",
+ "joins": ["bridge"],
+ "pieces": {
+  "north": "edge.water_north",
+  "east": "edge.water_east",
+  "south": "edge.water_south",
+  "west": "edge.water_west",
+  "north_east": "edge.water_north_east",
+  "south_east": "edge.water_south_east",
+  "south_west": "edge.water_south_west",
+  "north_west": "edge.water_north_west"
+ }
+}

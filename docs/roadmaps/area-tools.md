@@ -272,11 +272,16 @@ Built by PR-52. Phase file: `phase-2-first-playable.md`.
 
 Built by PR-53. Phase file: `phase-2-first-playable.md`.
 
-- The command picks the edge and corner tile for each position from the terrain of a map and the edge rules in content (D-204). It lands before PR-17, after the map preview (D-497).
-- It writes one edge file per map outside the rule files, and the repository commits it (D-501). The content hash never reads an edge file (D-495).
-- A test proves that each edge file matches its map and the edge rules (D-501).
-- Game reads the map and its edge file, and Core reads the map alone (D-501, G-1).
-- A terrain pattern that no rule covers fails with the map, the position, and the pattern (T-2).
+- The `edges` command picks the edge pieces of each tile from the terrain of a map and the edge rules in content (D-204). It lands before PR-17, after the map preview (D-497).
+- Each kind with edges has 8 edge pieces, 4 sides and 4 inner corners, which draw over its own tiles (D-1321, D-1322).
+- A side piece draws where a neighbour does not join the kind. An inner corner piece draws where both sides join and the diagonal does not.
+- A neighbour outside the map joins every kind (D-1324). The edge rule of a kind names its joins, and the bridge joins the water (D-1325).
+- The edge rules live in `content/edges/kinds/`, and the edge file of each map in `content/edges/maps/` (D-1327).
+- The edge file lists each tile with its pieces, and the repository commits it (D-501, D-1326). The content hash never reads an edge file (D-495).
+- A test proves that each edge file matches its map and the edge rules (D-501). `make edges` writes the files again.
+- Game reads the map and its edge file, and the rules of Core read the map alone (D-501, G-1). The map preview draws the same pieces.
+- An edge rule with an absent piece fails the load with the file and the place (T-2, D-1321).
+- PR-53 draws placeholder pieces for the water and the gorge alone. The tile sets of PR-17 and later add the other kinds (D-1323).
 
 > *In plain English:* a map names the ground, such as snow or rock, and this tool picks the right border tile for each edge. The picks live in a file of their own, so a new border drawing never breaks an old replay.
 

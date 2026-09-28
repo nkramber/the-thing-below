@@ -1,0 +1,15 @@
+{
+ "comment": "The edge pieces of the map 'map.fixture_overworld' (D-501, D-1326). The `edges` command of Tools writes this file from the map and the edge rules, and a test compares it with the output of the command. Run `make edges` after a change of the map or of an edge rule.",
+ "map": "map.fixture_overworld",
+ "tiles": [
+  { "x": 11, "y": 11, "pieces": ["edge.water_north", "edge.water_west"] },
+  { "x": 12, "y": 11, "pieces": ["edge.water_north"] },
+  { "x": 13, "y": 11, "pieces": ["edge.water_north", "edge.water_east"] },
+  { "x": 10, "y": 12, "pieces": ["edge.water_north", "edge.water_south", "edge.water_west"] },
+  { "x": 11, "y": 12, "pieces": ["edge.water_south_west", "edge.water_north_west"] },
+  { "x": 12, "y": 12, "pieces": ["edge.water_south_east"] },
+  { "x": 13, "y": 12, "pieces": ["edge.water_east", "edge.water_south"] },
+  { "x": 11, "y": 13, "pieces": ["edge.water_south", "edge.water_west"] },
+  { "x": 12, "y": 13, "pieces": ["edge.water_east", "edge.water_south"] }
+ ]
+}

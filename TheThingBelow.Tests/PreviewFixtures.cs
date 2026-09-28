@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Edges;
 using TheThingBelow.Core.Light;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Tools.Png;
@@ -17,7 +18,8 @@ namespace TheThingBelow.Tests;
 /// The map is the room of <see cref="HubMaps"/>. It holds an NPC that faces east at (2, 2), an
 /// NPC of two tiles in height at (4, 5), the waystone at (8, 1), a trap at (6, 2), and an enemy
 /// at (7, 6). The decor hangs a torch of two tiles in height on the wall at (4, 4), over the
-/// tall NPC, and a torch on the north wall at (1, 0), which the top edge of the preview clips.
+/// tall NPC, and a torch on the north wall at (1, 0), which the top edge of the preview clips. The
+/// edge file lays a north edge piece on the floor at (3, 6) and under the enemy at (7, 6).
 /// </remarks>
 public static class PreviewFixtures
 {
@@ -45,6 +47,12 @@ public static class PreviewFixtures
     /// <summary>The color of each torch.</summary>
     public static readonly (byte R, byte G, byte B) Torch = (0, 200, 200);
 
+    /// <summary>The color of the strip of the edge piece, in the 4 north rows of its tile.</summary>
+    public static readonly (byte R, byte G, byte B) Edge = (90, 60, 30);
+
+    /// <summary>The count of the rows of the strip of the edge piece.</summary>
+    public const int EdgeRows = 4;
+
     /// <summary>The id of the NPC that faces east.</summary>
     public const string EastNpcId = "npc.preview_east";
 
@@ -63,13 +71,14 @@ public static class PreviewFixtures
             {
              "comment": "the atlas of the preview tests",
              "pages": [
-              { "kind": "tiles", "number": 1, "width": 64, "height": 32 },
+              { "kind": "tiles", "number": 1, "width": 96, "height": 32 },
               { "kind": "map_sprites", "number": 1, "width": 160, "height": 64 },
               { "kind": "pieces", "number": 1, "width": 32, "height": 64 }
              ],
              "drawings": [
               { "id": "drawing.preview_floor", "page": "tiles", "width": 32, "height": 32, "draws": [{ "content": "tile.floor", "use": "map" }], "frames": [{ "x": 0, "y": 0, "ticks": 0 }] },
               {{wall}}
+              { "id": "drawing.preview_edge", "page": "tiles", "width": 32, "height": 32, "draws": [{ "content": "edge.preview_north", "use": "map" }], "frames": [{ "x": 64, "y": 0, "ticks": 0 }] },
               { "id": "drawing.preview_npc", "page": "map_sprites", "width": 32, "height": 32, "draws": [{ "content": "{{EastNpcId}}", "use": "map_front" }], "frames": [{ "x": 0, "y": 0, "ticks": 0 }] },
               { "id": "drawing.preview_save", "page": "map_sprites", "width": 32, "height": 32, "draws": [{ "content": "save_point.hub_waystone", "use": "map" }], "frames": [{ "x": 32, "y": 0, "ticks": 0 }] },
               { "id": "drawing.preview_patrol", "page": "map_sprites", "width": 32, "height": 32, "draws": [{ "content": "patrol.preview", "use": "map_front" }], "frames": [{ "x": 64, "y": 0, "ticks": 0 }] },
@@ -93,9 +102,10 @@ public static class PreviewFixtures
     /// <returns>The pages: `tiles`, `map_sprites`, and `pieces`.</returns>
     public static SortedDictionary<string, PngImage> Pages()
     {
-        var tiles = new Page(64, 32);
+        var tiles = new Page(96, 32);
         tiles.Fill(0, 0, 32, 32, Floor);
         tiles.Fill(32, 0, 32, 32, Wall);
+        tiles.Fill(64, 0, 32, EdgeRows, Edge);
 
         var sprites = new Page(160, 64);
         sprites.Fill(0, 0, 16, 32, Npc);
@@ -133,6 +143,26 @@ public static class PreviewFixtures
                 { "times": ["dawn", "day", "dusk", "night"], "tiles": [{ "x": 7, "y": 6 }, { "x": 8, "y": 6 }] }
                ]
               """));
+
+    /// <summary>Reads the edge file of the hub map: a north edge piece at (3, 6) and at (7, 6).</summary>
+    /// <returns>The edge file.</returns>
+    public static EdgeFile Edges() => Edges("map.hub_test");
+
+    /// <summary>Reads an edge file with the two edge pieces.</summary>
+    /// <param name="map">The id of the map that the file serves.</param>
+    /// <returns>The edge file.</returns>
+    public static EdgeFile Edges(string map) => EdgeFile.Read(
+        Encoding.UTF8.GetBytes($$"""
+            {
+             "comment": "the edge pieces of the preview tests",
+             "map": "{{map}}",
+             "tiles": [
+              { "x": 3, "y": 6, "pieces": ["edge.preview_north"] },
+              { "x": 7, "y": 6, "pieces": ["edge.preview_north"] }
+             ]
+            }
+            """),
+        EdgeFile.Folder + "hub-test.json");
 
     /// <summary>Reads the decor file of the hub map: a torch on the wall block and a torch on the north wall.</summary>
     /// <returns>The decor file.</returns>

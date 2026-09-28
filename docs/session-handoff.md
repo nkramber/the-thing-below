@@ -1,3 +1,107 @@
+## Session 401: 2026-09-28, Codex
+
+Author: Codex
+Session: review PR #99 (PR-53). Repository: the-thing-below. Branch: `review/pr-99`, tracking `origin/feat/pr-53-tile-edges`. Role: reviewer. Base: `f0db11584f575a90ac628f0d9aaa99115ac969c9`.
+
+### What this session did, and why
+
+- Reviewed effective head `eee30909a50681222d09553b82db4a1361bb827b`, the complete 62-path diff, the PR comments, the decisions, and the PR-53 exit tests.
+- Verified both Gitar items. The repeated-piece finding is fixed and confirmed by Gitar. RG 3 alone failed because the review record was absent (D-964).
+- Found no defect. All 4,583 tests passed in `make verify`. The screen-test artifact shows the overworld shore at each changed size.
+
+### The state of the build
+
+- CI on `eee30909a50681222d09553b82db4a1361bb827b` passed every check except review-gate RG 3. Required checks passed on macOS, Ubuntu, and Windows. Local `make verify` passed.
+- The remote PR head before this metadata commit is `eee30909a50681222d09553b82db4a1361bb827b`.
+
+### What is in flight
+
+- The review record and this entry form one metadata commit (D-610).
+
+### Traps and gotchas
+
+- RG 3 failed before this review record existed. The other review-gate rules passed.
+- Push with `git push origin HEAD:feat/pr-53-tile-edges`.
+- Session 391 moves to `docs/session-handoff-archive.md` to keep ten current entries.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push the metadata commit, fetch, check the branch status and PR head, then confirm that review-gate passes.
+
+## Session 400: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-53, round 2. Repository: the-thing-below. Branch: `feat/pr-53-tile-edges`. PR: #99. Role: author. Base: `f0db115`.
+
+### What this session did, and why
+
+- Read the Gitar pass of `7c9a40a`: approved with one finding and one CI claim.
+- The finding had merit. A piece at two places of one rule, or a piece of two rules, loaded and then failed each load of the edge file, and Godot made one tile two times with a log line alone. `EdgeRule.Read` and `EdgeContent.Load` now refuse both, with the file and both places or both rules.
+- Two tests fail on the old code and pass on the fix: `EdgeRuleTests.APieceAtTwoPlacesFailsWithTheFileAndBothPlaces` and `EdgeContentTests.APieceOfTwoRulesFailsWithBothRules`.
+- The CI claim: RG 3 alone failed, because the review record does not exist before the review.
+- Took the three `overworld` baselines from the screen-test artifact of run 36464212466 (D-733). The author read each frame: the lake shows its shore. No other capture changed.
+
+### The state of the build
+
+- Each CI job of `7c9a40a` passed on every leg but the screen-test, which failed on the three `overworld` frames alone, and the review-gate (RG 3).
+
+### What is in flight
+
+- The push of round 2, the Gitar pass, then `make codex-review PR=99`.
+
+### Traps and gotchas
+
+- The rules load in the order of their kind, so a piece of two rules fails on the rule of the later kind.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Reply on the Gitar thread with the commit, run the Gitar poll, then run `make codex-review PR=99` when every check of the head is green but the review-gate.
+
+## Session 399: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-53, round 1. Repository: the-thing-below. Branch: `feat/pr-53-tile-edges`. PR: the one PR of PR-53, before GitHub gives a number. Role: author. Base: `f0db115`.
+
+### What this session did, and why
+
+- Asked the seven open points of PR-53 in two batches. The owner took each recommended option, and D-1321 to D-1327 record them.
+- The model: 8 edge pieces for each kind with edges, 4 sides and 4 inner corners, drawn over the tiles of that kind (D-1321, D-1322). A neighbour outside the map joins (D-1324).
+- Added the edge records to Core (`EdgeRule`, `EdgeFile`, `EdgeContent`), which the content set loads and no rule reads (D-501, D-517).
+- Added the `edges` command and `make edges`. They write one edge file for each map, and `--check` compares.
+- Drew placeholder pieces for the water and the gorge, and their edge rules. The bridge joins the water (D-1323, D-1325). This keeps D-1290, which the roadmap line on the art contradicted.
+- Game draws 4 edge layers over the ground, and the map preview draws the same pieces.
+
+### The state of the build
+
+- `make verify` passed with 4,581 tests. The remote head is `f0db115` until the first push of this PR.
+- The mutation check: an outside neighbour that does not join fails 4 tests of `EdgePickerTests`.
+
+### What is in flight
+
+- The first push, the Gitar pass, the new screen baselines from CI, then `make codex-review`.
+
+### Traps and gotchas
+
+- A change of a map needs `make edges`, and `make overworld` too for the overworld. The test of the committed edge files fails until the command runs.
+- The `edges` command reads the map files and the rules alone, because a stale edge file fails the load of the content set.
+- The screen baselines of `overworld` and `region-one` change with the shore and the lip. CI gives the new frames (D-733).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push, attach the previews of the two overworld maps to the PR description, and run the Gitar poll of the `gitar-review` skill.
+
 ## Session 398: 2026-09-28, Codex
 
 Author: Codex
@@ -232,108 +336,3 @@ None.
 ### The next concrete action
 
 Answer each Gitar item of round 2, then run `make codex-review PR=97` in the background.
-
-## Session 391: 2026-09-28, Codex
-
-Author: Codex
-Session: review PR #97 (PR-51). Repository: the-thing-below. Branch: `review/pr-97`, tracking `origin/feat/pr-51-png-import`. Role: reviewer. Base: `e9294ec0bb29d30d0ebcdcc47fa5e251cf63cda7`.
-
-### What this session did, and why
-
-- Reviewed effective head `0cbf3ca8ca9fef24187344199707fc723ee8b2e6`, the full 23-path diff, PR comments, decisions, and PR-51 exit tests.
-- Found P2-1: `frame-png` overwrites its source drawing when `--drawing` and `--out` name the same path (D-1313, T-2).
-- Verified the author's answer to Gitar's CI claim. RG 3 alone failed because the review record was absent. The clean approval has no item (D-964).
-- `make verify` passed with 4,498 tests. Required CI checks passed except the expected `review-gate` RG 3 fault.
-
-### The state of the build
-
-- The remote head before this metadata commit is `0cbf3ca8ca9fef24187344199707fc723ee8b2e6`.
-- The review record gives `Changes required` for P2-1. The `review-gate` check failed RG 3 before the record existed.
-
-### What is in flight
-
-- The author must reject a `frame-png` output path that matches the drawing path and add a regression test.
-
-### Traps and gotchas
-
-- A same-path reproduction returned success and replaced drawing JSON with a valid PNG.
-- Push with `git push origin HEAD:feat/pr-51-png-import`.
-- Session 381 moves to `docs/session-handoff-archive.md` to keep ten current entries.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Fix P2-1, then request a repeat review of the new effective head.
-
-## Session 390: 2026-09-28, Claude Code
-
-Author: Claude Code
-Session: author PR-51, round 1. Repository: the-thing-below. Branch: `feat/pr-51-png-import`. PR: opened by this round. Role: author. Base: `e9294ec`.
-
-### What this session did, and why
-
-- Asked the owner seven questions that the roadmap and D-686 to D-689 left open, then recorded D-1310 to D-1316.
-- D-1310 revises D-689 in part: the target drawing file sets the frame. A scan of the 84 spike pictures at `e3c50b4` found 26 of 42 map sprites above 32 pixels.
-- Built the `import` command, with the hand-edit mode and the generator mode, and the `frame-png` command (D-688, D-1313).
-- Each import replaces the rows of one frame alone, and a read back through the reader of Core guards the write (D-1311, T-2).
-- Added 40 tests, one for each exit test of section 7.52 and more. Added `docs/runbooks/art-import.md` and three glossary terms.
-
-### The state of the build
-
-- The remote head of `main` is `e9294ec`. This round pushes the branch and opens the PR.
-- `make verify` ran on the Mac before the push. The PR description records the result.
-
-### What is in flight
-
-- The Gitar pass of round 1, then `make codex-review`.
-
-### Traps and gotchas
-
-- The word export names a build of the Game (D-481), so the command of D-1313 is `frame-png`.
-- The generator mode centers the content (D-1312). A character of less than the full height stands above the bottom row, unlike the current Marrek drawings.
-- The fixture drawing files hold each frame on one line. A write puts one row on each line, and a file of the repository keeps each byte.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Answer each Gitar item of round 1, then run `make codex-review PR=<n>` in the background.
-
-## Session 389: 2026-09-28, Codex
-
-Author: Codex
-Session: repeat review PR #96 (PR-111). Repository: the-thing-below. Branch: `review/pr-96`, tracking `origin/feat/pr-111-overworld-treasure`. Role: reviewer. Base: `2ac46b6e7280a5000c9397b4b592fcbf1889949c`.
-
-### What this session did, and why
-
-- Re-reviewed effective head `d56432a9dd281d48bcbce2a411862392aaa4d325`. The author added both required art sheets to the PR description.
-- Opened and checked both sheets. They show the cairn drawings at the required scales, grounds, and light directions (D-514, D-521, D-668).
-- Closed P2-1 under the unchanged-head rule of D-1303. The record now gives `Ready for owner merge`.
-- Verified the author's answer to Gitar's RG 4 analysis. Its clean code approval has no item (D-964).
-
-### The state of the build
-
-- The effective head stays `d56432a9dd281d48bcbce2a411862392aaa4d325`. The remote tip before this metadata commit is `1a8bbd0d64fc638e9bb16d9e43db48fd190dc1bb`.
-- Implementation checks passed on macOS, Ubuntu, and Windows. The review-gate failed RG 4 because the prior verdict remained in the record.
-
-### What is in flight
-
-- The review record and this entry need one metadata commit and a push to the PR branch.
-
-### Traps and gotchas
-
-- Push with `git push origin HEAD:feat/pr-111-overworld-treasure`.
-- Session 379 moves to the archive to keep ten current entries.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit the review record and this entry together. Push, fetch, check the remote head, then read the new review-gate result.

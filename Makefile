@@ -21,7 +21,7 @@ SKIP_GITAR_REVIEW := --skip-gitar-review
 CODEX_REVIEW_FLAGS := $(filter $(SKIP_GITAR_REVIEW),$(MAKECMDGOALS))
 
 
-.PHONY: verify where hooks build test lint format ste-check identity bots content atlas overworld preview smoke sheet walk run clean codex-review screenplay evaluator-cost night-watch night-watch-install $(SKIP_GITAR_REVIEW)
+.PHONY: verify where hooks build test lint format ste-check identity bots content atlas overworld edges preview smoke sheet walk run clean codex-review screenplay evaluator-cost night-watch night-watch-install $(SKIP_GITAR_REVIEW)
 
 ## verify: every check that this machine can run.
 verify: build test format lint ste-check identity bots content atlas smoke
@@ -84,6 +84,12 @@ content:
 # and read the new map. `--check` compares and writes nothing.
 overworld:
 	dotnet run --project $(TOOLS_PROJECT) --no-build -- overworld --root .
+
+## edges: write the edge file of each map from its terrain and the edge rules (D-501, D-1321).
+# A test compares each committed edge file with the output, so run this target after a change
+# of a map or of an edge rule, and read the new files. `--check` compares and writes nothing.
+edges:
+	dotnet run --project $(TOOLS_PROJECT) --no-build -- edges --root .
 
 ## preview: render each map as a PNG in artifacts/previews, or one map with MAP=<id> (D-1319).
 # The session attaches each preview of a changed map to the PR description (D-514, D-1320).

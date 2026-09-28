@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Edges;
 using TheThingBelow.Core.Effects;
 using TheThingBelow.Core.Light;
 using TheThingBelow.Core.Maps;
@@ -103,6 +104,7 @@ public partial class MapScreen : Node2D
     private const int WeatherMargin = 2 * MapCamera.TilePixels;
 
     private TileMapLayer ground = null!;
+    private TileMapLayer[] edgeLayers = [];
     private Sprite2D lead = null!;
     private Texture2D leadPlain = null!;
     private Texture2D leadTorch = null!;
@@ -185,8 +187,16 @@ public partial class MapScreen : Node2D
         this.YSortEnabled = true;
         this.MapId = party.Map.Id;
 
-        this.ground = BuildGround(atlas, party.Map);
+        // One tile set serves the ground and the edge layers. Each edge layer draws over the
+        // ground, in the order of the pieces of a tile (D-501, D-1321).
+        TileSet tiles = MapTileSet.Build(atlas, content.Edges.Rules);
+        this.ground = BuildGround(tiles, atlas, party.Map);
         this.AddChild(this.ground);
+        this.edgeLayers = BuildEdges(tiles, atlas, content.Edges.EdgesOf(party.Map.Id));
+        foreach (TileMapLayer layer in this.edgeLayers)
+        {
+            this.AddChild(layer);
+        }
 
         this.atlas = atlas;
         ContentId leadId = ContentId.Parse(LeadContentId, AtlasIndex.Path, nameof(LeadContentId));
@@ -996,11 +1006,12 @@ public partial class MapScreen : Node2D
     /// (T-2). A headless session draws nothing, so this check reads the nodes and never the
     /// pixels (F-23).
     /// </summary>
-    /// <returns>The four values, for the report of the smoke session.</returns>
-    /// <exception cref="InvalidOperationException">The layer or the tile set holds another value (T-2).</exception>
+    /// <returns>The four values and the count of the edge cells, for the report of the smoke session.</returns>
+    /// <exception cref="InvalidOperationException">A layer or the tile set holds another value (T-2).</exception>
     /// <remarks>
     /// `TileSet.TileSize` and `TileSetAtlasSource.TextureRegionSize` both default to 16 by
-    /// 16, and the collisions and the navigation of a layer both default to on (F-51).
+    /// 16, and the collisions and the navigation of a layer both default to on (F-51). Each edge
+    /// layer takes the values of the ground and its tile set (D-1321).
     /// </remarks>
     public string DescribeGround()
     {
@@ -1012,19 +1023,33 @@ public partial class MapScreen : Node2D
         Refuse(
             source.TextureRegionSize != wanted,
             $"the region size is {source.TextureRegionSize}, and it takes {wanted} (D-667, F-51)");
-        Refuse(this.ground.CollisionEnabled, "the collisions of the layer are on, and no rule of Core reads one (G-1, F-51)");
-        Refuse(this.ground.NavigationEnabled, "the navigation of the layer is on, and no rule of Core reads it (G-1, F-51)");
-        Refuse(this.ground.YSortEnabled, "the layer takes part in the sort, and a tile then draws over a sprite inside a step (F-95, D-783)");
-        Refuse(
-            this.ground.ZIndex != GroundZIndex,
-            $"the layer draws at the Z index {this.ground.ZIndex}, and it takes {GroundZIndex} (F-95, D-783)");
-        Refuse(
-            this.ground.RenderingQuadrantSize != LightBudget.QuadrantTiles,
-            $"the quadrant is {this.ground.RenderingQuadrantSize} tiles, and the budget test counts {LightBudget.QuadrantTiles} (F-46, D-842)");
+        RefuseWrongLayer(this.ground);
+        int edgeCells = 0;
+        foreach (TileMapLayer layer in this.edgeLayers)
+        {
+            Refuse(layer.TileSet != set, $"the layer '{layer.Name}' holds another tile set than the ground (D-1321)");
+            RefuseWrongLayer(layer);
+            edgeCells += layer.GetUsedCells().Count;
+        }
 
         return $"tile size {set.TileSize}, region size {source.TextureRegionSize}, "
             + $"collisions {this.ground.CollisionEnabled}, navigation {this.ground.NavigationEnabled}, "
-            + $"sort {this.ground.YSortEnabled}, Z index {this.ground.ZIndex}";
+            + $"sort {this.ground.YSortEnabled}, Z index {this.ground.ZIndex}, "
+            + $"edge layers {this.edgeLayers.Length} with {edgeCells} cells";
+    }
+
+    /// <summary>Fails when a flat layer holds a value other than those of <see cref="FlatLayer"/> (T-2, F-51).</summary>
+    private static void RefuseWrongLayer(TileMapLayer layer)
+    {
+        Refuse(layer.CollisionEnabled, $"the collisions of the layer '{layer.Name}' are on, and no rule of Core reads one (G-1, F-51)");
+        Refuse(layer.NavigationEnabled, $"the navigation of the layer '{layer.Name}' is on, and no rule of Core reads it (G-1, F-51)");
+        Refuse(layer.YSortEnabled, $"the layer '{layer.Name}' takes part in the sort, and a tile then draws over a sprite inside a step (F-95, D-783)");
+        Refuse(
+            layer.ZIndex != GroundZIndex,
+            $"the layer '{layer.Name}' draws at the Z index {layer.ZIndex}, and it takes {GroundZIndex} (F-95, D-783)");
+        Refuse(
+            layer.RenderingQuadrantSize != LightBudget.QuadrantTiles,
+            $"the quadrant of the layer '{layer.Name}' is {layer.RenderingQuadrantSize} tiles, and the budget test counts {LightBudget.QuadrantTiles} (F-46, D-842)");
     }
 
     /// <summary>
@@ -1137,29 +1162,9 @@ public partial class MapScreen : Node2D
         }
     }
 
-    private static TileMapLayer BuildGround(GameAtlas atlas, GameMap map)
+    private static TileMapLayer BuildGround(TileSet tiles, GameAtlas atlas, GameMap map)
     {
-        var layer = new TileMapLayer
-        {
-            TileSet = MapTileSet.Build(atlas),
-
-            // Four Godot defaults meet a tile map, and two of them are these switches
-            // (F-51). No rule of Core reads a collision or a navigation mesh (G-1, G-23).
-            CollisionEnabled = false,
-            NavigationEnabled = false,
-
-            // The ground is flat, so no tile of it ever stands in front of a sprite. Thus the
-            // layer takes no part in the sort, and it draws below every sprite at every pixel
-            // of a slide (F-95, D-783). A later tile that stands up takes a layer of its own.
-            YSortEnabled = false,
-            LightMask = WorldLights.GroundItems,
-            ZIndex = GroundZIndex,
-
-            // Godot draws each quadrant as one canvas item, and one canvas item takes 15 lights
-            // at most. The budget test of Core counts each quadrant of this size (F-46, D-842).
-            RenderingQuadrantSize = LightBudget.QuadrantTiles,
-        };
-
+        TileMapLayer layer = FlatLayer(tiles, "ground");
         for (int row = 0; row < map.Height; row += 1)
         {
             for (int column = 0; column < map.Width; column += 1)
@@ -1174,4 +1179,54 @@ public partial class MapScreen : Node2D
 
         return layer;
     }
+
+    /// <summary>
+    /// Builds one layer for each place in the pieces of a tile, up to <see cref="EdgeFile.MostPiecesOnTile"/>.
+    /// The layer of the first piece draws first, so a later piece draws over an earlier one, as
+    /// the map preview draws them (D-1321).
+    /// </summary>
+    private static TileMapLayer[] BuildEdges(TileSet tiles, GameAtlas atlas, EdgeFile edges)
+    {
+        var layers = new TileMapLayer[EdgeFile.MostPiecesOnTile];
+        for (int index = 0; index < layers.Length; index += 1)
+        {
+            layers[index] = FlatLayer(tiles, $"edges_{index}");
+        }
+
+        foreach (EdgeTile tile in edges.Tiles)
+        {
+            for (int index = 0; index < tile.Pieces.Count; index += 1)
+            {
+                layers[index].SetCell(
+                    new Vector2I(tile.At.X, tile.At.Y),
+                    MapTileSet.SourceId,
+                    MapTileSet.CellOf(atlas, tile.Pieces[index]));
+            }
+        }
+
+        return layers;
+    }
+
+    /// <summary>Makes a layer of flat tiles with the values of the ground, which <see cref="DescribeGround"/> reads back (F-51).</summary>
+    private static TileMapLayer FlatLayer(TileSet tiles, string name) => new()
+    {
+        Name = name,
+        TileSet = tiles,
+
+        // Four Godot defaults meet a tile map, and two of them are these switches
+        // (F-51). No rule of Core reads a collision or a navigation mesh (G-1, G-23).
+        CollisionEnabled = false,
+        NavigationEnabled = false,
+
+        // The ground and its edges are flat, so no tile of them ever stands in front of a
+        // sprite. Thus the layer takes no part in the sort, and it draws below every sprite at
+        // every pixel of a slide (F-95, D-783). A later tile that stands up takes a layer of its own.
+        YSortEnabled = false,
+        LightMask = WorldLights.GroundItems,
+        ZIndex = GroundZIndex,
+
+        // Godot draws each quadrant as one canvas item, and one canvas item takes 15 lights
+        // at most. The budget test of Core counts each quadrant of this size (F-46, D-842).
+        RenderingQuadrantSize = LightBudget.QuadrantTiles,
+    };
 }
