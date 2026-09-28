@@ -2434,6 +2434,7 @@ Area files: `area-exploration.md`, `area-battle.md`, `area-story.md`, and `area-
 - The lessons, the gear, the items, and the start kit (D-1341, D-1351).
 - The curves, the join levels, and the join kits of Bergit and Dagvar (D-1342, D-1350).
 - The cover, the effect of a Guard drill (D-1352, D-1353).
+- The cap of 9,999 on a hit and a heal, battle lines of two lines, and the capital of a common name (D-1356 to D-1358).
 - The paid scene step, the bribe of the turnkey, and a gate on every map (D-1334 to D-1336, D-1347, G-17).
 - The opening scene, the villagers, the joins of Bergit and Dagvar, and the notice at the end (D-563, D-1337, D-1344).
 - The time of a map set by a flag, a light setup for each time, and the night after the end (D-442, D-1338, D-1348, D-1349).
@@ -2464,6 +2465,7 @@ Area files: `area-exploration.md`, `area-battle.md`, `area-story.md`, and `area-
 11. A map takes the time of its first change whose condition holds, at the next entry of the party (D-1349).
 12. A join gives the newcomer its join lessons and its join gear (D-1350).
 13. A cover takes each melee strike on the covered ally until the next turn of the holder (D-1352).
+14. With the longest names and the cap of 9,999, each battle line holds 2 lines of 40 (D-1356, D-1357).
 
 **Review focus.**
 
@@ -2471,7 +2473,7 @@ Area files: `area-exploration.md`, `area-battle.md`, `area-story.md`, and `area-
 - The places follow `docs/world/places.md` (D-250, D-371).
 - The paid step in the save, the snapshot, and the replay (T-7, G-17).
 
-**Questions.** None. D-1328 to D-1353 hold the answers of the start of PR-17. OQ-249 now blocks PR-23 (D-1330), and OQ-255 blocks PR-28.
+**Questions.** None. D-1328 to D-1358 hold the answers of the start of PR-17. OQ-249 now blocks PR-23 (D-1330), and OQ-255 blocks PR-28.
 
 > *In plain English:* the first real places to play, from the village down to the cells. They borrow the fixture pictures for now, and the four PRs after this one give each place its own look.
 
