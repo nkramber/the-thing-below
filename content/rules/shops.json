@@ -1,8 +1,12 @@
 {
- "comment": "The shop types and the shops (D-1149 to D-1155). A type holds a sale rate in basis points for each gear slot and each kind of used-up item, and a rate of 0 buys nothing of that kind (D-1151). A shop names its type and its stock. Each entry of a stock names one item, piece, or lesson, its price, and a count or `unlimited`. A lesson takes no count, and the shop hides it while the party owns it (D-1152, D-1153, D-1024). The fixture trader of the fixture hub lists the bolt, which the start pack holds, so the list hides it. PR-17 writes the shops of the first playable, and PR-30 tunes each number.",
+ "comment": "The shop types and the shops (D-1149 to D-1155). A type holds a sale rate in basis points for each gear slot and each kind of used-up item, and a rate of 0 buys nothing of that kind (D-1151). A shop names its type and its stock. Each entry of a stock names one item, piece, or lesson, its price, and a count or `unlimited`. A lesson takes no count, and the shop hides it while the party owns it (D-1152, D-1153, D-1024). The fixture trader of the fixture hub lists the bolt, which the start pack holds, so the list hides it. PR-17 adds the trader of the mining town, which sells one step up of gear for each slot, two lessons, and the four used-up items (D-1339, D-1341). PR-30 tunes each number.",
  "types": [
   {
    "id": "shop_type.fixture_trader",
+   "rates": { "weapon": 5000, "off_hand": 5000, "head": 5000, "body": 5000, "accessory": 2500, "heal": 5000, "restore": 5000, "cure": 5000, "revive": 5000 }
+  },
+  {
+   "id": "shop_type.town_trader",
    "rates": { "weapon": 5000, "off_hand": 5000, "head": 5000, "body": 5000, "accessory": 2500, "heal": 5000, "restore": 5000, "cure": 5000, "revive": 5000 }
   }
  ],
@@ -18,6 +22,26 @@
     { "gear": "gear.fixture_hood", "price": 60, "count": 1 },
     { "gear": "gear.fixture_charm", "price": 180, "count": 1 },
     { "lesson": "lesson.fixture_bolt", "price": 200 }
+   ]
+  },
+  {
+   "id": "shop.town_trader",
+   "type": "shop_type.town_trader",
+   "stock": [
+    { "item": "item.poultice", "price": 12, "count": "unlimited" },
+    { "item": "item.black_tea", "price": 20, "count": "unlimited" },
+    { "item": "item.charcoal", "price": 15, "count": "unlimited" },
+    { "item": "item.smelling_salts", "price": 60, "count": "unlimited" },
+    { "gear": "gear.leather_cap", "price": 40, "count": 1 },
+    { "gear": "gear.oak_shield", "price": 70, "count": 1 },
+    { "gear": "gear.iron_cap", "price": 90, "count": 1 },
+    { "gear": "gear.tin_charm", "price": 100, "count": 1 },
+    { "gear": "gear.wolf_tooth", "price": 110, "count": 1 },
+    { "gear": "gear.ash_staff", "price": 120, "count": 1 },
+    { "gear": "gear.rock_hammer", "price": 140, "count": 1 },
+    { "gear": "gear.quilted_coat", "price": 160, "count": 1 },
+    { "lesson": "lesson.frost", "price": 120 },
+    { "lesson": "lesson.wedge", "price": 100 }
    ]
   }
  ]

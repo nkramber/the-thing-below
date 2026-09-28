@@ -23,7 +23,7 @@
   },
   {
    "region": "region.one",
-   "maps": ["map.overworld"],
+   "maps": ["map.cells_lower", "map.cells_upper", "map.mining_town", "map.overworld", "map.village", "map.village_pasture"],
    "pool": [
     "transition.pixel_dissolve",
     "transition.mosaic",

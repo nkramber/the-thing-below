@@ -49,6 +49,7 @@ public static class CostFight
      "comment": "The enemy of the cost fight, with one move of each kind.",
      "id": "enemy.cost_raider",
      "size": "common",
+     "proper": false,
      "level": 1,
      "experience": 10,
      "gold_low": 5,

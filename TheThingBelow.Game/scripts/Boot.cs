@@ -1714,7 +1714,7 @@ public partial class Boot : Node
         ContentSet content = ContentSet.Load(files);
         GD.Print($"smoke: the content is {files.Count} files with the hash {content.Hash}.");
 
-        GameRun session = GameRun.Start(content, FixtureSeed, DebugSeam.Handlers(), SmokeSettings().Battle.Messages);
+        GameRun session = GameRun.StartFixture(content, FixtureSeed, DebugSeam.Handlers(), SmokeSettings().Battle.Messages);
         GD.Print($"smoke: the run is {this.DescribeRun(session)}.");
         GD.Print($"smoke: the log is {this.DescribeLog()}.");
         GD.Print($"smoke: the crash file is {DescribeCrashFile(session)}.");
@@ -2341,7 +2341,7 @@ public partial class Boot : Node
         GameInputMap.Build(SmokeSettings().Controls);
         FrameRoot built = FrameRoot.AddTo(this);
         UiBase shownBase = UiBase.Load(loaded, loaded.Style.SmallBody);
-        GameRun session = GameRun.Start(loaded, FixtureSeed, DebugSeam.Handlers(), SmokeSettings().Battle.Messages);
+        GameRun session = GameRun.StartFixture(loaded, FixtureSeed, DebugSeam.Handlers(), SmokeSettings().Battle.Messages);
         int closes = 0;
         var host = new MenuHost(built, shownBase, session, loaded, SmokeSettings, _ => closes += 1, entries => this.WriteLog(entries));
 
@@ -2608,7 +2608,7 @@ public partial class Boot : Node
     /// <exception cref="InvalidOperationException">A step never ended, or a torch stopped (T-2).</exception>
     private static string DescribeAnotherRoom(ContentSet loaded, MapScreen drawn)
     {
-        GameRun walked = GameRun.Start(loaded, FixtureSeed, DebugSeam.Handlers(), SmokeSettings().Battle.Messages);
+        GameRun walked = GameRun.StartFixture(loaded, FixtureSeed, DebugSeam.Handlers(), SmokeSettings().Battle.Messages);
         foreach (string action in ScreenCaptures.PitRoute)
         {
             walked.Queue(walked.IntentOf(action));
@@ -2706,7 +2706,7 @@ public partial class Boot : Node
         }
 
         const int WalkTicks = 120;
-        GameRun walked = GameRun.Start(loaded, FixtureSeed, DebugSeam.Handlers(), SmokeSettings().Battle.Messages);
+        GameRun walked = GameRun.StartFixture(loaded, FixtureSeed, DebugSeam.Handlers(), SmokeSettings().Battle.Messages);
         FrameRoot built = FrameRoot.AddTo(this);
         UiBase ui = UiBase.Load(loaded, loaded.Style.SmallBody);
         MapScreen first = MapFixture.Build(built, ui, walked, loaded);

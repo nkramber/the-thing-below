@@ -86,6 +86,8 @@ public sealed class BattleScreen
     private readonly TextureRect[] faces = new TextureRect[BattleLayout.StripTurns];
     private readonly Sprite2D pointer;
     private readonly Label message;
+    private readonly Label messageNext;
+    private readonly int messageHeight;
     private readonly Label number;
     private readonly Label[] summaryLabels = new Label[BattleEffects.SummaryLines];
     private readonly GridContainer commandRow;
@@ -97,6 +99,8 @@ public sealed class BattleScreen
     private readonly SortedDictionary<string, HitBurst> bursts = new(StringComparer.Ordinal);
     private BattleEvent? shownEvent;
     private BattleLine? shownLine;
+    private BattleEvent? lineEvent;
+    private int shownLines = 1;
     private ContentId? shownDescription;
     private BattleCommands? commands;
     private SpellFlash spellFlash = null!;
@@ -141,7 +145,15 @@ public sealed class BattleScreen
         GlowPass.LiftToMarks(this.pointer);
 
         this.BuildStrip();
-        this.message = this.BuildLinePanel(BattleLayout.Message);
+        // D-1359: the box of one line clips its text, and the second line of a message waits
+        // below the first until the scroll lifts both.
+        Control messageInside = this.Panel(BattleLayout.Message);
+        messageInside.ClipContents = true;
+        this.messageHeight = (int)messageInside.Size.Y;
+        this.message = new Label { Size = messageInside.Size, VerticalAlignment = VerticalAlignment.Center };
+        this.messageNext = new Label { Size = messageInside.Size, Position = new Vector2(0, this.messageHeight), VerticalAlignment = VerticalAlignment.Center };
+        messageInside.AddChild(this.message);
+        messageInside.AddChild(this.messageNext);
         Control commandInside = this.Panel(BattleLayout.Commands);
         // Two rows of three hold the six commands, and each later list takes the same grid (D-1034).
         this.commandRow = new GridContainer { Size = commandInside.Size, Columns = BattleLayout.CommandColumns };
@@ -387,6 +399,7 @@ public sealed class BattleScreen
         this.ShowBurst(view, playing, picture, run.FightTick - ticks);
         this.ShowSpell(view, playing, run.FightTick, ticks);
         this.ShowMessage(view, playing);
+        this.ScrollMessage(playing, ticks);
         this.ShowNumber(view, playing, picture);
         this.ShowSummary(view, playing, picture);
         this.ShowStrip(run);
@@ -646,14 +659,6 @@ public sealed class BattleScreen
         });
     }
 
-    private Label BuildLinePanel(FrameBox box)
-    {
-        Control inside = this.Panel(box);
-        var line = new Label { Size = inside.Size, VerticalAlignment = VerticalAlignment.Center };
-        inside.AddChild(line);
-        return line;
-    }
-
     /// <summary>Builds one window frame at a box, and gives the control inside its edge.</summary>
     private Control Panel(FrameBox box)
     {
@@ -897,8 +902,27 @@ public sealed class BattleScreen
         if (BattleMessages.Of(playing, view, this.content.Strings) is BattleLine line)
         {
             this.shownLine = line;
-            this.ui.Text.Put(this.message, line.Id, line.Values);
+            this.lineEvent = playing;
+            this.shownLines = this.ui.Text.PutBattleLine(this.message, this.messageNext, line);
         }
+    }
+
+    /// <summary>
+    /// Lifts the text of the message box by the scroll of its line at this tick: the first line of
+    /// a message of two lines, then its second line (D-1359). A description of the command menu
+    /// stands still, and a line whose event ended keeps its last line.
+    /// </summary>
+    private void ScrollMessage(BattleEvent? playing, int ticks)
+    {
+        int offset = 0;
+        if (this.shownDescription is null)
+        {
+            int at = ReferenceEquals(playing, this.lineEvent) ? ticks : MessageScroll.FirstLineTicks + MessageScroll.ScrollTicks;
+            offset = MessageScroll.OffsetAt(this.shownLines, at, this.messageHeight);
+        }
+
+        this.message.Position = new Vector2(0, -offset);
+        this.messageNext.Position = new Vector2(0, this.messageHeight - offset);
     }
 
     private void ShowNumber(BattleView view, BattleEvent? playing, int ticks)
@@ -1076,6 +1100,7 @@ public sealed class BattleScreen
             if (this.shownDescription is null || string.CompareOrdinal(this.shownDescription.Value, description.Value) != 0)
             {
                 this.shownDescription = description;
+                TextHelper.Clear(this.messageNext);
                 this.PutDescription(open, description);
             }
 
@@ -1087,7 +1112,7 @@ public sealed class BattleScreen
             this.shownDescription = null;
             if (this.shownLine is BattleLine line)
             {
-                this.ui.Text.Put(this.message, line.Id, line.Values);
+                this.shownLines = this.ui.Text.PutBattleLine(this.message, this.messageNext, line);
             }
         }
     }

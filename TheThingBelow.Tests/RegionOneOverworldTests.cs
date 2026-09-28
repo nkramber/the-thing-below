@@ -13,12 +13,16 @@ namespace TheThingBelow.Tests;
 
 /// <summary>
 /// The overworld of region one of PR-110 on the content set of the checkout: its size, its marks,
-/// its gates, its zones, the walk from the village to the mining town, and the treasure of PR-111
-/// (D-1270 to D-1296, D-1304 to D-1308).
+/// its entrances, its gates, its zones, the walk from the village to the mining town, and the
+/// treasure of PR-111 (D-1270 to D-1296, D-1304 to D-1308). PR-17 makes the village and the town
+/// entrances, adds the entrance of the pasture, and gives the low and the valley zones their
+/// beasts (D-1331, D-1332).
 /// </summary>
 /// <remarks>
 /// Each test reads the tile of each mark and each gate from the map, and finds each walk with a
 /// search, so a change of the settings of the generator breaks no test that still holds (D-1294).
+/// A walk of a test runs on a copy of the overworld with each zone at rate 0, so no fight of a
+/// zone stops it.
 /// </remarks>
 public sealed class RegionOneOverworldTests
 {
@@ -26,9 +30,11 @@ public sealed class RegionOneOverworldTests
 
     private static readonly Lazy<ContentSet> Content = new(() => ContentSet.Load(ContentFolder.Read(RepositoryRoot.Find())));
 
+    private static readonly Lazy<MapSet> CalmMaps = new(() => MapSet.Of(Content.Value.Maps.Select(map => string.CompareOrdinal(map.Id.Value, "map.overworld") == 0 ? CalmOf(map) : map)));
+
     private static readonly string[] Places =
     [
-        "mark.overworld_village", "mark.overworld_town", "mark.overworld_mine", "mark.overworld_gallery",
+        "mark.overworld_mine", "mark.overworld_gallery",
         "mark.overworld_refuge", "mark.overworld_fort", "mark.overworld_ice_crossing",
         "mark.overworld_broken_waystone", "mark.overworld_dead_mine_head", "mark.overworld_war_graves", "mark.overworld_bandit_lookout",
     ];
@@ -48,27 +54,55 @@ public sealed class RegionOneOverworldTests
         Assert.Equal(128, map.Height);
     }
 
-    [Fact]
-    public void EachPlaceOfRegionOneIsAMarkWithNoLink()
+    [Theory]
+    [InlineData("entrance.overworld_village", "map.village", "marker.overworld_village")]
+    [InlineData("entrance.overworld_pasture", "map.village_pasture", "marker.overworld_pasture")]
+    [InlineData("entrance.overworld_town", "map.mining_town", "marker.overworld_town")]
+    public void EachPlaceOfTheFirstPlayableIsAnEntranceWithItsArrivalBesideIt(string entrance, string place, string marker)
     {
-        // D-1270, D-1271, D-1299: each place and each side landmark is a mark with no link.
-        Assert.Equal(
-            Places.Order(StringComparer.Ordinal),
-            Overworld.Things.Where(thing => thing.Kind == MapThingKind.Mark).Select(thing => thing.Id.Value).Order(StringComparer.Ordinal));
-        Assert.DoesNotContain(Overworld.Things, thing => thing.Kind == MapThingKind.Entrance);
+        // D-1243, D-1331: the PR of a place makes its mark an entrance, and the exit of the place
+        // puts the party on the marker next to it (D-1255).
+        MapThing found = Overworld.Things.Single(thing => string.CompareOrdinal(thing.Id.Value, entrance) == 0);
+
+        Assert.Equal(MapThingKind.Entrance, found.Kind);
+        Assert.Equal(place, found.To?.Value);
+        Assert.Equal(1, Math.Abs(found.At.X - At(marker).X) + Math.Abs(found.At.Y - At(marker).Y));
+        Assert.Contains(Content.Value.Map(Id(place)).Things, thing => thing.Kind == MapThingKind.Exit && string.CompareOrdinal(thing.Arrive?.Value, marker) == 0);
     }
 
     [Fact]
-    public void EachZoneOfRegionOneHoldsRateZeroAndNoGroupUntilItsEnemies()
+    public void EachOtherPlaceOfRegionOneIsAMarkWithNoLink()
     {
-        // D-1283, D-1284, D-1285: six zones of region one, at rate 0 until PR-17.
+        // D-1270, D-1271, D-1299: each place with no map yet and each side landmark is a mark
+        // with no link, and the three places of the first playable are entrances (D-1331).
+        Assert.Equal(
+            Places.Order(StringComparer.Ordinal),
+            Overworld.Things.Where(thing => thing.Kind == MapThingKind.Mark).Select(thing => thing.Id.Value).Order(StringComparer.Ordinal));
+        Assert.Equal(
+            ["entrance.overworld_pasture", "entrance.overworld_town", "entrance.overworld_village"],
+            Overworld.Things.Where(thing => thing.Kind == MapThingKind.Entrance).Select(thing => thing.Id.Value).Order(StringComparer.Ordinal));
+    }
+
+    [Fact]
+    public void TheLowAndTheValleyZonesFightTheBeastsAndTheRoadAndThePassFightNothing()
+    {
+        // D-1283 to D-1285, D-1332: the low field and the low forest hold the wolves and the crows
+        // at the rates of the fixture overworld, the valley adds the boar, and the road and the
+        // pass keep the rate 0.
         Assert.Equal(
             ["zone.overworld_road", "zone.overworld_low_field", "zone.overworld_low_forest", "zone.overworld_valley_field", "zone.overworld_valley_forest", "zone.overworld_pass"],
             Overworld.Zones.Select(zone => zone.Id.Value));
+        Assert.Equal([0, 100, 200, 100, 200, 0], Overworld.Zones.Select(zone => zone.Rate));
+        string[] low = ["group.one_wolves 3", "group.one_wolf_crows 2", "group.one_crows 2"];
+        string[] valley = [.. low, "group.one_boar 1", "group.one_boar_wolves 1"];
+        Assert.Empty(Overworld.Zones[0].Groups);
+        Assert.Equal(low, GroupsOf(Overworld.Zones[1]));
+        Assert.Equal(low, GroupsOf(Overworld.Zones[2]));
+        Assert.Equal(valley, GroupsOf(Overworld.Zones[3]));
+        Assert.Equal(valley, GroupsOf(Overworld.Zones[4]));
+        Assert.Empty(Overworld.Zones[5].Groups);
         foreach (EncounterZone zone in Overworld.Zones)
         {
-            Assert.Equal(0, zone.Rate);
-            Assert.Empty(zone.Groups);
             Assert.Equal("region.one", zone.Region.Value);
         }
     }
@@ -76,16 +110,18 @@ public sealed class RegionOneOverworldTests
     [Fact]
     public void TheLeadWalksFromTheVillageToTheMiningTownOnceBergitJoins()
     {
-        // Exit test 1 of PR-110 (D-1270): the walk on the overworld from the mark of the village
-        // to the mark of the town, through the two gates of the low pass.
+        // Exit test 1 of PR-110 (D-1270): the walk on the overworld from the village to the town,
+        // through the two gates of the low pass. The entrance of the town enters the town on its
+        // spawn point (D-1243, D-1331).
         Simulation run = Start();
-        WalkTo(run, At("mark.overworld_village"));
+        WalkTo(run, At("marker.overworld_village"));
         run.State.Story.Flags.TurnOn(Id("flag.region_one_bergit_joins"));
 
-        WalkTo(run, At("mark.overworld_town"));
+        _ = WalkSteps(run, PathOf(run.State.Party.LeadAt, At("entrance.overworld_town")));
 
-        Assert.Equal("map.overworld", run.State.Party.Map.Id.Value);
-        Assert.Equal(At("mark.overworld_town"), run.State.Party.LeadAt);
+        GameMap town = Content.Value.Map(Id("map.mining_town"));
+        Assert.Equal("map.mining_town", run.State.Party.Map.Id.Value);
+        Assert.Equal(town.Spawn, run.State.Party.LeadAt);
         Assert.Empty(run.TakeNotices());
     }
 
@@ -95,10 +131,10 @@ public sealed class RegionOneOverworldTests
         // D-1272: the lead walks over a mark, and nothing happens.
         Simulation run = Start();
 
-        WalkTo(run, At("mark.overworld_village"));
+        WalkTo(run, At("mark.overworld_dead_mine_head"));
 
         Assert.Equal("map.overworld", run.State.Party.Map.Id.Value);
-        Assert.Equal(At("mark.overworld_village"), run.State.Party.LeadAt);
+        Assert.Equal(At("mark.overworld_dead_mine_head"), run.State.Party.LeadAt);
         Assert.Empty(run.TakeNotices());
         Assert.Empty(run.TakeSaveRequests());
     }
@@ -124,7 +160,7 @@ public sealed class RegionOneOverworldTests
         // D-1281: the way down holds a not node, so it shuts at the breakout.
         Simulation run = Start();
         run.State.Story.Flags.TurnOn(Id("flag.region_one_bergit_joins"));
-        WalkTo(run, At("mark.overworld_town"));
+        WalkTo(run, At("marker.overworld_town"));
         run.State.Story.Flags.TurnOn(Id("flag.region_one_breakout"));
         List<StepDirection> steps = PathOf(run.State.Party.LeadAt, At("gate.overworld_village_road"));
         TilePoint before = WalkSteps(run, steps[..^1]);
@@ -165,8 +201,9 @@ public sealed class RegionOneOverworldTests
         HashSet<TilePoint> shut = Reach(map, map.Spawn, gates);
         HashSet<TilePoint> open = Reach(map, map.Spawn, []);
 
-        Assert.Contains(At("mark.overworld_village"), shut);
-        foreach (string place in new[] { "mark.overworld_town", "mark.overworld_mine", "mark.overworld_gallery", "mark.overworld_fort", "mark.overworld_ice_crossing", "mark.overworld_bandit_lookout" })
+        Assert.Contains(At("entrance.overworld_village"), shut);
+        Assert.Contains(At("entrance.overworld_pasture"), shut);
+        foreach (string place in new[] { "entrance.overworld_town", "mark.overworld_mine", "mark.overworld_gallery", "mark.overworld_fort", "mark.overworld_ice_crossing", "mark.overworld_bandit_lookout" })
         {
             Assert.DoesNotContain(At(place), shut);
             Assert.Contains(At(place), open);
@@ -266,13 +303,13 @@ public sealed class RegionOneOverworldTests
         _ = run.TakeNotices();
 
         HubWalks.Confirm(run);
-        Assert.Equal(["notice.chest_gold 20", "notice.chest_found item.fixture_draught", "notice.chest_found item.fixture_draught"], Posted(run));
+        Assert.Equal(["notice.chest_gold 12", "notice.chest_found item.poultice", "notice.chest_found item.poultice"], Posted(run));
         HubWalks.Confirm(run);
         Assert.Equal([ChestRules.EmptyNotice.Value], Posted(run));
 
         string line = RunSnapshotText.Write(run.Snapshot());
         var reader = new ContentReader(System.Text.Encoding.UTF8.GetBytes(line), "the test");
-        Simulation resumed = Simulation.Resume(Seed, RunSnapshotText.Read(ref reader), MapSet.Of(Content.Value.Maps), Content.Value.Battle, Content.Value.Notices, Content.Value.Story, DebugIntentHandlers.None);
+        Simulation resumed = Simulation.Resume(Seed, RunSnapshotText.Read(ref reader), CalmMaps.Value, Content.Value.Battle, Content.Value.Notices, Content.Value.Story, DebugIntentHandlers.None);
 
         Assert.Contains("\"chests\":[{\"chest\":\"chest.overworld_cairn_west_field\",\"left\":[]}]", line, StringComparison.Ordinal);
         Assert.Equal(run.StateHash(), resumed.StateHash());
@@ -309,7 +346,7 @@ public sealed class RegionOneOverworldTests
         GameMap map = Overworld;
 
         HashSet<TilePoint> south = Reach(map, map.Spawn, [At("gate.overworld_town_road")]);
-        HashSet<TilePoint> north = Reach(map, At("mark.overworld_town"), [At("gate.overworld_village_road")]);
+        HashSet<TilePoint> north = Reach(map, At("entrance.overworld_town"), [At("gate.overworld_village_road")]);
 
         Assert.DoesNotContain(At("gate.overworld_village_road"), south);
         Assert.DoesNotContain(At("gate.overworld_town_road"), north);
@@ -332,7 +369,17 @@ public sealed class RegionOneOverworldTests
     }
 
     private static Simulation Start() =>
-        Simulation.Start(Seed, MapSet.Of(Content.Value.Maps), Id("map.overworld"), Content.Value.Battle, Content.Value.Notices, Content.Value.Story, DebugIntentHandlers.None);
+        Simulation.Start(Seed, CalmMaps.Value, Id("map.overworld"), Content.Value.Battle, Content.Value.Notices, Content.Value.Story, DebugIntentHandlers.None);
+
+    /// <summary>Gives a copy of an overworld of the checkout with each zone at rate 0, so a walk meets no fight (D-1263).</summary>
+    private static GameMap CalmOf(GameMap map)
+    {
+        string text = System.IO.File.ReadAllText(RepositoryRoot.PathTo($"content/{map.File}"));
+        return TestMaps.Of(map.File, System.Text.RegularExpressions.Regex.Replace(text, "\"rate\": [0-9]+, \"groups\": \\[[^\\]]*\\]", "\"rate\": 0, \"groups\": []"));
+    }
+
+    private static string[] GroupsOf(EncounterZone zone) =>
+        [.. zone.Groups.Select(group => $"{group.Group.Value} {group.Weight.ToString(System.Globalization.CultureInfo.InvariantCulture)}")];
 
     private static ContentId Id(string value) => ContentId.Parse(value, "test", "id");
 
@@ -404,7 +451,9 @@ public sealed class RegionOneOverworldTests
             TilePoint at = todo.Dequeue();
             foreach ((StepDirection step, TilePoint next) in Neighbors(at))
             {
-                if (Walkable(map, next) && !Solid(map, next) && seen.Add(next))
+                // A step onto an entrance leaves the overworld, so a path crosses none but its end.
+                bool leaves = next != to && map.EntranceAt(next) is not null;
+                if (Walkable(map, next) && !Solid(map, next) && !leaves && seen.Add(next))
                 {
                     came[next] = (at, step);
                     todo.Enqueue(next);

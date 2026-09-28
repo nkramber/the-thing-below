@@ -697,12 +697,20 @@ public sealed class ContentSet
                     or OverworldRole.VillageRoad or OverworldRole.RoadUp => MapThingKind.Gate,
                 _ => MapThingKind.Mark,
             };
-            if (map.ThingOf(placement.Id, kind) is null)
+
+            // The PR of a place makes its mark an entrance on the same tile, and the role stays
+            // (D-1243, D-1271). Thus a role of a mark also takes an entrance.
+            bool placed = map.ThingOf(placement.Id, kind) is not null
+                || (kind == MapThingKind.Mark && map.ThingOf(placement.Id, MapThingKind.Entrance) is not null);
+            if (!placed)
             {
+                string wanted = kind == MapThingKind.Mark
+                    ? $"{MapThingKinds.NameOf(MapThingKind.Mark)} or {MapThingKinds.NameOf(MapThingKind.Entrance)}"
+                    : MapThingKinds.NameOf(kind);
                 throw ContentException.ForField(
                     OverworldPlan.Path,
                     "things",
-                    $"the role '{OverworldPlan.NameOf(placement.Role)}' names the thing '{placement.Id.Value}', and '{map.File}' holds no {MapThingKinds.NameOf(kind)} of that id (D-1295)");
+                    $"the role '{OverworldPlan.NameOf(placement.Role)}' names the thing '{placement.Id.Value}', and '{map.File}' holds no {wanted} of that id (D-1243, D-1295)");
             }
         }
     }

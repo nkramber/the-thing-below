@@ -6,7 +6,9 @@
  "draws": [
   { "content": "trap.fixture_dungeon_pit", "use": "map" },
   { "content": "trap.fixture_dungeon_needle", "use": "map" },
-  { "content": "trap.fixture_dungeon_alarm", "use": "map" }
+  { "content": "trap.fixture_dungeon_alarm", "use": "map" },
+  { "content": "trap.cells_upper_pit", "use": "map" },
+  { "content": "trap.cells_lower_needle", "use": "map" }
  ],
  "frames": [
   {

@@ -54,8 +54,11 @@ public sealed class ResumeDriftTests
     /// each save of the older content, so the patch that makes it ships a migration (D-1110).
     /// PR-16 added the iron key, a new item with the limit 1. No older save holds it, so no save
     /// of the older content breaks, and the digest took the new list with no migration.
+    /// PR-17 added Bergit and Dagvar, and the lessons, the items, and the gear of the first
+    /// playable, each with a new id. No number of an older id changed and no older save holds a
+    /// new id, so the digest took the new list with no migration.
     /// </summary>
-    private const string PartyRuleDigest = "03b379b40a817def71d761c2986ab1561c9a935f2fe032258ea10ac45890ef01";
+    private const string PartyRuleDigest = "e43c322f6ad8fcba71b982f50e2243df609ab32dd9fe7f36dff5d14741f49a36";
 
     [Fact]
     public void AnotherBuildPlacesANewEnemyOnItsStationAndLogsIt()

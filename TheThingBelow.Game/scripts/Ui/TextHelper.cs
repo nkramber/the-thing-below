@@ -65,6 +65,39 @@ public sealed class TextHelper
     }
 
     /// <summary>
+    /// Puts one battle line on the two labels of the message box: the first line, and the second
+    /// line or nothing, each filled, with a capital at the start (D-1356, D-1358, D-1359).
+    /// </summary>
+    /// <param name="first">The label of the first line.</param>
+    /// <param name="second">The label below it, which the box scrolls up to.</param>
+    /// <param name="line">The line of a battle event.</param>
+    /// <returns>The count of lines, 1 or 2.</returns>
+    /// <exception cref="ArgumentNullException">A label or the line is null (T-2).</exception>
+    /// <exception cref="ContentException">The table holds no such id, or a place has no value (T-2).</exception>
+    /// <exception cref="InvalidOperationException">The line needs more than two lines of the box (T-2).</exception>
+    public int PutBattleLine(Label first, Label second, BattleLine line)
+    {
+        ArgumentNullException.ThrowIfNull(first);
+        ArgumentNullException.ThrowIfNull(second);
+        ArgumentNullException.ThrowIfNull(line);
+
+        IReadOnlyList<string> lines = BattleMessages.LinesOf(line, this.strings);
+        first.Text = lines[0];
+        second.Text = lines.Count > 1 ? lines[1] : string.Empty;
+        return lines.Count;
+    }
+
+    /// <summary>Empties a label, such as the second line of the message box under a one-line text (D-1359).</summary>
+    /// <param name="place">The label.</param>
+    /// <exception cref="ArgumentNullException">The label is null (T-2).</exception>
+    public static void Clear(Label place)
+    {
+        ArgumentNullException.ThrowIfNull(place);
+
+        place.Text = string.Empty;
+    }
+
+    /// <summary>
     /// Gives the text that a label shows now, so a check of a session reads back what
     /// <see cref="Put(Label, ContentId, IReadOnlyDictionary{string, string})"/> wrote (P3-26).
     /// </summary>

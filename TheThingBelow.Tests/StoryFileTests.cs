@@ -24,17 +24,18 @@ public sealed class StoryFileTests
     }
 
     [Fact]
-    public void TheCheckoutFlagFileHoldsTheFixtureFlagsAndTheGateFlags()
+    public void TheCheckoutFlagFileHoldsTheFixtureFlagsTheGateFlagsAndTheFlagsOfTheFirstPlayable()
     {
         // PR-12 adds the fixture flag of the side aptitude of Marrek (D-538, D-556), PR-36 the
-        // three flags of the fixture story scenes of the hub, and PR-110 the four flags of the
-        // gates of the overworld (D-1282).
+        // three flags of the fixture story scenes of the hub, PR-110 the four flags of the gates
+        // of the overworld (D-1282), and PR-17 the four flags of the first playable (D-1337, D-1344).
         FlagList flags = FlagList.Read(System.IO.File.ReadAllBytes(RepositoryRoot.PathTo("content/rules/flags.json")), FlagList.Path);
 
         Assert.Equal(
             [
                 "flag.fixture_marrek_side", "flag.fixture_hub_yes", "flag.fixture_hub_no", "flag.fixture_hub_rats",
                 "flag.region_one_bergit_joins", "flag.region_one_ottild_joins", "flag.region_one_breakout", "flag.region_one_night_pass",
+                "flag.village_opening", "flag.town_turnkey_paid", "flag.region_one_dagvar_joins", "flag.first_playable_end",
             ],
             Values(flags.Ids()));
     }

@@ -1,0 +1,9 @@
+{
+ "comment": "The light of the lower floor of the hanging cells, which is always night and dark (D-442, D-1063, D-1338). The ambient light is the storm blue of the fixture dungeon, and the carried torch lights the party. A battle that begins here takes the ambient light and the key light of `battle` (D-850). Each color is a palette key with a strength in basis points (D-846).",
+ "map": "map.cells_lower",
+ "time": "night",
+ "ambient": { "color": "8", "strength": 10000 },
+ "battle": { "color": "A", "strength": 24000, "range": 720, "height": 96 },
+ "changes": [],
+ "added": []
+}

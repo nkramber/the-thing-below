@@ -5,7 +5,15 @@
  "height": 32,
  "draws": [
   { "content": "chest.fixture_dungeon_store", "use": "map_open" },
-  { "content": "chest.fixture_dungeon_cache", "use": "map_open" }
+  { "content": "chest.fixture_dungeon_cache", "use": "map_open" },
+  { "content": "chest.village_home", "use": "map_open" },
+  { "content": "chest.pasture_hollow", "use": "map_open" },
+  { "content": "chest.pasture_stump", "use": "map_open" },
+  { "content": "chest.cells_guardroom", "use": "map_open" },
+  { "content": "chest.cells_store", "use": "map_open" },
+  { "content": "chest.cells_yard", "use": "map_open" },
+  { "content": "chest.cells_rack", "use": "map_open" },
+  { "content": "chest.cells_low", "use": "map_open" }
  ],
  "frames": [
   {

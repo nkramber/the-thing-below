@@ -1,0 +1,19 @@
+{
+ "comment": "A snow crow of region one, which pecks from the back row with a reach of either row (D-1353). The level and the experience follow D-977, and a win rolls the gold from the low gold to the high gold (D-1157). PR-30 tunes each number. Its name is a common noun, so a battle line writes it in lower case after the start (D-1358).",
+ "id": "enemy.snow_crow",
+ "size": "common",
+ "proper": false,
+ "level": 1,
+ "experience": 6,
+ "gold_low": 1,
+ "gold_high": 3,
+ "health": 14,
+ "attack": 5,
+ "magic": 0,
+ "defense": 1,
+ "resistance": 3,
+ "speed": 125,
+ "abilities": ["ability.crow_peck"],
+ "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" },
+ "immune": []
+}

@@ -19,7 +19,9 @@ public sealed record BattleLine(ContentId Id, IReadOnlyDictionary<string, string
 /// A name comes from the string table under the id `name.` and the name part of the content
 /// id, so `enemy.fixture_grunt` reads `name.fixture_grunt`. A status reads `status.` and the
 /// name of the status. A test proves that every id that this type gives exists, and that
-/// each line holds the limit of 40 characters with the longest names (D-241).
+/// each line wraps into two lines of 40 characters at most with the longest names and the cap
+/// of a battle amount (D-241, D-1356, D-1357). A common name is lower case in the middle of a
+/// line, and the first letter of each line takes a capital (D-1358).
 /// <para>
 /// This type holds no Godot value, so a test reads it from the built Game assembly with no
 /// engine (D-614).
@@ -29,6 +31,12 @@ public static class BattleMessages
 {
     /// <summary>The kind of the string id of a name, such as `name.marrek`.</summary>
     public const string NameKind = "name";
+
+    /// <summary>The most characters of one line of a battle message (D-241, D-1356).</summary>
+    public const int LineCharacters = 40;
+
+    /// <summary>The most lines of one battle message: the box shows the first, then scrolls to the second (D-1356, D-1359).</summary>
+    public const int MostLines = 2;
 
     /// <summary>The kind of the string id of the name of a status, such as `status.poison`.</summary>
     public const string StatusNameKind = "status";
@@ -280,10 +288,102 @@ public static class BattleMessages
         return new(TargetPlace, NameOf(view, target, strings));
     }
 
+    /// <summary>
+    /// Gives the lines of a battle line as the message box shows them: the places filled, a
+    /// capital on the first letter, and a break at the last space that keeps each line to
+    /// <see cref="LineCharacters"/> (D-1356, D-1358). The box shows the first line, then scrolls to
+    /// the second (D-1359).
+    /// </summary>
+    /// <param name="line">The line.</param>
+    /// <param name="strings">The string table.</param>
+    /// <returns>The lines, one or two.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="InvalidOperationException">The text holds a word longer than a line, or needs more than two lines (T-2).</exception>
+    public static IReadOnlyList<string> LinesOf(BattleLine line, StringTable strings)
+    {
+        ArgumentNullException.ThrowIfNull(line);
+        ArgumentNullException.ThrowIfNull(strings);
+
+        return Wrap(Capitalized(TextHelper.Fill(strings.Text(line.Id), line.Id, line.Values)));
+    }
+
+    /// <summary>
+    /// Wraps a battle message at spaces into lines of <see cref="LineCharacters"/> at most, and
+    /// never splits a word (D-1356).
+    /// </summary>
+    /// <param name="text">The text of one message, with no line break.</param>
+    /// <returns>The lines, one or two.</returns>
+    /// <exception cref="ArgumentNullException">The text is null (T-2).</exception>
+    /// <exception cref="InvalidOperationException">A word is longer than a line, or the text needs more than <see cref="MostLines"/> lines (T-2).</exception>
+    public static IReadOnlyList<string> Wrap(string text)
+    {
+        ArgumentNullException.ThrowIfNull(text);
+
+        List<string> lines = [];
+        string current = string.Empty;
+        foreach (string word in text.Split(' '))
+        {
+            if (word.Length > LineCharacters)
+            {
+                throw new InvalidOperationException($"The battle message '{text}' holds the word '{word}' of {word.Length} characters, and a line holds {LineCharacters} (D-1356, T-2).");
+            }
+
+            if (current.Length == 0)
+            {
+                current = word;
+            }
+            else if (current.Length + 1 + word.Length <= LineCharacters)
+            {
+                current = $"{current} {word}";
+            }
+            else
+            {
+                lines.Add(current);
+                current = word;
+            }
+        }
+
+        lines.Add(current);
+        if (lines.Count > MostLines)
+        {
+            throw new InvalidOperationException($"The battle message '{text}' needs {lines.Count} lines of {LineCharacters} characters, and the box holds {MostLines} (D-1356, T-2).");
+        }
+
+        return lines;
+    }
+
+    /// <summary>Gives a text with a capital on its first letter, as the start of a battle line takes (D-1358).</summary>
+    private static string Capitalized(string text)
+    {
+        return text.Length == 0 || !char.IsLower(text[0])
+            ? text
+            : string.Concat(char.ToUpperInvariant(text[0]).ToString(), text.AsSpan(1));
+    }
+
+    /// <summary>
+    /// Gives the name of a combatant in the middle of a battle line: a proper name as the table
+    /// holds it, and a common name in lower case, with its letter (D-1194, D-1358).
+    /// </summary>
     private static string NameOf(BattleView view, BattleTarget target, StringTable strings)
     {
-        (ContentId id, IReadOnlyDictionary<string, string> values) = NameLineOf(view, target, strings);
-        return TextHelper.Fill(strings.Text(id), id, values);
+        ShownCombatant shown = view.At(target);
+        string name = strings.Text(NameIdOf(shown.Id));
+        if (!shown.ProperName)
+        {
+            name = name.ToLowerInvariant();
+        }
+
+        if (LetterOf(view, shown, strings) is not string letter)
+        {
+            return name;
+        }
+
+        var values = new SortedDictionary<string, string>(StringComparer.Ordinal)
+        {
+            [NamePlace] = name,
+            [LetterPlace] = letter,
+        };
+        return TextHelper.Fill(strings.Text(LetteredNameId), LetteredNameId, values);
     }
 
     /// <summary>Gives the name of the form of a lesson event: `name.` and the name part of its ability (D-1026, D-1027).</summary>

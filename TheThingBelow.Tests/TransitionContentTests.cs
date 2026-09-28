@@ -40,14 +40,15 @@ public sealed class TransitionContentTests
         Assert.Equal("transition.shatter", content.Table.FixedOf(EncounterKind.Boss).Value);
         Assert.Equal("transition.ripple", content.Table.FixedOf(EncounterKind.WrongThing).Value);
 
-        // D-1289: the fixture maps lie in the fixture region, and region one holds the overworld.
+        // D-1289: the fixture maps lie in the fixture region, and region one holds the overworld and
+        // the places of the first playable (D-1331).
         Assert.Equal(2, content.Table.Regions.Count);
         TransitionRegion fixture = content.Table.Regions[0];
         TransitionRegion one = content.Table.Regions[1];
         Assert.Equal("region.fixture", fixture.Id.Value);
         Assert.Equal(["map.fixture_dungeon", "map.fixture_hub", "map.fixture_overworld"], Ids(fixture.Maps));
         Assert.Equal("region.one", one.Id.Value);
-        Assert.Equal(["map.overworld"], Ids(one.Maps));
+        Assert.Equal(["map.cells_lower", "map.cells_upper", "map.mining_town", "map.overworld", "map.village", "map.village_pasture"], Ids(one.Maps));
         string[] pool = ["transition.pixel_dissolve", "transition.mosaic", "transition.crt_power_off", "transition.snow_whiteout", "transition.blinds", "transition.scanline_sweep"];
         Assert.Equal(pool, Ids(fixture.Pool));
         Assert.Equal(pool, Ids(one.Pool));

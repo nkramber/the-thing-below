@@ -1,0 +1,9 @@
+{
+ "comment": "The profile of the jailers of the hanging cells (D-956). A jailer weighs threat and the row above raw damage, so it breaks the front row first. A jailer carries nothing that a hand can lift, so the steal list holds no entry, and the drop list holds a rare poultice (D-383, D-1042). PR-30 tunes each number.",
+ "id": "profile.one_jailer",
+ "weights": { "damage": 80, "kills": 2, "threat": 80, "healing": 0, "timeline": 1, "row": 150 },
+ "steal_chance": 0,
+ "steal_gear_chance": 0,
+ "steal": [],
+ "drops": [{ "item": "item.poultice", "chance": 1000 }]
+}

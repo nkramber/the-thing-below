@@ -373,6 +373,13 @@ public sealed class Simulation
 
         if (string.CompareOrdinal(intent.Action.Value, IntentIds.WaitBattleEnd.Value) == 0)
         {
+            // The list of accepted intents holds the close alone while a menu is open, so the
+            // rules refuse the end of a fight there too (D-162, D-1179).
+            if (this.State.MenuOpen)
+            {
+                throw new SimulationException("the wait intent of the end of a battle while the menu is open, and a menu pauses the run (D-162, D-1179)", context);
+            }
+
             BattleTurns.Finish(this.State, context, log);
             return;
         }

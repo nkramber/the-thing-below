@@ -21,7 +21,7 @@ public sealed class EnemyRecord
     /// <summary>The kind of an enemy id (D-646).</summary>
     public const string Kind = "enemy";
 
-    private EnemyRecord(string file, ContentId id, EnemySize size, int level, int experience, int goldLow, int goldHigh, int health, int attack, int magic, int defense, int resistance, int speed, IReadOnlyList<ContentId> abilities, ElementTable elements, IReadOnlyList<StatusKind> immune)
+    private EnemyRecord(string file, ContentId id, EnemySize size, int level, int experience, int goldLow, int goldHigh, int health, int attack, int magic, int defense, int resistance, int speed, IReadOnlyList<ContentId> abilities, ElementTable elements, IReadOnlyList<StatusKind> immune, bool proper)
     {
         this.File = file;
         this.Id = id;
@@ -39,6 +39,7 @@ public sealed class EnemyRecord
         this.Abilities = abilities;
         this.Elements = elements;
         this.Immune = immune;
+        this.Proper = proper;
     }
 
     /// <summary>The path of the file, for an error that names this record (T-2).</summary>
@@ -89,6 +90,12 @@ public sealed class EnemyRecord
     /// <summary>The statuses that do nothing to this enemy, in the order of the file. The list can be empty (D-805).</summary>
     public IReadOnlyList<StatusKind> Immune { get; }
 
+    /// <summary>
+    /// True when the name is a proper name, such as the name of a boss, which keeps its capital in
+    /// the middle of a battle line. A common name takes a capital at the start of a line alone (D-1358).
+    /// </summary>
+    public bool Proper { get; }
+
     /// <summary>Tells whether a content path is an enemy file (D-786).</summary>
     /// <param name="path">The path under `content/`, with `/` separators.</param>
     /// <returns>True when the path is a JSON file of the enemy folder.</returns>
@@ -125,6 +132,7 @@ public sealed class EnemyRecord
         List<ContentId>? abilities = null;
         ElementTable? elements = null;
         IReadOnlyList<StatusKind>? immune = null;
+        bool? proper = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -179,6 +187,9 @@ public sealed class EnemyRecord
                 case "immune":
                     immune = Statuses.ReadList(ref reader);
                     break;
+                case "proper":
+                    proper = reader.ReadBoolean();
+                    break;
                 default:
                     throw reader.UnknownField(field);
             }
@@ -208,7 +219,8 @@ public sealed class EnemyRecord
             reader.RequireInt(speed, depth, "speed"),
             reader.Require(abilities, depth, "abilities"),
             reader.Require(elements, depth, "elements"),
-            reader.Require(immune, depth, "immune"));
+            reader.Require(immune, depth, "immune"),
+            reader.RequireValue(proper, depth, "proper"));
         reader.ReadFileEnd();
 
         record.RefuseRepeatedAbility();

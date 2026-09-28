@@ -1,0 +1,19 @@
+{
+ "comment": "A jailer of the hanging cells under the chapel of the mining town (D-1353). The club can stun. The level and the experience follow D-977, and a win rolls the gold from the low gold to the high gold (D-1157). PR-30 tunes each number. Its name is a common noun, so a battle line writes it in lower case after the start (D-1358).",
+ "id": "enemy.jailer",
+ "size": "common",
+ "proper": false,
+ "level": 3,
+ "experience": 20,
+ "gold_low": 8,
+ "gold_high": 14,
+ "health": 40,
+ "attack": 10,
+ "magic": 0,
+ "defense": 4,
+ "resistance": 3,
+ "speed": 95,
+ "abilities": ["ability.jailer_club"],
+ "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" },
+ "immune": []
+}

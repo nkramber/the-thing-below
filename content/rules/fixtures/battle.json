@@ -1,5 +1,5 @@
 {
- "comment": "The fixture of the battle core (D-765, D-775, D-781). Each character holds its row, its join level, and its stat curve of one row for each of the 40 levels, with the numbers of D-977 (D-363, D-966, D-972). PR-99 added the magic and the resistance of D-1052, and PR-30 tunes them. Each character names its main aptitude, its side aptitude, and the flag that unlocks the side aptitude (D-274, D-281, D-538). The start lessons and the lesson pack follow D-1023 and D-1030. Each character names the lessons and the gear of its join, and a character of the start party names none (D-1350). The items live in the item file and the gear in the gear file, and the pack and the start gear name them (D-1038). Each id stays. The enemies live in the enemy records of `rules/enemies/` (D-786), and the groups in the group file of each region of `rules/groups/` (D-957).",
+ "comment": "The fixture of the battle core (D-765, D-775, D-781). Each character holds its row, its join level, and its stat curve of one row for each of the 40 levels, with the numbers of D-977 (D-363, D-966, D-972). PR-99 added the magic and the resistance of D-1052, and PR-30 tunes them. Each character names its main aptitude, its side aptitude, and the flag that unlocks the side aptitude (D-274, D-281, D-538). The start lessons and the lesson pack follow D-1023 and D-1030. Each character names the lessons and the gear of its join, and a character of the start party names none (D-1350). PR-17 adds Bergit and Dagvar with their join levels and the tilt of their curves (D-1342), and each side aptitude unlocks with the flag of the join of the character. Marrek starts with his real lessons, his real gear, two poultices, and the torch, and the fixture items, gear, and lessons leave the start (D-1351). The items live in the item file and the gear in the gear file, and the pack and the start gear name them (D-1038). Each id stays. The enemies live in the enemy records of `rules/enemies/` (D-786), and the groups in the group file of each region of `rules/groups/` (D-957).",
  "characters": [
   {
    "id": "character.marrek",
@@ -52,27 +52,124 @@
    { "level": 39, "health": 288, "ap": 84, "attack": 50, "magic": 25, "defense": 23, "resistance": 17, "speed": 109 },
    { "level": 40, "health": 294, "ap": 86, "attack": 51, "magic": 26, "defense": 24, "resistance": 18, "speed": 110 }
    ]
+  },
+  {
+   "id": "character.bergit",
+   "row": "front",
+   "join_level": 2,
+   "main_aptitude": "guard",
+   "side_aptitude": "shot",
+   "side_flag": "flag.region_one_bergit_joins",
+   "join_lessons": ["lesson.cover", "lesson.quarrel"],
+   "join_gear": ["gear.short_sword", "gear.iron_buckler", "gear.padded_jerkin"],
+   "curve": [
+   { "level": 1, "health": 70, "ap": 8, "attack": 11, "magic": 4, "defense": 6, "resistance": 3, "speed": 96 },
+   { "level": 2, "health": 77, "ap": 10, "attack": 12, "magic": 4, "defense": 7, "resistance": 3, "speed": 96 },
+   { "level": 3, "health": 84, "ap": 12, "attack": 13, "magic": 5, "defense": 7, "resistance": 3, "speed": 96 },
+   { "level": 4, "health": 91, "ap": 14, "attack": 14, "magic": 5, "defense": 8, "resistance": 4, "speed": 97 },
+   { "level": 5, "health": 98, "ap": 16, "attack": 15, "magic": 6, "defense": 8, "resistance": 4, "speed": 97 },
+   { "level": 6, "health": 105, "ap": 18, "attack": 16, "magic": 6, "defense": 9, "resistance": 4, "speed": 97 },
+   { "level": 7, "health": 112, "ap": 20, "attack": 17, "magic": 7, "defense": 9, "resistance": 5, "speed": 97 },
+   { "level": 8, "health": 119, "ap": 22, "attack": 18, "magic": 7, "defense": 10, "resistance": 5, "speed": 98 },
+   { "level": 9, "health": 126, "ap": 24, "attack": 19, "magic": 8, "defense": 10, "resistance": 6, "speed": 98 },
+   { "level": 10, "health": 133, "ap": 26, "attack": 20, "magic": 8, "defense": 11, "resistance": 6, "speed": 98 },
+   { "level": 11, "health": 140, "ap": 28, "attack": 21, "magic": 9, "defense": 11, "resistance": 6, "speed": 98 },
+   { "level": 12, "health": 147, "ap": 30, "attack": 22, "magic": 9, "defense": 12, "resistance": 7, "speed": 99 },
+   { "level": 13, "health": 154, "ap": 32, "attack": 23, "magic": 10, "defense": 12, "resistance": 7, "speed": 99 },
+   { "level": 14, "health": 161, "ap": 34, "attack": 24, "magic": 10, "defense": 13, "resistance": 8, "speed": 99 },
+   { "level": 15, "health": 168, "ap": 36, "attack": 25, "magic": 11, "defense": 13, "resistance": 8, "speed": 99 },
+   { "level": 16, "health": 175, "ap": 38, "attack": 26, "magic": 11, "defense": 14, "resistance": 8, "speed": 100 },
+   { "level": 17, "health": 182, "ap": 40, "attack": 27, "magic": 12, "defense": 14, "resistance": 9, "speed": 100 },
+   { "level": 18, "health": 189, "ap": 42, "attack": 28, "magic": 12, "defense": 15, "resistance": 9, "speed": 100 },
+   { "level": 19, "health": 196, "ap": 44, "attack": 29, "magic": 13, "defense": 15, "resistance": 9, "speed": 100 },
+   { "level": 20, "health": 203, "ap": 46, "attack": 30, "magic": 13, "defense": 16, "resistance": 10, "speed": 101 },
+   { "level": 21, "health": 210, "ap": 48, "attack": 31, "magic": 14, "defense": 16, "resistance": 10, "speed": 101 },
+   { "level": 22, "health": 217, "ap": 50, "attack": 32, "magic": 14, "defense": 17, "resistance": 11, "speed": 101 },
+   { "level": 23, "health": 224, "ap": 52, "attack": 33, "magic": 15, "defense": 17, "resistance": 11, "speed": 101 },
+   { "level": 24, "health": 231, "ap": 54, "attack": 34, "magic": 15, "defense": 18, "resistance": 11, "speed": 102 },
+   { "level": 25, "health": 238, "ap": 56, "attack": 35, "magic": 16, "defense": 18, "resistance": 12, "speed": 102 },
+   { "level": 26, "health": 245, "ap": 58, "attack": 36, "magic": 16, "defense": 19, "resistance": 12, "speed": 102 },
+   { "level": 27, "health": 252, "ap": 60, "attack": 37, "magic": 17, "defense": 19, "resistance": 13, "speed": 102 },
+   { "level": 28, "health": 259, "ap": 62, "attack": 38, "magic": 17, "defense": 20, "resistance": 13, "speed": 103 },
+   { "level": 29, "health": 266, "ap": 64, "attack": 39, "magic": 18, "defense": 20, "resistance": 13, "speed": 103 },
+   { "level": 30, "health": 273, "ap": 66, "attack": 40, "magic": 18, "defense": 21, "resistance": 14, "speed": 103 },
+   { "level": 31, "health": 280, "ap": 68, "attack": 41, "magic": 19, "defense": 21, "resistance": 14, "speed": 103 },
+   { "level": 32, "health": 287, "ap": 70, "attack": 42, "magic": 19, "defense": 22, "resistance": 14, "speed": 104 },
+   { "level": 33, "health": 294, "ap": 72, "attack": 43, "magic": 20, "defense": 22, "resistance": 15, "speed": 104 },
+   { "level": 34, "health": 301, "ap": 74, "attack": 44, "magic": 20, "defense": 23, "resistance": 15, "speed": 104 },
+   { "level": 35, "health": 308, "ap": 76, "attack": 45, "magic": 21, "defense": 23, "resistance": 16, "speed": 104 },
+   { "level": 36, "health": 315, "ap": 78, "attack": 46, "magic": 21, "defense": 24, "resistance": 16, "speed": 105 },
+   { "level": 37, "health": 322, "ap": 80, "attack": 47, "magic": 22, "defense": 24, "resistance": 16, "speed": 105 },
+   { "level": 38, "health": 329, "ap": 82, "attack": 48, "magic": 22, "defense": 25, "resistance": 17, "speed": 105 },
+   { "level": 39, "health": 336, "ap": 84, "attack": 49, "magic": 23, "defense": 25, "resistance": 17, "speed": 105 },
+   { "level": 40, "health": 343, "ap": 86, "attack": 50, "magic": 24, "defense": 26, "resistance": 18, "speed": 106 }
+   ]
+  },
+  {
+   "id": "character.dagvar",
+   "row": "back",
+   "join_level": 4,
+   "main_aptitude": "harm",
+   "side_aptitude": "blight",
+   "side_flag": "flag.region_one_dagvar_joins",
+   "join_lessons": ["lesson.ember", "lesson.grave_rot"],
+   "join_gear": ["gear.cell_bar", "gear.prison_smock"],
+   "curve": [
+   { "level": 1, "health": 48, "ap": 10, "attack": 9, "magic": 12, "defense": 3, "resistance": 6, "speed": 98 },
+   { "level": 2, "health": 53, "ap": 13, "attack": 9, "magic": 12, "defense": 3, "resistance": 6, "speed": 98 },
+   { "level": 3, "health": 58, "ap": 16, "attack": 10, "magic": 14, "defense": 3, "resistance": 6, "speed": 98 },
+   { "level": 4, "health": 63, "ap": 19, "attack": 11, "magic": 14, "defense": 4, "resistance": 7, "speed": 99 },
+   { "level": 5, "health": 68, "ap": 22, "attack": 11, "magic": 16, "defense": 4, "resistance": 7, "speed": 99 },
+   { "level": 6, "health": 73, "ap": 25, "attack": 12, "magic": 16, "defense": 4, "resistance": 7, "speed": 99 },
+   { "level": 7, "health": 78, "ap": 28, "attack": 13, "magic": 18, "defense": 5, "resistance": 8, "speed": 99 },
+   { "level": 8, "health": 83, "ap": 31, "attack": 13, "magic": 18, "defense": 5, "resistance": 8, "speed": 100 },
+   { "level": 9, "health": 88, "ap": 34, "attack": 14, "magic": 20, "defense": 5, "resistance": 9, "speed": 100 },
+   { "level": 10, "health": 93, "ap": 37, "attack": 15, "magic": 20, "defense": 6, "resistance": 9, "speed": 100 },
+   { "level": 11, "health": 98, "ap": 40, "attack": 15, "magic": 22, "defense": 6, "resistance": 9, "speed": 100 },
+   { "level": 12, "health": 103, "ap": 43, "attack": 16, "magic": 22, "defense": 6, "resistance": 10, "speed": 101 },
+   { "level": 13, "health": 108, "ap": 46, "attack": 17, "magic": 24, "defense": 7, "resistance": 10, "speed": 101 },
+   { "level": 14, "health": 113, "ap": 49, "attack": 17, "magic": 24, "defense": 7, "resistance": 11, "speed": 101 },
+   { "level": 15, "health": 118, "ap": 52, "attack": 18, "magic": 26, "defense": 7, "resistance": 11, "speed": 101 },
+   { "level": 16, "health": 123, "ap": 55, "attack": 19, "magic": 26, "defense": 8, "resistance": 11, "speed": 102 },
+   { "level": 17, "health": 128, "ap": 58, "attack": 19, "magic": 28, "defense": 8, "resistance": 12, "speed": 102 },
+   { "level": 18, "health": 133, "ap": 61, "attack": 20, "magic": 28, "defense": 8, "resistance": 12, "speed": 102 },
+   { "level": 19, "health": 138, "ap": 64, "attack": 21, "magic": 30, "defense": 9, "resistance": 12, "speed": 102 },
+   { "level": 20, "health": 143, "ap": 67, "attack": 21, "magic": 30, "defense": 9, "resistance": 13, "speed": 103 },
+   { "level": 21, "health": 148, "ap": 70, "attack": 22, "magic": 32, "defense": 9, "resistance": 13, "speed": 103 },
+   { "level": 22, "health": 153, "ap": 73, "attack": 23, "magic": 32, "defense": 10, "resistance": 14, "speed": 103 },
+   { "level": 23, "health": 158, "ap": 76, "attack": 23, "magic": 34, "defense": 10, "resistance": 14, "speed": 103 },
+   { "level": 24, "health": 163, "ap": 79, "attack": 24, "magic": 34, "defense": 10, "resistance": 14, "speed": 104 },
+   { "level": 25, "health": 168, "ap": 82, "attack": 25, "magic": 36, "defense": 11, "resistance": 15, "speed": 104 },
+   { "level": 26, "health": 173, "ap": 85, "attack": 25, "magic": 36, "defense": 11, "resistance": 15, "speed": 104 },
+   { "level": 27, "health": 178, "ap": 88, "attack": 26, "magic": 38, "defense": 11, "resistance": 16, "speed": 104 },
+   { "level": 28, "health": 183, "ap": 91, "attack": 27, "magic": 38, "defense": 12, "resistance": 16, "speed": 105 },
+   { "level": 29, "health": 188, "ap": 94, "attack": 27, "magic": 40, "defense": 12, "resistance": 16, "speed": 105 },
+   { "level": 30, "health": 193, "ap": 97, "attack": 28, "magic": 40, "defense": 12, "resistance": 17, "speed": 105 },
+   { "level": 31, "health": 198, "ap": 100, "attack": 29, "magic": 42, "defense": 13, "resistance": 17, "speed": 105 },
+   { "level": 32, "health": 203, "ap": 103, "attack": 29, "magic": 42, "defense": 13, "resistance": 17, "speed": 106 },
+   { "level": 33, "health": 208, "ap": 106, "attack": 30, "magic": 44, "defense": 13, "resistance": 18, "speed": 106 },
+   { "level": 34, "health": 213, "ap": 109, "attack": 31, "magic": 44, "defense": 14, "resistance": 18, "speed": 106 },
+   { "level": 35, "health": 218, "ap": 112, "attack": 31, "magic": 46, "defense": 14, "resistance": 19, "speed": 106 },
+   { "level": 36, "health": 223, "ap": 115, "attack": 32, "magic": 46, "defense": 14, "resistance": 19, "speed": 107 },
+   { "level": 37, "health": 228, "ap": 118, "attack": 33, "magic": 48, "defense": 15, "resistance": 19, "speed": 107 },
+   { "level": 38, "health": 233, "ap": 121, "attack": 33, "magic": 48, "defense": 15, "resistance": 20, "speed": 107 },
+   { "level": 39, "health": 238, "ap": 124, "attack": 34, "magic": 50, "defense": 15, "resistance": 20, "speed": 107 },
+   { "level": 40, "health": 243, "ap": 127, "attack": 35, "magic": 51, "defense": 16, "resistance": 21, "speed": 108 }
+   ]
   }
  ],
  "start_party": [
   "character.marrek"
  ],
  "pack": [
-  { "item": "item.fixture_draught", "count": 3 },
-  { "item": "item.fixture_tonic", "count": 2 },
-  { "item": "item.fixture_salts", "count": 2 },
-  { "item": "item.fixture_root", "count": 1 },
-  { "item": "item.torch", "count": 1 },
-  { "gear": "gear.fixture_buckler", "count": 1 },
-  { "gear": "gear.fixture_hood", "count": 1 },
-  { "gear": "gear.fixture_charm", "count": 1 },
-  { "gear": "gear.fixture_ash_ring", "count": 1 }
+  { "item": "item.poultice", "count": 2 },
+  { "item": "item.torch", "count": 1 }
  ],
  "start_gear": [
-  { "character": "character.marrek", "gear": ["gear.fixture_pick", "gear.fixture_coat"] }
+  { "character": "character.marrek", "gear": ["gear.fathers_pick", "gear.work_coat"] }
  ],
  "start_lessons": [
-  { "character": "character.marrek", "lessons": ["lesson.fixture_hew", "lesson.fixture_cinder"] }
+  { "character": "character.marrek", "lessons": ["lesson.hew", "lesson.undercut"] }
  ],
- "lesson_pack": ["lesson.fixture_pilfer", "lesson.fixture_salve", "lesson.fixture_purge", "lesson.fixture_rot", "lesson.fixture_quicken", "lesson.fixture_bolt"]
+ "lesson_pack": []
 }

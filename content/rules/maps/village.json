@@ -1,0 +1,56 @@
+{
+ "comment": "The village of Ostby, the first hub of the first playable (D-1344, D-1354). The run starts in the house of Marrek, in the north-west, where the entry trigger plays the opening scene one time: Hadda shows inside the door, walks up to Marrek, and leaves the way she came. The chest of the house holds a gift. Three villagers stand in the lanes, and a talk with each plays two lines. The road runs east to the edge of the map, where the exit leads to the overworld beside the village. A hub, so it holds no enemy, and it holds no service (D-369). The village is day, and night after the end of the first playable (D-1338, D-1349).",
+ "id": "map.village",
+ "region": "region.one",
+ "label": "label.village",
+ "kind": "hub",
+ "time": "day",
+ "time_changes": [{ "time": "night", "condition": { "flag": "flag.first_playable_end" } }],
+ "dark": false,
+ "terrain": [
+  "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%",
+  "%%,,,,,,,,,,,,%%,,,,,,,,,,,%%%",
+  "%,,#######,,,,,,,,,,#####,,,,%",
+  "%,,#.....#,,,#####,,#...#,,,,%",
+  "%,,#.....#,,,#,,,#,,#...#,,,,%",
+  "%,,#.....#,,,#,,,#,,##+##,,,,%",
+  "%,,###+###,,,,,,,,,,,,_,,,,,,%",
+  "%,,,,,_,,,,,,,,,,,,,,,_,,,,,,%",
+  "%,,,,,________________________",
+  "%,,,,,,,,,,,_,,,,,,,,,,,,,,,,%",
+  "%,,#####,,,,_,,,,,,,,,#####,,%",
+  "%,,#...#,,,,_,,,,,,,,,#...#,,%",
+  "%,,#...#,,,,_,,,,,,,,,#...#,,%",
+  "%,,##+##,,,,_,,,,,,,,,##+##,,%",
+  "%,,,,_,,,,,,_,,,,,,,,,,,,,,,,%",
+  "%,,,,________,,,,,,,,,,,,,,,,%",
+  "%%,,,,,,,,,,,,,,,,,,,,,,,,,%%%",
+  "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+ ],
+ "things": [
+  { "id": "spawn_point.village_home", "kind": "spawn_point", "x": 6, "y": 3 },
+  { "id": "marker.village_hadda_door", "kind": "marker", "x": 6, "y": 5 },
+  { "id": "chest.village_home", "kind": "chest", "x": 4, "y": 3, "contents": [{ "thing": "item.black_tea", "count": 1 }], "gold": 15 },
+  { "id": "door.village_marrek", "kind": "door", "x": 6, "y": 6 },
+  { "id": "door.village_brenna", "kind": "door", "x": 22, "y": 5 },
+  { "id": "door.village_orrin", "kind": "door", "x": 5, "y": 13 },
+  { "id": "door.village_aldo", "kind": "door", "x": 24, "y": 13 },
+  { "id": "exit.village_road", "kind": "exit", "x": 29, "y": 8, "to": "map.overworld", "arrive": "marker.overworld_village" }
+ ],
+ "enemies": [],
+ "npcs": [
+  { "id": "npc.village_orrin", "facing": "north", "step_ticks": 32, "move": "route", "tiles": [{ "x": 14, "y": 6, "wait_ticks": 120 }, { "x": 16, "y": 6, "wait_ticks": 120 }] },
+  { "id": "npc.village_brenna", "facing": "east", "step_ticks": 32, "move": "route", "tiles": [{ "x": 18, "y": 9, "wait_ticks": 150 }, { "x": 21, "y": 9, "wait_ticks": 150 }] },
+  { "id": "npc.village_aldo", "facing": "south", "step_ticks": 32, "move": "wander", "x": 16, "y": 13, "areas": [{ "x": 14, "y": 12, "width": 5, "height": 3 }], "pace_ticks": 64 }
+ ],
+ "services": [],
+ "zones": [],
+ "zone_grid": [],
+ "reopen": [],
+ "triggers": [
+  { "id": "trigger.village_opening", "kind": "entry", "scene": "scene.village_opening", "condition": { "not": { "flag": "flag.village_opening" } } },
+  { "id": "trigger.village_orrin", "kind": "talk", "npc": "npc.village_orrin", "scene": "scene.village_orrin", "condition": { "always": true } },
+  { "id": "trigger.village_brenna", "kind": "talk", "npc": "npc.village_brenna", "scene": "scene.village_brenna", "condition": { "always": true } },
+  { "id": "trigger.village_aldo", "kind": "talk", "npc": "npc.village_aldo", "scene": "scene.village_aldo", "condition": { "always": true } }
+ ]
+}

@@ -1,0 +1,9 @@
+{
+ "comment": "The light of Ostby Pasture at night, after the end of the first playable (D-1338, D-1349). The ambient light is the storm blue of the night of the fixture dungeon, with no torch and no added light. A battle that begins here takes the ambient light and the key light of `battle` (D-850). Each color is a palette key with a strength in basis points (D-846).",
+ "map": "map.village_pasture",
+ "time": "night",
+ "ambient": { "color": "8", "strength": 10000 },
+ "battle": { "color": "A", "strength": 24000, "range": 720, "height": 96 },
+ "changes": [],
+ "added": []
+}

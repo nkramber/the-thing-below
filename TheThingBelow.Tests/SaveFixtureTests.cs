@@ -125,10 +125,11 @@ public sealed class SaveFixtureTests
     }
 
     [Fact]
-    public void TheStoredSaveOfFormatOnePutsThePartyOnTheSpawnOfTheFirstMap()
+    public void TheStoredSaveOfFormatOnePutsThePartyOnTheSpawnOfTheFixtureDungeon()
     {
         // The migration of D-166: format 1 predates the tile map, so the party enters the
-        // first map at its spawn point with that tile walked and no other (D-654).
+        // fixture dungeon, the first map of that build, at its spawn point with that tile walked
+        // and no other (D-654). The first map of a later build never moves an old save (D-1344).
         SaveDocument save = ReadFormat(1);
 
         Simulation run = Simulation.Resume(
@@ -136,7 +137,8 @@ public sealed class SaveFixtureTests
 
         Assert.Equal(TestMaps.FixtureDungeon.Spawn, run.State.Party.LeadAt);
         Assert.Equal(1, run.State.Party.Walked.Count);
-        Assert.Equal(MapIds.FirstMap.Value, run.State.Party.Map.Id.Value);
+        Assert.Equal(MapIds.FixtureDungeon.Value, run.State.Party.Map.Id.Value);
+        Assert.NotEqual(MapIds.FirstMap.Value, MapIds.FixtureDungeon.Value);
     }
 
     [Fact]

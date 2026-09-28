@@ -4,7 +4,8 @@
  "width": 32,
  "height": 32,
  "draws": [
-  { "content": "entrance.fixture_overworld_cut", "use": "map" }
+  { "content": "entrance.fixture_overworld_cut", "use": "map" },
+  { "content": "entrance.overworld_pasture", "use": "map" }
  ],
  "frames": [
   {

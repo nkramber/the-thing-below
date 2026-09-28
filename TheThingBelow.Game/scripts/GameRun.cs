@@ -36,6 +36,28 @@ namespace TheThingBelow.Game;
 /// </remarks>
 public sealed class GameRun
 {
+    /// <summary>The swap of each piece and lesson of the real start kit of Marrek for the fixture one of its slot (D-1351).</summary>
+    private static readonly (string From, string To)[] FixtureSwaps =
+    [
+        ("gear.fathers_pick", "gear.fixture_pick"),
+        ("gear.work_coat", "gear.fixture_coat"),
+        ("lesson.hew", "lesson.fixture_hew"),
+        ("lesson.undercut", "lesson.fixture_cinder"),
+    ];
+
+    /// <summary>The start pack of the fixture run, the pack of PR-13 to PR-16 (D-1038, D-1351).</summary>
+    private static readonly (string Id, int Count)[] FixturePack =
+    [
+        ("item.fixture_draught", 3), ("item.fixture_tonic", 2), ("item.fixture_salts", 2), ("item.fixture_root", 1), ("item.torch", 1),
+        ("gear.fixture_buckler", 1), ("gear.fixture_hood", 1), ("gear.fixture_charm", 1), ("gear.fixture_ash_ring", 1),
+    ];
+
+    /// <summary>The lesson pack of the fixture run, the lessons of PR-12 and PR-13 outside the slots (D-1023, D-1351).</summary>
+    private static readonly string[] FixtureLessonPack =
+    [
+        "lesson.fixture_pilfer", "lesson.fixture_salve", "lesson.fixture_purge", "lesson.fixture_rot", "lesson.fixture_quicken", "lesson.fixture_bolt",
+    ];
+
     private readonly FixedStepLoop loop = new();
     private readonly List<Intent> queued = [];
     private readonly List<SaveWrite> saves = [];
@@ -52,6 +74,9 @@ public sealed class GameRun
     private readonly string contentHash;
     private ContentId? lastCommon;
     private BattleView? view;
+
+    /// <summary>The count of lines of the message of <see cref="playing"/>, which sets the ticks of its scroll (D-1359).</summary>
+    private int playingLines = 1;
     private BattleEvent? playing;
     private IReadOnlyList<StartMember>? startParty;
     private long playingSince;
@@ -264,9 +289,20 @@ public sealed class GameRun
             return false;
         }
 
-        this.playingSince = this.FightTick - BattleTimes.HoldTicksOf(this.pace, this.playing.Kind, this.MessageSpeed);
+        this.playingSince = this.FightTick - this.HoldOfPlaying(this.playing);
         return true;
     }
+
+    /// <summary>
+    /// Gives the ticks that the screen holds one event: the hold of its kind at the message speed,
+    /// and the hold of the first line and the scroll of a message of two lines (D-866, D-1359).
+    /// </summary>
+    private int HoldOfPlaying(BattleEvent played) =>
+        BattleTimes.HoldTicksOf(this.pace, played.Kind, this.MessageSpeed) + MessageScroll.ExtraTicksOf(this.playingLines);
+
+    /// <summary>Gives the count of lines of the message of one event, and 1 for an event with no line (D-1356).</summary>
+    private static int LinesOf(BattleEvent played, BattleView shown, StringTable strings) =>
+        BattleMessages.Of(played, shown, strings) is BattleLine line ? BattleMessages.LinesOf(line, strings).Count : 1;
 
     /// <summary>
     /// True when the screen has played every event and a character has the turn. Game takes
@@ -358,7 +394,7 @@ public sealed class GameRun
     /// <summary>True when no event plays, or the one that plays reached its end (D-829).</summary>
     private bool PlayedOut =>
         this.playing is null
-        || this.FightTick - this.playingSince >= BattleTimes.HoldTicksOf(this.pace, this.playing.Kind, this.MessageSpeed);
+        || this.FightTick - this.playingSince >= this.HoldOfPlaying(this.playing);
 
     /// <summary>Starts a run over a content set.</summary>
     /// <param name="content">The content of this build, which gives the content hash (D-648).</param>
@@ -380,6 +416,109 @@ public sealed class GameRun
         RunHeader header = RunHeader.ForThisBuild(content.Hash, seed);
         Simulation simulation = Simulation.Start(seed, MapSet.Of(content.Maps), MapIds.FirstMap, content.Battle, content.Notices, content.Story, debugHandlers);
         return new GameRun(simulation, new RunRecorder(header, simulation.Snapshot()), content, messageSpeed);
+    }
+
+    /// <summary>
+    /// Starts the fixture run of the smoke session and the screen fixtures: the fixture dungeon,
+    /// whose walks they read, and the fixture kit of Marrek that the start of the first playable
+    /// replaced. The fixture items, gear, and lessons stay in the content for the fixture maps and
+    /// the tests (D-117, D-172, D-767, D-1351).
+    /// </summary>
+    /// <param name="content">The content of this build, which gives the content hash (D-648).</param>
+    /// <param name="seed">The seed of the run (G-3, G-4).</param>
+    /// <param name="debugHandlers">The extra intent handlers of this build (D-260, D-492).</param>
+    /// <param name="messageSpeed">The message speed of the settings (D-866).</param>
+    /// <returns>The run, at tick zero, on the spawn point of the fixture dungeon, with every map of the content to enter (D-528, D-1133).</returns>
+    /// <exception cref="ArgumentNullException">The content set or the handler set is null (T-2).</exception>
+    /// <exception cref="ArgumentException">The start of the content holds no Marrek with his real kit in the first slot (T-2).</exception>
+    public static GameRun StartFixture(ContentSet content, ulong seed, DebugIntentHandlers debugHandlers, MessageSpeed messageSpeed)
+    {
+        ArgumentNullException.ThrowIfNull(content);
+        ArgumentNullException.ThrowIfNull(debugHandlers);
+
+        MapSet maps = MapSet.Of(content.Maps);
+        RunSnapshot start = Simulation.Start(seed, maps, MapIds.FixtureDungeon, content.Battle, content.Notices, content.Story, debugHandlers).Snapshot();
+        Simulation simulation = Simulation.Resume(seed, WithFixtureKit(start), maps, content.Battle, content.Notices, content.Story, debugHandlers);
+        RunHeader header = RunHeader.ForThisBuild(content.Hash, seed);
+        return new GameRun(simulation, new RunRecorder(header, simulation.Snapshot()), content, messageSpeed);
+    }
+
+    /// <summary>
+    /// Gives a start snapshot with the fixture kit of Marrek of PR-12 to PR-16 in place of his real
+    /// kit: each real piece and lesson swaps for the fixture one in its slot, the pack takes the
+    /// fixture pack, and the lesson pack takes the fixture lessons first (D-1023, D-1038, D-1351).
+    /// </summary>
+    /// <exception cref="ArgumentException">The snapshot holds no Marrek with his real kit in the first slot (T-2).</exception>
+    private static RunSnapshot WithFixtureKit(RunSnapshot start)
+    {
+        PartySnapshot party = start.Characters
+            ?? throw new ArgumentException("The start snapshot holds no party, and the fixture kit swaps the kit of Marrek (T-2).", nameof(start));
+        if (party.Characters.Count == 0 || string.CompareOrdinal(party.Characters[0].Character.Value, "character.marrek") != 0)
+        {
+            throw new ArgumentException("The start party holds no Marrek in its first slot, and the fixture kit swaps his kit (D-1351, T-2).", nameof(start));
+        }
+
+        CharacterValues marrek = party.Characters[0];
+        LessonValues lessons = marrek.Lessons
+            ?? throw new ArgumentException("The start snapshot holds no lessons of Marrek (T-2).", nameof(start));
+        IReadOnlyList<ContentId?> gear = marrek.Gear
+            ?? throw new ArgumentException("The start snapshot holds no gear of Marrek (T-2).", nameof(start));
+        List<LessonPoints> points = [];
+        foreach (LessonPoints owned in lessons.Points)
+        {
+            points.Add(owned with { Lesson = FixtureOf(owned.Lesson) });
+        }
+
+        points.Sort((one, other) => string.CompareOrdinal(one.Lesson.Value, other.Lesson.Value));
+        List<PackValues> pack = [];
+        foreach ((string id, int count) in FixturePack)
+        {
+            pack.Add(new PackValues(ContentId.Parse(id, nameof(GameRun), nameof(FixturePack)), count));
+        }
+
+        pack.Sort((one, other) => string.CompareOrdinal(one.Id.Value, other.Id.Value));
+        List<ContentId> lessonPack = [];
+        foreach (string id in FixtureLessonPack)
+        {
+            lessonPack.Add(ContentId.Parse(id, nameof(GameRun), nameof(FixtureLessonPack)));
+        }
+
+        // A content set of a test can put more lessons in the pack, and each one stays.
+        foreach (ContentId owned in party.LessonPack ?? [])
+        {
+            lessonPack.Add(owned);
+        }
+
+        var slots = new ContentId?[lessons.Slots.Count];
+        for (int index = 0; index < slots.Length; index += 1)
+        {
+            slots[index] = lessons.Slots[index] is ContentId lesson ? FixtureOf(lesson) : null;
+        }
+
+        var pieces = new ContentId?[gear.Count];
+        for (int index = 0; index < pieces.Length; index += 1)
+        {
+            pieces[index] = gear[index] is ContentId piece ? FixtureOf(piece) : null;
+        }
+
+        List<CharacterValues> characters = [.. party.Characters];
+        characters[0] = marrek with { Lessons = new LessonValues(slots, points), Gear = pieces };
+        return start with { Characters = party with { Characters = characters, Pack = pack, LessonPack = lessonPack } };
+    }
+
+    /// <summary>Gives the fixture piece or lesson that takes the slot of one piece or lesson of the real kit of Marrek (D-1351).</summary>
+    /// <exception cref="ArgumentException">The id is no piece and no lesson of the real start kit (T-2).</exception>
+    private static ContentId FixtureOf(ContentId real)
+    {
+        foreach ((string from, string to) in FixtureSwaps)
+        {
+            if (string.CompareOrdinal(real.Value, from) == 0)
+            {
+                return ContentId.Parse(to, nameof(GameRun), nameof(FixtureSwaps));
+            }
+        }
+
+        throw new ArgumentException($"The start kit of Marrek holds '{real.Value}', and the fixture kit swaps no such id (D-1351, T-2).", nameof(real));
     }
 
     /// <summary>
@@ -675,6 +814,7 @@ public sealed class GameRun
 
             shown.Apply(played);
             this.playing = played;
+            this.playingLines = LinesOf(played, shown, this.strings);
             this.playingSince = this.FightTick;
             log.Add(new LogEntry(
                 LogLevel.Info,

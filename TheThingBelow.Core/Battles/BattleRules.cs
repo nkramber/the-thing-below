@@ -25,6 +25,12 @@ public sealed class BattleRules
     public const int MostRate = 100_000;
 
     /// <summary>
+    /// The largest amount of one hit, heal, absorb, status share, or item of a battle, and so the
+    /// largest amount that a battle line shows (D-1356, D-1357).
+    /// </summary>
+    public const int MostAmount = 9_999;
+
+    /// <summary>
     /// The highest miss ceiling in basis points. Every strike keeps at least a third of its
     /// chance to land, so no speed gap puts a combatant out of reach (D-773, D-1107).
     /// </summary>

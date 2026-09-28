@@ -15,7 +15,21 @@
   {
    "content": "patrol.fixture_dungeon_deep",
    "use": "map_front"
-  }
+  },
+  { "content": "patrol.pasture_wolves_near", "use": "map_front" },
+  { "content": "patrol.pasture_wolves_far", "use": "map_front" },
+  { "content": "patrol.pasture_crows", "use": "map_front" },
+  { "content": "patrol.pasture_boar", "use": "map_front" },
+  { "content": "patrol.cells_upper_rats", "use": "map_front" },
+  { "content": "patrol.cells_upper_jailers", "use": "map_front" },
+  { "content": "patrol.cells_upper_lamp", "use": "map_front" },
+  { "content": "patrol.cells_upper_hounds", "use": "map_front" },
+  { "content": "patrol.cells_upper_watch", "use": "map_front" },
+  { "content": "patrol.cells_lower_yard_jailers", "use": "map_front" },
+  { "content": "patrol.cells_lower_yard_lamp", "use": "map_front" },
+  { "content": "patrol.cells_lower_rats", "use": "map_front" },
+  { "content": "patrol.cells_lower_rack", "use": "map_front" },
+  { "content": "patrol.cells_lower_watch", "use": "map_front" }
  ],
  "frames": [
   {

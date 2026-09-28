@@ -1,0 +1,8 @@
+{
+ "comment": "The talk of Aldo in the lanes of the village (D-1344, D-1354). A talk plays the two lines each time.",
+ "id": "scene.village_aldo",
+ "steps": [
+  { "id": "step.aldo_drink", "kind": "say", "speaker": "npc.village_aldo", "line": "line.village_aldo_drink" },
+  { "id": "step.aldo_counting", "kind": "say", "speaker": "npc.village_aldo", "line": "line.village_aldo_counting" }
+ ]
+}

@@ -1,0 +1,6 @@
+{
+ "comment": "The decor pieces of the mining town of Gruvhald (D-844). No rule reads a piece, so this file stays out of the content hash (D-495). The town holds no piece yet, and PR-114 and PR-115 dress the places of the first playable (D-1328).",
+ "map": "map.mining_town",
+ "pieces": [],
+ "shafts": []
+}

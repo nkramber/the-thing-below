@@ -4,7 +4,7 @@
  "width": 32,
  "height": 32,
  "draws": [
-  { "content": "mark.overworld_town", "use": "map" }
+  { "content": "entrance.overworld_town", "use": "map" }
  ],
  "frames": [
   {

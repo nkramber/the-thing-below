@@ -1,0 +1,12 @@
+{
+ "comment": "The flash of Lull, the sleep blight of a chest of the hanging cells (D-1355). A slow swell of lavender light at the target, a violet tint, and motes that drift down. PR-17 writes it, and PR-115 can tune it (D-1032, D-1328).",
+ "id": "effect.spell_lull",
+ "serves": ["ability.lull"],
+ "shape": "swell",
+ "length_ticks": 26,
+ "light": { "color": "9", "strength": 14000, "range": 72, "height": 18 },
+ "tint": { "color": "m", "strength": 600 },
+ "emitters": [
+  { "amount": 10, "lifetime_ticks": 26, "colors": ["9", "m", "P"], "size": 1, "area": 6, "direction": 90, "spread": 90, "slowest_speed": 5, "fastest_speed": 20, "gravity": 20 }
+ ]
+}

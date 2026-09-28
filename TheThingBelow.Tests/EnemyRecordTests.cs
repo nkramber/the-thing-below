@@ -71,6 +71,7 @@ public sealed class EnemyRecordTests
     [InlineData("defense")]
     [InlineData("speed")]
     [InlineData("abilities")]
+    [InlineData("proper")]
     public void ARecordWithAnAbsentFieldFailsWithTheFileAndTheField(string field)
     {
         // Exit test 2 (T-2).

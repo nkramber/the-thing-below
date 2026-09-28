@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Tools.Content;
@@ -39,12 +40,19 @@ public sealed class UiTextLayoutTests
         // Exit tests 4 and 13. Every panel holds its longest string at each body size
         // (D-241, D-708). A panel sits inside the frame with a margin on each side, and the
         // window frame takes a border inside that. PR-62 builds the menu windows that this
-        // rule binds, and D-722 removed the demo panel of PR-61.
+        // rule binds, and D-722 removed the demo panel of PR-61. A line of a story scene wraps
+        // in the dialogue box into three lines, which the menu layout tests bind (D-635).
         ContentSet content = Content();
         int inside = FrameWidth() - (Edge() * 2) - (Border() * 2);
+        SortedSet<string> dialogue = DialogueLinesOf(content);
 
         foreach (string id in content.Strings.Ids)
         {
+            if (dialogue.Contains(id))
+            {
+                continue;
+            }
+
             int length = content.Strings.Text(ContentId.Parse(id, StringTable.Path, "id")).Length;
             foreach (int body in new[] { content.Style.SmallBody, content.Style.LargeBody })
             {
@@ -54,6 +62,17 @@ public sealed class UiTextLayoutTests
                     + $"{WidthOf(body, length)} pixels, and the panel holds {inside} (D-241, D-708).");
             }
         }
+    }
+
+    [Fact]
+    public void TheDialogueLinesOfTheCheckoutHoldALineLongerThanThePanel()
+    {
+        // The boundary of the skip above: the checkout holds a line of a story scene that passes
+        // one row of the panel, so the skip reads a real line (D-635, D-1354).
+        ContentSet content = Content();
+        int inside = FrameWidth() - (Edge() * 2) - (Border() * 2);
+
+        Assert.Contains(DialogueLinesOf(content), id => WidthOf(content.Style.LargeBody, content.Strings.Text(ContentId.Parse(id, StringTable.Path, "id")).Length) > inside);
     }
 
     [Fact]
@@ -102,6 +121,30 @@ public sealed class UiTextLayoutTests
         TargetInvocationException thrown = Assert.Throws<TargetInvocationException>(() => AdvanceOf(0));
 
         Assert.IsType<ArgumentOutOfRangeException>(thrown.InnerException);
+    }
+
+    /// <summary>Gives the id of each line that a say step or a pay step of a story scene shows in the dialogue box (D-635, D-1335).</summary>
+    private static SortedSet<string> DialogueLinesOf(ContentSet content)
+    {
+        var ids = new SortedSet<string>(StringComparer.Ordinal);
+        foreach (TheThingBelow.Core.Story.StoryScene scene in content.Story.Scenes)
+        {
+            foreach (TheThingBelow.Core.Story.SceneStep step in scene.Steps)
+            {
+                if (step is TheThingBelow.Core.Story.SayStep say)
+                {
+                    _ = ids.Add(say.Line.Value);
+                }
+
+                if (step is TheThingBelow.Core.Story.PayStep pay)
+                {
+                    _ = ids.Add(pay.Line.Value);
+                    _ = ids.Add(pay.Refusal.Value);
+                }
+            }
+        }
+
+        return ids;
     }
 
     private static ContentSet Content() => ContentSet.Load(ContentFolder.Read(RepositoryRoot.Find()));

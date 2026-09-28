@@ -1,7 +1,7 @@
 {
- "comment": "The blood of a hit on flesh (D-186, D-879). A short spray leaves the body away from the blow, and the drops fall fast. The scene light falls on the blood, as on the figure that bleeds. PR-17 names the enemies of the first playable (D-882).",
+ "comment": "The blood of a hit on flesh (D-186, D-879). A short spray leaves the body away from the blow, and the drops fall fast. The scene light falls on the blood, as on the figure that bleeds. PR-17 adds Bergit, Dagvar, and the beasts and the foes of the first playable, which are all flesh (D-882).",
  "id": "effect.blood",
- "serves": ["character.marrek", "enemy.fixture_grunt"],
+ "serves": ["character.marrek", "character.bergit", "character.dagvar", "enemy.fixture_grunt", "enemy.lean_wolf", "enemy.snow_crow", "enemy.starved_boar", "enemy.jailer", "enemy.lamp_jailer", "enemy.cell_hound", "enemy.cell_rat"],
  "lit": true,
  "emitters": [
   { "amount": 14, "lifetime_ticks": 24, "colors": ["x", "R"], "size": 2, "area": 3, "direction": -35, "spread": 40, "slowest_speed": 80, "fastest_speed": 170, "gravity": 480 },

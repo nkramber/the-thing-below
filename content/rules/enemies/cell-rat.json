@@ -1,0 +1,19 @@
+{
+ "comment": "A rat of the hanging cells, whose bite can poison (D-1353). It gives less experience than a foe of its level. The level and the experience follow D-977, and a win rolls the gold from the low gold to the high gold (D-1157). PR-30 tunes each number. Its name is a common noun, so a battle line writes it in lower case after the start (D-1358).",
+ "id": "enemy.cell_rat",
+ "size": "common",
+ "proper": false,
+ "level": 1,
+ "experience": 4,
+ "gold_low": 0,
+ "gold_high": 2,
+ "health": 14,
+ "attack": 6,
+ "magic": 0,
+ "defense": 1,
+ "resistance": 1,
+ "speed": 110,
+ "abilities": ["ability.rat_bite"],
+ "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" },
+ "immune": []
+}

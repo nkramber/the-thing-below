@@ -795,11 +795,11 @@ public static class BattleTurns
         }
     }
 
-    /// <summary>Gives a share of the full health of a combatant, at least 1 (D-808).</summary>
+    /// <summary>Gives a share of the full health of a combatant, at least 1, and at most the cap of a battle amount (D-808, D-1357).</summary>
     private static int ShareOf(Combatant combatant, int share, RunContext context)
     {
         int amount = BasisPoints.Apply(combatant.FullHealth, share, context);
-        return amount < 1 ? 1 : amount;
+        return Math.Clamp(amount, 1, BattleRules.MostAmount);
     }
 
     /// <summary>
@@ -1087,13 +1087,14 @@ public static class BattleTurns
         switch (item)
         {
             case HealItem heal:
-                int restored = Math.Min(BasisPoints.Apply(heal.Amount, rules.ItemRate, context), target.FullHealth - target.Health);
+                // D-1357: an item amount of a battle holds the cap, as a hit and a heal do.
+                int restored = Math.Min(Math.Min(BasisPoints.Apply(heal.Amount, rules.ItemRate, context), BattleRules.MostAmount), target.FullHealth - target.Health);
                 target.Health += restored;
                 state.AddEvent(new BattleEvent(BattleEventKind.Item, actor.Target, target.Target, restored, null, Affinity.Normal, item.Id));
                 break;
             case RestoreItem restore:
                 PartyMember member = state.Characters.Members[aimed.Slot];
-                int ap = Math.Min(BasisPoints.Apply(restore.Amount, rules.ItemRate, context), member.Stats.Ap - member.Ap);
+                int ap = Math.Min(Math.Min(BasisPoints.Apply(restore.Amount, rules.ItemRate, context), BattleRules.MostAmount), member.Stats.Ap - member.Ap);
                 member.Ap += ap;
                 state.AddEvent(new BattleEvent(BattleEventKind.ItemAp, actor.Target, target.Target, ap, null, Affinity.Normal, item.Id));
                 break;
@@ -1112,7 +1113,7 @@ public static class BattleTurns
                 break;
             case ReviveItem revive:
                 // A revive always stands the ally up, so the cut keeps at least 1 health (D-36).
-                int health = Math.Min(Math.Max(1, BasisPoints.Apply(revive.Amount, rules.ItemRate, context)), target.FullHealth);
+                int health = Math.Min(Math.Clamp(BasisPoints.Apply(revive.Amount, rules.ItemRate, context), 1, BattleRules.MostAmount), target.FullHealth);
                 target.Health = health;
                 target.Place = CombatantPlace.Field;
                 target.ReadyAt = checked(battle.Now + Battle.Push(rules.AttackDelay, target.Speed, target.PushRate, context));

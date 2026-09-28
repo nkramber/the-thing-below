@@ -1,0 +1,19 @@
+{
+ "comment": "A jailer of the hanging cells with a lamp, which glares with fire at either row and can blind (D-1353). The level and the experience follow D-977, and a win rolls the gold from the low gold to the high gold (D-1157). PR-30 tunes each number. Its name is a common noun, so a battle line writes it in lower case after the start (D-1358).",
+ "id": "enemy.lamp_jailer",
+ "size": "common",
+ "proper": false,
+ "level": 3,
+ "experience": 20,
+ "gold_low": 8,
+ "gold_high": 14,
+ "health": 34,
+ "attack": 10,
+ "magic": 8,
+ "defense": 4,
+ "resistance": 6,
+ "speed": 100,
+ "abilities": ["ability.lamp_glare"],
+ "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" },
+ "immune": []
+}

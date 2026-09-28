@@ -4,7 +4,13 @@
  "width": 32,
  "height": 32,
  "draws": [
-  { "content": "enemy.fixture_grunt", "use": "battle" }
+  { "content": "enemy.fixture_grunt", "use": "battle" },
+  { "content": "enemy.lean_wolf", "use": "battle" },
+  { "content": "enemy.snow_crow", "use": "battle" },
+  { "content": "enemy.jailer", "use": "battle" },
+  { "content": "enemy.lamp_jailer", "use": "battle" },
+  { "content": "enemy.cell_hound", "use": "battle" },
+  { "content": "enemy.cell_rat", "use": "battle" }
  ],
  "frames": [
   {

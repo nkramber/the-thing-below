@@ -131,9 +131,10 @@ public sealed record RunSnapshot(
 {
     /// <summary>
     /// The id of the map to load for this snapshot (D-166). A snapshot of save format 1
-    /// holds no map, and its migration puts the party on the first map (D-654).
+    /// holds no map, and its migration puts the party on the fixture dungeon, the one map of
+    /// that format, and never on the first map of a later build (D-654, D-1344).
     /// </summary>
-    public ContentId MapIdOrFirst => this.Map is null ? MapIds.FirstMap : this.Map.Map;
+    public ContentId MapIdOrFirst => this.Map is null ? MapIds.FixtureDungeon : this.Map.Map;
 
     /// <summary>Fails when the snapshot cannot describe a state of a run (T-2).</summary>
     /// <param name="source">What the snapshot came from, such as `the record`, for the error.</param>

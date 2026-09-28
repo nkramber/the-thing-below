@@ -1,0 +1,9 @@
+{
+ "comment": "The light of the mining town at dusk (D-442, D-1338). The ambient light is sand at full strength, a low warm light, with no torch and no added light. No fight begins on a hub, because a hub holds no enemy. A battle that begins here takes the ambient light and the key light of `battle` (D-850). Each color is a palette key with a strength in basis points (D-846).",
+ "map": "map.mining_town",
+ "time": "dusk",
+ "ambient": { "color": "3", "strength": 10000 },
+ "battle": { "color": "A", "strength": 24000, "range": 720, "height": 96 },
+ "changes": [],
+ "added": []
+}

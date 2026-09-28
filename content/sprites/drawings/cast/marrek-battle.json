@@ -4,7 +4,9 @@
  "width": 32,
  "height": 32,
  "draws": [
-  { "content": "character.marrek", "use": "battle" }
+  { "content": "character.marrek", "use": "battle" },
+  { "content": "character.bergit", "use": "battle" },
+  { "content": "character.dagvar", "use": "battle" }
  ],
  "frames": [
   {

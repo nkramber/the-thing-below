@@ -1,0 +1,19 @@
+{
+ "comment": "A lean wolf of the high ground of region one, which hunts the pasture and the low land in packs (D-1353). It has the basic attack alone, and fire bites it hard. The level and the experience follow D-977, and a win rolls the gold from the low gold to the high gold (D-1157). PR-30 tunes each number. Its name is a common noun, so a battle line writes it in lower case after the start (D-1358).",
+ "id": "enemy.lean_wolf",
+ "size": "common",
+ "proper": false,
+ "level": 1,
+ "experience": 6,
+ "gold_low": 2,
+ "gold_high": 5,
+ "health": 15,
+ "attack": 7,
+ "magic": 2,
+ "defense": 2,
+ "resistance": 2,
+ "speed": 115,
+ "abilities": [],
+ "elements": { "fire": "weak", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" },
+ "immune": []
+}

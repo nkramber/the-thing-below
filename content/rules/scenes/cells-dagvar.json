@@ -1,0 +1,21 @@
+{
+ "comment": "The join of Dagvar in his cell below the hanging cells, and the end of the first playable (D-1337, D-1350, D-1354). The tile in front of his cell plays it one time. Dagvar shows inside the closed cell, which no step reaches. The join gives his kit, the two flags close the trigger and turn each map outside to night, and a line with no speaker tells the player that the first playable ends (D-1338, D-1349).",
+ "id": "scene.cells_dagvar",
+ "steps": [
+  { "id": "step.show_dagvar", "kind": "show", "actor": "character.dagvar", "at": "marker.cells_dagvar", "facing": "north" },
+  { "id": "step.look_dagvar", "kind": "camera", "at": "marker.cells_dagvar" },
+  { "id": "step.dagvar_visitors", "kind": "say", "speaker": "character.dagvar", "line": "line.cells_dagvar_visitors" },
+  { "id": "step.bergit_want", "kind": "say", "speaker": "character.bergit", "line": "line.cells_bergit_want" },
+  { "id": "step.dagvar_crew", "kind": "say", "speaker": "character.dagvar", "line": "line.cells_dagvar_crew" },
+  { "id": "step.marrek_father", "kind": "say", "speaker": "lead", "line": "line.cells_marrek_father" },
+  { "id": "step.dagvar_hands", "kind": "say", "speaker": "character.dagvar", "line": "line.cells_dagvar_hands" },
+  { "id": "step.dagvar_bless", "kind": "say", "speaker": "character.dagvar", "line": "line.cells_dagvar_bless" },
+  { "id": "step.bergit_walking", "kind": "say", "speaker": "character.bergit", "line": "line.cells_bergit_walking" },
+  { "id": "step.dagvar_twice", "kind": "say", "speaker": "character.dagvar", "line": "line.cells_dagvar_twice" },
+  { "id": "step.dagvar_joins", "kind": "join", "character": "character.dagvar" },
+  { "id": "step.hide_dagvar", "kind": "hide", "actor": "character.dagvar" },
+  { "id": "step.dagvar_done", "kind": "set_flag", "flag": "flag.region_one_dagvar_joins" },
+  { "id": "step.first_playable_ends", "kind": "set_flag", "flag": "flag.first_playable_end" },
+  { "id": "step.end_notice", "kind": "say", "speaker": "none", "line": "line.cells_first_playable_end" }
+ ]
+}

@@ -147,7 +147,10 @@ public static class SimulationVersion
     /// that a shop stocks, and a kit that passes a slot or a stack limit (D-1350). A Guard drill can cover another
     /// ally on the field: until the next turn of the holder, its fall, or the end of the battle, the holder takes each
     /// melee strike that aims at that ally, and the latest cover of an ally wins. The state hash and the snapshot hold
-    /// each cover (D-1352).
+    /// each cover (D-1352). A run opens on the spawn point of the village of the first playable, and the plan of the
+    /// overworld takes an entrance for the role of a place (D-1243, D-1344). Each hit, heal, absorb, status share, and item
+    /// amount of a battle holds 9,999 at most (D-1357). The wait intent of the end of a battle meets a refusal while
+    /// the menu is open, as the list of accepted intents says (D-162, D-1179).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number

@@ -389,7 +389,9 @@
    "draws": [
     { "content": "cast.bergit", "use": "map_front" },
     { "content": "npc.fixture_hub_trader", "use": "map_front" },
-    { "content": "npc.fixture_hub_guard", "use": "map_front" }
+    { "content": "npc.fixture_hub_guard", "use": "map_front" },
+    { "content": "npc.village_orrin", "use": "map_front" },
+    { "content": "npc.town_trader", "use": "map_front" }
    ],
    "frames": [
     { "x": 0, "y": 0, "ticks": 0 }
@@ -403,7 +405,10 @@
    "draws": [
     { "content": "cast.dagvar", "use": "map_front" },
     { "content": "npc.fixture_hub_keeper", "use": "map_front" },
-    { "content": "npc.fixture_hub_stranger", "use": "map_front" }
+    { "content": "npc.fixture_hub_stranger", "use": "map_front" },
+    { "content": "npc.village_aldo", "use": "map_front" },
+    { "content": "npc.town_innkeeper", "use": "map_front" },
+    { "content": "npc.town_turnkey", "use": "map_front" }
    ],
    "frames": [
     { "x": 32, "y": 0, "ticks": 0 }
@@ -453,7 +458,15 @@
    "height": 32,
    "draws": [
     { "content": "chest.fixture_dungeon_store", "use": "map" },
-    { "content": "chest.fixture_dungeon_cache", "use": "map" }
+    { "content": "chest.fixture_dungeon_cache", "use": "map" },
+    { "content": "chest.village_home", "use": "map" },
+    { "content": "chest.pasture_hollow", "use": "map" },
+    { "content": "chest.pasture_stump", "use": "map" },
+    { "content": "chest.cells_guardroom", "use": "map" },
+    { "content": "chest.cells_store", "use": "map" },
+    { "content": "chest.cells_yard", "use": "map" },
+    { "content": "chest.cells_rack", "use": "map" },
+    { "content": "chest.cells_low", "use": "map" }
    ],
    "frames": [
     { "x": 160, "y": 0, "ticks": 0 }
@@ -466,7 +479,15 @@
    "height": 32,
    "draws": [
     { "content": "chest.fixture_dungeon_store", "use": "map_open" },
-    { "content": "chest.fixture_dungeon_cache", "use": "map_open" }
+    { "content": "chest.fixture_dungeon_cache", "use": "map_open" },
+    { "content": "chest.village_home", "use": "map_open" },
+    { "content": "chest.pasture_hollow", "use": "map_open" },
+    { "content": "chest.pasture_stump", "use": "map_open" },
+    { "content": "chest.cells_guardroom", "use": "map_open" },
+    { "content": "chest.cells_store", "use": "map_open" },
+    { "content": "chest.cells_yard", "use": "map_open" },
+    { "content": "chest.cells_rack", "use": "map_open" },
+    { "content": "chest.cells_low", "use": "map_open" }
    ],
    "frames": [
     { "x": 192, "y": 0, "ticks": 0 }
@@ -492,7 +513,16 @@
    "draws": [
     { "content": "door.fixture_dungeon_hall", "use": "map" },
     { "content": "door.fixture_dungeon_store", "use": "map" },
-    { "content": "door.fixture_dungeon_vault", "use": "map" }
+    { "content": "door.fixture_dungeon_vault", "use": "map" },
+    { "content": "door.village_marrek", "use": "map" },
+    { "content": "door.village_brenna", "use": "map" },
+    { "content": "door.village_orrin", "use": "map" },
+    { "content": "door.village_aldo", "use": "map" },
+    { "content": "door.cells_upper_store", "use": "map" },
+    { "content": "door.cells_upper_stair", "use": "map" },
+    { "content": "door.cells_lower_rack", "use": "map" },
+    { "content": "door.cells_lower_low", "use": "map" },
+    { "content": "door.cells_lower_yard", "use": "map" }
    ],
    "frames": [
     { "x": 256, "y": 0, "ticks": 0 }
@@ -506,7 +536,16 @@
    "draws": [
     { "content": "door.fixture_dungeon_hall", "use": "map_open" },
     { "content": "door.fixture_dungeon_store", "use": "map_open" },
-    { "content": "door.fixture_dungeon_vault", "use": "map_open" }
+    { "content": "door.fixture_dungeon_vault", "use": "map_open" },
+    { "content": "door.village_marrek", "use": "map_open" },
+    { "content": "door.village_brenna", "use": "map_open" },
+    { "content": "door.village_orrin", "use": "map_open" },
+    { "content": "door.village_aldo", "use": "map_open" },
+    { "content": "door.cells_upper_store", "use": "map_open" },
+    { "content": "door.cells_upper_stair", "use": "map_open" },
+    { "content": "door.cells_lower_rack", "use": "map_open" },
+    { "content": "door.cells_lower_low", "use": "map_open" },
+    { "content": "door.cells_lower_yard", "use": "map_open" }
    ],
    "frames": [
     { "x": 288, "y": 0, "ticks": 0 }
@@ -519,7 +558,14 @@
    "height": 32,
    "draws": [
     { "content": "exit.fixture_dungeon_way_up", "use": "map" },
-    { "content": "exit.fixture_hub_way_out", "use": "map" }
+    { "content": "exit.fixture_hub_way_out", "use": "map" },
+    { "content": "exit.village_road", "use": "map" },
+    { "content": "exit.pasture_way_out", "use": "map" },
+    { "content": "exit.town_gate", "use": "map" },
+    { "content": "exit.town_cells_stair", "use": "map" },
+    { "content": "exit.cells_upper_stair_up", "use": "map" },
+    { "content": "exit.cells_upper_stair_down", "use": "map" },
+    { "content": "exit.cells_lower_stair_up", "use": "map" }
    ],
    "frames": [
     { "x": 320, "y": 0, "ticks": 0 }
@@ -533,7 +579,21 @@
    "draws": [
     { "content": "patrol.fixture_dungeon_hall", "use": "map_front" },
     { "content": "patrol.fixture_dungeon_watch", "use": "map_front" },
-    { "content": "patrol.fixture_dungeon_deep", "use": "map_front" }
+    { "content": "patrol.fixture_dungeon_deep", "use": "map_front" },
+    { "content": "patrol.pasture_wolves_near", "use": "map_front" },
+    { "content": "patrol.pasture_wolves_far", "use": "map_front" },
+    { "content": "patrol.pasture_crows", "use": "map_front" },
+    { "content": "patrol.pasture_boar", "use": "map_front" },
+    { "content": "patrol.cells_upper_rats", "use": "map_front" },
+    { "content": "patrol.cells_upper_jailers", "use": "map_front" },
+    { "content": "patrol.cells_upper_lamp", "use": "map_front" },
+    { "content": "patrol.cells_upper_hounds", "use": "map_front" },
+    { "content": "patrol.cells_upper_watch", "use": "map_front" },
+    { "content": "patrol.cells_lower_yard_jailers", "use": "map_front" },
+    { "content": "patrol.cells_lower_yard_lamp", "use": "map_front" },
+    { "content": "patrol.cells_lower_rats", "use": "map_front" },
+    { "content": "patrol.cells_lower_rack", "use": "map_front" },
+    { "content": "patrol.cells_lower_watch", "use": "map_front" }
    ],
    "frames": [
     { "x": 352, "y": 0, "ticks": 0 }
@@ -545,7 +605,8 @@
    "width": 32,
    "height": 32,
    "draws": [
-    { "content": "entrance.fixture_overworld_cut", "use": "map" }
+    { "content": "entrance.fixture_overworld_cut", "use": "map" },
+    { "content": "entrance.overworld_pasture", "use": "map" }
    ],
    "frames": [
     { "x": 384, "y": 0, "ticks": 0 }
@@ -557,7 +618,8 @@
    "width": 32,
    "height": 32,
    "draws": [
-    { "content": "gate.fixture_overworld_pass", "use": "map" }
+    { "content": "gate.fixture_overworld_pass", "use": "map" },
+    { "content": "gate.town_cells_door", "use": "map" }
    ],
    "frames": [
     { "x": 416, "y": 0, "ticks": 0 }
@@ -569,7 +631,8 @@
    "width": 32,
    "height": 32,
    "draws": [
-    { "content": "gate.fixture_overworld_pass", "use": "map_open" }
+    { "content": "gate.fixture_overworld_pass", "use": "map_open" },
+    { "content": "gate.town_cells_door", "use": "map_open" }
    ],
    "frames": [
     { "x": 448, "y": 0, "ticks": 0 }
@@ -595,7 +658,9 @@
    "draws": [
     { "content": "trap.fixture_dungeon_pit", "use": "map" },
     { "content": "trap.fixture_dungeon_needle", "use": "map" },
-    { "content": "trap.fixture_dungeon_alarm", "use": "map" }
+    { "content": "trap.fixture_dungeon_alarm", "use": "map" },
+    { "content": "trap.cells_upper_pit", "use": "map" },
+    { "content": "trap.cells_lower_needle", "use": "map" }
    ],
    "frames": [
     { "x": 512, "y": 0, "ticks": 0 }
@@ -609,7 +674,9 @@
    "draws": [
     { "content": "trap.fixture_dungeon_pit", "use": "map_open" },
     { "content": "trap.fixture_dungeon_needle", "use": "map_open" },
-    { "content": "trap.fixture_dungeon_alarm", "use": "map_open" }
+    { "content": "trap.fixture_dungeon_alarm", "use": "map_open" },
+    { "content": "trap.cells_upper_pit", "use": "map_open" },
+    { "content": "trap.cells_lower_needle", "use": "map_open" }
    ],
    "frames": [
     { "x": 544, "y": 0, "ticks": 0 }
@@ -622,7 +689,8 @@
    "height": 32,
    "draws": [
     { "content": "save_point.fixture_hub_waystone", "use": "map" },
-    { "content": "save_point.fixture_dungeon_camp", "use": "map" }
+    { "content": "save_point.fixture_dungeon_camp", "use": "map" },
+    { "content": "save_point.cells_stump", "use": "map" }
    ],
    "frames": [
     { "x": 576, "y": 0, "ticks": 0 }
@@ -659,7 +727,9 @@
    "height": 32,
    "draws": [
     { "content": "cast.ottild", "use": "map_front" },
-    { "content": "npc.fixture_hub_barmaid", "use": "map_front" }
+    { "content": "npc.fixture_hub_barmaid", "use": "map_front" },
+    { "content": "npc.village_hadda", "use": "map_front" },
+    { "content": "npc.village_brenna", "use": "map_front" }
    ],
    "frames": [
     { "x": 672, "y": 0, "ticks": 0 }
@@ -711,7 +781,8 @@
    "width": 32,
    "height": 32,
    "draws": [
-    { "content": "mark.overworld_broken_waystone", "use": "map" }
+    { "content": "mark.overworld_broken_waystone", "use": "map" },
+    { "content": "save_point.town_waystone", "use": "map" }
    ],
    "frames": [
     { "x": 800, "y": 0, "ticks": 0 }
@@ -873,7 +944,7 @@
    "width": 32,
    "height": 32,
    "draws": [
-    { "content": "mark.overworld_town", "use": "map" }
+    { "content": "entrance.overworld_town", "use": "map" }
    ],
    "frames": [
     { "x": 1216, "y": 0, "ticks": 0 }
@@ -885,7 +956,7 @@
    "width": 32,
    "height": 32,
    "draws": [
-    { "content": "mark.overworld_village", "use": "map" }
+    { "content": "entrance.overworld_village", "use": "map" }
    ],
    "frames": [
     { "x": 1248, "y": 0, "ticks": 0 }
@@ -909,7 +980,8 @@
    "width": 64,
    "height": 64,
    "draws": [
-    { "content": "enemy.fixture_brute", "use": "battle" }
+    { "content": "enemy.fixture_brute", "use": "battle" },
+    { "content": "enemy.starved_boar", "use": "battle" }
    ],
    "frames": [
     { "x": 0, "y": 0, "ticks": 0 }
@@ -921,7 +993,13 @@
    "width": 32,
    "height": 32,
    "draws": [
-    { "content": "enemy.fixture_grunt", "use": "battle" }
+    { "content": "enemy.fixture_grunt", "use": "battle" },
+    { "content": "enemy.lean_wolf", "use": "battle" },
+    { "content": "enemy.snow_crow", "use": "battle" },
+    { "content": "enemy.jailer", "use": "battle" },
+    { "content": "enemy.lamp_jailer", "use": "battle" },
+    { "content": "enemy.cell_hound", "use": "battle" },
+    { "content": "enemy.cell_rat", "use": "battle" }
    ],
    "frames": [
     { "x": 64, "y": 0, "ticks": 0 }
@@ -933,7 +1011,9 @@
    "width": 32,
    "height": 32,
    "draws": [
-    { "content": "character.marrek", "use": "battle" }
+    { "content": "character.marrek", "use": "battle" },
+    { "content": "character.bergit", "use": "battle" },
+    { "content": "character.dagvar", "use": "battle" }
    ],
    "frames": [
     { "x": 96, "y": 0, "ticks": 0 }
@@ -945,7 +1025,9 @@
    "width": 32,
    "height": 32,
    "draws": [
-    { "content": "character.marrek", "use": "battle_attack" }
+    { "content": "character.marrek", "use": "battle_attack" },
+    { "content": "character.bergit", "use": "battle_attack" },
+    { "content": "character.dagvar", "use": "battle_attack" }
    ],
    "frames": [
     { "x": 128, "y": 0, "ticks": 0 }
@@ -957,7 +1039,10 @@
    "width": 64,
    "height": 64,
    "draws": [
-    { "content": "npc.fixture_hub_barmaid", "use": "portrait" }
+    { "content": "npc.fixture_hub_barmaid", "use": "portrait" },
+    { "content": "cast.bergit", "use": "portrait" },
+    { "content": "npc.village_hadda", "use": "portrait" },
+    { "content": "npc.village_brenna", "use": "portrait" }
    ],
    "frames": [
     { "x": 0, "y": 0, "ticks": 0 }
@@ -969,7 +1054,11 @@
    "width": 64,
    "height": 64,
    "draws": [
-    { "content": "npc.fixture_hub_stranger", "use": "portrait" }
+    { "content": "npc.fixture_hub_stranger", "use": "portrait" },
+    { "content": "cast.dagvar", "use": "portrait" },
+    { "content": "npc.village_orrin", "use": "portrait" },
+    { "content": "npc.village_aldo", "use": "portrait" },
+    { "content": "npc.town_turnkey", "use": "portrait" }
    ],
    "frames": [
     { "x": 64, "y": 0, "ticks": 0 }

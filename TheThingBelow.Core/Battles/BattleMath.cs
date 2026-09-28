@@ -6,7 +6,8 @@ namespace TheThingBelow.Core.Battles;
 /// The numbers of one strike and one heal: the miss chance, the hit, the damage, the heal of
 /// an absorb, and the heal of an ability (D-771 to D-773, D-779, D-806, D-809, D-1055,
 /// D-1057). The rules of a turn and the evaluator both read them, so a score and a blow never
-/// disagree on a number (D-959).
+/// disagree on a number (D-959). Each damage and each heal holds the cap of
+/// <see cref="BattleRules.MostAmount"/> (D-1357).
 /// </summary>
 internal static class BattleMath
 {
@@ -137,10 +138,13 @@ internal static class BattleMath
         return damage < 1 ? 1 : ToHealth(damage, context);
     }
 
-    /// <summary>Gives an amount as health, and refuses an amount that no `int` holds (T-2).</summary>
+    /// <summary>
+    /// Gives an amount as health, held to the cap of <see cref="BattleRules.MostAmount"/>, and
+    /// refuses an amount that no `int` holds (T-2, D-1357).
+    /// </summary>
     /// <param name="amount">The amount.</param>
     /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
-    /// <returns>The amount as an `int`.</returns>
+    /// <returns>The amount as an `int`, at most the cap.</returns>
     /// <exception cref="SimulationException">The amount passes an `int` (T-2).</exception>
     internal static int ToHealth(long amount, RunContext context)
     {
@@ -149,7 +153,7 @@ internal static class BattleMath
             throw new SimulationException($"a hit of {amount}, which no `int` holds", context);
         }
 
-        return (int)amount;
+        return amount > BattleRules.MostAmount ? BattleRules.MostAmount : (int)amount;
     }
 
     /// <summary>Holds a value between a floor and a ceiling.</summary>
