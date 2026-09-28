@@ -1,3 +1,38 @@
+## Session 398: 2026-09-28, Codex
+
+Author: Codex
+Session: review PR #98 (PR-52). Repository: the-thing-below. Branch: `review/pr-98`, tracking `origin/feat/pr-52-map-preview`. Role: reviewer. Base: `2fc559a17cd5bc55c0a12ecf270cddd18f9a167e`.
+
+### What this session did, and why
+
+- Reviewed effective head `e9d5bb8a37a65d829c1d3fac44f07ae5dd734115`, the full diff, the PR comments, the roadmap exit tests, and the applicable contracts.
+- Built the solution and ran 19 focused preview tests, format, and STE. Each passed.
+- Verified Gitar's CI-analysis item against the failed `review-gate` log. RG 3 alone failed because this review record was absent. The record answers the item (D-964).
+- Found no defect. The PR description contains the four fixture previews required by exit test 4.
+
+### The state of the build
+
+- CI on effective head `e9d5bb8a37a65d829c1d3fac44f07ae5dd734115` passed build, test, format, smoke, replay identity, and bots on all three platforms. STE, det-lint, screen-test, and night-gate passed.
+- The remote head before this metadata commit is `e9d5bb8a37a65d829c1d3fac44f07ae5dd734115`.
+
+### What is in flight
+
+- The review record and this handoff entry form one metadata commit (D-610).
+
+### Traps and gotchas
+
+- The pre-record `review-gate` run failed RG 3 because no record existed yet. RG 4 and RG 5 skipped, and RG 6 to RG 8 passed.
+- Push with `git push origin HEAD:feat/pr-52-map-preview`.
+- Session 388 moved to the top of `docs/session-handoff-archive.md` to keep ten current entries.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Verify the pushed metadata commit, the remote PR head, and the post-push `review-gate` result.
+
 ## Session 397: 2026-09-28, Claude Code
 
 Author: Claude Code
@@ -302,34 +337,3 @@ None.
 ### The next concrete action
 
 Commit the review record and this entry together. Push, fetch, check the remote head, then read the new review-gate result.
-
-## Session 388: 2026-09-28, Claude Code
-
-Author: Claude Code
-Session: author PR-111, round 2. Repository: the-thing-below. Branch: `feat/pr-111-overworld-treasure`. PR: #96. Role: author. Base: `2ac46b6`.
-
-### What this session did, and why
-
-- Gitar approved `d56432a` with no thread. Its CI analysis named the RG 3 fault, which waits for the review record, and a PR comment answered it (D-964).
-- Every CI check passed except `review-gate`. `make codex-review PR=96` gave `Changes required` with P2-1: no art review sheet in the description.
-- P2-1 has full merit. `atlas --sheets` rendered the sheets, and `gh pr edit --attach` put sheet 2 of the map sprites and normal-map sheet 3 into the description. `docs/reviews/pr-96-response.md` records the answer.
-
-### The state of the build
-
-- The effective head stays `d56432a`, and this round changes the metadata set alone (D-610). CI on `d56432a` passed on every leg.
-
-### What is in flight
-
-- The Gitar pass of this push, then `make codex-review PR=96` for the repeat review.
-
-### Traps and gotchas
-
-- A PR that adds a drawing attaches the sheets of `atlas --sheets` to its description: the color sheet and the normal-map sheet (D-514, D-521, D-668). PR-95 got the same finding.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Run the Gitar poll, answer each item, then run `make codex-review PR=96` in the background.

@@ -1,4 +1,35 @@
 # Session handoff archive
+## Session 388: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-111, round 2. Repository: the-thing-below. Branch: `feat/pr-111-overworld-treasure`. PR: #96. Role: author. Base: `2ac46b6`.
+
+### What this session did, and why
+
+- Gitar approved `d56432a` with no thread. Its CI analysis named the RG 3 fault, which waits for the review record, and a PR comment answered it (D-964).
+- Every CI check passed except `review-gate`. `make codex-review PR=96` gave `Changes required` with P2-1: no art review sheet in the description.
+- P2-1 has full merit. `atlas --sheets` rendered the sheets, and `gh pr edit --attach` put sheet 2 of the map sprites and normal-map sheet 3 into the description. `docs/reviews/pr-96-response.md` records the answer.
+
+### The state of the build
+
+- The effective head stays `d56432a`, and this round changes the metadata set alone (D-610). CI on `d56432a` passed on every leg.
+
+### What is in flight
+
+- The Gitar pass of this push, then `make codex-review PR=96` for the repeat review.
+
+### Traps and gotchas
+
+- A PR that adds a drawing attaches the sheets of `atlas --sheets` to its description: the color sheet and the normal-map sheet (D-514, D-521, D-668). PR-95 got the same finding.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Run the Gitar poll, answer each item, then run `make codex-review PR=96` in the background.
+
 ## Session 387: 2026-09-28, Codex
 
 Author: Codex
