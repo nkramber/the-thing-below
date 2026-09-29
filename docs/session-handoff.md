@@ -339,4 +339,3 @@ None.
 ### The next concrete action
 
 Answer each Gitar item of round 3, then run `make codex-review PR=97` in the background.
-
