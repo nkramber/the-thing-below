@@ -1,3 +1,37 @@
+## Session 403: 2026-09-28, Codex
+
+Author: Codex
+Session: review PR #100 (PR-17). Repository: the-thing-below. Branch: `review/pr-100`, tracking `origin/feat/pr-17-first-playable-content`. Role: reviewer. Base: `9a567d6f44dc386187a2798a9c01c3e8de46e8fb`.
+
+### What this session did, and why
+
+- Reviewed effective head `9bca655690c879e4968392886d5cd1647a5b2baa`, all 238 changed paths, the PR description, the roadmap exit tests, the decisions, and the existing PR comments.
+- Verified the Gitar CI claim against the raw log. RG 3 alone failed because the review record did not yet exist.
+- Found no code defect. The review is blocked because the required owner playtest of the full route has no evidence.
+
+### The state of the build
+
+- Local `make verify` passed with 4,719 tests. The overworld and edge checks passed.
+- Every GitHub check passed except the pre-record review-gate RG 3 fault. Gitar passed on the effective head.
+- The remote PR head before this metadata commit is `9bca655690c879e4968392886d5cd1647a5b2baa`.
+
+### What is in flight
+
+- The review record and this entry form one metadata commit (D-610).
+
+### Traps and gotchas
+
+- The author answered the Gitar CI claim. The log confirms that RG 3 alone faulted before this review record existed.
+- The owner playtest is exit test 1 of PR-17. The guided-run test does not establish an owner playtest.
+- Push with `git push origin HEAD:feat/pr-17-first-playable-content`.
+
+### The questions that block progress
+
+The owner playtest evidence for exit test 1 is unresolved.
+
+### The next concrete action
+
+Commit the review record and this entry, push the metadata commit, then verify the remote PR head.
 ## Session 402: 2026-09-28, Claude Code
 
 Author: Claude Code
@@ -305,39 +339,4 @@ None.
 ### The next concrete action
 
 Answer each Gitar item of round 3, then run `make codex-review PR=97` in the background.
-
-## Session 393: 2026-09-28, Codex
-
-Author: Codex
-Session: repeat review PR #97 (PR-51). Repository: the-thing-below. Branch: `review/pr-97`, tracking `origin/feat/pr-51-png-import`. Role: reviewer. Base: `e9294ec0bb29d30d0ebcdcc47fa5e251cf63cda7`.
-
-### What this session did, and why
-
-- Re-reviewed effective head `7ca7b25106e18b8ed8234b0c66824c9e2e21d411` and the full 25-path diff.
-- Checked the fix for P2-1. A symlink output still truncates the drawing file, so P2-1 remains open (T-2, D-1313).
-- Read the current Gitar CI claim and reply. The job log confirms RG 4 and RG 5 wait for this repeat review (D-964).
-
-### The state of the build
-
-- The remote head before this metadata commit is `7ca7b25106e18b8ed8234b0c66824c9e2e21d411`.
-- The first metadata commit, `41f06f11738ea9f868fe1e1564a14eb4a76153f4`, is pushed and verified as the PR head.
-- The CI build, test, format, smoke, bots, replay identity, screen-test, det-lint, night-gate, STE, and Gitar checks pass. `review-gate` fails RG 4 and RG 5 while P2-1 remains open.
-- `make build` passed. The focused frame-png tests passed, 5 of 5. `make test` returned `No test projects were found`.
-
-### What is in flight
-
-- The author must prevent output aliases, including symlinks, from overwriting the drawing and add regression tests.
-
-### Traps and gotchas
-
-- `Path.GetFullPath` does not resolve a symlink. The `frame-png` writer follows it and replaces the drawing bytes.
-- Push with `git push origin HEAD:feat/pr-51-png-import`.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Correct P2-1 for file aliases, then request a repeat review of the new effective head.
 

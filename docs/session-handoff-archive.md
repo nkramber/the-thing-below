@@ -1,3 +1,38 @@
+## Session 393: 2026-09-28, Codex
+
+Author: Codex
+Session: repeat review PR #97 (PR-51). Repository: the-thing-below. Branch: `review/pr-97`, tracking `origin/feat/pr-51-png-import`. Role: reviewer. Base: `e9294ec0bb29d30d0ebcdcc47fa5e251cf63cda7`.
+
+### What this session did, and why
+
+- Re-reviewed effective head `7ca7b25106e18b8ed8234b0c66824c9e2e21d411` and the full 25-path diff.
+- Checked the fix for P2-1. A symlink output still truncates the drawing file, so P2-1 remains open (T-2, D-1313).
+- Read the current Gitar CI claim and reply. The job log confirms RG 4 and RG 5 wait for this repeat review (D-964).
+
+### The state of the build
+
+- The remote head before this metadata commit is `7ca7b25106e18b8ed8234b0c66824c9e2e21d411`.
+- The first metadata commit, `41f06f11738ea9f868fe1e1564a14eb4a76153f4`, is pushed and verified as the PR head.
+- The CI build, test, format, smoke, bots, replay identity, screen-test, det-lint, night-gate, STE, and Gitar checks pass. `review-gate` fails RG 4 and RG 5 while P2-1 remains open.
+- `make build` passed. The focused frame-png tests passed, 5 of 5. `make test` returned `No test projects were found`.
+
+### What is in flight
+
+- The author must prevent output aliases, including symlinks, from overwriting the drawing and add regression tests.
+
+### Traps and gotchas
+
+- `Path.GetFullPath` does not resolve a symlink. The `frame-png` writer follows it and replaces the drawing bytes.
+- Push with `git push origin HEAD:feat/pr-51-png-import`.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Correct P2-1 for file aliases, then request a repeat review of the new effective head.
+
 # Session handoff archive
 ## Session 392: 2026-09-28, Claude Code
 
