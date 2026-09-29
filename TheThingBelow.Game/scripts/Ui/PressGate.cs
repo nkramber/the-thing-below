@@ -19,8 +19,14 @@ namespace TheThingBelow.Game.Ui;
 /// goes on, so <see cref="HeldSteps"/> never keeps a step that the player let go.
 /// </para>
 /// <para>
-/// <see cref="Press"/>, <see cref="Release"/>, <see cref="Clear"/>, and
-/// <see cref="ForgetPad"/> hold no Godot value, so a test reads them with no engine (D-614).
+/// A push of a stick axis goes on only after that axis came to rest inside the dead zone one
+/// time, so a pad whose axis starts past the dead zone never walks the party. A pad that was
+/// plugged in and off walked the lead south with no input on Windows (F-156).
+/// </para>
+/// <para>
+/// <see cref="Press"/>, <see cref="Release"/>, <see cref="PassStick"/>, <see cref="TakeNewRefusals"/>,
+/// <see cref="Clear"/>, and <see cref="ForgetPad"/> hold no Godot value, so a test reads them with
+/// no engine (D-614).
 /// </para>
 /// </remarks>
 public sealed class PressGate
@@ -35,11 +41,21 @@ public sealed class PressGate
     // The sources that hold each action now, by action name (G-4).
     private readonly SortedDictionary<string, List<string>> holders = new(StringComparer.Ordinal);
 
+    // The stick axes that came to rest inside the dead zone since their pad connected (F-156).
+    private readonly SortedSet<string> rested = new(StringComparer.Ordinal);
+
+    // The stick axes that pushed before they rested, so the log names each one a single time (T-2).
+    private readonly SortedSet<string> refused = new(StringComparer.Ordinal);
+
+    // The refused axes that the host did not log yet, in the order of their first push.
+    private readonly List<string> newRefusals = [];
+
     /// <summary>Reads one input event, and tells whether it goes on to the game.</summary>
     /// <param name="signal">The event of this frame.</param>
     /// <returns>
-    /// False for a press of one or more actions that another press holds already. True for
-    /// every other event: a first press, a release, and an event of no action.
+    /// False for a press of one or more actions that another press holds already, and for a
+    /// push of a stick axis that never rested (F-156). True for every other event: a first
+    /// press, a release, and an event of no action.
     /// </returns>
     /// <exception cref="ArgumentNullException">The event is null (T-2).</exception>
     /// <remarks>
@@ -54,6 +70,11 @@ public sealed class PressGate
         if (source is null)
         {
             return true;
+        }
+
+        if (signal is InputEventJoypadMotion && !this.PassStick(source, PushesAnAction(signal)))
+        {
+            return false;
         }
 
         bool pressed = false;
@@ -117,6 +138,46 @@ public sealed class PressGate
         return this.holders.TryGetValue(action, out List<string>? sources) && sources.Remove(source);
     }
 
+    /// <summary>Records one motion of a stick axis, and tells whether it goes on (F-156).</summary>
+    /// <param name="source">The name of the axis, such as `pad 0 axis 1`.</param>
+    /// <param name="pushed">True when the motion presses an action, which is a push past the dead zone.</param>
+    /// <returns>
+    /// True for a motion inside the dead zone, which rests the axis, and for a push of an axis
+    /// that rested before. False for a push of an axis that never rested.
+    /// </returns>
+    /// <exception cref="ArgumentException">The name is empty (T-2).</exception>
+    public bool PassStick(string source, bool pushed)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(source);
+
+        if (!pushed)
+        {
+            this.rested.Add(source);
+            return true;
+        }
+
+        if (this.rested.Contains(source))
+        {
+            return true;
+        }
+
+        if (this.refused.Add(source))
+        {
+            this.newRefusals.Add(source);
+        }
+
+        return false;
+    }
+
+    /// <summary>Gives each axis that <see cref="PassStick"/> refused for the first time since the last call (T-2).</summary>
+    /// <returns>The names of the axes, such as `pad 0 axis 1`, which the host writes to the log.</returns>
+    public IReadOnlyList<string> TakeNewRefusals()
+    {
+        string[] taken = [.. this.newRefusals];
+        this.newRefusals.Clear();
+        return taken;
+    }
+
     /// <summary>Tells whether any source holds one action now (D-1084).</summary>
     /// <param name="action">The name of the action, such as `step_north`.</param>
     /// <returns>True while a key, a button, or a stick holds the action.</returns>
@@ -131,12 +192,17 @@ public sealed class PressGate
     /// <summary>
     /// Forgets every held source. The window calls it when it loses the focus, because the
     /// system then sends no release (T-2).
+    /// The rest state of each stick axis stays, because the pad did not change (F-156).
     /// </summary>
     public void Clear() => this.holders.Clear();
 
     /// <summary>Forgets every source of one pad, which a pad that disconnects needs (T-2).</summary>
     /// <param name="device">The device number of the pad.</param>
-    /// <returns>The count of sources that the gate forgot.</returns>
+    /// <returns>The count of held sources that the gate forgot.</returns>
+    /// <remarks>
+    /// The rest state of each axis of the pad goes too, so each axis of a pad that connects again
+    /// rests before its first push (F-156).
+    /// </remarks>
     public int ForgetPad(int device)
     {
         string prefix = $"{PadPrefix}{device} ";
@@ -145,6 +211,9 @@ public sealed class PressGate
         {
             forgot += sources.RemoveAll(source => source.StartsWith(prefix, StringComparison.Ordinal));
         }
+
+        this.rested.RemoveWhere(source => source.StartsWith(prefix, StringComparison.Ordinal));
+        this.refused.RemoveWhere(source => source.StartsWith(prefix, StringComparison.Ordinal));
 
         return forgot;
     }
@@ -159,6 +228,22 @@ public sealed class PressGate
         InputEventJoypadMotion motion => $"{PadPrefix}{motion.Device} axis {(long)motion.Axis}",
         _ => null,
     };
+
+    /// <summary>Tells whether one event presses an action that the gate reads.</summary>
+    /// <param name="signal">The event of this frame.</param>
+    /// <returns>True for a stick motion past the dead zone of an action that the input map holds.</returns>
+    private static bool PushesAnAction(InputEvent signal)
+    {
+        foreach (string action in ReadNames())
+        {
+            if (InputMap.HasAction(action) && signal.IsActionPressed(action, allowEcho: true))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     /// <summary>Gives each action that the gate reads: the actions of the game, then those of the menus.</summary>
     /// <returns>The names in a fixed order (G-4).</returns>

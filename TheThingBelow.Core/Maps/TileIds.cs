@@ -65,6 +65,9 @@ public static class TileIds
     /// <summary>The id of a bridge of the overworld (D-1302).</summary>
     public static readonly ContentId Bridge = ContentId.Parse("tile.bridge", Source, nameof(Bridge));
 
+    /// <summary>The id of a thicket of a hub or a dungeon (D-1362).</summary>
+    public static readonly ContentId Thicket = ContentId.Parse("tile.thicket", Source, nameof(Thicket));
+
     /// <summary>Gives the content id of one tile kind (D-519).</summary>
     /// <param name="kind">The kind of the tile.</param>
     /// <returns>The id that the drawing of that kind names.</returns>
@@ -86,6 +89,7 @@ public static class TileIds
         TileKind.Gorge => Gorge,
         TileKind.SnowPeak => SnowPeak,
         TileKind.Bridge => Bridge,
+        TileKind.Thicket => Thicket,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no tile kind (D-528)"),
     };
 }

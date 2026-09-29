@@ -108,6 +108,32 @@ public sealed class FirstPlayableContentTests
     }
 
     [Fact]
+    public void EachPlaceWritesThicketForItsTreesAndNoForest()
+    {
+        // D-1362: the forest of the village and of the pasture let the lead walk through the
+        // border of the map in the playtest. A hub and a dungeon write a thicket, which the lead
+        // cannot walk and which stops sight, and the forest stays on the overworld alone.
+        ContentSet content = Content.Value;
+        foreach (string place in Places)
+        {
+            GameMap map = content.Map(Id(place));
+            for (int y = 0; y < map.Height; y += 1)
+            {
+                for (int x = 0; x < map.Width; x += 1)
+                {
+                    Assert.True(
+                        map.TileAt(new TilePoint(x, y)) != TileKind.Forest,
+                        $"The map '{place}' holds a forest tile at ({x}, {y}), which the lead walks (D-1362).");
+                }
+            }
+        }
+
+        GameMap village = content.Map(Id("map.village"));
+        Assert.Equal(TileKind.Thicket, village.TileAt(new TilePoint(0, 0)));
+        Assert.False(TileKinds.CanWalk(village.TileAt(new TilePoint(0, 0))));
+    }
+
+    [Fact]
     public void EachMapOutsideTurnsToNightAtTheEndAndTheCellsStayNight()
     {
         // Exit test 9 of PR-17 (D-1338, D-1349): the village is day, the pasture and the town

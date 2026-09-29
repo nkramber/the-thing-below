@@ -1,3 +1,36 @@
+## Session 395: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-51, round 4. Repository: the-thing-below. Branch: `feat/pr-51-png-import`. PR: #97. Role: author. Base: `e9294ec`.
+
+### What this session did, and why
+
+- Gitar gave round 3 at `3aec94f` one item: a failed write of `frame-png` left a part of the PNG, and the next run refused the path. The item has full merit.
+- `FramePngCommand.WriteNewFile` now removes the file that it made when the write fails. A failed removal gives a message that names the part (T-2).
+- The fault prefix of `frame-png` is now `stopped`, because a failed removal leaves a part and "wrote nothing" is then false.
+- Two tests cover the helper. The Gitar fix removed the file on an `IOException` alone. This fix covers a denied access and a failed removal too (D-1072).
+- The CI analysis named RG 4 and RG 5 again. They wait for the repeat review, and the comment of round 2 answers them.
+
+### The state of the build
+
+- The remote head before this round is `3aec94f`. `make verify` passed on the Mac before the push.
+
+### What is in flight
+
+- The Gitar pass of round 4, then a repeat `make codex-review PR=97`. The review of P2-1 is in its third round, so a third open round gives the three-strike stop (D-929).
+
+### Traps and gotchas
+
+- No test makes the removal fail, because no portable way exists. The message path is plain code with no branch.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Reply on the Gitar thread with the commit, then run `make codex-review PR=97` in the background after CI.
+
 ## Session 394: 2026-09-28, Claude Code
 
 Author: Claude Code

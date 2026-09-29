@@ -1,3 +1,39 @@
+## Session 405: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author of PR #100 (PR-17), the round that fixes the two faults of the owner playtest on Windows. Repository: the-thing-below. Branch: `feat/pr-17-first-playable-content`. Role: author. Base: `9a567d6`.
+
+### What this session did, and why
+
+- Asked the owner the two questions of session 404. The forest rule took three answers. The owner first chose "forest blocks everywhere". A trial of that rule failed 346 of 4719 tests, because D-1262 refuses a zone on a blocked tile and the overworld holds two forest zones (D-1283). The owner then chose "forest blocks on a hub and a dungeon", and then a new tile kind.
+- Added the thicket (D-1362, D-1363, F-157). The tile kind `Thicket` writes `T`, blocks the lead, and stops sight. The drawing `drawing.tile_thicket` is a denser and darker forest. Ostby and Ostby Pasture write each tree tile as a thicket. The crows of the pasture move their area from (18, 11) to (22, 11), because their old area held the middle clump, and D-209 needs a walkable area.
+- Added the stick at rest (F-156). The owner had an Xbox pad plugged in and off, with no stick movement. `PressGate` passes a push of a stick axis only after that axis came to rest inside the dead zone one time. `ForgetPad` forgets the rest, so a pad that connects again rests again. `Boot.LogRefusedSticks` writes a warning that names each refused axis one time.
+- Tests: `TileKindsTests`, `FirstPlayableContentTests.EachPlaceWritesThicketForItsTreesAndNoForest`, seven `PressGateTests`, and the pads check of the smoke session. The content hash and the atlas changed. The simulation version stays 40, because this PR raised it, and the PR-17 note of `SimulationVersion` names the thicket (G-17).
+- Read the map previews of the village and the pasture. No capture of the screen test shows a hub of PR-17, so no baseline changes.
+
+### The state of the build
+
+- `make verify` passed on this machine: 4730 tests, format, det-lint, STE, identity, bots, and the content hash. Then the new drawing changed, and the atlas check and the smoke session passed again after `atlas --root .`.
+- This entry sits in the commit of the round, above `a1ed5f2`.
+
+### What is in flight
+
+- The Gitar pass of the round, then the owner playtest of exit test 1 from Ostby to the join of Dagvar. Core, content, and Game changed after the review of session 403, so the PR needs a new review of the other provider (D-943).
+
+### Traps and gotchas
+
+- The stick rule drops a fast first push of an axis that sent no motion inside the dead zone before it. The next push walks. F-156 records it.
+- The cause of F-156 is not confirmed. On the next play, the owner can read the lines `a pad connected` and `a stick axis pushed before it came to rest` in `%APPDATA%\the-thing-below\logs`. A drift that starts after a rest passes the new rule.
+- The forest stays walkable on the overworld (D-1256). A new hub or dungeon writes `T` for its trees, and `FirstPlayableContentTests` reads the five places of PR-17 alone.
+
+### The questions that block progress
+
+- None. The owner playtest of exit test 1 blocks the review verdict.
+
+### The next concrete action
+
+Run the Gitar poll of this push, and answer each item. Then ask the owner to play from Ostby to the join of Dagvar on Windows, with the pad plugged in, and to send the log lines of the pad.
+
 ## Session 404: 2026-09-28, Claude Code
 
 Author: Claude Code
@@ -309,36 +345,3 @@ None.
 ### The next concrete action
 
 End this review session for PR #97.
-
-## Session 395: 2026-09-28, Claude Code
-
-Author: Claude Code
-Session: author PR-51, round 4. Repository: the-thing-below. Branch: `feat/pr-51-png-import`. PR: #97. Role: author. Base: `e9294ec`.
-
-### What this session did, and why
-
-- Gitar gave round 3 at `3aec94f` one item: a failed write of `frame-png` left a part of the PNG, and the next run refused the path. The item has full merit.
-- `FramePngCommand.WriteNewFile` now removes the file that it made when the write fails. A failed removal gives a message that names the part (T-2).
-- The fault prefix of `frame-png` is now `stopped`, because a failed removal leaves a part and "wrote nothing" is then false.
-- Two tests cover the helper. The Gitar fix removed the file on an `IOException` alone. This fix covers a denied access and a failed removal too (D-1072).
-- The CI analysis named RG 4 and RG 5 again. They wait for the repeat review, and the comment of round 2 answers them.
-
-### The state of the build
-
-- The remote head before this round is `3aec94f`. `make verify` passed on the Mac before the push.
-
-### What is in flight
-
-- The Gitar pass of round 4, then a repeat `make codex-review PR=97`. The review of P2-1 is in its third round, so a third open round gives the three-strike stop (D-929).
-
-### Traps and gotchas
-
-- No test makes the removal fail, because no portable way exists. The message path is plain code with no branch.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Reply on the Gitar thread with the commit, then run `make codex-review PR=97` in the background after CI.

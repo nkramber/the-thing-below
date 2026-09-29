@@ -379,6 +379,27 @@ public partial class Boot : Node
     }
 
     /// <summary>
+    /// Logs each stick axis that the gate stopped for the first time, because it pushed before it
+    /// came to rest inside the dead zone (F-156, T-2).
+    /// </summary>
+    /// <remarks>
+    /// A pad with such an axis walked the lead with no input, so the log names the axis and the
+    /// device, and the report of a pad fault shows the cause (F-156).
+    /// </remarks>
+    private void LogRefusedSticks()
+    {
+        foreach (string axis in this.gate.TakeNewRefusals())
+        {
+            this.WriteLog([new LogEntry(
+                LogLevel.Warning,
+                "a stick axis pushed before it came to rest, and the gate stopped it",
+                this.run?.Tick ?? 0,
+                LogSubsystems.Game,
+                [new LogField("axis", axis)])]);
+        }
+    }
+
+    /// <summary>
     /// Logs each pad that connects or disconnects, and forgets the held buttons of a pad that
     /// disconnects (D-1077).
     /// </summary>
@@ -955,7 +976,9 @@ public partial class Boot : Node
             // The gate stops a second press of a held action, from any device, before any node
             // reads it (D-1077, F-107). The console takes the repeat of a held key, so the gate
             // stops no key while the console is open (D-725).
-            if (!this.gate.Read(signal) && this.console?.Visible != true)
+            bool passed = this.gate.Read(signal);
+            this.LogRefusedSticks();
+            if (!passed && this.console?.Visible != true)
             {
                 GetViewport().SetInputAsHandled();
                 return;
@@ -2263,7 +2286,8 @@ public partial class Boot : Node
         }
 
         // One hold of the menu button, a mirror of it on a second device, and a new press after
-        // the release of both. Then one push of the stick in three motion events (F-107).
+        // the release of both. Then a push of an axis that never rested, which stops (F-156).
+        // Then one push of the stick in three motion events, after its axis rests (F-107).
         var gate = new PressGate();
         bool[] passed =
         [
@@ -2273,13 +2297,15 @@ public partial class Boot : Node
             gate.Read(PadButton(JoyButton.Start, OtherPad, false)),
             gate.Read(PadButton(JoyButton.Start, OtherPad + 1, false)),
             gate.Read(PadButton(JoyButton.Start, OtherPad, true)),
+            gate.Read(PadStick(JoyAxis.LeftY, OtherPad, 1f)),
+            gate.Read(PadStick(JoyAxis.LeftY, OtherPad, 0f)),
             gate.Read(PadStick(JoyAxis.LeftY, OtherPad, 0.8f)),
             gate.Read(PadStick(JoyAxis.LeftY, OtherPad, 0.9f)),
             gate.Read(PadStick(JoyAxis.LeftY, OtherPad, 1f)),
             gate.Read(PadStick(JoyAxis.LeftY, OtherPad, 0f)),
             gate.Read(PadStick(JoyAxis.LeftY, OtherPad, 0.8f)),
         ];
-        bool[] expected = [true, false, false, true, true, true, true, false, false, true, true];
+        bool[] expected = [true, false, false, true, true, true, false, true, true, false, false, true, true];
         if (!passed.AsSpan().SequenceEqual(expected))
         {
             throw new InvalidOperationException(
@@ -2296,7 +2322,7 @@ public partial class Boot : Node
                 $"A pad press hid the pointer {hidden}, and a mouse move showed it {pointer.Shown} (D-1078, T-2).");
         }
 
-        return $"{matched} bindings that a pad of the device {OtherPad} presses, one press of each hold, " +
+        return $"{matched} bindings that a pad of the device {OtherPad} presses, one press of each hold, no push of an axis that never rested, " +
             "and a pointer that a pad hides and a mouse shows";
     }
 

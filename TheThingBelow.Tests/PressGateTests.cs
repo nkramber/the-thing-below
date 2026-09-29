@@ -10,7 +10,7 @@ namespace TheThingBelow.Tests;
 /// read the built Game assembly, because Tests takes no reference to Game (D-614).
 /// </summary>
 /// <remarks>
-/// The four methods below hold no Godot value. The smoke session reads the gate with the pad
+/// The methods below hold no Godot value. The smoke session reads the gate with the pad
 /// events of the engine.
 /// </remarks>
 public sealed class PressGateTests
@@ -21,6 +21,7 @@ public sealed class PressGateTests
     private const string Start = "pad 0 button 6";
     private const string MirrorStart = "pad 1 button 6";
     private const string Tab = "key 4194306";
+    private const string LeftY = "pad 0 axis 1";
 
     [Fact]
     public void TheFirstPressOfAHoldPasses()
@@ -156,6 +157,80 @@ public sealed class PressGateTests
     }
 
     [Fact]
+    public void APushOfAnAxisThatNeverRestedStops()
+    {
+        // A pad that was plugged in and off walked the lead south with no input, because its
+        // axis stood past the dead zone from the start (F-156).
+        Assert.False(PassStick(New(), LeftY, pushed: true));
+    }
+
+    [Fact]
+    public void APushPassesAfterItsAxisRests()
+    {
+        object gate = New();
+
+        Assert.True(PassStick(gate, LeftY, pushed: false));
+        Assert.True(PassStick(gate, LeftY, pushed: true));
+    }
+
+    [Fact]
+    public void TheRestOfOneAxisLetsNoOtherAxisPush()
+    {
+        object gate = New();
+        PassStick(gate, LeftY, pushed: false);
+
+        Assert.False(PassStick(gate, "pad 0 axis 0", pushed: true));
+        Assert.False(PassStick(gate, "pad 1 axis 1", pushed: true));
+    }
+
+    [Fact]
+    public void TheLogNamesEachRefusedAxisOneTime()
+    {
+        object gate = New();
+        PassStick(gate, LeftY, pushed: true);
+        PassStick(gate, LeftY, pushed: true);
+
+        Assert.Equal([LeftY], TakeNewRefusals(gate));
+        PassStick(gate, LeftY, pushed: true);
+        Assert.Empty(TakeNewRefusals(gate));
+    }
+
+    [Fact]
+    public void AClearKeepsTheRestOfEachAxis()
+    {
+        // A loss of the focus changes no pad (F-156).
+        object gate = New();
+        PassStick(gate, LeftY, pushed: false);
+
+        Method("Clear").Invoke(gate, null);
+
+        Assert.True(PassStick(gate, LeftY, pushed: true));
+    }
+
+    [Fact]
+    public void APadThatConnectsAgainRestsBeforeItsFirstPush()
+    {
+        object gate = New();
+        PassStick(gate, LeftY, pushed: true);
+        TakeNewRefusals(gate);
+        PassStick(gate, LeftY, pushed: false);
+        PassStick(gate, "pad 1 axis 1", pushed: false);
+
+        Assert.Equal(0, ForgetPad(gate, 0));
+
+        Assert.False(PassStick(gate, LeftY, pushed: true));
+        Assert.Equal([LeftY], TakeNewRefusals(gate));
+        Assert.True(PassStick(gate, "pad 1 axis 1", pushed: true));
+    }
+
+    [Fact]
+    public void AStickWithAnEmptyNameFails()
+    {
+        Assert.IsType<ArgumentException>(Assert.Throws<TargetInvocationException>(
+            () => Method("PassStick").Invoke(New(), [string.Empty, true])).InnerException);
+    }
+
+    [Fact]
     public void TheGateReadsEachMenuActionThatTheMenusRead()
     {
         IReadOnlyList<string> names = (IReadOnlyList<string>)GameAssemblyFile.Type(TypeName)
@@ -179,6 +254,12 @@ public sealed class PressGateTests
 
     private static int ForgetPad(object gate, int device) =>
         (int)Method("ForgetPad").Invoke(gate, [device])!;
+
+    private static bool PassStick(object gate, string source, bool pushed) =>
+        (bool)Method("PassStick").Invoke(gate, [source, pushed])!;
+
+    private static IReadOnlyList<string> TakeNewRefusals(object gate) =>
+        (IReadOnlyList<string>)Method("TakeNewRefusals").Invoke(gate, null)!;
 
     private static MethodInfo Method(string name) =>
         GameAssemblyFile.Type(TypeName).GetMethod(name, BindingFlags.Public | BindingFlags.Instance)

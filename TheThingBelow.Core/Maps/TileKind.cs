@@ -53,6 +53,9 @@ public enum TileKind
 
     /// <summary>A bridge of the overworld over water. The party walks it, and sight passes over it (D-1302).</summary>
     Bridge,
+
+    /// <summary>A thicket of a hub or a dungeon. The party cannot walk it, and it stops sight (D-1362).</summary>
+    Thicket,
 }
 
 /// <summary>The character, the step rule, and the sight rule of each tile kind (D-515, D-528).</summary>
@@ -107,8 +110,11 @@ public static class TileKinds
     /// <summary>A bridge of the overworld, as a terrain row writes it (D-1302).</summary>
     public const char BridgeCharacter = 'H';
 
+    /// <summary>A thicket, as a terrain row writes it (D-1363).</summary>
+    public const char ThicketCharacter = 'T';
+
     /// <summary>The characters of every kind, for the error of an unknown character (T-2).</summary>
-    public const string EveryCharacter = ".#+*=~,%^-_;:AH";
+    public const string EveryCharacter = ".#+*=~,%^-_;:AHT";
 
     /// <summary>Gives the kind of one character of a terrain row.</summary>
     /// <param name="character">The character, such as `#`.</param>
@@ -163,6 +169,9 @@ public static class TileKinds
             case BridgeCharacter:
                 kind = TileKind.Bridge;
                 return true;
+            case ThicketCharacter:
+                kind = TileKind.Thicket;
+                return true;
             default:
                 kind = TileKind.Floor;
                 return false;
@@ -190,6 +199,7 @@ public static class TileKinds
         TileKind.Gorge => GorgeCharacter,
         TileKind.SnowPeak => SnowPeakCharacter,
         TileKind.Bridge => BridgeCharacter,
+        TileKind.Thicket => ThicketCharacter,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no tile kind (D-528)"),
     };
 
@@ -214,6 +224,7 @@ public static class TileKinds
         TileKind.Gorge => "gorge",
         TileKind.SnowPeak => "snow_peak",
         TileKind.Bridge => "bridge",
+        TileKind.Thicket => "thicket",
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no tile kind (D-528)"),
     };
 
@@ -258,6 +269,7 @@ public static class TileKinds
         TileKind.Gorge => false,
         TileKind.SnowPeak => false,
         TileKind.Bridge => true,
+        TileKind.Thicket => false,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no tile kind (D-528)"),
     };
 
@@ -286,6 +298,7 @@ public static class TileKinds
         TileKind.Gorge => false,
         TileKind.SnowPeak => true,
         TileKind.Bridge => false,
+        TileKind.Thicket => true,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no tile kind (D-528)"),
     };
 }

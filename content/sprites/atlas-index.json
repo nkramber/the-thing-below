@@ -358,6 +358,18 @@
    ]
   },
   {
+   "id": "drawing.tile_thicket",
+   "page": "tiles",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "tile.thicket", "use": "map" }
+   ],
+   "frames": [
+    { "x": 928, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
    "id": "drawing.tile_wall",
    "page": "tiles",
    "width": 32,
@@ -366,7 +378,7 @@
     { "content": "tile.wall", "use": "map" }
    ],
    "frames": [
-    { "x": 928, "y": 0, "ticks": 0 }
+    { "x": 960, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -378,7 +390,7 @@
     { "content": "tile.water", "use": "map" }
    ],
    "frames": [
-    { "x": 960, "y": 0, "ticks": 0 }
+    { "x": 992, "y": 0, "ticks": 0 }
    ]
   },
   {
