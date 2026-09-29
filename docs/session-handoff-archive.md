@@ -1,3 +1,35 @@
+## Session 394: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-51, round 3. Repository: the-thing-below. Branch: `feat/pr-51-png-import`. PR: #97. Role: author. Base: `e9294ec`.
+
+### What this session did, and why
+
+- Gitar approved `7ca7b25` with no thread. Its CI analysis named RG 4 and RG 5, which waited for the repeat review, and a PR comment answered it (D-964).
+- The repeat review kept P2-1 open: a symbolic link to the drawing passed the compare of paths. The trigger reproduced.
+- `frame-png` now never writes over a file. The mode `CreateNew` refuses every name that exists, so no alias can reach a drawing (T-2).
+- `docs/reviews/pr-97-response.md` records round 2. The runbook and section 7.52 name the rule.
+
+### The state of the build
+
+- The remote head before this round is `1bcb5c3`, the review record on `7ca7b25`. `make verify` passed on the Mac before the push.
+
+### What is in flight
+
+- The Gitar pass of round 3, then a repeat `make codex-review PR=97`. This is the second round of P2-1, so a third open round gives the three-strike stop (D-929).
+
+### Traps and gotchas
+
+- The symbolic link test runs on each CI leg. The Windows runner needs the right to make a link.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Answer each Gitar item of round 3, then run `make codex-review PR=97` in the background.
+
 ## Session 393: 2026-09-28, Codex
 
 Author: Codex

@@ -1,3 +1,38 @@
+## Session 404: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author of PR #100 (PR-17), the round after the review of session 403. Repository: the-thing-below. Branch: `feat/pr-17-first-playable-content`. Role: author. Base: `9a567d6`.
+
+### What this session did, and why
+
+- Read the review of session 403: no finding, and the verdict `Blocked` because the owner has not played the route (exit test 1). Removed the blank line at the end of this file that the review named.
+- Gave the owner the steps to play on Windows: the .NET SDK 10.0.400, Godot 4.7.2 mono win64, the `--build-solutions` build, then `--path TheThingBelow.Game`. In PowerShell, a quoted path needs the call operator `&`.
+
+### The state of the build
+
+- The remote head carries the review record of session 403 at `e2a94da`, and this entry sits above it. Every CI check of `9bca655` passed except RG 3 before the record.
+
+### What is in flight
+
+- The owner playtest on Windows. The owner reported two faults in the first minutes:
+  1. The lead moves toward the bottom of the screen with no input. The cause is not known. A gamepad or another stick device with drift on the left Y axis is the first suspect: `GameInputMap` binds `StepSouth` to `JoyAxis.LeftY`, and the dead zone is 0.5 (D-861).
+  2. Forest tiles of an inner map let the lead pass. The owner said: "woods in an 'inner map' shouldn't be passable, especially since we're using them as map borders." Ostby and Ostby Pasture use forest as a border.
+
+### Traps and gotchas
+
+- The PR is not merged, so the next session continues this PR as its author. It is not the next PR.
+- The owner plays on Windows. The checkout there is `C:\Users\natek\documents\vscode\repos\the-thing-below`.
+- A fix to Core, content, or Game after the review needs a new review. The skip set alone keeps an approval (D-943).
+
+### The questions that block progress
+
+- The form of the forest rule: forest blocks the lead on a hub and a dungeon, a new tile kind for trees that block, or a content change to another border tile. Ask the owner, and ask whether forest on an inner map also stops sight.
+- The cause of the pull toward the bottom of the screen. Ask the owner whether a controller or another stick device is plugged in, and whether the pull stops without it.
+
+### The next concrete action
+
+Ask the owner the two questions above, fix both faults with tests, push, run the Gitar poll, then ask the owner to play the route to the join of Dagvar again.
+
 ## Session 403: 2026-09-28, Codex
 
 Author: Codex
@@ -307,35 +342,3 @@ None.
 ### The next concrete action
 
 Reply on the Gitar thread with the commit, then run `make codex-review PR=97` in the background after CI.
-
-## Session 394: 2026-09-28, Claude Code
-
-Author: Claude Code
-Session: author PR-51, round 3. Repository: the-thing-below. Branch: `feat/pr-51-png-import`. PR: #97. Role: author. Base: `e9294ec`.
-
-### What this session did, and why
-
-- Gitar approved `7ca7b25` with no thread. Its CI analysis named RG 4 and RG 5, which waited for the repeat review, and a PR comment answered it (D-964).
-- The repeat review kept P2-1 open: a symbolic link to the drawing passed the compare of paths. The trigger reproduced.
-- `frame-png` now never writes over a file. The mode `CreateNew` refuses every name that exists, so no alias can reach a drawing (T-2).
-- `docs/reviews/pr-97-response.md` records round 2. The runbook and section 7.52 name the rule.
-
-### The state of the build
-
-- The remote head before this round is `1bcb5c3`, the review record on `7ca7b25`. `make verify` passed on the Mac before the push.
-
-### What is in flight
-
-- The Gitar pass of round 3, then a repeat `make codex-review PR=97`. This is the second round of P2-1, so a third open round gives the three-strike stop (D-929).
-
-### Traps and gotchas
-
-- The symbolic link test runs on each CI leg. The Windows runner needs the right to make a link.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Answer each Gitar item of round 3, then run `make codex-review PR=97` in the background.
