@@ -2439,7 +2439,7 @@ Area files: `area-exploration.md`, `area-battle.md`, `area-story.md`, and `area-
 - The opening scene, the villagers, the joins of Bergit and Dagvar, and the notice at the end (D-563, D-1337, D-1344).
 - The time of a map set by a flag, a light setup for each time, and the night after the end (D-442, D-1338, D-1348, D-1349).
 - The thicket, which blocks the lead and stops sight on a hub and a dungeon (D-1362, D-1363, F-157).
-- A push of a stick axis only after the axis rests (F-156).
+- The game ignores a pad with no controller mapping, such as a racing wheel (D-1365, F-156).
 - The voice notes of the three characters, then the text of Marrek, Bergit, Dagvar, and the lessons, in the voice (D-362, D-1345, D-1346, G-20).
 
 **Out of scope.**

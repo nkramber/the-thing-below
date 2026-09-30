@@ -1,3 +1,37 @@
+## Session 407: 2026-09-29, Claude Code
+
+Author: Claude Code
+Session: author of PR #100 (PR-17), the round of the racing wheel during the owner playtest. Repository: the-thing-below. Branch: `feat/pr-17-first-playable-content`. Role: author. Base: `9a567d6`.
+
+### What this session did, and why
+
+- The owner reported that the lead walked south again, about 30 seconds after the first house, with the Xbox pad unplugged. After that, the S key did not move the menu cursor. The log named the device: `Logitech G29 Driving Force Racing Wheel`, pad 0, `"known":"no"`. A raw axis of the wheel rested, then went past the dead zone. It held `step_south` and `ui_down`, so the press gate stopped each S press as a second press (F-107).
+- The owner chose to ignore each button and each axis of a device with no controller mapping, and to remove the rest rule of session 405 (D-1365). `PressGate` holds the ignored pads: `IgnorePad`, `Ignores`, and `ForgetPad`, which stops ignoring a pad that disconnects. `Boot.OnPadConnectionChanged` ignores a pad that connects with no mapping, and its log line gains the field `ignored`.
+- `Boot.cs`, `PressGate.cs`, and `PressGateTests.cs` came back from `a1ed5f2` first, so no code of the rest rule stays.
+- Tests: three new `PressGateTests`, and the pads check of the smoke session. The smoke check fails on the old gate.
+
+### The state of the build
+
+- On this machine, the `PressGateTests`, the smoke session, and the format check pass. `2e9eecf` had a clean Gitar approval.
+- This entry sits in the commit of the round, above `2e9eecf`.
+
+### What is in flight
+
+- The owner playtest of exit test 1 on Windows, with the wheel plugged in, then the review of the other provider (D-943).
+
+### Traps and gotchas
+
+- The Steam Deck must show its pad as known, or the rule ignores its controls. SDL has mappings for the virtual pad of Steam Input and for the controls of the Deck, but no record confirms it. The SSH link to the Deck timed out in this session. On the next Deck session, read the line `a pad connected` in the log, and check `"known":"yes"`.
+- A real pad with no SDL mapping now does nothing. A later setting or a mapping file can cover it (D-1365).
+
+### The questions that block progress
+
+- None. The owner playtest of exit test 1 blocks the review verdict.
+
+### The next concrete action
+
+Run the Gitar poll of this push, and answer each item. Then wait for the owner playtest from Ostby to the join of Dagvar.
+
 ## Session 406: 2026-09-29, Claude Code
 
 Author: Claude Code
@@ -312,39 +346,3 @@ None.
 ### The next concrete action
 
 Verify the pushed metadata commit, the remote PR head, and the post-push `review-gate` result.
-
-## Session 397: 2026-09-28, Claude Code
-
-Author: Claude Code
-Session: author PR-52, round 1. Repository: the-thing-below. Branch: `feat/pr-52-map-preview`. PR: the one PR of PR-52, before GitHub gives a number. Role: author. Base: `2fc559a`.
-
-### What this session did, and why
-
-- Asked the four open points of PR-52. The owner took each recommended option, and D-1317 to D-1320 record them.
-- Added the `preview` command and `make preview`. The command renders each map, or one map with `--map`, from the committed atlas (D-165, D-1319).
-- The preview draws the tiles, the traps, and each sprite of the start of a map in the sort order of the map screen. It draws no light, no party, and no hidden part (D-1317, D-1318).
-- Moved the map drawing uses and the drawn-kind list from `MapScreen` into `MapDrawings` of Core. Game, Tests, and Tools read one copy, and no rule reads them, so the simulation version stays (G-17).
-- Added the preview rule to the `pr-review` skill (D-1320), and updated both roadmaps, the design phase list, and the `csharp-conventions` skill.
-
-### The state of the build
-
-- `make verify` passed on the branch. The remote head is `2fc559a` until the first push of this PR.
-- The mutation check: a preview with no flip and a preview with the sort reversed each fail one test of `MapPreviewTests`.
-
-### What is in flight
-
-- The first push, the Gitar pass, then `make codex-review`.
-
-### Traps and gotchas
-
-- A new line in `CLAUDE.md` passes its 16 KB limit (SIZE 1), so the agent files do not name `make preview`.
-- The overworld preview is 5120 by 4096 pixels and 643 KB, under the limit of 10 MB of GitHub (D-514).
-- The preview draws a trap in its closed look, also a trap that the party sees only with the Theft drill (D-1317).
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Push, attach the four previews to the PR description, and run the Gitar poll of the `gitar-review` skill.

@@ -1,3 +1,39 @@
+## Session 397: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-52, round 1. Repository: the-thing-below. Branch: `feat/pr-52-map-preview`. PR: the one PR of PR-52, before GitHub gives a number. Role: author. Base: `2fc559a`.
+
+### What this session did, and why
+
+- Asked the four open points of PR-52. The owner took each recommended option, and D-1317 to D-1320 record them.
+- Added the `preview` command and `make preview`. The command renders each map, or one map with `--map`, from the committed atlas (D-165, D-1319).
+- The preview draws the tiles, the traps, and each sprite of the start of a map in the sort order of the map screen. It draws no light, no party, and no hidden part (D-1317, D-1318).
+- Moved the map drawing uses and the drawn-kind list from `MapScreen` into `MapDrawings` of Core. Game, Tests, and Tools read one copy, and no rule reads them, so the simulation version stays (G-17).
+- Added the preview rule to the `pr-review` skill (D-1320), and updated both roadmaps, the design phase list, and the `csharp-conventions` skill.
+
+### The state of the build
+
+- `make verify` passed on the branch. The remote head is `2fc559a` until the first push of this PR.
+- The mutation check: a preview with no flip and a preview with the sort reversed each fail one test of `MapPreviewTests`.
+
+### What is in flight
+
+- The first push, the Gitar pass, then `make codex-review`.
+
+### Traps and gotchas
+
+- A new line in `CLAUDE.md` passes its 16 KB limit (SIZE 1), so the agent files do not name `make preview`.
+- The overworld preview is 5120 by 4096 pixels and 643 KB, under the limit of 10 MB of GitHub (D-514).
+- The preview draws a trap in its closed look, also a trap that the party sees only with the Theft drill (D-1317).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push, attach the four previews to the PR description, and run the Gitar poll of the `gitar-review` skill.
+
 ## Session 396: 2026-09-28, Codex
 
 Author: Codex

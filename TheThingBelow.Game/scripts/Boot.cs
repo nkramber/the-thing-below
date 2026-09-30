@@ -379,35 +379,16 @@ public partial class Boot : Node
     }
 
     /// <summary>
-    /// Logs each stick axis that the gate stopped for the first time, because it pushed before it
-    /// came to rest inside the dead zone (F-156, T-2).
-    /// </summary>
-    /// <remarks>
-    /// A pad with such an axis walked the lead with no input, so the log names the axis and the
-    /// device, and the report of a pad fault shows the cause (F-156).
-    /// </remarks>
-    private void LogRefusedSticks()
-    {
-        foreach (string axis in this.gate.TakeNewRefusals())
-        {
-            this.WriteLog([new LogEntry(
-                LogLevel.Warning,
-                "a stick axis pushed before it came to rest, and the gate stopped it",
-                this.run?.Tick ?? 0,
-                LogSubsystems.Game,
-                [new LogField("axis", axis)])]);
-        }
-    }
-
-    /// <summary>
-    /// Logs each pad that connects or disconnects, and forgets the held buttons of a pad that
-    /// disconnects (D-1077).
+    /// Logs each pad that connects or disconnects, forgets the held buttons of a pad that
+    /// disconnects (D-1077), and ignores a pad that connects with no controller mapping (D-1365).
     /// </summary>
     /// <param name="device">The device number of the pad.</param>
     /// <param name="connected">True when the pad connected.</param>
     /// <remarks>
     /// A system can show one pad as two devices, such as the Steam Deck with Steam Input. The
     /// log names each device, so a report of a pad fault shows the devices of that system (T-2).
+    /// A device with no mapping, such as a racing wheel, gives raw axes: a pedal of a wheel walked
+    /// the lead south with no input on Windows. The log names each ignored device (F-156).
     /// </remarks>
     private void OnPadConnectionChanged(long device, bool connected)
     {
@@ -416,6 +397,13 @@ public partial class Boot : Node
             int pad = (int)device;
             int forgot = connected ? 0 : this.gate.ForgetPad(pad);
             string name = Input.GetJoyName(pad);
+            bool known = Input.IsJoyKnown(pad);
+            bool ignored = connected && !known;
+            if (ignored)
+            {
+                this.gate.IgnorePad(pad);
+            }
+
             this.WriteLog([new LogEntry(
                 LogLevel.Info,
                 connected ? "a pad connected" : "a pad disconnected",
@@ -424,7 +412,8 @@ public partial class Boot : Node
                 [
                     LogField.OfNumber("device", pad),
                     new LogField("name", name.Length > 0 ? name : "none"),
-                    new LogField("known", Input.IsJoyKnown(pad) ? "yes" : "no"),
+                    new LogField("known", known ? "yes" : "no"),
+                    new LogField("ignored", ignored ? "yes" : "no"),
                     LogField.OfNumber("forgot", forgot),
                 ])]);
         }
@@ -976,9 +965,7 @@ public partial class Boot : Node
             // The gate stops a second press of a held action, from any device, before any node
             // reads it (D-1077, F-107). The console takes the repeat of a held key, so the gate
             // stops no key while the console is open (D-725).
-            bool passed = this.gate.Read(signal);
-            this.LogRefusedSticks();
-            if (!passed && this.console?.Visible != true)
+            if (!this.gate.Read(signal) && this.console?.Visible != true)
             {
                 GetViewport().SetInputAsHandled();
                 return;
@@ -2286,8 +2273,7 @@ public partial class Boot : Node
         }
 
         // One hold of the menu button, a mirror of it on a second device, and a new press after
-        // the release of both. Then a push of an axis that never rested, which stops (F-156).
-        // Then one push of the stick in three motion events, after its axis rests (F-107).
+        // the release of both. Then one push of the stick in three motion events (F-107).
         var gate = new PressGate();
         bool[] passed =
         [
@@ -2297,19 +2283,32 @@ public partial class Boot : Node
             gate.Read(PadButton(JoyButton.Start, OtherPad, false)),
             gate.Read(PadButton(JoyButton.Start, OtherPad + 1, false)),
             gate.Read(PadButton(JoyButton.Start, OtherPad, true)),
-            gate.Read(PadStick(JoyAxis.LeftY, OtherPad, 1f)),
-            gate.Read(PadStick(JoyAxis.LeftY, OtherPad, 0f)),
             gate.Read(PadStick(JoyAxis.LeftY, OtherPad, 0.8f)),
             gate.Read(PadStick(JoyAxis.LeftY, OtherPad, 0.9f)),
             gate.Read(PadStick(JoyAxis.LeftY, OtherPad, 1f)),
             gate.Read(PadStick(JoyAxis.LeftY, OtherPad, 0f)),
             gate.Read(PadStick(JoyAxis.LeftY, OtherPad, 0.8f)),
         ];
-        bool[] expected = [true, false, false, true, true, true, false, true, true, false, false, true, true];
+        bool[] expected = [true, false, false, true, true, true, true, false, false, true, true];
         if (!passed.AsSpan().SequenceEqual(expected))
         {
             throw new InvalidOperationException(
                 $"The press gate passed [{string.Join(", ", passed)}], and the rule gives [{string.Join(", ", expected)}] (D-1077, T-2).");
+        }
+
+        // A pad with no controller mapping, such as a racing wheel, presses nothing until it
+        // disconnects, and the next pad on its device number presses again (D-1365, F-156).
+        const int Wheel = OtherPad + 2;
+        var wheelGate = new PressGate();
+        wheelGate.IgnorePad(Wheel);
+        bool wheelStick = wheelGate.Read(PadStick(JoyAxis.LeftY, Wheel, 1f));
+        bool wheelButton = wheelGate.Read(PadButton(JoyButton.A, Wheel, true));
+        wheelGate.ForgetPad(Wheel);
+        bool nextPad = wheelGate.Read(PadButton(JoyButton.A, Wheel, true));
+        if (wheelStick || wheelButton || wheelGate.Holds(InputActions.StepSouth) || !nextPad)
+        {
+            throw new InvalidOperationException(
+                $"An ignored pad passed a stick {wheelStick} and a button {wheelButton}, and the next pad on its number passed {nextPad} (D-1365, T-2).");
         }
 
         var pointer = new MousePointer();
@@ -2322,7 +2321,7 @@ public partial class Boot : Node
                 $"A pad press hid the pointer {hidden}, and a mouse move showed it {pointer.Shown} (D-1078, T-2).");
         }
 
-        return $"{matched} bindings that a pad of the device {OtherPad} presses, one press of each hold, no push of an axis that never rested, " +
+        return $"{matched} bindings that a pad of the device {OtherPad} presses, one press of each hold, no press of an ignored pad, " +
             "and a pointer that a pad hides and a mouse shows";
     }
 

@@ -21,7 +21,6 @@ public sealed class PressGateTests
     private const string Start = "pad 0 button 6";
     private const string MirrorStart = "pad 1 button 6";
     private const string Tab = "key 4194306";
-    private const string LeftY = "pad 0 axis 1";
 
     [Fact]
     public void TheFirstPressOfAHoldPasses()
@@ -157,77 +156,42 @@ public sealed class PressGateTests
     }
 
     [Fact]
-    public void APushOfAnAxisThatNeverRestedStops()
+    public void APadIsIgnoredOnlyAfterTheHostNamesIt()
     {
-        // A pad that was plugged in and off walked the lead south with no input, because its
-        // axis stood past the dead zone from the start (F-156).
-        Assert.False(PassStick(New(), LeftY, pushed: true));
+        // A racing wheel with no controller mapping walked the lead south with no input on
+        // Windows. The host names each such pad when it connects (D-1365, F-156).
+        object gate = New();
+        Assert.False(Ignores(gate, 0));
+
+        Assert.True(IgnorePad(gate, 0));
+
+        Assert.True(Ignores(gate, 0));
+        Assert.False(Ignores(gate, 1));
+        Assert.False(IgnorePad(gate, 0));
     }
 
     [Fact]
-    public void APushPassesAfterItsAxisRests()
+    public void APadThatDisconnectsIsIgnoredNoMore()
     {
+        // The system can give the device number to the next pad that connects (D-1365).
         object gate = New();
+        IgnorePad(gate, 0);
 
-        Assert.True(PassStick(gate, LeftY, pushed: false));
-        Assert.True(PassStick(gate, LeftY, pushed: true));
+        ForgetPad(gate, 0);
+
+        Assert.False(Ignores(gate, 0));
     }
 
     [Fact]
-    public void TheRestOfOneAxisLetsNoOtherAxisPush()
+    public void AClearKeepsEachIgnoredPad()
     {
+        // A loss of the focus changes no pad (D-1365).
         object gate = New();
-        PassStick(gate, LeftY, pushed: false);
-
-        Assert.False(PassStick(gate, "pad 0 axis 0", pushed: true));
-        Assert.False(PassStick(gate, "pad 1 axis 1", pushed: true));
-    }
-
-    [Fact]
-    public void TheLogNamesEachRefusedAxisOneTime()
-    {
-        object gate = New();
-        PassStick(gate, LeftY, pushed: true);
-        PassStick(gate, LeftY, pushed: true);
-
-        Assert.Equal([LeftY], TakeNewRefusals(gate));
-        PassStick(gate, LeftY, pushed: true);
-        Assert.Empty(TakeNewRefusals(gate));
-    }
-
-    [Fact]
-    public void AClearKeepsTheRestOfEachAxis()
-    {
-        // A loss of the focus changes no pad (F-156).
-        object gate = New();
-        PassStick(gate, LeftY, pushed: false);
+        IgnorePad(gate, 0);
 
         Method("Clear").Invoke(gate, null);
 
-        Assert.True(PassStick(gate, LeftY, pushed: true));
-    }
-
-    [Fact]
-    public void APadThatConnectsAgainRestsBeforeItsFirstPush()
-    {
-        object gate = New();
-        PassStick(gate, LeftY, pushed: true);
-        TakeNewRefusals(gate);
-        PassStick(gate, LeftY, pushed: false);
-        PassStick(gate, "pad 1 axis 1", pushed: false);
-
-        Assert.Equal(0, ForgetPad(gate, 0));
-
-        Assert.False(PassStick(gate, LeftY, pushed: true));
-        Assert.Equal([LeftY], TakeNewRefusals(gate));
-        Assert.True(PassStick(gate, "pad 1 axis 1", pushed: true));
-    }
-
-    [Fact]
-    public void AStickWithAnEmptyNameFails()
-    {
-        Assert.IsType<ArgumentException>(Assert.Throws<TargetInvocationException>(
-            () => Method("PassStick").Invoke(New(), [string.Empty, true])).InnerException);
+        Assert.True(Ignores(gate, 0));
     }
 
     [Fact]
@@ -255,11 +219,11 @@ public sealed class PressGateTests
     private static int ForgetPad(object gate, int device) =>
         (int)Method("ForgetPad").Invoke(gate, [device])!;
 
-    private static bool PassStick(object gate, string source, bool pushed) =>
-        (bool)Method("PassStick").Invoke(gate, [source, pushed])!;
+    private static bool IgnorePad(object gate, int device) =>
+        (bool)Method("IgnorePad").Invoke(gate, [device])!;
 
-    private static IReadOnlyList<string> TakeNewRefusals(object gate) =>
-        (IReadOnlyList<string>)Method("TakeNewRefusals").Invoke(gate, null)!;
+    private static bool Ignores(object gate, int device) =>
+        (bool)Method("Ignores").Invoke(gate, [device])!;
 
     private static MethodInfo Method(string name) =>
         GameAssemblyFile.Type(TypeName).GetMethod(name, BindingFlags.Public | BindingFlags.Instance)
