@@ -21,7 +21,8 @@ Session: author of PR #100 (PR-17), the round of the racing wheel during the own
 
 ### Traps and gotchas
 
-- The Steam Deck must show its pad as known, or the rule ignores its controls. SDL has mappings for the virtual pad of Steam Input and for the controls of the Deck, but no record confirms it. The SSH link to the Deck timed out in this session. On the next Deck session, read the line `a pad connected` in the log, and check `"known":"yes"`.
+- The Steam Deck shows its pad as known. A run of `58d2148` on the Deck in Desktop Mode, outside Steam, logged `"name":"Steam Deck Controller","known":"yes","ignored":"no"`. Game Mode gives the virtual pad of Steam Input, which SDL also maps, and no run checked it yet.
+- A run on the Deck over SSH needs `DISPLAY=:0`, the `XAUTHORITY` of the desktop session (read it from the environment of `plasmashell`), `DOTNET_ROOT=$HOME/.dotnet`, and `$HOME/.dotnet` on the PATH. Without the last two, Godot cannot load .NET and crashes.
 - A real pad with no SDL mapping now does nothing. A later setting or a mapping file can cover it (D-1365).
 
 ### The questions that block progress
