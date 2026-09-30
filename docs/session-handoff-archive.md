@@ -1,3 +1,34 @@
+## Session 396: 2026-09-28, Codex
+
+Author: Codex
+Session: repeat review PR #97 (PR-51). Repository: the-thing-below. Branch: `review/pr-97`, tracking `origin/feat/pr-51-png-import`. Role: reviewer. Base: `e9294ec0bb29d30d0ebcdcc47fa5e251cf63cda7`.
+
+### What this session did, and why
+
+- Re-reviewed effective head `95048efd0ddaa39afdc5850f59e9141822f98b5d` and the full correction diff. `CreateNew` prevents output aliases from replacing a drawing, and failed writes remove their partial file (T-2, D-1313).
+- Updated `docs/reviews/pr-97.md` to preserve the earlier verdicts and give `Ready for owner merge` for the effective head.
+- Verified the Gitar item and its confirmation. The CI analysis names RG 4 and RG 5; the log confirms both were stale-record faults, and the updated record answers the claim (D-964).
+
+### The state of the build
+
+- The remote effective head is `95048efd0ddaa39afdc5850f59e9141822f98b5d`. Build, focused tests (9), STE, Gitar, and each CI check pass. The post-push `review-gate` passes on this metadata commit.
+
+### What is in flight
+
+- The review and handoff are published together as one metadata commit. The remote PR head matches the local commit, and `review-gate` passes.
+
+### Traps and gotchas
+
+- Push with `git push origin HEAD:feat/pr-51-png-import`. The metadata commit leaves the effective head unchanged (D-610).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+End this review session for PR #97.
+
 ## Session 395: 2026-09-28, Claude Code
 
 Author: Claude Code

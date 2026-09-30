@@ -1,3 +1,37 @@
+## Session 406: 2026-09-29, Claude Code
+
+Author: Claude Code
+Session: author of PR #100 (PR-17), the round of the gear help line during the owner playtest. Repository: the-thing-below. Branch: `feat/pr-17-first-playable-content`. Role: author. Base: `9a567d6`.
+
+### What this session did, and why
+
+- The owner asked to move the playtest after the next two PRs, then kept it in PR-17: "Keep it right here. Wait for me to do it." Exit test 1 stays, and no decision changes.
+- The owner asked what "Left and right show the next one." means. The line is `menu.gear_help` of the gear window. Left and Right show the next character, and with Marrek alone they seem to do nothing. The owner chose the new text "Left and right change the character." in this PR (D-1364). No capture shows the line, so no baseline changes.
+- The owner asked why Escape ends the game. D-813 ends a development session on Escape when no menu and no console are open, so it is not a fault.
+- Gave the owner a PowerShell profile function outside the repository: `the-thing-below [branch]` fetches, switches to the branch (default `main`), pulls with fast-forward alone, builds, and starts the console exe of Godot. It stops on an uncommitted change.
+
+### The state of the build
+
+- `b572b62` had a clean Gitar approval. On this machine, the tests pass (4730), and the content hash matches after the string change.
+- This entry sits in the commit of the round, above `b572b62`.
+
+### What is in flight
+
+- The owner playtest of exit test 1 on Windows, then the review of the other provider (D-943).
+
+### Traps and gotchas
+
+- The owner starts the game with the profile function, and the Godot exe is `C:\Godot\Godot_v4.7.2-stable_mono_win64_console.exe`. The function switches the shared checkout of that machine to the branch that it names.
+- In a development build, Escape on the map ends the session (D-813). The owner uses Backspace or the B button to cancel.
+
+### The questions that block progress
+
+- None. The owner playtest of exit test 1 blocks the review verdict.
+
+### The next concrete action
+
+Run the Gitar poll of this push, and answer each item. Then wait for the owner playtest and the log lines of the pad (F-156).
+
 ## Session 405: 2026-09-28, Claude Code
 
 Author: Claude Code
@@ -314,34 +348,3 @@ None.
 ### The next concrete action
 
 Push, attach the four previews to the PR description, and run the Gitar poll of the `gitar-review` skill.
-
-## Session 396: 2026-09-28, Codex
-
-Author: Codex
-Session: repeat review PR #97 (PR-51). Repository: the-thing-below. Branch: `review/pr-97`, tracking `origin/feat/pr-51-png-import`. Role: reviewer. Base: `e9294ec0bb29d30d0ebcdcc47fa5e251cf63cda7`.
-
-### What this session did, and why
-
-- Re-reviewed effective head `95048efd0ddaa39afdc5850f59e9141822f98b5d` and the full correction diff. `CreateNew` prevents output aliases from replacing a drawing, and failed writes remove their partial file (T-2, D-1313).
-- Updated `docs/reviews/pr-97.md` to preserve the earlier verdicts and give `Ready for owner merge` for the effective head.
-- Verified the Gitar item and its confirmation. The CI analysis names RG 4 and RG 5; the log confirms both were stale-record faults, and the updated record answers the claim (D-964).
-
-### The state of the build
-
-- The remote effective head is `95048efd0ddaa39afdc5850f59e9141822f98b5d`. Build, focused tests (9), STE, Gitar, and each CI check pass. The post-push `review-gate` passes on this metadata commit.
-
-### What is in flight
-
-- The review and handoff are published together as one metadata commit. The remote PR head matches the local commit, and `review-gate` passes.
-
-### Traps and gotchas
-
-- Push with `git push origin HEAD:feat/pr-51-png-import`. The metadata commit leaves the effective head unchanged (D-610).
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-End this review session for PR #97.
