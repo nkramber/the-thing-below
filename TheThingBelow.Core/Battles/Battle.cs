@@ -4,6 +4,7 @@ using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Hashing;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Story;
+using TheThingBelow.Core.Streams;
 
 namespace TheThingBelow.Core.Battles;
 
@@ -256,21 +257,24 @@ public sealed class Battle
 
     /// <summary>
     /// Starts a battle from an encounter (D-765, D-766, D-770). A down character stays down
-    /// and takes no turn. Each combatant on the field starts one attack push out, and the side
-    /// that came from behind starts at tick 0 (D-770).
+    /// and takes no turn. The side that came from behind starts at tick 0, and the other side
+    /// starts one attack push out (D-770). In a fight where neither side came from behind, each
+    /// combatant starts at a random tick from 1 to its attack push (D-1375).
     /// </summary>
     /// <param name="content">The battle content of the run.</param>
     /// <param name="encounter">The encounter of the map.</param>
     /// <param name="partyState">The characters of the party.</param>
+    /// <param name="stream">The battle stream of the run, which gives the first tick of a neutral fight (D-1375, G-4).</param>
     /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
     /// <returns>The battle, before its first turn.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
     /// <exception cref="SimulationException">No character of the party stands (D-1105, T-2).</exception>
-    public static Battle Start(BattleContent content, MapEncounter encounter, PartyState partyState, RunContext context)
+    public static Battle Start(BattleContent content, MapEncounter encounter, PartyState partyState, RandomStream stream, RunContext context)
     {
         ArgumentNullException.ThrowIfNull(content);
         ArgumentNullException.ThrowIfNull(encounter);
         ArgumentNullException.ThrowIfNull(partyState);
+        ArgumentNullException.ThrowIfNull(stream);
         ArgumentNullException.ThrowIfNull(context);
 
         GroupRecord group = content.Group(encounter.Group);
@@ -324,9 +328,16 @@ public sealed class Battle
         {
             bool behind = (encounter.Behind == EncounterSide.Party && combatant.Side == BattleSide.Party)
                 || (encounter.Behind == EncounterSide.Enemy && combatant.Side == BattleSide.Enemy);
+            long push = Push(content.Rules.AttackDelay, combatant.Speed, combatant.PushRate, context);
+
+            // D-1375: by speed alone, a faster enemy opened each neutral fight, and each fight of
+            // the overworld opened on a turn of the wolves or the crows. A random tick up to the
+            // push keeps the lead of speed and varies the side that opens.
             combatant.ReadyAt = behind
                 ? 0
-                : Push(content.Rules.AttackDelay, combatant.Speed, combatant.PushRate, context);
+                : encounter.Behind == EncounterSide.None
+                    ? stream.NextInt(1, checked((int)push), context)
+                    : push;
         }
 
         return battle;

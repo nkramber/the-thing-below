@@ -141,10 +141,13 @@ public static class WorldRules
         // starts its fight on this tick, and a step into an enemy of the same tick starts no
         // encounter. A harm that downs each character who fights holds the run from this tick
         // (D-397, D-1226, D-1231).
+        // A fight that starts on the arrival stops the next step of a held direction, which the
+        // lead started on this tick, so the fight starts with the lead on its tile (D-1374).
         if (step.Arrived && party.Map.TrapAt(step.At) is MapThing trap)
         {
             if (TrapRules.Fire(state, trap, log) || state.MapWiped)
             {
+                party.StopStartedStep(step);
                 return;
             }
         }
@@ -153,6 +156,7 @@ public static class WorldRules
         // of the same tick starts no zone fight. The overworld holds no enemy to step into (D-1247, D-1249).
         if (step.Arrived && EncounterRules.Arrive(state, step.At, log))
         {
+            party.StopStartedStep(step);
             return;
         }
 

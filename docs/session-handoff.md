@@ -1,3 +1,37 @@
+## Session 410: 2026-09-30, Claude Code
+
+Author: Claude Code
+Session: author of PR #100 (PR-17), the round of the fight start and the first turn. Repository: the-thing-below. Branch: `feat/pr-17-first-playable-content`. Role: author. Base: `9a567d6`.
+
+### What this session did, and why
+
+- The owner reported that a fight of the overworld starts while the lead walks, and that the lead walks on after the fight. `MapState.Advance` starts the next step of a held direction on the tick of the arrival, before `WorldRules` draws the fight of a zone or fires a trap. `MapState.StopStartedStep` now stops that step when a zone fight or a trap fight starts on the arrival (D-1374). `EncounterRulesTests.AFightOfAZoneStartsWithTheLeadOnItsTileAndNoNextStep` fails on the old rule.
+- The owner reported that enemies always act first in a fight of the overworld. With no side behind, speed alone set the first turn: Marrek has 98, the lean wolf 115, and the snow crow 125. The owner chose a seeded random start (D-1375). `Battle.Start` takes the battle stream, and each combatant of a neutral fight starts at a random tick from 1 to its push. A sneak and an ambush keep D-770.
+- Tests: `WithNoSideBehindEachSideOpensSomeFights` replaces the test of the old rule, and the defend test takes the first seed whose opening puts the grunt inside the defend. The identity story run covers the hero on each turn of the friend that the rules allow, because the turn order changed. The replay identity file changed (G-17).
+- The guided runs reach the join of Dagvar on 37 of 40 seeds, three over the floor.
+
+### The state of the build
+
+- `make verify` passed on this machine, the smoke session included. `e309312` had a clean Gitar approval. This entry sits in the commit of the round, above `e309312`.
+
+### What is in flight
+
+- The CI legs of this push. The smoke fight is neutral and now ends sooner, so a battle capture of the screen test can change. Take a changed baseline from the artifact of the `screen-test` job (D-733).
+- The owner playtest of exit test 1 on Windows, then the review of the other provider (D-943).
+
+### Traps and gotchas
+
+- A test that reads the first turn of a neutral fight must loop over seeds or use a sneak or an ambush. `ReadyAt` has an internal setter, so a test cannot set it (D-1375).
+- A story scene that starts on the arrival can meet the same held step. No report names it, so this round leaves it.
+
+### The questions that block progress
+
+- None for PR-17. OQ-216 and OQ-258 to OQ-260 block PR-90.
+
+### The next concrete action
+
+Run the Gitar poll of this push, and answer each item. Read the `screen-test` job, and commit any changed baseline from its artifact. Then wait for the owner playtest from Ostby to the join of Dagvar.
+
 ## Session 409: 2026-09-30, Claude Code
 
 Author: Claude Code
@@ -312,36 +346,3 @@ None.
 ### The next concrete action
 
 Push the metadata commit, fetch, check the branch status and PR head, then confirm that review-gate passes.
-
-## Session 400: 2026-09-28, Claude Code
-
-Author: Claude Code
-Session: author PR-53, round 2. Repository: the-thing-below. Branch: `feat/pr-53-tile-edges`. PR: #99. Role: author. Base: `f0db115`.
-
-### What this session did, and why
-
-- Read the Gitar pass of `7c9a40a`: approved with one finding and one CI claim.
-- The finding had merit. A piece at two places of one rule, or a piece of two rules, loaded and then failed each load of the edge file, and Godot made one tile two times with a log line alone. `EdgeRule.Read` and `EdgeContent.Load` now refuse both, with the file and both places or both rules.
-- Two tests fail on the old code and pass on the fix: `EdgeRuleTests.APieceAtTwoPlacesFailsWithTheFileAndBothPlaces` and `EdgeContentTests.APieceOfTwoRulesFailsWithBothRules`.
-- The CI claim: RG 3 alone failed, because the review record does not exist before the review.
-- Took the three `overworld` baselines from the screen-test artifact of run 36464212466 (D-733). The author read each frame: the lake shows its shore. No other capture changed.
-
-### The state of the build
-
-- Each CI job of `7c9a40a` passed on every leg but the screen-test, which failed on the three `overworld` frames alone, and the review-gate (RG 3).
-
-### What is in flight
-
-- The push of round 2, the Gitar pass, then `make codex-review PR=99`.
-
-### Traps and gotchas
-
-- The rules load in the order of their kind, so a piece of two rules fails on the rule of the later kind.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Reply on the Gitar thread with the commit, run the Gitar poll, then run `make codex-review PR=99` when every check of the head is green but the review-gate.

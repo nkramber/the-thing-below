@@ -49,7 +49,7 @@ public static class BattleTurns
             throw new SimulationException("a start of a battle, and a battle needs an encounter of the map and no battle that runs (D-531)", context);
         }
 
-        Battle battle = Battle.Start(state.BattleContent, encounter, state.Characters, context);
+        Battle battle = Battle.Start(state.BattleContent, encounter, state.Characters, state.Stream(StreamId.Battle), context);
         state.SetBattle(battle);
         state.AddEvent(new BattleEvent(BattleEventKind.Started, new BattleTarget(BattleSide.Enemy, 0), null, 0));
         log.Add(Entry(state, LogLevel.Info, "a battle started", [new LogField("group", battle.Group.Id.Value)]));
@@ -80,7 +80,7 @@ public static class BattleTurns
             throw new SimulationException("a start battle step, and a battle or an encounter already runs (D-531, D-998)", context);
         }
 
-        Battle battle = Battle.Start(state.BattleContent, new MapEncounter(scene, group, EncounterSide.None), state.Characters, context);
+        Battle battle = Battle.Start(state.BattleContent, new MapEncounter(scene, group, EncounterSide.None), state.Characters, state.Stream(StreamId.Battle), context);
         state.SetBattle(battle);
         state.AddEvent(new BattleEvent(BattleEventKind.Started, new BattleTarget(BattleSide.Enemy, 0), null, 0));
         log.Add(Entry(state, LogLevel.Info, "a battle of a story scene started", [new LogField("group", battle.Group.Id.Value), new LogField("scene", scene.Value)]));
@@ -111,7 +111,7 @@ public static class BattleTurns
             throw new SimulationException("a start of the battle of a trap, and a battle or an encounter already runs (D-531, D-1231)", context);
         }
 
-        Battle battle = Battle.Start(state.BattleContent, new MapEncounter(trap, group, EncounterSide.Enemy), state.Characters, context);
+        Battle battle = Battle.Start(state.BattleContent, new MapEncounter(trap, group, EncounterSide.Enemy), state.Characters, state.Stream(StreamId.Battle), context);
         state.SetBattle(battle);
         state.AddEvent(new BattleEvent(BattleEventKind.Started, new BattleTarget(BattleSide.Enemy, 0), null, 0));
         log.Add(Entry(state, LogLevel.Info, "a battle of a trap started", [new LogField("group", battle.Group.Id.Value), new LogField("trap", trap.Value)]));
@@ -142,7 +142,7 @@ public static class BattleTurns
             throw new SimulationException("a start of the battle of a zone, and a battle or an encounter already runs (D-531, D-1249)", context);
         }
 
-        Battle battle = Battle.Start(state.BattleContent, new MapEncounter(zone, group, EncounterSide.None), state.Characters, context);
+        Battle battle = Battle.Start(state.BattleContent, new MapEncounter(zone, group, EncounterSide.None), state.Characters, state.Stream(StreamId.Battle), context);
         state.SetBattle(battle);
         state.AddEvent(new BattleEvent(BattleEventKind.Started, new BattleTarget(BattleSide.Enemy, 0), null, 0));
         log.Add(Entry(state, LogLevel.Info, "a battle of a zone started", [new LogField("group", battle.Group.Id.Value), new LogField("zone", zone.Value)]));

@@ -152,7 +152,9 @@ public static class SimulationVersion
     /// amount of a battle holds 9,999 at most (D-1357). The wait intent of the end of a battle meets a refusal while
     /// the menu is open, as the list of accepted intents says (D-162, D-1179). A hub and a dungeon gain the thicket
     /// tile, which the party cannot walk and which stops sight (D-1362). An entrance of the overworld puts the
-    /// party on the marker of its place that it names, and no more on the spawn point (D-1367).
+    /// party on the marker of its place that it names, and no more on the spawn point (D-1367). A fight of a zone or a
+    /// trap stops the step that started on its tick (D-1374). Each combatant of a neutral fight
+    /// starts at a random tick up to its push, from the battle stream (D-1375).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number

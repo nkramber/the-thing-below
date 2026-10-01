@@ -243,7 +243,7 @@ public static partial class IdentitySet
             ContentId cover = ContentId.Parse("lesson.identity_cover", "identity-set-story", "lesson");
             var hero = new BattleTarget(BattleSide.Party, 0);
             BattleChoice covers = new(BattleAction.Lesson, hero, null, cover, 0);
-            if (turns % 3 == 0 && battle.Next() is { Side: BattleSide.Party, Slot: 1 } && BattleTurns.RefusalOf(state, covers) is null)
+            if (battle.Next() is { Side: BattleSide.Party, Slot: 1 } && BattleTurns.RefusalOf(state, covers) is null)
             {
                 return [Intent.OfBattleLesson(cover, 0, hero)];
             }

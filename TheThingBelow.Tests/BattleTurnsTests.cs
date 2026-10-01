@@ -7,6 +7,7 @@ using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
 using Xunit;
+using TheThingBelow.Core.Streams;
 
 namespace TheThingBelow.Tests;
 
@@ -18,6 +19,9 @@ namespace TheThingBelow.Tests;
 public sealed class BattleTurnsTests
 {
     private const ulong Seed = 20260921;
+
+    /// <summary>The count of seeds of each seed loop of the opening of a neutral fight (D-1375).</summary>
+    private const int Seeds = 50;
 
     private static readonly ContentId Draught = ContentId.Parse("item.fixture_draught", "BattleTurnsTests", "item");
 
@@ -62,17 +66,34 @@ public sealed class BattleTurnsTests
     }
 
     [Fact]
-    public void WithNoSideBehindSpeedAloneSetsTheFirstTurn()
+    public void WithNoSideBehindEachSideOpensSomeFights()
     {
-        // D-770: each combatant starts one attack push out, so the faster one acts first.
-        Simulation run = Encountered("group.one", EncounterSide.None, TestBattles.Exact);
+        // D-1375: in a neutral fight each combatant starts at a random tick from 1 to its attack
+        // push, so the faster one acts first in most fights, and not in each. Before, speed
+        // alone set the first turn, and each fight of the overworld opened on an enemy turn.
+        int partyFirst = 0;
+        int enemyFirst = 0;
+        for (ulong seed = 1; seed <= Seeds; seed += 1)
+        {
+            Simulation run = Encountered("group.one", EncounterSide.None, TestBattles.Exact, seed);
+            run.Step([]);
 
-        run.Step([]);
+            Battle battle = BattleRuns.BattleOf(run);
+            Combatant marrek = battle.Party[0];
+            Assert.True(marrek.ReadyAt >= 1 && marrek.ReadyAt <= 100, $"Seed {seed}: Marrek starts at tick {marrek.ReadyAt}, outside 1 to his push of 100.");
+            if (marrek.Health == 60)
+            {
+                partyFirst += 1;
+            }
+            else
+            {
+                // The grunt opened, and its basic attack hit Marrek for 7 (D-755).
+                Assert.True(marrek.Health == 60 - 7, $"Seed {seed}: the grunt opened, and Marrek holds {marrek.Health} health.");
+                enemyFirst += 1;
+            }
+        }
 
-        Battle battle = BattleRuns.BattleOf(run);
-        Assert.Equal(100, battle.Party[0].ReadyAt);
-        Assert.Equal(111, battle.Enemies[0].ReadyAt);
-        Assert.Equal(60, battle.Party[0].Health);
+        Assert.True(partyFirst > 0 && enemyFirst > 0, $"Over {Seeds} seeds the party opened {partyFirst} fights and the grunt {enemyFirst}.");
     }
 
     [Fact]
@@ -152,16 +173,28 @@ public sealed class BattleTurnsTests
     [Fact]
     public void ADefendCutsAHitThatLandsBeforeTheNextTurn()
     {
-        // D-755: with no side behind, the grunt acts after Marrek, and the defend of Marrek
-        // halves that blow.
-        Simulation run = Encountered("group.one", EncounterSide.None, TestBattles.Exact);
-        run.Step([]);
+        // D-755: the grunt acts after Marrek and before his next turn, and the defend of Marrek
+        // halves that blow. The opening of a neutral fight is random (D-1375), so the test takes
+        // the first seed whose opening puts the grunt inside the push of 60 of the defend.
+        for (ulong seed = 1; seed <= Seeds; seed += 1)
+        {
+            Simulation run = Encountered("group.one", EncounterSide.None, TestBattles.Exact, seed);
+            run.Step([]);
+            Battle battle = BattleRuns.BattleOf(run);
+            long marrek = battle.Party[0].ReadyAt;
+            long grunt = battle.Enemies[0].ReadyAt;
+            if (battle.Party[0].Health != 60 || grunt <= marrek || grunt >= marrek + 60)
+            {
+                continue;
+            }
 
-        // Marrek is at 100 and the grunt at 111. A defend pushes Marrek to 160, so the grunt
-        // strikes at 111 into the defend.
-        run.Step([Intent.OfPlayer(IntentIds.BattleDefend)]);
+            run.Step([Intent.OfPlayer(IntentIds.BattleDefend)]);
 
-        Assert.Equal(60 - 3, BattleRuns.BattleOf(run).Party[0].Health);
+            Assert.True(BattleRuns.BattleOf(run).Party[0].Health == 60 - 3, $"Seed {seed}: the grunt struck into the defend, and Marrek holds {BattleRuns.BattleOf(run).Party[0].Health} health.");
+            return;
+        }
+
+        Assert.Fail($"No seed of 1 to {Seeds} opened with the grunt inside the push of a defend of Marrek.");
     }
 
     [Fact]
@@ -489,13 +522,13 @@ public sealed class BattleTurnsTests
     /// would leave it (D-745, D-746). The snapshot of a new run takes the encounter, and the run
     /// resumes from it, so the world step of the next tick starts the battle (D-765).
     /// </summary>
-    private static Simulation Encountered(string group, EncounterSide behind, BattleContent content)
+    private static Simulation Encountered(string group, EncounterSide behind, BattleContent content, ulong seed = Seed)
     {
         GameMap map = BattleRuns.Map(group);
-        RunSnapshot start = Simulation.Start(Seed, map, content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None).Snapshot();
+        RunSnapshot start = Simulation.Start(seed, map, content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None).Snapshot();
         MapEncounter encounter = new(map.Patrols[0].Id, map.Patrols[0].Group, behind);
         RunSnapshot held = start with { Map = start.Map! with { Encounter = encounter } };
-        return Simulation.Resume(Seed, held, map, content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
+        return Simulation.Resume(seed, held, map, content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
     }
 
     [Fact]
@@ -550,7 +583,7 @@ public sealed class BattleTurnsTests
         Assert.Contains("D-397", wiped.Message, StringComparison.Ordinal);
 
         MapEncounter encounter = new(map.Patrols[0].Id, map.Patrols[0].Group, EncounterSide.None);
-        SimulationException error = Assert.Throws<SimulationException>(() => Battle.Start(TestBattles.Exact, encounter, run.State.Characters, run.State.Context("test")));
+        SimulationException error = Assert.Throws<SimulationException>(() => Battle.Start(TestBattles.Exact, encounter, run.State.Characters, run.State.Stream(StreamId.Battle), run.State.Context("test")));
 
         Assert.Contains("group.one", error.Message, StringComparison.Ordinal);
         Assert.Contains("no character of the party stands", error.Message, StringComparison.Ordinal);

@@ -78,6 +78,28 @@ public sealed class EncounterRulesTests
     }
 
     [Fact]
+    public void AFightOfAZoneStartsWithTheLeadOnItsTileAndNoNextStep()
+    {
+        // The playtest: the player held a direction, the fight started on the arrival, and after
+        // the fight the lead walked on to the next tile. The fight now stops the step that
+        // started on its tick (D-1374). At rate 10000 the first live arrival is a certain fight.
+        GameMap map = EncounterMaps.Of(BasisPoints.One);
+        Simulation run = EncounterMaps.Start(Seed, map);
+        TilePoint from = run.State.Party.LeadAt;
+
+        for (int tick = 0; run.State.Battle is null; tick += 1)
+        {
+            Assert.True(tick < 64, "No fight started in 64 ticks of a held step at rate 10000.");
+            run.Step([HubWalks.Move(StepDirection.East)]);
+        }
+
+        Assert.Equal(from.Step(StepDirection.East), run.State.Party.LeadAt);
+        Assert.Null(run.State.Party.Stepping);
+        Assert.Equal(0, run.State.Party.StepTicks);
+        Assert.Equal(StepDirection.East, run.State.Party.Facing);
+    }
+
+    [Fact]
     public void AFightSetsTheDangerCountToZero()
     {
         // Exit test 4 of PR-109, and D-1249.

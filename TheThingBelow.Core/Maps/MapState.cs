@@ -466,6 +466,36 @@ public sealed class MapState
         return wanted;
     }
 
+    /// <summary>
+    /// Stops the step that <see cref="Advance"/> started on this tick, because a fight started on
+    /// the arrival of the same tick (D-1374). The lead stays on the tile that it reached, and it
+    /// keeps the facing of the held direction.
+    /// </summary>
+    /// <param name="step">The result of <see cref="Advance"/> on this tick.</param>
+    /// <exception cref="InvalidOperationException">
+    /// The step started, and the lead does not stand at its first tick (T-2).
+    /// </exception>
+    /// <remarks>
+    /// Advance starts the next step of a held direction on the tick of the arrival, before the
+    /// rules of the run draw a fight of a zone or fire a trap. The fight then held a step that
+    /// had started, and the lead walked on to the next tile after the fight.
+    /// </remarks>
+    public void StopStartedStep(PartyStep step)
+    {
+        if (step.Started is not StepDirection started)
+        {
+            return;
+        }
+
+        if (this.Stepping != started || this.StepTicks != 0)
+        {
+            throw new InvalidOperationException(
+                $"the step {started} started on this tick, and the lead steps {this.Stepping?.ToString() ?? "nowhere"} at tick {this.StepTicks} of it (D-1374, T-2)");
+        }
+
+        this.Stepping = null;
+    }
+
     /// <summary>Runs the party for one world tick: the step that runs, and then the next one.</summary>
     /// <param name="flags">The story flags of the run, which open each gate (D-1243).</param>
     /// <returns>What the tick did to the party (D-203, D-747).</returns>
