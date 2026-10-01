@@ -4,7 +4,8 @@
  "width": 32,
  "height": 32,
  "draws": [
-  { "content": "gate.fixture_overworld_pass", "use": "map_open" }
+  { "content": "gate.fixture_overworld_pass", "use": "map_open" },
+  { "content": "gate.town_cells_door", "use": "map_open" }
  ],
  "frames": [
   {

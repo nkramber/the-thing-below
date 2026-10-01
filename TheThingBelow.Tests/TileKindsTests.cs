@@ -23,6 +23,7 @@ public sealed class TileKindsTests
     [InlineData(':', TileKind.Gorge)]
     [InlineData('A', TileKind.SnowPeak)]
     [InlineData('H', TileKind.Bridge)]
+    [InlineData('T', TileKind.Thicket)]
     public void ACharacterOfATerrainRowNamesItsKind(char character, TileKind kind)
     {
         Assert.True(TileKinds.TryOf(character, out TileKind found));
@@ -62,6 +63,7 @@ public sealed class TileKindsTests
     [InlineData(TileKind.Gorge, false, false)]
     [InlineData(TileKind.SnowPeak, false, true)]
     [InlineData(TileKind.Bridge, true, false)]
+    [InlineData(TileKind.Thicket, false, true)]
     public void EachKindGivesItsStepRuleAndItsSightRule(TileKind kind, bool walk, bool stopsSight)
     {
         Assert.Equal(walk, TileKinds.CanWalk(kind));
@@ -71,11 +73,11 @@ public sealed class TileKindsTests
     [Fact]
     public void AValueThatNamesNoKindIsAnError()
     {
-        Assert.Throws<ArgumentOutOfRangeException>(() => TileKinds.CanWalk((TileKind)15));
-        Assert.Throws<ArgumentOutOfRangeException>(() => TileKinds.StopsSight((TileKind)15));
-        Assert.Throws<ArgumentOutOfRangeException>(() => TileKinds.NameOf((TileKind)15));
-        Assert.Throws<ArgumentOutOfRangeException>(() => TileKinds.CharacterOf((TileKind)15));
-        Assert.Throws<ArgumentOutOfRangeException>(() => TileIds.Of((TileKind)15));
+        Assert.Throws<ArgumentOutOfRangeException>(() => TileKinds.CanWalk((TileKind)16));
+        Assert.Throws<ArgumentOutOfRangeException>(() => TileKinds.StopsSight((TileKind)16));
+        Assert.Throws<ArgumentOutOfRangeException>(() => TileKinds.NameOf((TileKind)16));
+        Assert.Throws<ArgumentOutOfRangeException>(() => TileKinds.CharacterOf((TileKind)16));
+        Assert.Throws<ArgumentOutOfRangeException>(() => TileIds.Of((TileKind)16));
     }
 
     [Theory]
@@ -94,6 +96,7 @@ public sealed class TileKindsTests
     [InlineData(TileKind.Gorge, "tile.gorge")]
     [InlineData(TileKind.SnowPeak, "tile.snow_peak")]
     [InlineData(TileKind.Bridge, "tile.bridge")]
+    [InlineData(TileKind.Thicket, "tile.thicket")]
     public void EachKindNamesTheContentIdOfItsDrawing(TileKind kind, string id)
     {
         // D-519: an art file names the content ids that it draws, and a rule file names no

@@ -27,19 +27,9 @@ public static class PatrolLayout
     {
         ArgumentNullException.ThrowIfNull(map);
 
-        // The floor reads the range with the torch put away. The torch adds the same tiles to
-        // the party and to each patrol, so the rule then holds at each tick (D-720, D-1063).
-        int party = MapRules.PartySightRange(map, torchHeld: false);
-        string light = map.Dark ? "a dark map with the torch put away" : $"a map set to {TimesOfDay.NameOf(map.Time)}";
         foreach (Patrol patrol in map.Patrols)
         {
-            // The player never loses to a thing that it could not see, so no map gives a
-            // patrol a longer sight range than the party has on that map (D-720).
-            if (patrol.SightRange > party)
-            {
-                throw reader.Refuse(
-                    $"the enemy '{patrol.Id.Value}' sees {patrol.SightRange} tiles, and the party sees {party} on {light} (D-720, D-1063)");
-            }
+            CheckSightFloor(ref reader, map, patrol);
 
             foreach (PatrolStation station in patrol.Stations)
             {
@@ -55,7 +45,32 @@ public static class PatrolLayout
         }
 
         RefuseRepeatedId(ref reader, map);
-        RefuseCrowdedStart(ref reader, map);
+        foreach (TimeOfDay time in map.Times)
+        {
+            RefuseCrowdedStart(ref reader, map, time);
+        }
+    }
+
+    /// <summary>
+    /// Refuses a patrol that sees farther than the party at a time that the map can take (D-720).
+    /// The player never loses to a thing that it could not see, so no map gives a patrol a longer
+    /// sight range than the party has on that map, at each time that a change of the story sets
+    /// (D-1349).
+    /// </summary>
+    private static void CheckSightFloor(ref ContentReader reader, GameMap map, Patrol patrol)
+    {
+        foreach (TimeOfDay time in map.Times)
+        {
+            // The floor reads the range with the torch put away. The torch adds the same tiles to
+            // the party and to each patrol, so the rule then holds at each tick (D-720, D-1063).
+            int party = MapRules.PartySightRange(map, time, torchHeld: false);
+            if (patrol.SightRange > party)
+            {
+                string light = map.Dark ? "a dark map with the torch put away" : $"a map set to {TimesOfDay.NameOf(time)}";
+                throw reader.Refuse(
+                    $"the enemy '{patrol.Id.Value}' sees {patrol.SightRange} tiles, and the party sees {party} on {light} (D-720, D-1063)");
+            }
+        }
     }
 
     /// <summary>
@@ -162,17 +177,17 @@ public static class PatrolLayout
     }
 
     /// <summary>
-    /// Refuses a start tile that the party or another enemy already holds (T-2). The time of
-    /// day of the map picks the station of each enemy, so this check reads that time alone
-    /// (D-743).
+    /// Refuses a start tile that the party or another enemy already holds at one time (T-2). The
+    /// time of day of the map picks the station of each enemy, so the load runs this check at each
+    /// time that the map can take (D-743, D-1349).
     /// </summary>
-    private static void RefuseCrowdedStart(ref ContentReader reader, GameMap map)
+    private static void RefuseCrowdedStart(ref ContentReader reader, GameMap map, TimeOfDay time)
     {
         List<EnemyBody> bodies = [];
         List<ContentId> owners = [];
         foreach (Patrol patrol in map.Patrols)
         {
-            PatrolStation? station = patrol.StationOf(map.Time);
+            PatrolStation? station = patrol.StationOf(time);
             if (station is null)
             {
                 continue;
@@ -182,7 +197,7 @@ public static class PatrolLayout
             if (body.Holds(map.Spawn))
             {
                 throw reader.Refuse(
-                    $"the enemy '{patrol.Id.Value}' starts on the body {body}, which holds the spawn point {map.Spawn} (D-528)");
+                    $"the enemy '{patrol.Id.Value}' starts on the body {body}, which holds the spawn point {map.Spawn} at the time {TimesOfDay.NameOf(time)} (D-528, D-1349)");
             }
 
             for (int index = 0; index < bodies.Count; index += 1)
@@ -190,7 +205,7 @@ public static class PatrolLayout
                 if (MapRules.BodiesOverlap(bodies[index], body))
                 {
                     throw reader.Refuse(
-                        $"the enemy '{patrol.Id.Value}' starts on the body {body}, and the enemy '{owners[index].Value}' holds the body {bodies[index]} there (D-206)");
+                        $"the enemy '{patrol.Id.Value}' starts on the body {body}, and the enemy '{owners[index].Value}' holds the body {bodies[index]} there at the time {TimesOfDay.NameOf(time)} (D-206, D-1349)");
                 }
             }
 

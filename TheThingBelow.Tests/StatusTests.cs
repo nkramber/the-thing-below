@@ -6,6 +6,7 @@ using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
 using Xunit;
+using TheThingBelow.Core.Streams;
 
 namespace TheThingBelow.Tests;
 
@@ -311,7 +312,7 @@ public sealed class StatusTests
     {
         Patrol guard = BattleRuns.Map("group.one").Patrols[0];
         MapEncounter encounter = new(guard.Id, guard.Group, EncounterSide.None);
-        return Battle.Start(TestBattles.Exact, encounter, run.State.Characters, run.State.Context("test"));
+        return Battle.Start(TestBattles.Exact, encounter, run.State.Characters, run.State.Stream(StreamId.Battle), run.State.Context("test"));
     }
 
     /// <summary>Attacks two times, so the grunt holds 8 of its 30, and the next hit ends the fight.</summary>

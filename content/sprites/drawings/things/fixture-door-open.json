@@ -6,7 +6,16 @@
  "draws": [
   { "content": "door.fixture_dungeon_hall", "use": "map_open" },
   { "content": "door.fixture_dungeon_store", "use": "map_open" },
-  { "content": "door.fixture_dungeon_vault", "use": "map_open" }
+  { "content": "door.fixture_dungeon_vault", "use": "map_open" },
+  { "content": "door.village_marrek", "use": "map_open" },
+  { "content": "door.village_brenna", "use": "map_open" },
+  { "content": "door.village_orrin", "use": "map_open" },
+  { "content": "door.village_aldo", "use": "map_open" },
+  { "content": "door.cells_upper_store", "use": "map_open" },
+  { "content": "door.cells_upper_stair", "use": "map_open" },
+  { "content": "door.cells_lower_rack", "use": "map_open" },
+  { "content": "door.cells_lower_low", "use": "map_open" },
+  { "content": "door.cells_lower_yard", "use": "map_open" }
  ],
  "frames": [
   {

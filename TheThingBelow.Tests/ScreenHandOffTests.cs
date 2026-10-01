@@ -302,7 +302,7 @@ public sealed class ScreenHandOffTests
         public static GameRunProbe Start()
         {
             MethodInfo start = GameAssemblyFile.Type(RunTypeName).GetMethod(
-                "Start",
+                "StartFixture",
                 [typeof(ContentSet), typeof(ulong), typeof(DebugIntentHandlers), typeof(MessageSpeed)])
                 ?? throw new InvalidOperationException("The run holds no 'Start' method (T-2).");
             return new(start.Invoke(null, [Content.Value, Seed, DebugIntentHandlers.None, MessageSpeed.Normal])

@@ -4,7 +4,8 @@
  "width": 64,
  "height": 64,
  "draws": [
-  { "content": "enemy.fixture_brute", "use": "battle" }
+  { "content": "enemy.fixture_brute", "use": "battle" },
+  { "content": "enemy.starved_boar", "use": "battle" }
  ],
  "frames": [
   {

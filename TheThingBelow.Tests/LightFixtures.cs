@@ -145,8 +145,9 @@ public static class LightFixtures
 
     /// <summary>Reads the test map, with the terrain that the test gives.</summary>
     /// <param name="terrain">The terrain rows, with a floor at (1, 1) for the spawn point.</param>
+    /// <param name="timeChanges">The text of the `time_changes` array of the map (D-1349).</param>
     /// <returns>Every map of the test, by its id.</returns>
-    public static SortedDictionary<string, GameMap> Maps(string[]? terrain = null)
+    public static SortedDictionary<string, GameMap> Maps(string[]? terrain = null, string timeChanges = "[]")
     {
         string rows = string.Join(", ", System.Array.ConvertAll(terrain ?? Room, row => $"\"{row}\""));
         string body =
@@ -158,7 +159,7 @@ public static class LightFixtures
              "label": "label.lit",
              "time": "night",
              "dark": false,
-             "kind": "dungeon", "npcs": [], "services": [], "zones": [], "zone_grid": [], "reopen": [],
+             "kind": "dungeon", "npcs": [], "services": [], "zones": [], "zone_grid": [], "time_changes": {{timeChanges}}, "reopen": [],
              "terrain": [ {{rows}} ],
              "things": [ { "id": "spawn_point.lit_start", "kind": "spawn_point", "x": 1, "y": 1 } ],
              "enemies": [], "triggers": []
@@ -210,9 +211,10 @@ public static class LightFixtures
     /// <summary>Loads the light files of the test place against the test map, palette, and atlas.</summary>
     /// <param name="files">The light files.</param>
     /// <param name="terrain">The terrain of the map, or the room when no value is given.</param>
+    /// <param name="timeChanges">The text of the `time_changes` array of the map (D-1349).</param>
     /// <returns>The light content.</returns>
-    public static LightContent Load(List<ContentFile> files, string[]? terrain = null) =>
-        LightContent.Load(files, Maps(terrain), Palette(), Atlas());
+    public static LightContent Load(List<ContentFile> files, string[]? terrain = null, string timeChanges = "[]") =>
+        LightContent.Load(files, Maps(terrain, timeChanges), Palette(), Atlas());
 
     /// <summary>Makes a content file from its path and its text.</summary>
     /// <param name="path">The path under `content/`.</param>

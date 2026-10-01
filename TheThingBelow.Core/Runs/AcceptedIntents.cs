@@ -69,7 +69,7 @@ public static class AcceptedIntents
         return accepted;
     }
 
-    /// <summary>Adds the step end, each pick, and the pause of a story scene out of battle (D-1007, D-1009, D-1010).</summary>
+    /// <summary>Adds the step end, each pick, and the pause of a story scene out of battle (D-1007, D-1009, D-1010, D-1335).</summary>
     private static void AddStory(RunState state, List<Intent> accepted)
     {
         StoryState story = state.Story;
@@ -84,6 +84,13 @@ public static class AcceptedIntents
             {
                 accepted.Add(Intent.OfPick(option));
             }
+        }
+
+        // Both answers to an offer hold with any gold: a yes with too little gold gives the refusal line (D-1335).
+        if (story.Phase == ScenePhase.Pick && story.Scene is StoryScene offer && offer.Steps[story.Step] is PayStep)
+        {
+            accepted.Add(Intent.OfPick(PayStep.PayOption));
+            accepted.Add(Intent.OfPick(PayStep.DeclineOption));
         }
 
         accepted.Add(Intent.OfPlayer(IntentIds.StoryPause));

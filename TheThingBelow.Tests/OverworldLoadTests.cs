@@ -68,11 +68,10 @@ public sealed class OverworldLoadTests
 
     [Theory]
     [InlineData("""{ "id": "entrance.test_room_in", "kind": "entrance", "x": 3, "y": 1, "to": "map.test_place" }""", "entrance.test_room_in")]
-    [InlineData("""{ "id": "gate.test_room_pass", "kind": "gate", "x": 3, "y": 1, "condition": { "always": true }, "notice": "notice.fixture_gate_shut" }""", "gate.test_room_pass")]
     [InlineData("""{ "id": "mark.test_room_town", "kind": "mark", "x": 3, "y": 1 }""", "mark.test_room_town")]
-    public void APlaceWithAnEntranceAGateOrAMarkIsAnError(string thing, string id)
+    public void APlaceWithAnEntranceOrAMarkIsAnError(string thing, string id)
     {
-        // D-1243, D-1271: an overworld alone holds entrances, gates, and marks.
+        // D-1243, D-1271, D-1347: an overworld alone holds entrances and marks.
         string text = PlaceText().Replace(
             "\"kind\": \"spawn_point\", \"x\": 1, \"y\": 1 }",
             $"\"kind\": \"spawn_point\", \"x\": 1, \"y\": 1 }},\n  {thing}",
@@ -81,7 +80,7 @@ public sealed class OverworldLoadTests
         ContentException error = Assert.Throws<ContentException>(() => GameMap.Read(Encoding.UTF8.GetBytes(text), "test-place.json"));
 
         Assert.Contains(id, error.Message, StringComparison.Ordinal);
-        Assert.Contains("An overworld alone holds entrances, gates, and marks", error.Message, StringComparison.Ordinal);
+        Assert.Contains("An overworld alone holds entrances and marks", error.Message, StringComparison.Ordinal);
     }
 
     [Theory]
@@ -119,7 +118,7 @@ public sealed class OverworldLoadTests
 
         ContentException error = Assert.Throws<ContentException>(() => OverworldMaps.Read(text));
 
-        Assert.Contains("the field 'arrive', which an exit alone holds", error.Message, StringComparison.Ordinal);
+        Assert.Contains("the field 'arrive', which an exit or an entrance alone holds", error.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -142,7 +141,7 @@ public sealed class OverworldLoadTests
 
     [Theory]
     [InlineData(", \"to\": \"map.test_place\"", "which an exit or an entrance alone holds")]
-    [InlineData(", \"arrive\": \"marker.test_overworld_place\"", "which an exit alone holds")]
+    [InlineData(", \"arrive\": \"marker.test_overworld_place\"", "which an exit or an entrance alone holds")]
     [InlineData(", \"condition\": { \"always\": true }", "which a gate alone holds")]
     public void AMarkWithTheFieldOfAnotherKindIsAnError(string field, string reason)
     {
@@ -207,8 +206,8 @@ public sealed class OverworldLoadTests
         GameMap overworld = set.Map(OverworldMaps.Id("map.fixture_overworld"));
 
         Assert.Equal(MapKind.Overworld, overworld.Kind);
-        Assert.Equal(TimeOfDay.Day, overworld.Time);
-        Assert.Equal(overworld.Time, set.Light.SetupOf(overworld.Id, overworld.Time).Time);
+        Assert.Equal(TimeOfDay.Day, overworld.BaseTime);
+        Assert.Equal(overworld.BaseTime, set.Light.SetupOf(overworld.Id, overworld.BaseTime).Time);
         Assert.Equal(
             ["map.fixture_dungeon", "map.fixture_hub"],
             EntranceTargets(overworld));
@@ -356,7 +355,7 @@ public sealed class OverworldLoadTests
          "things": [
           { "id": "spawn_point.test_place_start", "kind": "spawn_point", "x": 1, "y": 1 }
          ],
-         "enemies": [], "npcs": [], "services": [], "zones": [], "zone_grid": [], "reopen": [], "triggers": []
+         "enemies": [], "npcs": [], "services": [], "zones": [], "zone_grid": [], "time_changes": [], "reopen": [], "triggers": []
         }
         """;
 }

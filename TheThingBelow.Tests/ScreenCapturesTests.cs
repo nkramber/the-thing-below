@@ -488,7 +488,7 @@ public sealed class ScreenCapturesTests
         // D-882: the sparks frame needs a real fight with the brute, so the walk must meet the
         // elite patrol of the deep room at the fixture seed.
         object run = GameAssemblyFile.Type("TheThingBelow.Game.GameRun")
-            .GetMethod("Start", [typeof(ContentSet), typeof(ulong), typeof(DebugIntentHandlers), typeof(MessageSpeed)])!
+            .GetMethod("StartFixture", [typeof(ContentSet), typeof(ulong), typeof(DebugIntentHandlers), typeof(MessageSpeed)])!
             .Invoke(null, [ContentSet.Load(ContentFolder.Read(RepositoryRoot.Find())), 20260918UL, DebugIntentHandlers.None, MessageSpeed.Normal])!;
 
         GameAssemblyFile.Type("TheThingBelow.Game.BattleWalk").GetMethod("ToFirstCommandOfElite")!.Invoke(null, [run]);

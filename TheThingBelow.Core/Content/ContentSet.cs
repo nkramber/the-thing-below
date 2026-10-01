@@ -413,6 +413,7 @@ public sealed class ContentSet
             story.RequireScenesOf(map);
             story.RequireServicesOf(map);
             story.RequireGatesAndZonesOf(map);
+            story.RequireTimeChangesOf(map);
             story.RequireReopenFlagsOf(map);
             RequireGateNoticesOf(map, notices ?? throw AbsentFile(NoticeList.Path));
         }
@@ -696,20 +697,28 @@ public sealed class ContentSet
                     or OverworldRole.VillageRoad or OverworldRole.RoadUp => MapThingKind.Gate,
                 _ => MapThingKind.Mark,
             };
-            if (map.ThingOf(placement.Id, kind) is null)
+
+            // The PR of a place makes its mark an entrance on the same tile, and the role stays
+            // (D-1243, D-1271). Thus a role of a mark also takes an entrance.
+            bool placed = map.ThingOf(placement.Id, kind) is not null
+                || (kind == MapThingKind.Mark && map.ThingOf(placement.Id, MapThingKind.Entrance) is not null);
+            if (!placed)
             {
+                string wanted = kind == MapThingKind.Mark
+                    ? $"{MapThingKinds.NameOf(MapThingKind.Mark)} or {MapThingKinds.NameOf(MapThingKind.Entrance)}"
+                    : MapThingKinds.NameOf(kind);
                 throw ContentException.ForField(
                     OverworldPlan.Path,
                     "things",
-                    $"the role '{OverworldPlan.NameOf(placement.Role)}' names the thing '{placement.Id.Value}', and '{map.File}' holds no {MapThingKinds.NameOf(kind)} of that id (D-1295)");
+                    $"the role '{OverworldPlan.NameOf(placement.Role)}' names the thing '{placement.Id.Value}', and '{map.File}' holds no {wanted} of that id (D-1243, D-1295)");
             }
         }
     }
 
     /// <summary>
     /// Checks that each exit and each entrance of a map names a map of the content (D-1216,
-    /// D-1243). An exit to an overworld names a marker of that overworld, and an exit to another
-    /// kind of map names none (D-1255, T-2).
+    /// D-1243). An exit to an overworld names a marker of that overworld, an exit to another kind
+    /// of map names none, and an entrance names a marker of its place (D-1255, D-1367, T-2).
     /// </summary>
     private static void RequireExitsOf(GameMap map, SortedDictionary<string, GameMap> maps)
     {
@@ -733,10 +742,36 @@ public sealed class ContentSet
         }
     }
 
-    /// <summary>Checks the marker of the overworld that one exit names (D-1255, T-2).</summary>
+    /// <summary>
+    /// Checks the marker that one exit or one entrance names: an exit to an overworld and each
+    /// entrance name a marker of the map that they enter (D-1255, D-1367, T-2).
+    /// </summary>
+    /// <remarks>
+    /// Before D-1367 an entrance entered the spawn point of its place, and the spawn point of the
+    /// village is the house where the run starts, so a return from the overworld put the party
+    /// in the house and not on the road where it left.
+    /// </remarks>
     private static void RequireArriveOf(GameMap map, MapThing thing, GameMap target)
     {
         string field = $"{thing.Id.Value}.{GameMap.ArriveField}";
+        if (thing.Kind == MapThingKind.Entrance)
+        {
+            ContentId arrival = thing.Arrive
+                ?? throw ContentException.ForField(
+                    map.File,
+                    field,
+                    $"the entrance leads to the map '{target.Id.Value}' and names no marker, and an entrance names the marker of its place where the party arrives (D-1367)");
+            if (target.ThingOf(arrival, MapThingKind.Marker) is null)
+            {
+                throw ContentException.ForField(
+                    map.File,
+                    field,
+                    $"the entrance names the marker '{arrival.Value}', and the map '{target.Id.Value}' holds no such marker (D-1367)");
+            }
+
+            return;
+        }
+
         if (target.Kind != MapKind.Overworld)
         {
             if (thing.Arrive is ContentId named)

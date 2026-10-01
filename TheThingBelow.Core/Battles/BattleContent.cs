@@ -30,9 +30,9 @@ public sealed class BattleContent
     /// Two records take one id, two files take one region, a record names an absent ability,
     /// a group names an absent enemy or profile, the waiting column of a group is taller than the
     /// field, a steal list or a drop list names an absent item, the pack or the start gear names
-    /// an absent id, passes a stack limit, or puts a piece in no slot of its kind, or an enemy of
-    /// a group has no legal action. The error names the file and the id (T-2, D-166, D-948,
-    /// D-963, D-1038).
+    /// an absent id, passes a stack limit, or puts a piece in no slot of its kind, a kit of a join
+    /// does the same or names a lesson that a shop stocks, or an enemy of a group has no legal
+    /// action. The error names the file and the id (T-2, D-166, D-948, D-963, D-1038, D-1350).
     /// </exception>
     public BattleContent(
         BattleRules rules,
@@ -80,6 +80,7 @@ public sealed class BattleContent
         this.RefuseAbsentDropItem();
         this.RefuseAbsentStock();
         this.RefuseWrongStartGear();
+        this.RefuseWrongJoinKits();
         this.RefuseWrongPack();
         this.RefuseWrongTorch();
         this.RequireEveryEntryActs();
@@ -322,12 +323,13 @@ public sealed class BattleContent
     }
 
     /// <summary>
-    /// Checks that each chest of a map names items, gear, and lessons of this content, and that
-    /// each lock names a key that sits on the Keyring (T-2, D-1219, D-1220).
+    /// Checks that each chest of a map names items, gear, and lessons of this content and nothing
+    /// of the kit of a join, and that each lock names a key that sits on the Keyring (T-2, D-1219,
+    /// D-1220, D-1350).
     /// </summary>
     /// <param name="map">The map.</param>
     /// <exception cref="ArgumentNullException">The map is null (T-2).</exception>
-    /// <exception cref="ContentException">An entry, a fallback, or a key names absent content, or a key is not a key of the Keyring. The error names the map file and the thing.</exception>
+    /// <exception cref="ContentException">An entry, a fallback, or a key names absent content, an entry or a fallback names a lesson or a piece of the kit of a join, or a key is not a key of the Keyring. The error names the map file and the thing.</exception>
     public void RequireThingsOf(GameMap map)
     {
         ArgumentNullException.ThrowIfNull(map);
@@ -392,6 +394,8 @@ public sealed class BattleContent
                 chest.Id.Value,
                 $"the chest names '{id.Value}', and the item file, the gear file, and the lesson file hold no such id (D-1220)");
         }
+
+        this.RefuseKitThingInChest(map, chest, id);
     }
 
     /// <summary>
@@ -753,8 +757,104 @@ public sealed class BattleContent
     }
 
     /// <summary>
+    /// Refuses a kit of a join that names an absent lesson or piece, more lessons than the slots
+    /// of the join level, or a piece with no empty slot of its kind (D-44, D-1018, D-1350). Refuses
+    /// a lesson or a piece of a kit that a shop stocks (D-1024, D-1039).
+    /// </summary>
+    private void RefuseWrongJoinKits()
+    {
+        foreach (CharacterRecord character in this.Fixture.Characters)
+        {
+            string who = character.Id.Value;
+            int slots = this.Rules.SlotsAt(character.JoinLevel);
+            if (character.JoinLessons.Count > slots)
+            {
+                throw ContentException.ForField(
+                    BattleFixture.Path,
+                    "join_lessons",
+                    $"the character '{who}' joins with {character.JoinLessons.Count} lessons, and it has {slots} slots at level {character.JoinLevel} (D-1018, D-1350)");
+            }
+
+            foreach (ContentId lesson in character.JoinLessons)
+            {
+                if (!this.Lessons.Holds(lesson))
+                {
+                    throw ContentException.ForField(
+                        BattleFixture.Path,
+                        "join_lessons",
+                        $"the character '{who}' joins with the lesson '{lesson.Value}', and '{this.Lessons.File}' holds no such id (T-2, D-1350)");
+                }
+
+                this.RefuseStockedKitThing(character, lesson, StockKind.Lesson);
+            }
+
+            foreach (ContentId piece in character.JoinGear)
+            {
+                if (!this.Gear.Holds(piece))
+                {
+                    throw ContentException.ForField(
+                        BattleFixture.Path,
+                        "join_gear",
+                        $"the character '{who}' joins with the piece '{piece.Value}', and '{GearList.Path}' holds no such piece (T-2, D-1350)");
+                }
+
+                this.RefuseStockedKitThing(character, piece, StockKind.Gear);
+            }
+
+            _ = GearRules.SlotsOf(character.JoinGear, this.Gear, BattleFixture.Path, who);
+        }
+    }
+
+    /// <summary>
+    /// Refuses a lesson or a piece of a kit that a shop stocks. A buy before the join would give a
+    /// second copy of the lesson, or a copy of the piece past its stack limit, and the join would
+    /// fail in play (T-2, D-1024, D-1039, D-1350).
+    /// </summary>
+    private void RefuseStockedKitThing(CharacterRecord character, ContentId thing, StockKind kind)
+    {
+        foreach (ShopRecord shop in this.Shops.Shops)
+        {
+            foreach (StockEntry entry in shop.Stock)
+            {
+                if (entry.Kind == kind && string.CompareOrdinal(entry.Thing.Value, thing.Value) == 0)
+                {
+                    throw ContentException.ForField(
+                        this.Shops.File,
+                        shop.Id.Value,
+                        $"the stock names '{thing.Value}', and '{character.Id.Value}' joins with it in its kit of '{BattleFixture.Path}', so a buy before the join would make the join fail (D-1024, D-1039, D-1350)");
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Refuses a chest entry or a fallback that names a lesson or a piece of the kit of a join. A
+    /// find before the join would give a second copy of the lesson, or a copy of the piece past
+    /// its stack limit, and the join would fail in play (T-2, D-1024, D-1039, D-1350).
+    /// </summary>
+    private void RefuseKitThingInChest(GameMap map, MapThing chest, ContentId id)
+    {
+        foreach (CharacterRecord character in this.Fixture.Characters)
+        {
+            var kit = new List<ContentId>(character.JoinLessons);
+            kit.AddRange(character.JoinGear);
+            foreach (ContentId named in kit)
+            {
+                if (string.CompareOrdinal(named.Value, id.Value) == 0)
+                {
+                    throw ContentException.ForField(
+                        map.File,
+                        chest.Id.Value,
+                        $"the chest names '{id.Value}', and '{character.Id.Value}' joins with it in its kit of '{BattleFixture.Path}', so a find before the join would make the join fail (D-1024, D-1039, D-1350)");
+                }
+            }
+        }
+    }
+
+    /// <summary>
     /// Refuses a pack entry that names an absent item or piece, and a start that owns more
-    /// copies than the stack limit: the pack and the start gear together (D-1038, D-1039).
+    /// copies than the stack limit: the pack, the start gear, and the gear of each kit of a join
+    /// together, because each character joins one time (D-1038, D-1039, D-1350).
     /// </summary>
     private void RefuseWrongPack()
     {
@@ -773,6 +873,14 @@ public sealed class BattleContent
             }
         }
 
+        foreach (CharacterRecord character in this.Fixture.Characters)
+        {
+            foreach (ContentId piece in character.JoinGear)
+            {
+                owned[piece.Value] = (owned.TryGetValue(piece.Value, out int count) ? count : 0) + 1;
+            }
+        }
+
         foreach (KeyValuePair<string, int> entry in owned)
         {
             ContentId id = ContentId.Parse(entry.Key, BattleFixture.Path, "pack");
@@ -782,7 +890,7 @@ public sealed class BattleContent
                 throw ContentException.ForField(
                     BattleFixture.Path,
                     entry.Key,
-                    $"the party starts with {entry.Value} copies, the pack and the start gear together, and the stack limit is {limit} (D-1038, D-1039)");
+                    $"the party owns {entry.Value} copies after each join, the pack, the start gear, and the gear of each join together, and the stack limit is {limit} (D-1038, D-1039, D-1350)");
             }
         }
     }

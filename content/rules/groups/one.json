@@ -1,5 +1,97 @@
 {
- "comment": "The groups of region one (D-535, D-957). The file holds no group yet, so that the overworld of PR-110 loads with its zones at rate 0 (D-1284, D-1289). PR-17 writes the enemies and the groups of region one here.",
+ "comment": "The groups of region one (D-535, D-957). PR-17 writes the groups of the first playable: the wolves, the crows, and the boar of the pasture and of the low land and the valley of the overworld, and the jailers, the hounds, and the rats of the hanging cells (D-1332, D-1353). Each enemy of a group names its profile (D-956).",
  "region": "region.one",
- "groups": []
+ "groups": [
+  {
+   "id": "group.one_wolves",
+   "boss": false,
+   "enemies": [
+    { "enemy": "enemy.lean_wolf", "row": "front", "waits": false, "profile": "profile.one_beast" },
+    { "enemy": "enemy.lean_wolf", "row": "front", "waits": false, "profile": "profile.one_beast" }
+   ]
+  },
+  {
+   "id": "group.one_wolf_crows",
+   "boss": false,
+   "enemies": [
+    { "enemy": "enemy.lean_wolf", "row": "front", "waits": false, "profile": "profile.one_beast" },
+    { "enemy": "enemy.snow_crow", "row": "back", "waits": false, "profile": "profile.one_beast" },
+    { "enemy": "enemy.snow_crow", "row": "back", "waits": false, "profile": "profile.one_beast" }
+   ]
+  },
+  {
+   "id": "group.one_crows",
+   "boss": false,
+   "enemies": [
+    { "enemy": "enemy.snow_crow", "row": "back", "waits": false, "profile": "profile.one_beast" },
+    { "enemy": "enemy.snow_crow", "row": "back", "waits": false, "profile": "profile.one_beast" }
+   ]
+  },
+  {
+   "id": "group.one_boar",
+   "boss": false,
+   "enemies": [
+    { "enemy": "enemy.starved_boar", "row": "front", "waits": false, "profile": "profile.one_beast" }
+   ]
+  },
+  {
+   "id": "group.one_boar_wolves",
+   "boss": false,
+   "enemies": [
+    { "enemy": "enemy.starved_boar", "row": "front", "waits": false, "profile": "profile.one_beast" },
+    { "enemy": "enemy.lean_wolf", "row": "front", "waits": false, "profile": "profile.one_beast" },
+    { "enemy": "enemy.lean_wolf", "row": "front", "waits": false, "profile": "profile.one_beast" }
+   ]
+  },
+  {
+   "id": "group.one_jailers",
+   "boss": false,
+   "enemies": [
+    { "enemy": "enemy.jailer", "row": "front", "waits": false, "profile": "profile.one_jailer" },
+    { "enemy": "enemy.jailer", "row": "front", "waits": false, "profile": "profile.one_jailer" }
+   ]
+  },
+  {
+   "id": "group.one_jailer_lamp",
+   "boss": false,
+   "enemies": [
+    { "enemy": "enemy.jailer", "row": "front", "waits": false, "profile": "profile.one_jailer" },
+    { "enemy": "enemy.lamp_jailer", "row": "back", "waits": false, "profile": "profile.one_jailer" }
+   ]
+  },
+  {
+   "id": "group.one_jailer_hound",
+   "boss": false,
+   "enemies": [
+    { "enemy": "enemy.jailer", "row": "front", "waits": false, "profile": "profile.one_jailer" },
+    { "enemy": "enemy.cell_hound", "row": "front", "waits": false, "profile": "profile.one_vermin" }
+   ]
+  },
+  {
+   "id": "group.one_rats",
+   "boss": false,
+   "enemies": [
+    { "enemy": "enemy.cell_rat", "row": "front", "waits": false, "profile": "profile.one_vermin" },
+    { "enemy": "enemy.cell_rat", "row": "front", "waits": false, "profile": "profile.one_vermin" },
+    { "enemy": "enemy.cell_rat", "row": "front", "waits": false, "profile": "profile.one_vermin" }
+   ]
+  },
+  {
+   "id": "group.one_hounds",
+   "boss": false,
+   "enemies": [
+    { "enemy": "enemy.cell_hound", "row": "front", "waits": false, "profile": "profile.one_vermin" },
+    { "enemy": "enemy.cell_hound", "row": "front", "waits": false, "profile": "profile.one_vermin" }
+   ]
+  },
+  {
+   "id": "group.one_cell_watch",
+   "boss": false,
+   "enemies": [
+    { "enemy": "enemy.jailer", "row": "front", "waits": false, "profile": "profile.one_jailer" },
+    { "enemy": "enemy.jailer", "row": "front", "waits": false, "profile": "profile.one_jailer" },
+    { "enemy": "enemy.lamp_jailer", "row": "back", "waits": false, "profile": "profile.one_jailer" }
+   ]
+  }
+ ]
 }

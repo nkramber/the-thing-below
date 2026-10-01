@@ -4,7 +4,11 @@
  "width": 64,
  "height": 64,
  "draws": [
-  { "content": "npc.fixture_hub_stranger", "use": "portrait" }
+  { "content": "npc.fixture_hub_stranger", "use": "portrait" },
+  { "content": "cast.dagvar", "use": "portrait" },
+  { "content": "npc.village_orrin", "use": "portrait" },
+  { "content": "npc.village_aldo", "use": "portrait" },
+  { "content": "npc.town_turnkey", "use": "portrait" }
  ],
  "frames": [
   {

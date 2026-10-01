@@ -41,6 +41,7 @@ public sealed class MapState
 
     private MapState(
         GameMap map,
+        TimeOfDay time,
         TilePoint leadAt,
         StepDirection facing,
         StepDirection? stepping,
@@ -51,6 +52,7 @@ public sealed class MapState
         PlaceState place)
     {
         this.Map = map;
+        this.Time = time;
         this.Place = place;
         this.LeadAt = leadAt;
         this.Facing = facing;
@@ -63,6 +65,13 @@ public sealed class MapState
 
     /// <summary>The map that the party stands on (D-528).</summary>
     public GameMap Map { get; }
+
+    /// <summary>
+    /// The time of day that the party took when it entered the map (D-442, D-1349). The first time
+    /// change of the map that held at the entry sets it, and it holds while the party stays on the
+    /// map. A flag that turns on here changes the time at the next entry alone.
+    /// </summary>
+    public TimeOfDay Time { get; }
 
     /// <summary>The tile of the lead, which is always a whole tile (D-203).</summary>
     public TilePoint LeadAt { get; private set; }
@@ -100,7 +109,7 @@ public sealed class MapState
     /// </summary>
     public PlaceState Place { get; }
 
-    /// <summary>Puts the party on a map at its spawn point, with a map that the run never changed (D-528).</summary>
+    /// <summary>Puts the party on a map at its spawn point and its base time, with a map that the run never changed (D-528, D-1349).</summary>
     /// <param name="map">The map to enter.</param>
     /// <returns>The state, with the spawn tile walked, each enemy alive, and each door shut.</returns>
     /// <exception cref="ArgumentNullException">The map is null (T-2).</exception>
@@ -108,30 +117,32 @@ public sealed class MapState
     {
         ArgumentNullException.ThrowIfNull(map);
 
-        return Enter(map, new PlaceState(map.Id));
+        return Enter(map, new PlaceState(map.Id), map.BaseTime);
     }
 
     /// <summary>Puts the party on a map at its spawn point, with the memory of the map (D-528, D-555).</summary>
     /// <param name="map">The map to enter.</param>
     /// <param name="place">The memory of the map, which the run holds.</param>
+    /// <param name="time">The time of day of the entry, which <see cref="GameMap.TimeFor"/> gives (D-1349).</param>
     /// <returns>The state, with the spawn tile walked, and each enemy that the memory holds as dead left dead.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
-    /// <exception cref="ArgumentException">The memory is the memory of another map (T-2).</exception>
-    public static MapState Enter(GameMap map, PlaceState place)
+    /// <exception cref="ArgumentException">The memory is the memory of another map, or the map cannot take the time (T-2).</exception>
+    public static MapState Enter(GameMap map, PlaceState place, TimeOfDay time)
     {
         ArgumentNullException.ThrowIfNull(map);
 
-        return EnterAt(map, place, map.Spawn);
+        return EnterAt(map, place, map.Spawn, time);
     }
 
     /// <summary>Puts the party on a map at one tile, with the memory of the map (D-555, D-1255).</summary>
     /// <param name="map">The map to enter.</param>
     /// <param name="place">The memory of the map, which the run holds.</param>
     /// <param name="at">The tile where the party arrives, such as the marker that an exit names.</param>
+    /// <param name="time">The time of day of the entry, which <see cref="GameMap.TimeFor"/> gives (D-1349).</param>
     /// <returns>The state, with the tile walked, the lead to the south, and each enemy that the memory holds as dead left dead.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
-    /// <exception cref="ArgumentException">The memory is the memory of another map, or the lead cannot stand on the tile (T-2).</exception>
-    public static MapState EnterAt(GameMap map, PlaceState place, TilePoint at)
+    /// <exception cref="ArgumentException">The memory is the memory of another map, the lead cannot stand on the tile, or the map cannot take the time (T-2).</exception>
+    public static MapState EnterAt(GameMap map, PlaceState place, TilePoint at, TimeOfDay time)
     {
         ArgumentNullException.ThrowIfNull(map);
         ArgumentNullException.ThrowIfNull(place);
@@ -143,10 +154,10 @@ public sealed class MapState
 
         var walked = WalkedTiles.Empty(map.Width, map.Height);
         walked.Mark(at);
-        return new MapState(map, at, StepDirection.South, null, 0, walked, MapPatrols.Enter(map, place), MapNpcs.Enter(map), place);
+        return new MapState(map, time, at, StepDirection.South, null, 0, walked, MapPatrols.Enter(map, place, time), MapNpcs.Enter(map), place);
     }
 
-    /// <summary>Puts the party back on a map from the values of a snapshot (D-166, D-651).</summary>
+    /// <summary>Puts the party back on a map at its base time from the values of a snapshot (D-166, D-651, D-1349).</summary>
     /// <param name="map">The map of the snapshot, which the content set of this build holds.</param>
     /// <param name="leadAt">The tile of the lead.</param>
     /// <param name="facing">The direction that the lead faces.</param>
@@ -180,7 +191,8 @@ public sealed class MapState
 
     /// <summary>
     /// Puts the party back on a map from the values of a snapshot that this build or another
-    /// build wrote, with a map that the run never changed (D-166, D-651, D-1111).
+    /// build wrote, with a map that the run never changed, at its base time (D-166, D-651, D-1111,
+    /// D-1349).
     /// </summary>
     /// <param name="map">The map of the snapshot, which the content set of this build holds.</param>
     /// <param name="lead">The tile, the facing, and the step of the lead.</param>
@@ -207,7 +219,7 @@ public sealed class MapState
     {
         ArgumentNullException.ThrowIfNull(map);
 
-        return Resume(map, lead, walked, enemies, mark, encounter, npcs, new PlaceState(map.Id), source, drift);
+        return Resume(map, lead, walked, enemies, mark, encounter, npcs, new PlaceState(map.Id), map.BaseTime, source, drift);
     }
 
     /// <summary>
@@ -222,11 +234,12 @@ public sealed class MapState
     /// <param name="encounter">The encounter of the snapshot, or no value (D-749).</param>
     /// <param name="npcs">The stored values of each NPC, or no value on a snapshot before save format 15, whose NPCs start on their start tiles (D-1137).</param>
     /// <param name="place">The memory of the map, which the run holds (D-555). A snapshot before save format 18 leaves each enemy of the stored values dead or alive, as the values give.</param>
+    /// <param name="time">The time of day that the party took at its entry, which the snapshot holds from save format 21 (D-1349).</param>
     /// <param name="source">What the values came from, such as `the save`, for an error (T-2).</param>
     /// <param name="drift">The build of the snapshot, and the log of each change (D-1111).</param>
     /// <returns>The state.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
-    /// <exception cref="ArgumentException">A value describes no state of a party on this map, or the memory is the memory of another map (T-2).</exception>
+    /// <exception cref="ArgumentException">A value describes no state of a party on this map, the memory is the memory of another map, or the map cannot take the time (T-2).</exception>
     /// <remarks>
     /// A snapshot of another build can follow an edit of the map (D-1111). The walked tiles
     /// take the size of the map of this build. A lead off the map, on a tile that takes no
@@ -243,6 +256,7 @@ public sealed class MapState
         MapEncounter? encounter,
         IReadOnlyList<NpcValues>? npcs,
         PlaceState place,
+        TimeOfDay time,
         string source,
         ResumeDrift drift)
     {
@@ -254,9 +268,10 @@ public sealed class MapState
         ArgumentNullException.ThrowIfNull(drift);
         RequirePlaceOf(map, place);
 
+        Refuse(!map.CanTake(time), source, $"the party took the time '{TimesOfDay.NameOf(time)}', and the map '{map.Id.Value}' takes {map.DescribeTimes()} alone (D-1349)");
         MapPatrols patrols = enemies is null
-            ? MapPatrols.Enter(map, place)
-            : MapPatrols.Resume(map, enemies, mark, encounter, place, source, drift);
+            ? MapPatrols.Enter(map, place, time)
+            : MapPatrols.Resume(map, enemies, mark, encounter, place, time, source, drift);
         MapNpcs mapNpcs = MapNpcs.Resume(map, npcs, patrols, source, drift);
         if (drift.Adjusts)
         {
@@ -324,7 +339,7 @@ public sealed class MapState
                 $"the lead stands at {leadAt} or steps from it, and the NPC '{person!.Npc.Id.Value}' at {person.At} holds that tile (D-1139)");
         }
 
-        return new MapState(map, leadAt, lead.Facing, stepping, stepTicks, walked, patrols, mapNpcs, place);
+        return new MapState(map, time, leadAt, lead.Facing, stepping, stepTicks, walked, patrols, mapNpcs, place);
     }
 
     /// <summary>
@@ -449,6 +464,36 @@ public sealed class MapState
         bool wanted = this.confirmWanted;
         this.confirmWanted = false;
         return wanted;
+    }
+
+    /// <summary>
+    /// Stops the step that <see cref="Advance"/> started on this tick, because a fight started on
+    /// the arrival of the same tick (D-1374). The lead stays on the tile that it reached, and it
+    /// keeps the facing of the held direction.
+    /// </summary>
+    /// <param name="step">The result of <see cref="Advance"/> on this tick.</param>
+    /// <exception cref="InvalidOperationException">
+    /// The step started, and the lead does not stand at its first tick (T-2).
+    /// </exception>
+    /// <remarks>
+    /// Advance starts the next step of a held direction on the tick of the arrival, before the
+    /// rules of the run draw a fight of a zone or fire a trap. The fight then held a step that
+    /// had started, and the lead walked on to the next tile after the fight.
+    /// </remarks>
+    public void StopStartedStep(PartyStep step)
+    {
+        if (step.Started is not StepDirection started)
+        {
+            return;
+        }
+
+        if (this.Stepping != started || this.StepTicks != 0)
+        {
+            throw new InvalidOperationException(
+                $"the step {started} started on this tick, and the lead steps {this.Stepping?.ToString() ?? "nowhere"} at tick {this.StepTicks} of it (D-1374, T-2)");
+        }
+
+        this.Stepping = null;
     }
 
     /// <summary>Runs the party for one world tick: the step that runs, and then the next one.</summary>
@@ -595,13 +640,15 @@ public sealed class MapState
     /// <exception cref="ArgumentNullException">The hasher is null (T-2).</exception>
     /// <remarks>
     /// The hash holds the id of the map and never its content, because the content hash
-    /// covers the map file (D-166, D-495, D-648).
+    /// covers the map file (D-166, D-495, D-648). It holds the time of the entry, which no
+    /// flag of the story state gives once a flag turns on while the party stands on the map (D-1349).
     /// </remarks>
     public void Hash(StateHasher hasher)
     {
         ArgumentNullException.ThrowIfNull(hasher);
 
         hasher.AddText(this.Map.Id.Value);
+        hasher.AddInt32((int)this.Time);
         hasher.AddInt32(this.LeadAt.X);
         hasher.AddInt32(this.LeadAt.Y);
         hasher.AddInt32((int)this.Facing);

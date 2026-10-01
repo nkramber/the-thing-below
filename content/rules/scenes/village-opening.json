@@ -1,0 +1,21 @@
+{
+ "comment": "The opening scene of the first playable in the house of Marrek (D-1344, D-1354). The entry trigger of the village plays it one time, at the start of the run. Hadda shows inside the door, walks up to Marrek, gives her word, and walks back out of sight. The flag at the end closes the trigger.",
+ "id": "scene.village_opening",
+ "steps": [
+  { "id": "step.bowls", "kind": "say", "speaker": "none", "line": "line.village_opening_bowls" },
+  { "id": "step.show_hadda", "kind": "show", "actor": "npc.village_hadda", "at": "marker.village_hadda_door", "facing": "north" },
+  { "id": "step.hadda_walks_in", "kind": "move", "actor": "npc.village_hadda", "path": ["north"] },
+  { "id": "step.lead_turns", "kind": "face", "actor": "lead", "facing": "south" },
+  { "id": "step.hadda_door", "kind": "say", "speaker": "npc.village_hadda", "line": "line.village_hadda_door" },
+  { "id": "step.marrek_why", "kind": "say", "speaker": "lead", "line": "line.village_marrek_why" },
+  { "id": "step.hadda_beasts", "kind": "say", "speaker": "npc.village_hadda", "line": "line.village_hadda_beasts" },
+  { "id": "step.hadda_carts", "kind": "say", "speaker": "npc.village_hadda", "line": "line.village_hadda_carts" },
+  { "id": "step.marrek_father", "kind": "say", "speaker": "lead", "line": "line.village_marrek_father" },
+  { "id": "step.hadda_know", "kind": "say", "speaker": "npc.village_hadda", "line": "line.village_hadda_know" },
+  { "id": "step.hadda_pick", "kind": "say", "speaker": "npc.village_hadda", "line": "line.village_hadda_pick" },
+  { "id": "step.hadda_walks_out", "kind": "move", "actor": "npc.village_hadda", "path": ["south"] },
+  { "id": "step.hide_hadda", "kind": "hide", "actor": "npc.village_hadda" },
+  { "id": "step.pick", "kind": "say", "speaker": "none", "line": "line.village_opening_pick" },
+  { "id": "step.opening_done", "kind": "set_flag", "flag": "flag.village_opening" }
+ ]
+}

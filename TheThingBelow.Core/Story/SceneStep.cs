@@ -40,6 +40,9 @@ public enum SceneStepKind
 
     /// <summary>A battle against an enemy group starts, and a win lets the story scene go on (D-998, D-999).</summary>
     StartBattle,
+
+    /// <summary>An offer to pay a price in gold, with yes or no. A pay sets a flag, and a refusal ends the story scene (D-1335).</summary>
+    Pay,
 }
 
 /// <summary>What a step of each kind waits for before the next step runs (D-1000, D-1013).</summary>
@@ -78,10 +81,11 @@ public static class SceneStepKinds
         SceneStepKind.Hide,
         SceneStepKind.Camera,
         SceneStepKind.StartBattle,
+        SceneStepKind.Pay,
     ];
 
     /// <summary>The names of every kind, for the error of an unknown name (T-2).</summary>
-    public const string EveryName = "move, face, wait, say, choose, set_flag, join, show, hide, camera, start_battle";
+    public const string EveryName = "move, face, wait, say, choose, set_flag, join, show, hide, camera, start_battle, pay";
 
     /// <summary>Gives the kind of one name.</summary>
     /// <param name="name">The name, such as `set_flag`.</param>
@@ -122,6 +126,7 @@ public static class SceneStepKinds
         SceneStepKind.Hide => "hide",
         SceneStepKind.Camera => "camera",
         SceneStepKind.StartBattle => "start_battle",
+        SceneStepKind.Pay => "pay",
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no story scene step kind (D-997)"),
     };
 
@@ -147,6 +152,7 @@ public static class SceneStepKinds
         SceneStepKind.Hide => SceneStepEnd.AtOnce,
         SceneStepKind.Camera => SceneStepEnd.WaitIntent,
         SceneStepKind.StartBattle => SceneStepEnd.Battle,
+        SceneStepKind.Pay => SceneStepEnd.Pick,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no story scene step kind (D-997)"),
     };
 }
@@ -245,3 +251,26 @@ public sealed record CameraStep(ContentId Marker) : SceneStep(SceneStepKind.Came
 /// <summary>A battle against one enemy group starts (D-998).</summary>
 /// <param name="Group">The enemy group.</param>
 public sealed record StartBattleStep(ContentId Group) : SceneStep(SceneStepKind.StartBattle);
+
+/// <summary>
+/// An offer of a speaker to open a way for a price in gold, with yes or no (D-1335). A yes with
+/// enough gold removes the price and turns on the flag, and the story scene goes on. A yes with too
+/// little gold, or a no, shows the refusal line, then ends the story scene with no change, so a new
+/// talk gives the offer again.
+/// </summary>
+/// <param name="Speaker">The speaker, or no value for a line with no speaker, which the file writes as `none`.</param>
+/// <param name="Line">The string id of the offer, which Game shows with the price.</param>
+/// <param name="Price">The price in gold, one or more.</param>
+/// <param name="Flag">The flag that a pay turns on.</param>
+/// <param name="Refusal">The string id of the line after a refusal.</param>
+public sealed record PayStep(SceneActor? Speaker, ContentId Line, int Price, ContentId Flag, ContentId Refusal) : SceneStep(SceneStepKind.Pay)
+{
+    /// <summary>The pick of the yes option, the first row of the choice window.</summary>
+    public const int PayOption = 0;
+
+    /// <summary>The pick of the no option, the second row of the choice window.</summary>
+    public const int DeclineOption = 1;
+
+    /// <summary>The count of the options of the offer: yes and no.</summary>
+    public const int OptionCount = 2;
+}

@@ -10,7 +10,7 @@ namespace TheThingBelow.Tests;
 /// read the built Game assembly, because Tests takes no reference to Game (D-614).
 /// </summary>
 /// <remarks>
-/// The four methods below hold no Godot value. The smoke session reads the gate with the pad
+/// The methods below hold no Godot value. The smoke session reads the gate with the pad
 /// events of the engine.
 /// </remarks>
 public sealed class PressGateTests
@@ -156,6 +156,45 @@ public sealed class PressGateTests
     }
 
     [Fact]
+    public void APadIsIgnoredOnlyAfterTheHostNamesIt()
+    {
+        // A racing wheel with no controller mapping walked the lead south with no input on
+        // Windows. The host names each such pad when it connects (D-1365, F-156).
+        object gate = New();
+        Assert.False(Ignores(gate, 0));
+
+        Assert.True(IgnorePad(gate, 0));
+
+        Assert.True(Ignores(gate, 0));
+        Assert.False(Ignores(gate, 1));
+        Assert.False(IgnorePad(gate, 0));
+    }
+
+    [Fact]
+    public void APadThatDisconnectsIsIgnoredNoMore()
+    {
+        // The system can give the device number to the next pad that connects (D-1365).
+        object gate = New();
+        IgnorePad(gate, 0);
+
+        ForgetPad(gate, 0);
+
+        Assert.False(Ignores(gate, 0));
+    }
+
+    [Fact]
+    public void AClearKeepsEachIgnoredPad()
+    {
+        // A loss of the focus changes no pad (D-1365).
+        object gate = New();
+        IgnorePad(gate, 0);
+
+        Method("Clear").Invoke(gate, null);
+
+        Assert.True(Ignores(gate, 0));
+    }
+
+    [Fact]
     public void TheGateReadsEachMenuActionThatTheMenusRead()
     {
         IReadOnlyList<string> names = (IReadOnlyList<string>)GameAssemblyFile.Type(TypeName)
@@ -179,6 +218,12 @@ public sealed class PressGateTests
 
     private static int ForgetPad(object gate, int device) =>
         (int)Method("ForgetPad").Invoke(gate, [device])!;
+
+    private static bool IgnorePad(object gate, int device) =>
+        (bool)Method("IgnorePad").Invoke(gate, [device])!;
+
+    private static bool Ignores(object gate, int device) =>
+        (bool)Method("Ignores").Invoke(gate, [device])!;
 
     private static MethodInfo Method(string name) =>
         GameAssemblyFile.Type(TypeName).GetMethod(name, BindingFlags.Public | BindingFlags.Instance)

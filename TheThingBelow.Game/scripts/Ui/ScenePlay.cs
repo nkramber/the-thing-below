@@ -44,6 +44,16 @@ public sealed class ScenePlay
     /// <summary>The use of the drawing of a portrait (D-234).</summary>
     public const string PortraitUse = "portrait";
 
+    /// <summary>The name of the place in the line of an offer that the price fills (D-1335).</summary>
+    public const string PricePlace = "price";
+
+    /// <summary>The options of every offer: yes, then no, in the order of <see cref="PayStep.PayOption"/> and <see cref="PayStep.DeclineOption"/> (D-1335).</summary>
+    private static readonly IReadOnlyList<ContentId> OfferOptions =
+    [
+        ContentId.Parse("menu.yes", StringTable.Path, nameof(ScenePlay)),
+        ContentId.Parse("menu.no", StringTable.Path, nameof(ScenePlay)),
+    ];
+
     private readonly StringTable strings;
     private readonly int viewWidth;
     private readonly int viewHeight;
@@ -97,8 +107,11 @@ public sealed class ScenePlay
     /// <summary>The speaker of <see cref="Line"/>, or no value for a line with no speaker (D-997).</summary>
     public SceneActor? Speaker { get; private set; }
 
-    /// <summary>The options of the choice that waits for a pick, or no value (D-1007, D-1175).</summary>
-    public IReadOnlyList<ChooseOption>? Options { get; private set; }
+    /// <summary>The string ids of the options of the choice or the offer that waits for a pick, or no value (D-1007, D-1175, D-1335).</summary>
+    public IReadOnlyList<ContentId>? Options { get; private set; }
+
+    /// <summary>The price in gold of the offer of a pay step that waits for a pick, which fills the place `price` of its line, or no value (D-1335).</summary>
+    public int? Price { get; private set; }
 
     /// <summary>The option under the cursor of the choice, from zero.</summary>
     public int Cursor { get; private set; }
@@ -245,7 +258,7 @@ public sealed class ScenePlay
     /// <param name="by">-1 for up, 1 for down.</param>
     public void MoveCursor(int by)
     {
-        if (this.Options is not IReadOnlyList<ChooseOption> options || this.Paused)
+        if (this.Options is not IReadOnlyList<ContentId> options || this.Paused)
         {
             return;
         }
@@ -257,7 +270,7 @@ public sealed class ScenePlay
     /// <param name="option">The option, from zero.</param>
     public void PointAt(int option)
     {
-        if (this.Options is IReadOnlyList<ChooseOption> options && !this.Paused && option >= 0 && option < options.Count)
+        if (this.Options is IReadOnlyList<ContentId> options && !this.Paused && option >= 0 && option < options.Count)
         {
             this.Cursor = option;
         }
@@ -365,22 +378,28 @@ public sealed class ScenePlay
         }
 
         this.Options = null;
+        this.Price = null;
         switch (this.stepOnScreen)
         {
             case SayStep say when this.phase == ScenePhase.WaitIntent:
-                this.Line = say.Line;
-                this.Speaker = say.Speaker;
-                this.lastLine = say.Line;
-                this.lastSpeaker = say.Speaker;
-                this.LineStep = story.Step;
-                this.lastLineStep = story.Step;
+                this.ShowLine(say.Line, say.Speaker, story.Step);
                 break;
             case ChooseStep choose when this.phase == ScenePhase.Pick:
                 // The last line of the story scene stays in the box over the choice (D-1175).
                 this.Line = this.lastLine;
                 this.Speaker = this.lastSpeaker;
                 this.LineStep = this.lastLineStep;
-                this.Options = choose.Options;
+                this.Options = LinesOf(choose);
+                break;
+            case PayStep pay when this.phase == ScenePhase.Pick:
+                // The offer shows its line with the price, and yes and no under it (D-1335).
+                this.ShowLine(pay.Line, pay.Speaker, story.Step);
+                this.Options = OfferOptions;
+                this.Price = pay.Price;
+                break;
+            case PayStep pay when this.phase == ScenePhase.WaitIntent:
+                // A refusal shows its line, and the end of the line ends the story scene (D-1335).
+                this.ShowLine(pay.Refusal, pay.Speaker, story.Step);
                 break;
             default:
                 this.Line = null;
@@ -388,6 +407,29 @@ public sealed class ScenePlay
                 this.LineStep = -1;
                 break;
         }
+    }
+
+    /// <summary>Shows one line in the box, and keeps it as the last line for a choice after it (D-1175).</summary>
+    private void ShowLine(ContentId line, SceneActor? speaker, int step)
+    {
+        this.Line = line;
+        this.Speaker = speaker;
+        this.lastLine = line;
+        this.lastSpeaker = speaker;
+        this.LineStep = step;
+        this.lastLineStep = step;
+    }
+
+    /// <summary>Gives the string ids of the options of a choice, in the order of the file (D-1007).</summary>
+    private static List<ContentId> LinesOf(ChooseStep choose)
+    {
+        List<ContentId> lines = [];
+        foreach (ChooseOption option in choose.Options)
+        {
+            lines.Add(option.Line);
+        }
+
+        return lines;
     }
 
     /// <summary>Tells whether the step that Game animates reached its end.</summary>
@@ -431,6 +473,7 @@ public sealed class ScenePlay
         this.Line = null;
         this.Speaker = null;
         this.Options = null;
+        this.Price = null;
         this.Paused = false;
         if (this.view is not CameraPlace shown)
         {

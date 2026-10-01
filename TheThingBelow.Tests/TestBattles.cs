@@ -84,10 +84,10 @@ internal static class TestBattles
     {
      "comment": "The battle fixture of the tests.",
      "characters": [
-      { "id": "character.marrek", "row": "front", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.test_marrek_side", "curve": {{MarrekCurve()}} },
-      { "id": "character.test_second", "row": "front", "join_level": 1, "main_aptitude": "harm", "side_aptitude": "mend", "side_flag": "flag.test_second_side", "curve": {{StatCurve.FlatText(new StatRow(50, 12, 10, 10, 3, 3, 110))}} },
-      { "id": "character.test_third", "row": "back", "join_level": 1, "main_aptitude": "mend", "side_aptitude": "boon", "side_flag": "flag.test_third_side", "curve": {{StatCurve.FlatText(new StatRow(40, 16, 8, 8, 2, 2, 120))}} },
-      { "id": "character.test_fourth", "row": "front", "join_level": 1, "main_aptitude": "guard", "side_aptitude": "theft", "side_flag": "flag.test_fourth_side", "curve": {{StatCurve.FlatText(new StatRow(45, 6, 11, 11, 4, 2, 105))}} }
+      { "id": "character.marrek", "row": "front", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.test_marrek_side", "join_lessons": [], "join_gear": [], "curve": {{MarrekCurve()}} },
+      { "id": "character.test_second", "row": "front", "join_level": 1, "main_aptitude": "harm", "side_aptitude": "mend", "side_flag": "flag.test_second_side", "join_lessons": [], "join_gear": [], "curve": {{StatCurve.FlatText(new StatRow(50, 12, 10, 10, 3, 3, 110))}} },
+      { "id": "character.test_third", "row": "back", "join_level": 1, "main_aptitude": "mend", "side_aptitude": "boon", "side_flag": "flag.test_third_side", "join_lessons": [], "join_gear": [], "curve": {{StatCurve.FlatText(new StatRow(40, 16, 8, 8, 2, 2, 120))}} },
+      { "id": "character.test_fourth", "row": "front", "join_level": 1, "main_aptitude": "guard", "side_aptitude": "theft", "side_flag": "flag.test_fourth_side", "join_lessons": [], "join_gear": [], "curve": {{StatCurve.FlatText(new StatRow(45, 6, 11, 11, 4, 2, 105))}} }
      ],
      "start_party": ["character.marrek"],
      "pack": [{ "item": "item.fixture_draught", "count": 3 }],
@@ -279,6 +279,7 @@ internal static class TestBattles
      "comment": "The grunt of the tests.",
      "id": "enemy.fixture_grunt",
      "size": "common",
+     "proper": false,
      "level": 1,
      "experience": 6,
      "gold_low": 3,
@@ -301,6 +302,7 @@ internal static class TestBattles
      "comment": "The brute of the tests.",
      "id": "enemy.fixture_brute",
      "size": "elite",
+     "proper": false,
      "level": 3,
      "experience": 20,
      "gold_low": 10,

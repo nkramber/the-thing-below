@@ -24,11 +24,15 @@ namespace TheThingBelow.Core.Runs;
 /// NPC stream (D-1137), as save format 15 did. The intent gained its map, which the go-to-map
 /// command of the debug console names (D-1133).
 /// </para>
+/// <para>
+/// PR-17 raised it to 6. The map of the snapshot line gained its time (D-1349), as save format 21
+/// did.
+/// </para>
 /// </remarks>
 public static class RunRecordFormat
 {
     /// <summary>The format version that this build writes.</summary>
-    public const int Current = 5;
+    public const int Current = 6;
 }
 
 /// <summary>

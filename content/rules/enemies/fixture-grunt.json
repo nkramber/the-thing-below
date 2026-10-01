@@ -1,7 +1,8 @@
 {
- "comment": "The fixture grunt, with the stats of D-777 and the size of D-789 (D-557, D-786). The level and the experience follow D-977. A win rolls the gold from the low gold to the high gold (D-1157). It names the fixture mend, so it can bind a hurt ally (D-955). PR-17 writes the enemies of the first playable.",
+ "comment": "The fixture grunt, with the stats of D-777 and the size of D-789 (D-557, D-786). The level and the experience follow D-977. A win rolls the gold from the low gold to the high gold (D-1157). It names the fixture mend, so it can bind a hurt ally (D-955). PR-17 writes the enemies of the first playable. Its name is a common noun, so a battle line writes it in lower case after the start (D-1358).",
  "id": "enemy.fixture_grunt",
  "size": "common",
+ "proper": false,
  "level": 1,
  "experience": 6,
  "gold_low": 3,

@@ -19,8 +19,14 @@ namespace TheThingBelow.Game.Ui;
 /// goes on, so <see cref="HeldSteps"/> never keeps a step that the player let go.
 /// </para>
 /// <para>
-/// <see cref="Press"/>, <see cref="Release"/>, <see cref="Clear"/>, and
-/// <see cref="ForgetPad"/> hold no Godot value, so a test reads them with no engine (D-614).
+/// No event of a pad that <see cref="IgnorePad"/> named goes on. The host names each pad that the
+/// system connects with no controller mapping, such as a racing wheel, whose pedal walked the lead
+/// with no input on Windows (D-1365, F-156).
+/// </para>
+/// <para>
+/// <see cref="Press"/>, <see cref="Release"/>, <see cref="Clear"/>, <see cref="IgnorePad"/>,
+/// <see cref="Ignores"/>, and <see cref="ForgetPad"/> hold no Godot value, so a test reads them
+/// with no engine (D-614).
 /// </para>
 /// </remarks>
 public sealed class PressGate
@@ -35,11 +41,15 @@ public sealed class PressGate
     // The sources that hold each action now, by action name (G-4).
     private readonly SortedDictionary<string, List<string>> holders = new(StringComparer.Ordinal);
 
+    // The pads with no controller mapping, whose events go no further (D-1365).
+    private readonly SortedSet<int> ignored = [];
+
     /// <summary>Reads one input event, and tells whether it goes on to the game.</summary>
     /// <param name="signal">The event of this frame.</param>
     /// <returns>
-    /// False for a press of one or more actions that another press holds already. True for
-    /// every other event: a first press, a release, and an event of no action.
+    /// False for each event of an ignored pad (D-1365), and for a press of one or more actions
+    /// that another press holds already. True for every other event: a first press, a release,
+    /// and an event of no action.
     /// </returns>
     /// <exception cref="ArgumentNullException">The event is null (T-2).</exception>
     /// <remarks>
@@ -49,6 +59,11 @@ public sealed class PressGate
     public bool Read(InputEvent signal)
     {
         ArgumentNullException.ThrowIfNull(signal);
+
+        if ((signal is InputEventJoypadButton or InputEventJoypadMotion) && this.Ignores(signal.Device))
+        {
+            return false;
+        }
 
         string? source = SourceOf(signal);
         if (source is null)
@@ -117,6 +132,16 @@ public sealed class PressGate
         return this.holders.TryGetValue(action, out List<string>? sources) && sources.Remove(source);
     }
 
+    /// <summary>Stops each later event of one pad, which has no controller mapping (D-1365).</summary>
+    /// <param name="device">The device number of the pad.</param>
+    /// <returns>True when the gate did not ignore the pad before.</returns>
+    public bool IgnorePad(int device) => this.ignored.Add(device);
+
+    /// <summary>Tells whether the gate stops each event of one pad (D-1365).</summary>
+    /// <param name="device">The device number of the pad.</param>
+    /// <returns>True when <see cref="IgnorePad"/> named the pad, and the pad did not disconnect after it.</returns>
+    public bool Ignores(int device) => this.ignored.Contains(device);
+
     /// <summary>Tells whether any source holds one action now (D-1084).</summary>
     /// <param name="action">The name of the action, such as `step_north`.</param>
     /// <returns>True while a key, a button, or a stick holds the action.</returns>
@@ -137,6 +162,10 @@ public sealed class PressGate
     /// <summary>Forgets every source of one pad, which a pad that disconnects needs (T-2).</summary>
     /// <param name="device">The device number of the pad.</param>
     /// <returns>The count of sources that the gate forgot.</returns>
+    /// <remarks>
+    /// The gate stops ignoring the pad too, because the system can give its device number to the
+    /// next pad that connects (D-1365).
+    /// </remarks>
     public int ForgetPad(int device)
     {
         string prefix = $"{PadPrefix}{device} ";
@@ -145,6 +174,8 @@ public sealed class PressGate
         {
             forgot += sources.RemoveAll(source => source.StartsWith(prefix, StringComparison.Ordinal));
         }
+
+        this.ignored.Remove(device);
 
         return forgot;
     }

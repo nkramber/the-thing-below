@@ -1,0 +1,12 @@
+{
+ "comment": "The flash of Ember, the first form of the fire rite of Dagvar (D-1355). A short spike of ember light at the target, a thin ember tint, and a few coals that climb and go out. PR-17 writes it, and PR-115 can tune it (D-1032, D-1328).",
+ "id": "effect.spell_ember",
+ "serves": ["ability.ember"],
+ "shape": "spike",
+ "length_ticks": 16,
+ "light": { "color": "X", "strength": 20000, "range": 88, "height": 18 },
+ "tint": { "color": "X", "strength": 500 },
+ "emitters": [
+  { "amount": 12, "lifetime_ticks": 16, "colors": ["X", "j", "A"], "size": 1, "area": 4, "direction": -90, "spread": 50, "slowest_speed": 30, "fastest_speed": 90, "gravity": -50 }
+ ]
+}

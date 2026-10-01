@@ -5,7 +5,8 @@
  "height": 32,
  "draws": [
   { "content": "save_point.fixture_hub_waystone", "use": "map" },
-  { "content": "save_point.fixture_dungeon_camp", "use": "map" }
+  { "content": "save_point.fixture_dungeon_camp", "use": "map" },
+  { "content": "save_point.cells_stump", "use": "map" }
  ],
  "frames": [
   {

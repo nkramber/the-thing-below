@@ -30,7 +30,8 @@ public sealed record StartLessons(ContentId Character, IReadOnlyList<ContentId> 
 /// the start gear (D-1038). Each id stays. PR-11 moved the groups to the group file of each region
 /// with the same ids (D-766, D-957).
 /// PR-80 moved the enemies to the enemy record, and the battle content checks that each
-/// group names a record (D-557, D-786).
+/// group names a record (D-557, D-786). PR-17 gave each character the lessons and the gear
+/// of its join, which a character of the start party holds empty (D-1350).
 /// </remarks>
 public sealed class BattleFixture
 {
@@ -191,6 +192,8 @@ public sealed class BattleFixture
         AptitudeKind? main = null;
         AptitudeKind? side = null;
         ContentId? sideFlag = null;
+        List<ContentId>? joinLessons = null;
+        List<ContentId>? joinGear = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -218,6 +221,12 @@ public sealed class BattleFixture
                 case "side_flag":
                     sideFlag = reader.ReadContentId(FlagList.Kind);
                     break;
+                case "join_lessons":
+                    joinLessons = ReadList(ref reader, ReadLessonId);
+                    break;
+                case "join_gear":
+                    joinGear = ReadList(ref reader, ReadGearId);
+                    break;
                 default:
                     throw reader.UnknownField(field);
             }
@@ -241,7 +250,9 @@ public sealed class BattleFixture
             reader.Require(curve, depth, "curve"),
             readMain,
             readSide,
-            reader.Require(sideFlag, depth, "side_flag"));
+            reader.Require(sideFlag, depth, "side_flag"),
+            reader.Require(joinLessons, depth, "join_lessons"),
+            reader.Require(joinGear, depth, "join_gear"));
     }
 
     private static AptitudeKind ReadAptitude(ref ContentReader reader)
@@ -447,6 +458,55 @@ public sealed class BattleFixture
         }
 
         this.CheckStartLessons(file, started);
+        this.CheckJoinKits(file, started);
+    }
+
+    /// <summary>
+    /// Refuses a kit of a join on a character of the start party, whose kit comes from the start
+    /// lessons and the start gear (D-1350). Refuses one lesson two times across the start lessons,
+    /// the lesson pack, and the kits, because each character joins one time and the player never
+    /// owns two copies of one lesson (D-1023, D-1024). The battle content checks each lesson id,
+    /// each piece, each slot count, and each stack limit.
+    /// </summary>
+    private void CheckJoinKits(string file, SortedSet<string> started)
+    {
+        var owned = new SortedSet<string>(StringComparer.Ordinal);
+        foreach (StartLessons entry in this.StartLessons)
+        {
+            foreach (ContentId lesson in entry.Lessons)
+            {
+                _ = owned.Add(lesson.Value);
+            }
+        }
+
+        foreach (ContentId lesson in this.LessonPack)
+        {
+            _ = owned.Add(lesson.Value);
+        }
+
+        foreach (CharacterRecord character in this.Characters)
+        {
+            string who = character.Id.Value;
+            if (started.Contains(who) && (character.JoinLessons.Count > 0 || character.JoinGear.Count > 0))
+            {
+                string field = character.JoinLessons.Count > 0 ? "join_lessons" : "join_gear";
+                throw ContentException.ForField(
+                    file,
+                    field,
+                    $"the character '{who}' is in the start party and holds a kit of a join, and the start lessons and the start gear give its kit (D-1350)");
+            }
+
+            foreach (ContentId lesson in character.JoinLessons)
+            {
+                if (!owned.Add(lesson.Value))
+                {
+                    throw ContentException.ForField(
+                        file,
+                        "join_lessons",
+                        $"the character '{who}' joins with the lesson '{lesson.Value}', which the start or another kit already gives, and the player never owns two copies of one lesson (D-1023, D-1350)");
+                }
+            }
+        }
     }
 
     /// <summary>

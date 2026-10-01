@@ -338,6 +338,16 @@ public sealed class StoryState
         this.TicksLeft = 0;
     }
 
+    /// <summary>Moves past the last step, so the story scene ends at the next world step (D-1335).</summary>
+    internal void SkipToEnd(RunContext context)
+    {
+        StoryScene scene = this.Scene
+            ?? throw new SimulationException("a skip to the end of a story scene, and no story scene runs (D-1335)", context);
+        this.Step = scene.Steps.Count;
+        this.Phase = ScenePhase.Ready;
+        this.TicksLeft = 0;
+    }
+
     /// <summary>Counts one tick of a wait step.</summary>
     /// <returns>True when the wait ended on this tick.</returns>
     internal bool CountTick()
@@ -518,8 +528,10 @@ public sealed class StoryState
             SceneStepEnd.Battle => ScenePhase.Battle,
             _ => ScenePhase.Ready,
         };
+        // A pay step waits for the pick of its offer, then for the wait intent of its refusal line (D-1335).
+        bool refusal = step is PayStep && values.Phase == ScenePhase.WaitIntent;
         Refuse(
-            values.Phase != wanted,
+            values.Phase != wanted && !refusal,
             source,
             $"step {stepIndex} of '{scene.Id.Value}' is a '{SceneStepKinds.NameOf(step.Kind)}' step, and its phase is '{ScenePhases.NameOf(values.Phase)}'");
         if (step is not WaitStep wait)

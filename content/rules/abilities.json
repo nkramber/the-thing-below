@@ -1,5 +1,5 @@
 {
- "comment": "The abilities (D-785). An enemy record and a form of a lesson name ids from this file (D-1026). PR-11 gave each entry the effect of a move: a strike with a power, an element, and a reach, or a heal (D-955). PR-12 gave a strike its status with a chance, and added the cure and the boon (D-793, D-1029). PR-13 added the steal (D-950). PR-99 gave each strike its stat, and each heal a base and a power that reads the magic of the caster (D-1053, D-1057). The fixture lessons of PR-12 name the entries after the heal. Each id is permanent (D-166).",
+ "comment": "The abilities (D-785). An enemy record and a form of a lesson name ids from this file (D-1026). PR-11 gave each entry the effect of a move: a strike with a power, an element, and a reach, or a heal (D-955). PR-12 gave a strike its status with a chance, and added the cure and the boon (D-793, D-1029). PR-13 added the steal (D-950). PR-99 gave each strike its stat, and each heal a base and a power that reads the magic of the caster (D-1053, D-1057). The fixture lessons of PR-12 name the entries after the heal. PR-17 adds the forms of the lessons of the first playable and the moves of its enemies (D-1352, D-1353, D-1355). Each id is permanent (D-166).",
  "abilities": [
   { "id": "ability.fixture_bash", "kind": "strike", "delay": 130, "power": 13000, "stat": "attack", "element": "none", "reach": "melee", "status": "none" },
   { "id": "ability.fixture_mend", "kind": "heal", "delay": 150, "base": 12, "power": 5000 },
@@ -12,6 +12,29 @@
   { "id": "ability.fixture_salve", "kind": "heal", "delay": 120, "base": 24, "power": 10000 },
   { "id": "ability.fixture_purge", "kind": "cure", "delay": 100, "statuses": ["poison", "blind", "silence"] },
   { "id": "ability.fixture_quicken", "kind": "boon", "delay": 100, "status": "haste" },
-  { "id": "ability.fixture_pilfer", "kind": "steal", "delay": 100 }
+  { "id": "ability.fixture_pilfer", "kind": "steal", "delay": 100 },
+  { "id": "ability.hew", "kind": "strike", "delay": 110, "power": 15000, "stat": "attack", "element": "none", "reach": "melee", "status": "none" },
+  { "id": "ability.cave_in", "kind": "strike", "delay": 130, "power": 18000, "stat": "attack", "element": "none", "reach": "melee", "status": "stun", "chance": 3000 },
+  { "id": "ability.undercut", "kind": "strike", "delay": 110, "power": 13000, "stat": "attack", "element": "none", "reach": "melee", "status": "bleed", "chance": 3500 },
+  { "id": "ability.hamstring", "kind": "strike", "delay": 120, "power": 14000, "stat": "attack", "element": "none", "reach": "melee", "status": "slow", "chance": 4000 },
+  { "id": "ability.cover", "kind": "cover", "delay": 200 },
+  { "id": "ability.quarrel", "kind": "strike", "delay": 110, "power": 14000, "stat": "attack", "element": "none", "reach": "any", "status": "none" },
+  { "id": "ability.pin", "kind": "strike", "delay": 120, "power": 12000, "stat": "attack", "element": "none", "reach": "any", "status": "slow", "chance": 4000 },
+  { "id": "ability.ember", "kind": "strike", "delay": 120, "power": 14000, "stat": "magic", "element": "fire", "reach": "any", "status": "none" },
+  { "id": "ability.brand", "kind": "strike", "delay": 140, "power": 22000, "stat": "magic", "element": "fire", "reach": "any", "status": "none" },
+  { "id": "ability.grave_rot", "kind": "strike", "delay": 110, "power": 5000, "stat": "magic", "element": "none", "reach": "any", "status": "poison", "chance": 6000 },
+  { "id": "ability.frost", "kind": "strike", "delay": 130, "power": 15000, "stat": "magic", "element": "ice", "reach": "any", "status": "none" },
+  { "id": "ability.wedge", "kind": "strike", "delay": 110, "power": 13000, "stat": "attack", "element": "none", "reach": "melee", "status": "stun", "chance": 2500 },
+  { "id": "ability.gouge", "kind": "strike", "delay": 110, "power": 12000, "stat": "attack", "element": "none", "reach": "melee", "status": "blind", "chance": 4000 },
+  { "id": "ability.hush", "kind": "strike", "delay": 110, "power": 5000, "stat": "magic", "element": "none", "reach": "any", "status": "silence", "chance": 5500 },
+  { "id": "ability.lull", "kind": "strike", "delay": 120, "power": 5000, "stat": "magic", "element": "none", "reach": "any", "status": "sleep", "chance": 4500 },
+  { "id": "ability.spark", "kind": "strike", "delay": 130, "power": 15000, "stat": "magic", "element": "lightning", "reach": "any", "status": "none" },
+  { "id": "ability.snare", "kind": "strike", "delay": 120, "power": 11000, "stat": "attack", "element": "none", "reach": "any", "status": "stun", "chance": 3000 },
+  { "id": "ability.crow_peck", "kind": "strike", "delay": 100, "power": 11000, "stat": "attack", "element": "none", "reach": "any", "status": "none" },
+  { "id": "ability.boar_gore", "kind": "strike", "delay": 130, "power": 15000, "stat": "attack", "element": "none", "reach": "melee", "status": "none" },
+  { "id": "ability.jailer_club", "kind": "strike", "delay": 120, "power": 14000, "stat": "attack", "element": "none", "reach": "melee", "status": "stun", "chance": 1500 },
+  { "id": "ability.lamp_glare", "kind": "strike", "delay": 120, "power": 9000, "stat": "magic", "element": "fire", "reach": "any", "status": "blind", "chance": 4000 },
+  { "id": "ability.hound_bite", "kind": "strike", "delay": 110, "power": 13000, "stat": "attack", "element": "none", "reach": "melee", "status": "bleed", "chance": 2500 },
+  { "id": "ability.rat_bite", "kind": "strike", "delay": 100, "power": 10000, "stat": "attack", "element": "none", "reach": "melee", "status": "poison", "chance": 2500 }
  ]
 }

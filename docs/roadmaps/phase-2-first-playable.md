@@ -12,9 +12,9 @@ Text rules: this file follows ASD-STE100 (D-10). Tables are exempt from sentence
 
 Phase 2 turns the machine of Phase 1 into a game that the owner plays. It ends at Gate 2. There the owner walks the village, one hub, and one dungeon on the desktop and on the Deck. Then the owner signs off on feel (D-51, D-92, D-362).
 
-Phase 2 is the largest phase of the plan. It holds 59 PRs, and 56 of them land before Gate 2. Each system, each tool, and each group of screens takes an id of its own (D-486, G-8). The order follows one rule: a PR lands right before the first PR that needs it. By owner choice, the audio PRs, PR-38 and PR-69 to PR-72, land right after PR-17 (D-1079).
+Phase 2 is the largest phase of the plan. It holds 63 PRs, and 60 of them land before Gate 2. Each system, each tool, and each group of screens takes an id of its own (D-486, G-8). The order follows one rule: a PR lands right before the first PR that needs it. By owner choice, the audio PRs, PR-38 and PR-69 to PR-72, land right after PR-17 and its four art and effect PRs (D-1079, D-1328).
 
-Four lines of work run through the phase. The walk comes first: the frame, the map, the camera, and the enemies on it (PR-61, PR-7, PR-8). The fight follows, with the enemy record and the screen (PR-9, PR-80, PR-66, PR-10). The light and the effects then land, each right after the first map scene or battle scene that it needs (PR-48 to PR-60, D-520). The build, the story, and the audio close the phase, and PR-17 writes the content that the owner plays.
+Four lines of work run through the phase. The walk comes first: the frame, the map, the camera, and the enemies on it (PR-61, PR-7, PR-8). The fight follows, with the enemy record and the screen (PR-9, PR-80, PR-66, PR-10). The light and the effects then land, each right after the first map scene or battle scene that it needs (PR-48 to PR-60, D-520). The build, the story, and the audio close the phase, and PR-17 writes the content that the owner plays. PR-112 to PR-115 then draw its art and its effects (D-1328).
 
 Three PRs land after the Gate 2 build, and this file holds them. They are the store page work of PR-75 and PR-76, and the capture of PR-74 that takes its screenshots (D-550, D-551). The store page goes public at Gate 2 in the Coming Soon state (D-471).
 
@@ -299,7 +299,7 @@ Area file: `area-exploration.md` sections 7.6 and 7.7.
 
 - The fight itself and the hand-off of the encounter (PR-9, D-531), and the battle screen (PR-10).
 - The transition over the hand-off (PR-60).
-- The three views and the two-frame walk of a moving enemy, which PR-17 draws with the enemies of the first playable (D-207, D-744).
+- The three views and the two-frame walk of a moving enemy, which PR-113 draws for the enemies of the first playable (D-207, D-744, D-1328).
 - The enemy groups and their profiles (PR-11, D-535), and the stats of an enemy (PR-80, D-557).
 
 **Exit tests.**
@@ -397,7 +397,7 @@ Area files: `area-exploration.md` section 7.3, `area-ci.md` section 7.12.
 **Out of scope.**
 
 - A wall or a thing that stands in front of a sprite, which takes a layer of its own (D-783).
-- A walk animation of the lead. PR-17 draws the art of the first playable.
+- A walk animation of the lead. PR-113 draws the sprites of the first playable (D-1328).
 - A step east or west in the walk. The feet then stay on the edge of a row, and F-95 never showed there.
 
 **Exit tests.**
@@ -525,7 +525,7 @@ Area files: `area-art.md` section 7.5, `area-tools.md` section 7.5.
 
 **Out of scope.**
 
-- The backdrop content, which PR-10 and PR-17 write (D-205).
+- The backdrop content, which PR-10 and PR-114 write (D-205, D-1328).
 - The store images (PR-76, D-475).
 - The normal map of each piece (PR-48, D-516).
 
@@ -580,8 +580,8 @@ Area files: `area-battle.md` section 7.10, `area-ui-input.md` sections 7.1 and 7
 - The blood, the sparks, the shake, and the hit-stop (PR-57, D-186). PR-57 also moves each timing into the battle file (D-829, D-883).
 - The light on the battle scene (PR-56) and the battle music (PR-70, PR-72).
 - The boss phases (PR-20).
-- The hurt flinch and the down pose of a character (PR-17, D-200, D-828, D-884).
-- The backdrop of a place, and the link from a map to it (PR-17, D-831).
+- The hurt flinch and the down pose of a character (PR-113, D-200, D-828, D-884, D-1328).
+- The backdrop of a place, and the link from a map to it (PR-114, D-831, D-1328).
 - The mouse on the menu, and the remembered cursor (PR-62, PR-63, D-226).
 
 **Exit tests.**
@@ -836,7 +836,7 @@ Area file: `area-effects.md` section 7.9.
 **Out of scope.**
 
 - The ambience sound, which PR-70 plays (D-424).
-- The ambient effects of the first playable, which PR-17 writes (D-520).
+- The ambient effects of the first playable, which PR-115 writes (D-520, D-1328).
 - Glow, which PR-59 adds (OQ-102).
 
 **Exit tests.**
@@ -874,7 +874,7 @@ Area file: `area-effects.md` section 7.9.
 **Out of scope.**
 
 - The glow (PR-59).
-- The fog of the first places, which PR-17 writes (D-520).
+- The fog of the first places, which PR-115 writes (D-520, D-1328).
 
 **Exit tests.**
 
@@ -1297,7 +1297,7 @@ Area file: `area-story.md` sections 7.1, 7.2, 7.3, and 7.5.
 
 **Scope.**
 
-- The story scene format: a JSON list of eleven kinds of step (D-173, D-997). A pick of a choose step sets the flag of its option (D-1007).
+- The story scene format: a JSON list of eleven kinds of step (D-173, D-997). A pick of a choose step sets the flag of its option (D-1007). PR-17 adds a twelfth kind, the pay step (D-1335).
 - The join step, which adds a cast member to the party (D-342, D-563).
 - The story scene runner in Core, which holds the step index and every flag that a step sets (D-540).
 - The wait intent that Game sends at the end of a move, a face, a line, or a camera step. A wait step names its ticks, and Core counts them (D-493, D-522, D-1000, D-1013).
@@ -1411,7 +1411,7 @@ Area file: `area-progression.md` sections 7.4, 7.5, and 7.6.
 - The quest state that unlocks a side aptitude in play (PR-19, D-538).
 - The lessons of region one (PR-42, D-304) and the balance pass (PR-30).
 - The shop that hides an owned lesson (PR-65) and the fallback item of a chest (PR-16) (D-1024).
-- The steal of a Theft drill (PR-13) and the protect effect of a Guard drill (OQ-245, D-1029).
+- The steal of a Theft drill (PR-13) and the protect effect of a Guard drill (OQ-245, D-1029). PR-17 builds the cover (D-1352, D-1353).
 
 **Exit tests.**
 
@@ -1623,7 +1623,7 @@ Area files: `area-effects.md` section 7.10 and `area-ui-input.md` section 7.9.
 - A flame on the torch in the hand, a denser flame stream, and the flame orange for the carried light (D-1076).
 - Each binding matches every pad, and the menus take the A and the B buttons. Each action reads the first press of a hold (D-1077, F-107).
 - A key or a pad hides the mouse pointer, and a mouse move shows it (D-1078).
-- The audio PRs move to right after PR-17 (D-1079).
+- The audio PRs move to right after PR-17, and D-1328 puts them right after PR-115 (D-1079).
 
 **Out of scope.**
 
@@ -1912,7 +1912,7 @@ Area file: `area-exploration.md` section 7.11.
 - The shop and the gold (PR-65, D-530).
 - The hub lines that the dialogue box shows (PR-19, D-1176).
 - The hub content of the first playable (PR-17).
-- A reserve in the shipped content, and a capture of it (PR-17, D-1144).
+- A reserve in the shipped content, and a capture of it (PR-23, D-1144, D-1330).
 - A swap inside a battle (D-1134).
 - The travel between a hub and a dungeon (PR-35, D-1133).
 - The chest, the door, and the save point on the confirm rule (PR-16, D-1131).
@@ -2401,7 +2401,7 @@ Area file: `area-tools.md` section 7.13.
 
 **Out of scope.**
 
-- The edge rules and the edge pieces of every other kind, which PR-17 and the later art PRs add with their tile sets (D-1323).
+- The edge rules and the edge pieces of every other kind, which PR-112 and the later art PRs add with their tile sets (D-1323, D-1328).
 - No rule reads an edge file, so the content hash never sees one (D-495).
 
 **Exit tests.**
@@ -2422,52 +2422,64 @@ Area file: `area-tools.md` section 7.13.
 
 ### 7.55 PR-17: the village, the first hub, and the first dungeon
 
-Area files: every area file. The content PR touches each area.
+Area files: `area-exploration.md`, `area-battle.md`, `area-story.md`, and `area-progression.md`. D-1328 moves the art and the effects to PR-112 to PR-115.
 
 **Scope.**
 
-- The village and the land near it, the mining town, and the hanging cells, as content (D-28, D-39, D-313, D-369, D-370).
-- The tile sets, the layouts, and the edge files of each map (D-110, D-501).
-- The edge rules and the edge pieces of every other kind, after the water and the gorge of PR-53 (D-1323).
-- The enemies with their sprites, their profiles, and their groups (D-535).
-- The three views and the two-frame walk of each moving enemy, and a flip for each standing one (D-207, D-744).
-- The drawing of the mark of a sight, in the place of the two rectangles of PR-8 (D-208, D-744).
-- The backdrop of each place with fights, as a large picture (D-205, D-516).
-- The light setup of each map, at its time of day (D-442, D-519).
-- The ambient effects of each place (D-187, D-520).
-- The treasure, the shop stock, the NPC sprites, and the sprite set of Marrek (D-292).
-- The hurt flinch and the down pose of each party member in battle, in one art batch (D-200, D-884).
-- A placeholder story scene in the village (D-292).
-- The text of Marrek, Bergit, and Dagvar, and of the lessons of the first playable, in the voice (D-362, G-20).
-- The normal map of each new drawing (D-183, D-521).
+- The village, the map near it, the mining town, and the hanging cells on two floors, as rule content (D-28, D-39, D-313, D-369, D-1331, D-1340).
+- The layout, the decor file, and the edge file of each map, with stand-in drawings (D-501, D-1329).
+- The entrances from the overworld to the village, to the map near it, and to the town, in the place of the marks (D-1243).
+- The beasts and the foes of the cells, with their profiles and their groups, and the rates of the zones (D-535, D-1284, D-1332, D-1333).
+- The services of the town, the two save points, the shop stock, and the treasure (D-1339, D-1341, D-1343).
+- The lessons, the gear, the items, and the start kit (D-1341, D-1351).
+- The curves, the join levels, and the join kits of Bergit and Dagvar (D-1342, D-1350).
+- The cover, the effect of a Guard drill (D-1352, D-1353).
+- The cap of 9,999 on a hit and a heal, battle lines of two lines, and the capital of a common name (D-1356 to D-1358).
+- The paid scene step, the bribe of the turnkey, and a gate on every map (D-1334 to D-1336, D-1347, G-17).
+- The opening scene, the villagers, the joins of Bergit and Dagvar, and the notice at the end (D-563, D-1337, D-1344).
+- The time of a map set by a flag, a light setup for each time, and the night after the end (D-442, D-1338, D-1348, D-1349).
+- The thicket, which blocks the lead and stops sight on a hub and a dungeon (D-1362, D-1363, F-157).
+- The game ignores a pad with no controller mapping, such as a racing wheel (D-1365, F-156).
+- An entrance that names its arrival, the road exits, the new layout of Ostby, and the stand-in portraits (D-1367 to D-1371).
+- A fight that starts on an arrival waits for the step, and a neutral fight opens at random ticks (D-1374, D-1375).
+- The voice notes of the three characters, then the text of Marrek, Bergit, Dagvar, and the lessons, in the voice (D-362, D-1345, D-1346, G-20).
 
 **Out of scope.**
 
+- The art of PR-112 to PR-114, and the ambient effects, the added lights, and the budget test of PR-115 (D-1328).
 - The arc content of region one (PR-28, PR-29) and the other places (PR-23 to PR-27, PR-81).
 - The portraits of the cast (PR-28, PR-29). PR-36 uses fixture portraits.
-- The music and the sounds of the first playable. PR-72 adds them after this PR (D-1079).
-- The rest of the music of region one (PR-73).
+- The music and the sounds of the first playable. PR-72 adds them after PR-115 (D-1079, D-1328).
 - A boss. The first playable ends when Dagvar joins, and PR-20 builds the phase layer on a fixture boss (D-564).
+- A reserve in the shipped content, which waits for PR-23 (D-1330).
+- The lines of an NPC with no trigger (PR-19, D-1176).
 
 **Exit tests.**
 
-1. The owner plays from the village until Dagvar joins in the hanging cells (D-362).
-2. The play runs on the desktop and on the Deck (D-92).
-3. The budget test passes for every map and every battle place of the first playable (D-523).
-4. The bots play each map with no crash and no softlock (D-64).
-5. Each map preview and each review sheet reaches the PR description (D-514, G-25).
-6. Every string comes from the string table, and the owner approves each text batch (D-57, G-7, G-20).
-7. Each new content file loads, and no id is absent.
+1. The owner plays from the village until Dagvar joins in the cells, then reads the notice of the end (D-362, D-1337).
+2. The paid step removes the price and sets its flag. Too little gold, or no, changes nothing (D-1335).
+3. A new talk with the turnkey gives the offer again after each refusal (D-1335).
+4. A replay with the paid step gives one state hash on every CI leg. The simulation version changes (T-7, G-17).
+5. The bots play each map with no crash and no softlock (D-64).
+6. Each map preview reaches the PR description (D-514, G-25).
+7. Every string comes from the string table, and the owner approves each text batch (D-57, G-7, G-20).
+8. Each new content file loads, no id is absent, and each new thing has its drawing (D-519, D-1329).
+9. After the join of Dagvar, each map outside is at night (D-1338).
+10. A gate on a hub or a dungeon stops the party until its condition holds (D-1347).
+11. A map takes the time of its first change whose condition holds, at the next entry of the party (D-1349).
+12. A join gives the newcomer its join lessons and its join gear (D-1350).
+13. A cover takes each melee strike on the covered ally until the next turn of the holder (D-1352).
+14. With the longest names and the cap of 9,999, each battle line holds 2 lines of 40 (D-1356, D-1357).
 
 **Review focus.**
 
 - The text follows the `game-text-style` skill, and no line names an agent or a model (D-63, T-6).
 - The places follow `docs/world/places.md` (D-250, D-371).
-- The art batches carry their review sheets, and the owner approves each one (D-514, G-25).
+- The paid step in the save, the snapshot, and the replay (T-7, G-17).
 
-**Questions.** None. Every question of the systems above closes before this PR.
+**Questions.** None. D-1328 to D-1358 hold the answers of the start of PR-17. OQ-249 now blocks PR-23 (D-1330), and OQ-255 blocks PR-28.
 
-> *In plain English:* the first real place to play. Everything before this was machinery.
+> *In plain English:* the first real places to play, from the village down to the cells. They borrow the fixture pictures for now, and the four PRs after this one give each place its own look.
 
 ### 7.56 PR-38: the audio synthesizer and the first sounds
 
@@ -2948,7 +2960,7 @@ Area file: `area-exploration.md` section 7.13. World file: `docs/world/places.md
 - The places themselves and their entrances (PR-17, PR-23 to PR-27, PR-81).
 - The enemies and the rates of the zones (PR-17).
 - The treasure of the overworld (PR-111, D-1298).
-- The edge pieces of the gorge and the water (PR-53, D-1290, D-1323), and of each other kind (PR-17).
+- The edge pieces of the gorge and the water (PR-53, D-1290, D-1323), and of each other kind (PR-112, D-1328).
 
 **Exit tests.**
 
@@ -3005,6 +3017,171 @@ Area file: `area-exploration.md` section 7.13.
 
 > *In plain English:* four piles of stones now wait at the ends of side paths. A walk off the road finds them, and each one gives its items one time.
 
+### 7.71 PR-112: the tile sets and the edges of the first playable
+
+Area file: `area-art.md` section 7.9.
+
+**Scope.**
+
+- The tile sets of the village, the map near it, the mining town, and the hanging cells (D-110, D-686, D-1328).
+- The edge rules and the edge pieces of every kind of these maps, other than the water and the gorge (D-1323, D-1328).
+- The edge file of each map again, with the new rules (D-501).
+- The normal map of each new drawing (D-183, D-521).
+
+**Out of scope.**
+
+- The sprites (PR-113), the backdrops (PR-114), and the effects (PR-115).
+- The tiles of the other places of region one (PR-23 to PR-27, PR-81).
+
+**Exit tests.**
+
+1. The atlas matches the grids by pixel, and so does the atlas of the normal maps (D-107, D-184).
+2. Each edge file matches its map and the edge rules (D-501).
+3. Each tile repeats with no grid (D-686, F-88).
+4. Each map preview and each review sheet reaches the PR description, and the owner approves each batch (D-514, G-25).
+5. No rule file changes, so the content hash stays the same (D-495).
+
+**Review focus.**
+
+- The stand-in drawings of PR-17 that each tile replaces (D-1329).
+- The edge rules of each kind that meets another kind (D-1323).
+
+**Questions.** The questions of the art batch, which this PR asks when it starts (D-487).
+
+> *In plain English:* the first places get their own ground tiles. Where two kinds of ground meet, the edge looks drawn and not cut.
+
+### 7.72 PR-113: the sprites and the poses of the first playable
+
+Area file: `area-art.md` section 7.9.
+
+**Scope.**
+
+- The enemies of PR-17: three views and a two-frame walk for each moving enemy, and a flip for each standing one (D-207, D-744, D-1332, D-1333).
+- The drawing of the mark of a sight, in the place of the two rectangles of PR-8 (D-208, D-744).
+- The NPC sprites, and the sprite sets of Marrek, Bergit, and Dagvar (D-114, D-292).
+- The hurt flinch and the down pose of each party member in battle, in one art batch (D-200, D-884).
+- The normal map of each new drawing (D-183, D-521).
+
+**Out of scope.**
+
+- The tiles (PR-112), the backdrops (PR-114), and the portraits of the cast (PR-28, PR-29).
+
+**Exit tests.**
+
+1. The atlas matches the grids by pixel, and so does the atlas of the normal maps (D-107, D-184).
+2. Each thing that Game draws has its drawing, and no stand-in sprite of PR-17 stays (D-519, D-1329).
+3. The author reads each frame of `make sheet` and `make walk`, and the PR says so (D-784).
+4. Each review sheet reaches the PR description, and the owner approves each batch (D-514, G-25).
+5. No rule file changes, so the content hash stays the same (D-495).
+
+**Review focus.**
+
+- The facing of each view against the sight of each patrol (D-207, D-208).
+
+**Questions.** The questions of the art batch, which this PR asks when it starts (D-487).
+
+> *In plain English:* the beasts, the jailers, the villagers, and the three heroes get their own pictures, and each one turns and walks.
+
+### 7.73 PR-114: the backdrops of the first playable
+
+Area file: `area-art.md` section 7.9.
+
+**Scope.**
+
+- The backdrop of each place with fights, as a large picture of three or four layers (D-205, D-516, D-1328).
+- The link from a map to its backdrop, in the place of the fixture backdrop (D-831).
+- The light of the set time of each map on its backdrop (D-442).
+- The normal map of each new piece (D-183, D-521).
+
+**Out of scope.**
+
+- The ambient effects over a backdrop (PR-115).
+
+**Exit tests.**
+
+1. Each fight of a place draws the backdrop of that place (D-831).
+2. A map with fights and no backdrop fails with the file and the id (T-2).
+3. The atlas matches the pieces by pixel (D-107).
+4. Each review sheet reaches the PR description, and the owner approves each batch (D-514, G-25).
+5. Each changed baseline of the `screen-test` job has a reason in the PR (D-731).
+
+**Review focus.**
+
+- The drift of the layers at the Deck floor (D-205, D-92).
+
+**Questions.** The questions of the art batch, which this PR asks when it starts (D-487).
+
+> *In plain English:* each fight shows the place where it happens, in place of the one test picture.
+
+### 7.74 PR-115: the light and the effects of the first playable
+
+Area file: `area-effects.md`.
+
+**Scope.**
+
+- The ambient effects of each place (D-187, D-520, D-1328).
+- The added lights of each map, such as the lamps and the torches (D-183, D-442).
+- The budget test for every map and every battle place of the first playable (D-523).
+
+**Out of scope.**
+
+- The music and the sounds (PR-72, D-1079).
+
+**Exit tests.**
+
+1. The budget test passes for every map and every battle place of the first playable (D-523).
+2. The play runs on the desktop and on the Deck (D-92).
+3. Fog never hides an enemy that the player must see (D-187, D-885).
+4. Each changed baseline of the `screen-test` job has a reason in the PR (D-731).
+
+**Review focus.**
+
+- The load of each map against the effect budget (D-523, D-617).
+
+**Questions.** The questions of the effects, which this PR asks when it starts (D-487).
+
+> *In plain English:* the first places get their snow, their dust, and their lamps. A test proves that the Deck still holds its frame rate.
+
+### 7.75 PR-90: the balance harness and the playthrough suite
+
+Area files: `area-tools.md` section 7.16, `area-ci.md` section 7.14. The owner moved this PR from Phase 4 to right after PR-17, and added the playthrough suite (D-1372, D-1373).
+
+**Scope.**
+
+- Three bot levels (D-1372, OQ-258). A beginner plays with errors and no plan. An intermediate plays a fair plan with few errors. A perfect bot plays the best plan that it can find.
+- The careful policy of D-822 is one of the three levels (D-1373, OQ-258).
+- The playthrough suite, a command of Tools (D-1372, OQ-259). It plays the first playable from the spawn point in the village to the join of Dagvar, for a seed count that the person gives. One third of the seeds play each level.
+- A report of the share of each level that reaches the join of Dagvar with no wipe, with the place of each wipe (D-1372, OQ-259).
+- The guided-run test of PR-17 moves to the suite (D-1372).
+- The `balance` command of Tools, which plays a loop of seeds and reports the metrics of each encounter, dungeon, item, and lesson (D-822, OQ-216).
+- A content file of bands, one for each metric, which the owner sets from the first report (D-571, D-822).
+- A check of the night job that fails when a metric leaves its band, with the seed and the report (D-507, D-822, OQ-260).
+
+**Out of scope.**
+
+- A change of a number. The owner balances the enemies, the stats, the gains of each level, and the items from the reports. PR-30 moves the numbers of region one (D-822, D-1372).
+- The turns and the outcome of each battle of the random and greedy bots, which PR-15 reports (D-1182). The `balance` command can read them.
+- The balance of later regions, which their own phases hold.
+
+**Exit tests.**
+
+1. The suite runs with a seed count, and it splits the seeds across the three levels (D-1372).
+2. The report gives the share of each level that reaches the join of Dagvar (D-1372).
+3. Two runs of the suite and of the `balance` command with one seed list give the same reports (T-7).
+4. A planted metric outside its band fails the night check with the metric, the band, and the seed.
+5. Over the same seeds, the perfect bot reaches the join of Dagvar at least as often as the intermediate bot. The intermediate bot reaches it at least as often as the beginner.
+6. Each bot makes the same intents that Game makes, and a test proves it (D-493).
+7. det-lint finds no float type in the report code (D-502).
+
+**Review focus.**
+
+- The answers of OQ-216 and OQ-258 to OQ-260 set the metrics, the bands, the play of each level, the report, and the night check.
+- The report reads a run record, so a replay repeats each number (G-5).
+
+**Questions.** OQ-216, OQ-258, OQ-259, and OQ-260.
+
+> *In plain English:* robots of three skills play the first playable many times. The report says how many of each reach the end alive, and how hard each fight is and how useful each item is. The owner tunes the balance from those numbers, and the nightly check then keeps each later change inside the limits.
+
 ## 8. Sequence
 
 The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). Phase 2 holds this order:
@@ -3021,7 +3198,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 10. PR-15 requires the bot check (D-1186). The PR-49 session requires `night-gate` after the first night on `main` (D-1192).
 11. PR-16, PR-64, PR-35, PR-109, PR-110, PR-111: the dungeon, the overworld, its encounters, the overworld of region one, and its treasure (D-1254, D-1298).
 12. PR-51, PR-52, PR-53: the PNG import, the map preview, and the tile-edge tool.
-13. PR-17: the village, the mining town, and the hanging cells.
+13. PR-17: the village, the mining town, and the hanging cells. Then PR-90: the balance harness and the playthrough suite (D-1373). Then PR-112 to PR-115: their art and their effects (D-1328).
 14. PR-38, PR-69, PR-70, PR-71: the audio tool, the player, the rules, and the sound room (D-1079).
 15. PR-72: the music and the sounds of the first playable.
 16. M-3, M-4, M-6: the night numbers, the encounter numbers, and the Deck.
@@ -3052,6 +3229,10 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-89 | Pixel snap in Game, resolved by D-715 | PR-7 |
 | OQ-91 | The operations of a large picture on a piece, resolved by D-812 | PR-55 |
 | OQ-94 | How the budget test counts one view, resolved by D-842 | PR-56 |
+| OQ-216 | The metrics, the bands, and the policy of the balance harness | PR-90 |
+| OQ-258 | The play of each bot level | PR-90 |
+| OQ-259 | The report of the playthrough suite | PR-90 |
+| OQ-260 | Where the playthrough suite runs | PR-90 |
 | OQ-95 | Where a torch light comes from, resolved by D-843 | PR-56 |
 | OQ-96 | Where the shape of a shadow comes from, resolved by D-845 | PR-56 |
 | OQ-97 | The colors of light, resolved by D-846 | PR-56 |

@@ -6,7 +6,8 @@
  "draws": [
   { "content": "cast.bergit", "use": "map_front" },
   { "content": "npc.fixture_hub_trader", "use": "map_front" },
-  { "content": "npc.fixture_hub_guard", "use": "map_front" }
+  { "content": "npc.fixture_hub_guard", "use": "map_front" },
+  { "content": "npc.town_trader", "use": "map_front" }
  ],
  "frames": [
   {

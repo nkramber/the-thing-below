@@ -1,0 +1,58 @@
+{
+ "comment": "Gruvhald, the walled mining town of the first playable (D-1339, D-1354). The inn stands to the west, with the innkeeper and the rest service, and its back yard holds the broken waystone, a save point. The trader stands in the square and holds the shop. The chapel stands to the east. The turnkey waits inside it, and the gate on the stair door opens once the party pays him (D-1334, D-1335, D-1347). The exit behind the gate leads down to the hanging cells, and the party arrives on the spawn point in the chapel from each place, so the way back from the cells ends beside the stair. The exit in the south wall leads to the overworld. The town is dusk, and night after the end of the first playable (D-1338, D-1349).",
+ "id": "map.mining_town",
+ "region": "region.one",
+ "label": "label.mining_town",
+ "kind": "hub",
+ "time": "dusk",
+ "time_changes": [{ "time": "night", "condition": { "flag": "flag.first_playable_end" } }],
+ "dark": false,
+ "terrain": [
+  "####################################",
+  "#..........#.......................#",
+  "#..........#.........###############",
+  "#..........#.######..#........#...##",
+  "######+#####.######..#............##",
+  "#..........#.######..#........#...##",
+  "#..........#.######..#........######",
+  "#..........#.######..#............##",
+  "#..........#.######..#............##",
+  "######+#####.........#............##",
+  "#....................#............##",
+  "#....................#######+#######",
+  "#.#######..........................#",
+  "#.#######..........................#",
+  "#.#######...............#########..#",
+  "#.#######...............#########..#",
+  "#.#######...............#########..#",
+  "#.#######...............#########..#",
+  "#.......................#########..#",
+  "#..................................#",
+  "#..................................#",
+  "#################.##################"
+ ],
+ "things": [
+  { "id": "spawn_point.town_chapel", "kind": "spawn_point", "x": 27, "y": 7 },
+  { "id": "marker.town_gate_in", "kind": "marker", "x": 17, "y": 20 },
+  { "id": "save_point.town_waystone", "kind": "save_point", "x": 5, "y": 2 },
+  { "id": "gate.town_cells_door", "kind": "gate", "x": 30, "y": 4, "condition": { "flag": "flag.town_turnkey_paid" }, "notice": "notice.town_cells_door" },
+  { "id": "exit.town_cells_stair", "kind": "exit", "x": 32, "y": 4, "to": "map.cells_upper" },
+  { "id": "exit.town_gate", "kind": "exit", "x": 17, "y": 21, "to": "map.overworld", "arrive": "marker.overworld_town" }
+ ],
+ "enemies": [],
+ "npcs": [
+  { "id": "npc.town_innkeeper", "facing": "south", "step_ticks": 32, "move": "route", "tiles": [{ "x": 3, "y": 6, "wait_ticks": 0 }] },
+  { "id": "npc.town_trader", "facing": "south", "step_ticks": 32, "move": "route", "tiles": [{ "x": 16, "y": 14, "wait_ticks": 0 }] },
+  { "id": "npc.town_turnkey", "facing": "east", "step_ticks": 32, "move": "route", "tiles": [{ "x": 28, "y": 4, "wait_ticks": 0 }] }
+ ],
+ "services": [
+  { "id": "service.town_inn", "kind": "rest", "npc": "npc.town_innkeeper", "condition": { "always": true }, "price": 10 },
+  { "id": "service.town_shop", "kind": "shop", "npc": "npc.town_trader", "condition": { "always": true }, "shop": "shop.town_trader" }
+ ],
+ "zones": [],
+ "zone_grid": [],
+ "reopen": [],
+ "triggers": [
+  { "id": "trigger.town_turnkey", "kind": "talk", "npc": "npc.town_turnkey", "scene": "scene.town_turnkey", "condition": { "not": { "flag": "flag.town_turnkey_paid" } } }
+ ]
+}

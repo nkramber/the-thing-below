@@ -28,8 +28,8 @@ public sealed class TorchSightTests
     [Fact]
     public void ADarkMapGivesThePartyTwoTilesAndSixWithTheTorchHeldOut()
     {
-        Assert.Equal(2, MapRules.PartySightRange(DarkRoom, torchHeld: false));
-        Assert.Equal(6, MapRules.PartySightRange(DarkRoom, torchHeld: true));
+        Assert.Equal(2, MapRules.PartySightRange(DarkRoom, DarkRoom.BaseTime, torchHeld: false));
+        Assert.Equal(6, MapRules.PartySightRange(DarkRoom, DarkRoom.BaseTime, torchHeld: true));
     }
 
     [Fact]
@@ -41,8 +41,8 @@ public sealed class TorchSightTests
             GameMap map = PatrolMaps.Of(PatrolMaps.Enemy(sightRange: 1), TimesOfDay.NameOf(time));
             Patrol patrol = Assert.Single(map.Patrols);
 
-            Assert.Equal(MapRules.PartySightRange(time), MapRules.PartySightRange(map, torchHeld: false));
-            Assert.Equal(MapRules.PartySightRange(time), MapRules.PartySightRange(map, torchHeld: true));
+            Assert.Equal(MapRules.PartySightRange(time), MapRules.PartySightRange(map, map.BaseTime, torchHeld: false));
+            Assert.Equal(MapRules.PartySightRange(time), MapRules.PartySightRange(map, map.BaseTime, torchHeld: true));
             Assert.Equal(1, MapRules.PatrolSightRange(map, patrol, torchHeld: true));
         }
     }
@@ -55,7 +55,7 @@ public sealed class TorchSightTests
         Assert.Equal(MapRules.DarkSightRange, MapRules.PatrolSightRange(DarkRoom, patrol, torchHeld: false));
         Assert.Equal(MapRules.DarkSightRange + MapRules.TorchSightBonus, MapRules.PatrolSightRange(DarkRoom, patrol, torchHeld: true));
         Assert.Equal(
-            MapRules.PartySightRange(DarkRoom, torchHeld: true) - MapRules.PartySightRange(DarkRoom, torchHeld: false),
+            MapRules.PartySightRange(DarkRoom, DarkRoom.BaseTime, torchHeld: true) - MapRules.PartySightRange(DarkRoom, DarkRoom.BaseTime, torchHeld: false),
             MapRules.PatrolSightRange(DarkRoom, patrol, torchHeld: true) - MapRules.PatrolSightRange(DarkRoom, patrol, torchHeld: false));
     }
 
@@ -92,8 +92,8 @@ public sealed class TorchSightTests
             bool clear = MapSight.Clear(DarkRoom, lead, other);
             int reach = MapSight.Reach(lead, other);
 
-            bool dark = MapSight.PartySees(DarkRoom, lead, MapRules.PartySightRange(DarkRoom, torchHeld: false), other);
-            bool lit = MapSight.PartySees(DarkRoom, lead, MapRules.PartySightRange(DarkRoom, torchHeld: true), other);
+            bool dark = MapSight.PartySees(DarkRoom, lead, MapRules.PartySightRange(DarkRoom, DarkRoom.BaseTime, torchHeld: false), other);
+            bool lit = MapSight.PartySees(DarkRoom, lead, MapRules.PartySightRange(DarkRoom, DarkRoom.BaseTime, torchHeld: true), other);
 
             Assert.True((clear && reach <= 2) == dark, $"The seed {seed} gave the party with the torch put away a sight of {dark} from {lead} to {other} (D-1063).");
             Assert.True((clear && reach <= 6) == lit, $"The seed {seed} gave the party with the torch held out a sight of {lit} from {lead} to {other} (D-1063).");
@@ -156,7 +156,7 @@ public sealed class TorchSightTests
             bool held = generator.Next() % 2 == 0;
 
             bool seen = MapSight.PatrolSees(DarkRoom, from, facing, MapRules.PatrolSightRange(DarkRoom, patrol, held), lead);
-            bool shown = MapSight.PartySees(DarkRoom, lead, MapRules.PartySightRange(DarkRoom, held), from);
+            bool shown = MapSight.PartySees(DarkRoom, lead, MapRules.PartySightRange(DarkRoom, DarkRoom.BaseTime, held), from);
 
             Assert.True(!seen || shown, $"The seed {seed} let the patrol at {from} see the party at {lead} from outside the sight of the party, with the torch held {held} (D-720).");
         }

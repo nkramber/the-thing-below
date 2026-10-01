@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Maps;
@@ -78,7 +79,11 @@ public sealed class BotRulesTests
         ContentSet content = ContentSet.Load(TheThingBelow.Tools.Content.ContentFolder.Read(RepositoryRoot.Find()));
 
         content.Bots.RequireStartsOf(MapSet.Of(content.Maps));
-        Assert.Equal(["map.fixture_dungeon", "map.fixture_hub"], [content.Bots.StartMaps[0].Value, content.Bots.StartMaps[1].Value]);
+        // D-1185: the fixture dungeon and the fixture hub come first, and PR-17 adds the five places
+        // of the first playable, so the bots play each new map (exit test 5 of PR-17).
+        Assert.Equal(
+            ["map.fixture_dungeon", "map.fixture_hub", "map.village", "map.village_pasture", "map.mining_town", "map.cells_upper", "map.cells_lower"],
+            content.Bots.StartMaps.Select(map => map.Value));
     }
 
     private static BotRules Read(string text) => BotRules.Read(Encoding.UTF8.GetBytes(text), BotRules.Path);

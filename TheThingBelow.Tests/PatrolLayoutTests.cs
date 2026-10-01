@@ -268,8 +268,8 @@ public sealed class PatrolLayoutTests
         Assert.Equal(EnemySize.Elite, map.Patrols[2].Size);
         foreach (Patrol patrol in map.Patrols)
         {
-            Assert.True(patrol.SightRange <= MapRules.PartySightRange(map.Time));
-            Assert.NotNull(patrol.StationOf(map.Time));
+            Assert.True(patrol.SightRange <= MapRules.PartySightRange(map.BaseTime));
+            Assert.NotNull(patrol.StationOf(map.BaseTime));
         }
     }
 

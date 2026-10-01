@@ -19,8 +19,8 @@ public sealed class BotRunTests : IDisposable
     [Fact]
     public void AGreedyRunOnTheHubReachesTheGoalFlag()
     {
-        // D-1181, D-1183, D-1185: an odd seed starts on the hub, and the greedy bot walks into
-        // the rats scene and wins its battle.
+        // D-1181, D-1183, D-1185: seed 1 starts on the hub, and the greedy bot walks into the
+        // rats scene and wins its battle.
         BotResult result = this.Play(1, new GreedyPolicy());
 
         Assert.Equal(BotEnd.Complete, result.End);
@@ -32,9 +32,10 @@ public sealed class BotRunTests : IDisposable
     [Fact]
     public void AGreedyRunInTheDungeonCrossesTheOverworldToTheGoalFlag()
     {
-        // Exit test 9 of PR-35 (D-1185, D-1243): an even seed starts in the dungeon, and the only
-        // way to the rats of the hub is the exit, the overworld, and the entrance of the inn.
-        BotResult result = this.Play(2, new GreedyPolicy());
+        // Exit test 9 of PR-35 (D-1185, D-1243): seed 7 starts in the dungeon, the first of the
+        // seven start maps, and the only way to the rats of the hub is the exit, the overworld,
+        // and the entrance of the inn.
+        BotResult result = this.Play(7, new GreedyPolicy());
 
         Assert.Equal(BotEnd.Complete, result.End);
         Assert.Equal(result.Played, result.GoalPlayed);
@@ -56,7 +57,7 @@ public sealed class BotRunTests : IDisposable
     {
         // T-7, G-4: the record holds each intent, and the numbers of a policy never reach a rule,
         // so a replay with no policy gives the state hash of the run. The seed loop covers both
-        // policies and both start maps.
+        // policies and each of the seven start maps.
         for (ulong seed = 1; seed <= 8; seed += 1)
         {
             foreach (IBotPolicy policy in new IBotPolicy[] { new RandomPolicy(seed), new GreedyPolicy() })
@@ -71,6 +72,40 @@ public sealed class BotRunTests : IDisposable
                     replayed.StateHash() == result.StateHash,
                     $"Seed {seed}, policy {BotPolicyKinds.NameOf(policy.Kind)}: the replay gave another state hash at tick {replayed.Tick}.");
             }
+        }
+    }
+
+    [Theory]
+    [InlineData(2UL, "map.village")]
+    [InlineData(3UL, "map.village_pasture")]
+    [InlineData(4UL, "map.mining_town")]
+    [InlineData(5UL, "map.cells_upper")]
+    [InlineData(6UL, "map.cells_lower")]
+    public void EachPlaceOfTheFirstPlayablePlaysWithNoCrashAndNoSoftlock(ulong seed, string map)
+    {
+        // Exit test 5 of PR-17 (D-64, D-1185): the bots start on each new map, walk it, fight,
+        // and play its story scenes. No way leads from region one to the rats of the fixture hub,
+        // so each run ends as budget, and no run crashes or locks.
+        Assert.Equal(map, Content.Value.Bots.StartOf(seed).Value);
+        foreach (IBotPolicy policy in new IBotPolicy[] { new GreedyPolicy(), new RandomPolicy(seed) })
+        {
+            BotResult result = this.Play(seed, policy);
+
+            Assert.False(BotEnds.Fails(result.End), $"Seed {seed}, policy {BotPolicyKinds.NameOf(policy.Kind)}: the run ended as {BotEnds.NameOf(result.End)}. {result.Message}");
+            Assert.Equal(BotEnd.Budget, result.End);
+        }
+    }
+
+    [Fact]
+    public void AGreedyRunOfTheFirstPlayableWinsFightsOnEachFloorOfTheCells()
+    {
+        // Exit test 5 of PR-17: the greedy bot meets the patrols of each floor of the hanging
+        // cells and wins a fight on each, so a run reads the enemies of region one.
+        foreach (ulong seed in new ulong[] { 5, 6 })
+        {
+            BotResult result = this.Play(seed, new GreedyPolicy());
+
+            Assert.Contains(result.Battles, battle => battle.Outcome == Core.Battles.BattleOutcome.Won);
         }
     }
 

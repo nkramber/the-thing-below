@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Godot;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Story;
@@ -29,7 +30,7 @@ public sealed class DialogueBox
     private readonly Color chosenColor;
     private readonly int body;
     private readonly DialogueChange change = new();
-    private IReadOnlyList<ChooseOption>? shownOptions;
+    private IReadOnlyList<ContentId>? shownOptions;
 
     /// <summary>Builds the dialogue box over the frame, hidden.</summary>
     /// <param name="frame">The frame, whose UI layer takes the box.</param>
@@ -109,7 +110,12 @@ public sealed class DialogueBox
             return;
         }
 
-        if (parts.Line)
+        if (parts.Line && play.Price is int price)
+        {
+            // The line of an offer fills its place with the price (D-1335).
+            this.ui.Text.Put(this.line, shown, new Dictionary<string, string>(StringComparer.Ordinal) { [ScenePlay.PricePlace] = price.ToString(CultureInfo.InvariantCulture) });
+        }
+        else if (parts.Line)
         {
             this.ui.Text.Put(this.line, shown);
         }
@@ -136,7 +142,7 @@ public sealed class DialogueBox
         ArgumentNullException.ThrowIfNull(fit);
         ArgumentNullException.ThrowIfNull(play);
 
-        if (signal is not InputEventMouse mouse || play.Options is not IReadOnlyList<ChooseOption> options)
+        if (signal is not InputEventMouse mouse || play.Options is not IReadOnlyList<ContentId> options)
         {
             return false;
         }
@@ -184,7 +190,7 @@ public sealed class DialogueBox
     /// <summary>Shows the options of a choice, one on each row, with the option under the cursor in the chosen color (D-1175).</summary>
     private void ShowChoices(ScenePlay play)
     {
-        IReadOnlyList<ChooseOption>? options = play.Options;
+        IReadOnlyList<ContentId>? options = play.Options;
         int count = options?.Count ?? 0;
         this.choiceWindow.Visible = count > 0;
         if (!ReferenceEquals(options, this.shownOptions))
@@ -199,7 +205,7 @@ public sealed class DialogueBox
                 this.choices[row].Visible = row < count;
                 if (options is not null && row < count)
                 {
-                    this.ui.Text.Put(this.choices[row], options[row].Line);
+                    this.ui.Text.Put(this.choices[row], options[row]);
                 }
             }
 

@@ -210,7 +210,10 @@ The phase files give each batch its scope. This table names the art that the dec
 | PR-8 | One fixture drawing of an enemy, a front view, which each fixture enemy takes | D-744 |
 | PR-10 | The fixture battle drawings of Marrek with his attack pose, the grunt, and the brute. The pointer, and the 18 icons of the elements and the statuses. Every fight draws the fixture backdrop of PR-55 | D-96, D-108, D-214, D-811, D-828, D-831, D-833 |
 | PR-36 | Fixture portraits | D-234 |
-| PR-17 | The tile sets of the village, the land near it, the mining town, and the hanging cells, with their edge tiles. The enemies with their three views and their walk, the mark of a sight, the NPCs, and the backdrop. The map and battle frames of Marrek, Bergit, and Dagvar | D-110, D-199, D-200, D-204, D-207, D-362, D-369, D-744 |
+| PR-17 | No new drawing. Each new thing of the first playable uses a fixture drawing | D-1328, D-1329 |
+| PR-112 | The tile sets of the village, the land near it, the mining town, and the hanging cells, with the edge rules and the edge pieces of each kind | D-110, D-204, D-369, D-1323, D-1328 |
+| PR-113 | The enemies with their three views and their walk, the mark of a sight, the NPCs, and the map and battle frames of Marrek, Bergit, and Dagvar | D-199, D-200, D-207, D-362, D-744, D-884 |
+| PR-114 | The backdrop of each place with fights | D-205, D-516, D-831, D-1328 |
 | PR-23 to PR-27 and PR-81 | The tile sets, enemies, bosses, and backdrops of each later place, the sealed gallery included, and the NPCs of the second hub | D-110, D-313, D-575 |
 | PR-28 and PR-29 | The portraits of the cast | D-109, D-234 |
 | PR-42 | The icons of the lessons of region one | PR-42 in `docs/design.md` |
@@ -218,7 +221,7 @@ The phase files give each batch its scope. This table names the art that the dec
 | The store page work at Gate 2 | The capsules, the logo, and the library images, as large pictures | D-475, D-516 |
 | Phase 6 | The icons of the achievements | D-466 |
 
-- The design text of PR-17 names the sprite set of Marrek alone. Bergit and Dagvar fight and act in story scenes of the first playable, so PR-17 also needs their frames (D-114, D-200, D-362).
+- The design text of PR-17 names the sprite set of Marrek alone. Bergit and Dagvar fight and act in story scenes of the first playable, so PR-113 also draws their frames (D-114, D-200, D-362, D-1328).
 - The frames of Ottild and Elio land before the place where each joins the party (D-342). PR-23 draws them, because both join between the hanging cells and the deep mine.
 - `area-ui-input.md` places the window frames of D-220 and the icons of D-214. The game draws no button glyph (D-815).
 
@@ -260,7 +263,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 7. PR-48: the normal maps of every drawing file, right before PR-56, the first PR that draws light (D-520, D-521).
 8. PR-36: the fixture portraits.
 9. PR-51, PR-52, and PR-53: the PNG import, the map preview, and the tile-edge tool, before PR-17 (D-497).
-10. PR-17: the art of the first playable, with a normal map for each new drawing.
+10. PR-112, PR-113, and PR-114, after PR-17: the art of the first playable, with its normal maps (D-1328).
 11. **← GATE 2 (first playable).** Then the store images of the store page (D-471, D-475).
 
 `area-effects.md` holds the order of the effect PRs between PR-10 and PR-17 (D-520).

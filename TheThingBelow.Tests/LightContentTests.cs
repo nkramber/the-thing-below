@@ -104,6 +104,23 @@ public sealed class LightContentTests
     }
 
     [Fact]
+    public void AMapWithNoLightSetupForTheTimeOfAChangeFails()
+    {
+        // D-1349: each map holds a light setup for each time that it can take, so the night map
+        // that a flag turns to dawn needs a dawn setup too.
+        const string Dawn = """[{ "time": "dawn", "condition": { "flag": "flag.test_victor" } }]""";
+        List<ContentFile> files = LightFixtures.Files(LightFixtures.DecorBody(string.Empty), LightFixtures.SetupBody());
+
+        ContentException error = Assert.Throws<ContentException>(() => LightFixtures.Load(files, timeChanges: Dawn));
+
+        Assert.Contains("map.lit", error.Message, StringComparison.Ordinal);
+        Assert.Contains("'dawn'", error.Message, StringComparison.Ordinal);
+        files.Add(LightFixtures.File("light/setups/lit-dawn.json", LightFixtures.SetupBody(time: "dawn")));
+        LightContent light = LightFixtures.Load(files, timeChanges: Dawn);
+        Assert.Equal(TimeOfDay.Dawn, light.SetupOf(Map, TimeOfDay.Dawn).Time);
+    }
+
+    [Fact]
     public void AMapWithNoDecorFileFails()
     {
         List<ContentFile> files = LightFixtures.Files(LightFixtures.DecorBody(string.Empty), LightFixtures.SetupBody());

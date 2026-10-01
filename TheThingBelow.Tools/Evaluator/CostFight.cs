@@ -28,9 +28,9 @@ public static class CostFight
     {
      "comment": "The party of the cost fight: three characters.",
      "characters": [
-      { "id": "character.cost_first", "row": "front", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.cost_side", "curve": {{StatCurve.FlatText(new StatRow(90, 20, 12, 6, 4, 3, 100))}} },
-      { "id": "character.cost_second", "row": "front", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.cost_side", "curve": {{StatCurve.FlatText(new StatRow(80, 20, 10, 8, 3, 3, 110))}} },
-      { "id": "character.cost_third", "row": "back", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.cost_side", "curve": {{StatCurve.FlatText(new StatRow(70, 20, 8, 10, 2, 4, 120))}} }
+      { "id": "character.cost_first", "row": "front", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.cost_side", "join_lessons": [], "join_gear": [], "curve": {{StatCurve.FlatText(new StatRow(90, 20, 12, 6, 4, 3, 100))}} },
+      { "id": "character.cost_second", "row": "front", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.cost_side", "join_lessons": [], "join_gear": [], "curve": {{StatCurve.FlatText(new StatRow(80, 20, 10, 8, 3, 3, 110))}} },
+      { "id": "character.cost_third", "row": "back", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.cost_side", "join_lessons": [], "join_gear": [], "curve": {{StatCurve.FlatText(new StatRow(70, 20, 8, 10, 2, 4, 120))}} }
      ],
      "start_party": ["character.cost_first", "character.cost_second", "character.cost_third"],
      "pack": [{ "item": "item.cost_draught", "count": 3 }],
@@ -49,6 +49,7 @@ public static class CostFight
      "comment": "The enemy of the cost fight, with one move of each kind.",
      "id": "enemy.cost_raider",
      "size": "common",
+     "proper": false,
      "level": 1,
      "experience": 10,
      "gold_low": 5,
@@ -157,7 +158,7 @@ public static class CostFight
      "label": "label.cost_fight",
      "time": "day",
      "dark": false,
-     "kind": "dungeon", "npcs": [], "services": [], "zones": [], "zone_grid": [], "reopen": [],
+     "kind": "dungeon", "npcs": [], "services": [], "zones": [], "zone_grid": [], "time_changes": [], "reopen": [],
      "terrain": [
       "#######",
       "#.....#",

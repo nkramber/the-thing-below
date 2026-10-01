@@ -379,14 +379,16 @@ public partial class Boot : Node
     }
 
     /// <summary>
-    /// Logs each pad that connects or disconnects, and forgets the held buttons of a pad that
-    /// disconnects (D-1077).
+    /// Logs each pad that connects or disconnects, forgets the held buttons of a pad that
+    /// disconnects (D-1077), and ignores a pad that connects with no controller mapping (D-1365).
     /// </summary>
     /// <param name="device">The device number of the pad.</param>
     /// <param name="connected">True when the pad connected.</param>
     /// <remarks>
     /// A system can show one pad as two devices, such as the Steam Deck with Steam Input. The
     /// log names each device, so a report of a pad fault shows the devices of that system (T-2).
+    /// A device with no mapping, such as a racing wheel, gives raw axes: a pedal of a wheel walked
+    /// the lead south with no input on Windows. The log names each ignored device (F-156).
     /// </remarks>
     private void OnPadConnectionChanged(long device, bool connected)
     {
@@ -395,6 +397,13 @@ public partial class Boot : Node
             int pad = (int)device;
             int forgot = connected ? 0 : this.gate.ForgetPad(pad);
             string name = Input.GetJoyName(pad);
+            bool known = Input.IsJoyKnown(pad);
+            bool ignored = connected && !known;
+            if (ignored)
+            {
+                this.gate.IgnorePad(pad);
+            }
+
             this.WriteLog([new LogEntry(
                 LogLevel.Info,
                 connected ? "a pad connected" : "a pad disconnected",
@@ -403,7 +412,8 @@ public partial class Boot : Node
                 [
                     LogField.OfNumber("device", pad),
                     new LogField("name", name.Length > 0 ? name : "none"),
-                    new LogField("known", Input.IsJoyKnown(pad) ? "yes" : "no"),
+                    new LogField("known", known ? "yes" : "no"),
+                    new LogField("ignored", ignored ? "yes" : "no"),
                     LogField.OfNumber("forgot", forgot),
                 ])]);
         }
@@ -1714,7 +1724,7 @@ public partial class Boot : Node
         ContentSet content = ContentSet.Load(files);
         GD.Print($"smoke: the content is {files.Count} files with the hash {content.Hash}.");
 
-        GameRun session = GameRun.Start(content, FixtureSeed, DebugSeam.Handlers(), SmokeSettings().Battle.Messages);
+        GameRun session = GameRun.StartFixture(content, FixtureSeed, DebugSeam.Handlers(), SmokeSettings().Battle.Messages);
         GD.Print($"smoke: the run is {this.DescribeRun(session)}.");
         GD.Print($"smoke: the log is {this.DescribeLog()}.");
         GD.Print($"smoke: the crash file is {DescribeCrashFile(session)}.");
@@ -2286,6 +2296,21 @@ public partial class Boot : Node
                 $"The press gate passed [{string.Join(", ", passed)}], and the rule gives [{string.Join(", ", expected)}] (D-1077, T-2).");
         }
 
+        // A pad with no controller mapping, such as a racing wheel, presses nothing until it
+        // disconnects, and the next pad on its device number presses again (D-1365, F-156).
+        const int Wheel = OtherPad + 2;
+        var wheelGate = new PressGate();
+        wheelGate.IgnorePad(Wheel);
+        bool wheelStick = wheelGate.Read(PadStick(JoyAxis.LeftY, Wheel, 1f));
+        bool wheelButton = wheelGate.Read(PadButton(JoyButton.A, Wheel, true));
+        wheelGate.ForgetPad(Wheel);
+        bool nextPad = wheelGate.Read(PadButton(JoyButton.A, Wheel, true));
+        if (wheelStick || wheelButton || wheelGate.Holds(InputActions.StepSouth) || !nextPad)
+        {
+            throw new InvalidOperationException(
+                $"An ignored pad passed a stick {wheelStick} and a button {wheelButton}, and the next pad on its number passed {nextPad} (D-1365, T-2).");
+        }
+
         var pointer = new MousePointer();
         pointer.Read(PadButton(JoyButton.A, OtherPad, true));
         bool hidden = !pointer.Shown;
@@ -2296,7 +2321,7 @@ public partial class Boot : Node
                 $"A pad press hid the pointer {hidden}, and a mouse move showed it {pointer.Shown} (D-1078, T-2).");
         }
 
-        return $"{matched} bindings that a pad of the device {OtherPad} presses, one press of each hold, " +
+        return $"{matched} bindings that a pad of the device {OtherPad} presses, one press of each hold, no press of an ignored pad, " +
             "and a pointer that a pad hides and a mouse shows";
     }
 
@@ -2341,7 +2366,7 @@ public partial class Boot : Node
         GameInputMap.Build(SmokeSettings().Controls);
         FrameRoot built = FrameRoot.AddTo(this);
         UiBase shownBase = UiBase.Load(loaded, loaded.Style.SmallBody);
-        GameRun session = GameRun.Start(loaded, FixtureSeed, DebugSeam.Handlers(), SmokeSettings().Battle.Messages);
+        GameRun session = GameRun.StartFixture(loaded, FixtureSeed, DebugSeam.Handlers(), SmokeSettings().Battle.Messages);
         int closes = 0;
         var host = new MenuHost(built, shownBase, session, loaded, SmokeSettings, _ => closes += 1, entries => this.WriteLog(entries));
 
@@ -2608,7 +2633,7 @@ public partial class Boot : Node
     /// <exception cref="InvalidOperationException">A step never ended, or a torch stopped (T-2).</exception>
     private static string DescribeAnotherRoom(ContentSet loaded, MapScreen drawn)
     {
-        GameRun walked = GameRun.Start(loaded, FixtureSeed, DebugSeam.Handlers(), SmokeSettings().Battle.Messages);
+        GameRun walked = GameRun.StartFixture(loaded, FixtureSeed, DebugSeam.Handlers(), SmokeSettings().Battle.Messages);
         foreach (string action in ScreenCaptures.PitRoute)
         {
             walked.Queue(walked.IntentOf(action));
@@ -2706,7 +2731,7 @@ public partial class Boot : Node
         }
 
         const int WalkTicks = 120;
-        GameRun walked = GameRun.Start(loaded, FixtureSeed, DebugSeam.Handlers(), SmokeSettings().Battle.Messages);
+        GameRun walked = GameRun.StartFixture(loaded, FixtureSeed, DebugSeam.Handlers(), SmokeSettings().Battle.Messages);
         FrameRoot built = FrameRoot.AddTo(this);
         UiBase ui = UiBase.Load(loaded, loaded.Style.SmallBody);
         MapScreen first = MapFixture.Build(built, ui, walked, loaded);

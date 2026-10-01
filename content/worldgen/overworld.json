@@ -28,8 +28,8 @@
  ],
  "things": [
   { "role": "spawn", "id": "spawn_point.overworld_start", "x": 52, "y": 100 },
-  { "role": "village", "id": "mark.overworld_village", "x": 48, "y": 98 },
-  { "role": "town", "id": "mark.overworld_town", "x": 54, "y": 54 },
+  { "role": "village", "id": "entrance.overworld_village", "x": 48, "y": 98 },
+  { "role": "town", "id": "entrance.overworld_town", "x": 54, "y": 54 },
   { "role": "fort", "id": "mark.overworld_fort", "x": 64, "y": 18 },
   { "role": "ice_crossing", "id": "mark.overworld_ice_crossing", "x": 74, "y": 0 },
   { "role": "mine", "id": "mark.overworld_mine", "x": 10, "y": 52 },

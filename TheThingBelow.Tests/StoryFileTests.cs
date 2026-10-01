@@ -24,17 +24,18 @@ public sealed class StoryFileTests
     }
 
     [Fact]
-    public void TheCheckoutFlagFileHoldsTheFixtureFlagsAndTheGateFlags()
+    public void TheCheckoutFlagFileHoldsTheFixtureFlagsTheGateFlagsAndTheFlagsOfTheFirstPlayable()
     {
         // PR-12 adds the fixture flag of the side aptitude of Marrek (D-538, D-556), PR-36 the
-        // three flags of the fixture story scenes of the hub, and PR-110 the four flags of the
-        // gates of the overworld (D-1282).
+        // three flags of the fixture story scenes of the hub, PR-110 the four flags of the gates
+        // of the overworld (D-1282), and PR-17 the four flags of the first playable (D-1337, D-1344).
         FlagList flags = FlagList.Read(System.IO.File.ReadAllBytes(RepositoryRoot.PathTo("content/rules/flags.json")), FlagList.Path);
 
         Assert.Equal(
             [
                 "flag.fixture_marrek_side", "flag.fixture_hub_yes", "flag.fixture_hub_no", "flag.fixture_hub_rats",
                 "flag.region_one_bergit_joins", "flag.region_one_ottild_joins", "flag.region_one_breakout", "flag.region_one_night_pass",
+                "flag.village_opening", "flag.town_turnkey_paid", "flag.region_one_dagvar_joins", "flag.first_playable_end",
             ],
             Values(flags.Ids()));
     }
@@ -87,6 +88,7 @@ public sealed class StoryFileTests
     [InlineData(SceneStepKind.Camera, SceneStepEnd.WaitIntent)]
     [InlineData(SceneStepKind.Wait, SceneStepEnd.Ticks)]
     [InlineData(SceneStepKind.Choose, SceneStepEnd.Pick)]
+    [InlineData(SceneStepKind.Pay, SceneStepEnd.Pick)]
     [InlineData(SceneStepKind.StartBattle, SceneStepEnd.Battle)]
     [InlineData(SceneStepKind.SetFlag, SceneStepEnd.AtOnce)]
     [InlineData(SceneStepKind.Join, SceneStepEnd.AtOnce)]
@@ -121,6 +123,11 @@ public sealed class StoryFileTests
     [InlineData("""{ "kind": "wait", "ticks": 5 }""", ".id)")]
     [InlineData("""{ "id": "step.end", "kind": "wait", "ticks": 5 }""", "marks the end of a story scene")]
     [InlineData("""{ "id": "scene.s16", "kind": "wait", "ticks": 5 }""", "the kind 'step'")]
+    [InlineData("""{ "id": "step.s18", "kind": "pay", "speaker": "none", "line": "line.test_greet", "price": 0, "flag": "flag.test_yes", "refusal": "line.test_no" }""", "an offer costs one gold or more")]
+    [InlineData("""{ "id": "step.s19", "kind": "pay", "speaker": "none", "line": "line.test_greet", "price": 5, "flag": "flag.test_yes" }""", ".refusal)")]
+    [InlineData("""{ "id": "step.s20", "kind": "pay", "speaker": "none", "line": "line.test_greet", "flag": "flag.test_yes", "refusal": "line.test_no" }""", ".price)")]
+    [InlineData("""{ "id": "step.s21", "kind": "pay", "speaker": "none", "line": "line.test_greet", "price": 5, "flag": "flag.test_yes", "refusal": "line.test_no", "ticks": 3 }""", "reads no field 'ticks'")]
+    [InlineData("""{ "id": "step.s22", "kind": "say", "speaker": "none", "line": "line.test_greet", "price": 5 }""", "reads no field 'price'")]
     public void AMalformedStepFailsWithTheReason(string step, string reason)
     {
         ContentException error = Assert.Throws<ContentException>(() => TestStory.Scene(SceneOf(step), "test"));

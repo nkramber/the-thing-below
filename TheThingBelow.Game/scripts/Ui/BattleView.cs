@@ -22,7 +22,8 @@ public sealed class ShownCombatant
         int health,
         BattleRow row,
         CombatantPlace place,
-        IReadOnlyList<StatusKind> statuses)
+        IReadOnlyList<StatusKind> statuses,
+        bool properName)
     {
         this.Target = target;
         this.Id = id;
@@ -31,10 +32,18 @@ public sealed class ShownCombatant
         this.Row = row;
         this.Place = place;
         this.statuses = [.. statuses];
+        this.ProperName = properName;
     }
 
     /// <summary>The side and the slot of the combatant.</summary>
     public BattleTarget Target { get; }
+
+    /// <summary>
+    /// True for a proper name, which keeps its capital in the middle of a battle line: each
+    /// character, and an enemy whose record says so. A common name takes a capital at the start
+    /// of a line alone (D-1358).
+    /// </summary>
+    public bool ProperName { get; }
 
     /// <summary>The content id of the character or of the enemy, such as `enemy.fixture_grunt`.</summary>
     public ContentId Id { get; }
@@ -196,7 +205,8 @@ public sealed class BattleView
                 member.Health,
                 member.Row,
                 member.Health == 0 ? CombatantPlace.Down : CombatantPlace.Field,
-                member.Statuses);
+                member.Statuses,
+                properName: true);
             shownParty[slot].Grow(member.Record, member.Level, member.Ap);
         }
 
@@ -212,7 +222,8 @@ public sealed class BattleView
                 combatant.FullHealth,
                 entry.Row,
                 entry.Waits ? CombatantPlace.Waiting : CombatantPlace.Field,
-                []);
+                [],
+                state.BattleContent.Enemy(combatant.Id).Proper);
         }
 
         return new BattleView(shownParty, shownEnemies);
@@ -250,14 +261,14 @@ public sealed class BattleView
 
         Battle battle = state.Battle ?? throw new InvalidOperationException(
             $"The battle screen builds the view of a fight at tick {state.Tick}, and no battle runs (T-2).");
-        ShownCombatant[] party = ShownOf(battle.Party);
+        ShownCombatant[] party = ShownOf(battle.Party, state.BattleContent);
         for (int slot = 0; slot < party.Length; slot += 1)
         {
             PartyMember member = state.Characters.Members[slot];
             party[slot].Grow(member.Record, member.Level, member.Ap);
         }
 
-        return new BattleView(party, ShownOf(battle.Enemies));
+        return new BattleView(party, ShownOf(battle.Enemies, state.BattleContent));
     }
 
     /// <summary>Gives the combatant at one side and one slot.</summary>
@@ -354,7 +365,7 @@ public sealed class BattleView
         }
     }
 
-    private static ShownCombatant[] ShownOf(IReadOnlyList<Combatant> side)
+    private static ShownCombatant[] ShownOf(IReadOnlyList<Combatant> side, BattleContent content)
     {
         var shown = new ShownCombatant[side.Count];
         for (int slot = 0; slot < shown.Length; slot += 1)
@@ -376,7 +387,8 @@ public sealed class BattleView
                 combatant.Health,
                 combatant.Row,
                 combatant.Place,
-                statuses);
+                statuses,
+                combatant.Side == BattleSide.Party || content.Enemy(combatant.Id).Proper);
         }
 
         return shown;

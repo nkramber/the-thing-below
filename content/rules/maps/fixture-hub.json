@@ -5,6 +5,7 @@
  "label": "label.fixture_hub",
  "kind": "hub",
  "time": "day",
+ "time_changes": [],
  "dark": false,
  "terrain": [
   "####################",
@@ -22,6 +23,7 @@
  ],
  "things": [
   { "id": "spawn_point.fixture_hub_start", "kind": "spawn_point", "x": 4, "y": 6 },
+  { "id": "marker.fixture_hub_way_in", "kind": "marker", "x": 5, "y": 6 },
   { "id": "save_point.fixture_hub_waystone", "kind": "save_point", "x": 14, "y": 2 },
   { "id": "marker.fixture_hub_corner", "kind": "marker", "x": 1, "y": 1 },
   { "id": "marker.fixture_hub_bench", "kind": "marker", "x": 1, "y": 2 },

@@ -40,6 +40,41 @@ public sealed class GameRunTests
     private static readonly ContentId HubId = ContentId.Parse("map.fixture_hub", "test", "map");
 
     [Fact]
+    public void ARunOfThePlayerStartsInTheVillageWithTheRealKitOfMarrek()
+    {
+        // D-1344, D-1351: the run of the player opens on the first map, with the two real lessons,
+        // the real weapon and coat, two poultices, and the torch.
+        object run = GameAssemblyFile.Type(RunTypeName)
+            .GetMethod("Start", [typeof(ContentSet), typeof(ulong), typeof(DebugIntentHandlers), typeof(MessageSpeed)])!
+            .Invoke(null, [Content.Value, Seed, DebugIntentHandlers.None, MessageSpeed.Normal])!;
+        var state = (RunState)run.GetType().GetProperty("State")!.GetValue(run)!;
+        PartyMember marrek = Assert.Single(state.Characters.Members);
+
+        Assert.Equal("map.village", state.Party.Map.Id.Value);
+        Assert.Equal(["lesson.hew", "lesson.undercut"], ValuesOf(marrek.Slots));
+        Assert.Equal(["gear.fathers_pick", "gear.work_coat"], ValuesOf(marrek.Gear).Where(piece => piece is not null));
+        Assert.Equal(["item.poultice 2", "item.torch 1"], state.Characters.Pack.Select(entry => $"{entry.Id.Value} {entry.Count}"));
+        Assert.Empty(state.Characters.LessonPack);
+    }
+
+    [Fact]
+    public void TheFixtureRunStartsInTheFixtureDungeonWithTheFixtureKit()
+    {
+        // D-117, D-172, D-1351: the smoke session and the screen fixtures walk the fixture dungeon
+        // with the kit of PR-12 to PR-16, so each capture keeps its fight, its spell, and its pack.
+        Run run = Run.Start();
+        PartyMember marrek = Assert.Single(run.State.Characters.Members);
+
+        Assert.Equal("map.fixture_dungeon", run.State.Party.Map.Id.Value);
+        Assert.Equal(Content.Value.Map(ContentId.Parse("map.fixture_dungeon", "test", "map")).Spawn, run.State.Party.LeadAt);
+        Assert.Equal(["lesson.fixture_hew", "lesson.fixture_cinder"], ValuesOf(marrek.Slots));
+        Assert.Equal(["gear.fixture_pick", "gear.fixture_coat"], ValuesOf(marrek.Gear).Where(piece => piece is not null));
+        Assert.Contains("item.fixture_draught 3", run.State.Characters.Pack.Select(entry => $"{entry.Id.Value} {entry.Count}"));
+        Assert.Equal(6, run.State.Characters.LessonPack.Count);
+        Assert.Equal(0, run.Tick);
+    }
+
+    [Fact]
     public void AQueuedOpenMenuPausesTheWorldForTheNextTick()
     {
         // A regression test of the crash that a press of the menu button with a direction
@@ -751,6 +786,17 @@ public sealed class GameRunTests
         return kinds;
     }
 
+    private static List<string?> ValuesOf(IReadOnlyList<ContentId?> ids)
+    {
+        List<string?> values = [];
+        foreach (ContentId? id in ids)
+        {
+            values.Add(id?.Value);
+        }
+
+        return values;
+    }
+
     private sealed class Run
     {
         private readonly object instance;
@@ -839,7 +885,7 @@ public sealed class GameRunTests
         {
             Type type = GameAssemblyFile.Type(RunTypeName);
             MethodInfo start = type.GetMethod(
-                "Start",
+                "StartFixture",
                 [typeof(ContentSet), typeof(ulong), typeof(DebugIntentHandlers), typeof(MessageSpeed)])
                 ?? throw new InvalidOperationException("The run holds no 'Start' method (T-2).");
 

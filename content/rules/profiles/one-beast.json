@@ -1,0 +1,9 @@
+{
+ "comment": "The profile of the beasts of region one: the wolf, the crow, and the boar (D-956). A beast weighs damage and kills, and never heals. The steal list holds some gold, and the drop list a rare poultice (D-383, D-949, D-1042). PR-30 tunes each number.",
+ "id": "profile.one_beast",
+ "weights": { "damage": 100, "kills": 3, "threat": 40, "healing": 0, "timeline": 1, "row": 100 },
+ "steal_chance": 3000,
+ "steal_gear_chance": 0,
+ "steal": [{ "gold": 4 }],
+ "drops": [{ "item": "item.poultice", "chance": 800 }]
+}

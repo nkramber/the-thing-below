@@ -1,0 +1,19 @@
+{
+ "comment": "The starved boar of the pasture above the village, which runs with the wolves and took the goat of Orrin (D-1353). Its body is two by two tiles, and it gores a front row foe. The level and the experience follow D-977, and a win rolls the gold from the low gold to the high gold (D-1157). PR-30 tunes each number. Its name is a common noun, so a battle line writes it in lower case after the start (D-1358).",
+ "id": "enemy.starved_boar",
+ "size": "elite",
+ "proper": false,
+ "level": 3,
+ "experience": 20,
+ "gold_low": 6,
+ "gold_high": 10,
+ "health": 60,
+ "attack": 12,
+ "magic": 0,
+ "defense": 4,
+ "resistance": 2,
+ "speed": 80,
+ "abilities": ["ability.boar_gore"],
+ "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" },
+ "immune": []
+}

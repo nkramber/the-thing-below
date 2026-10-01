@@ -91,6 +91,27 @@ public sealed class ScreenplayTextTests
     }
 
     [Fact]
+    public void AnOfferPrintsItsPriceItsFlagItsLineAndItsRefusal()
+    {
+        // D-1335: the owner reads both lines of an offer, and the price and the flag beside them.
+        StoryScene scene = TestStory.Scene(
+            """{ "comment": "c", "id": "scene.test_offer", "steps": [ { "id": "step.s1", "kind": "pay", "speaker": "character.test_second", "line": "line.test_greet", "price": 30, "flag": "flag.test_yes", "refusal": "line.test_no" } ] }""",
+            "offer");
+
+        string text = ScreenplayText.Write(scene, Strings);
+
+        const string Expected = """
+            `[0]` *Offer: 30 gold. Yes sets flag.test_yes.*
+            **OSSA**
+            > You came.
+            *Refusal, after no or too little gold, which ends the scene:*
+            **OSSA**
+            > No.
+            """;
+        Assert.Contains(Expected.Replace("\r\n", "\n", StringComparison.Ordinal), text, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void ALineOfTwoLinesStaysOneQuote()
     {
         StringTable strings = StringTable.Read(

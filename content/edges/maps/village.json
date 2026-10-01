@@ -1,0 +1,29 @@
+{
+ "comment": "The edge pieces of the map 'map.village' (D-501, D-1326). The `edges` command of Tools writes this file from the map and the edge rules, and a test compares it with the output of the command. Run `make edges` after a change of the map or of an edge rule.",
+ "map": "map.village",
+ "tiles": [
+  { "x": 22, "y": 0, "pieces": ["edge.water_east", "edge.water_west"] },
+  { "x": 22, "y": 1, "pieces": ["edge.water_east", "edge.water_west"] },
+  { "x": 21, "y": 2, "pieces": ["edge.water_north", "edge.water_west", "edge.water_south_east"] },
+  { "x": 22, "y": 2, "pieces": ["edge.water_east", "edge.water_south", "edge.water_north_west"] },
+  { "x": 21, "y": 3, "pieces": ["edge.water_east", "edge.water_west"] },
+  { "x": 21, "y": 4, "pieces": ["edge.water_east", "edge.water_west"] },
+  { "x": 21, "y": 5, "pieces": ["edge.water_east", "edge.water_west"] },
+  { "x": 20, "y": 6, "pieces": ["edge.water_north", "edge.water_west", "edge.water_south_east"] },
+  { "x": 21, "y": 6, "pieces": ["edge.water_east", "edge.water_south", "edge.water_north_west"] },
+  { "x": 20, "y": 7, "pieces": ["edge.water_east", "edge.water_west"] },
+  { "x": 20, "y": 8, "pieces": ["edge.water_east", "edge.water_west"] },
+  { "x": 20, "y": 9, "pieces": ["edge.water_east", "edge.water_west"] },
+  { "x": 19, "y": 11, "pieces": ["edge.water_north", "edge.water_west", "edge.water_south_east"] },
+  { "x": 20, "y": 11, "pieces": ["edge.water_east", "edge.water_south", "edge.water_north_west"] },
+  { "x": 19, "y": 12, "pieces": ["edge.water_east", "edge.water_west"] },
+  { "x": 19, "y": 13, "pieces": ["edge.water_east", "edge.water_west"] },
+  { "x": 19, "y": 14, "pieces": ["edge.water_east", "edge.water_west"] },
+  { "x": 19, "y": 15, "pieces": ["edge.water_east", "edge.water_west"] },
+  { "x": 19, "y": 16, "pieces": ["edge.water_east", "edge.water_west"] },
+  { "x": 19, "y": 17, "pieces": ["edge.water_east", "edge.water_west"] },
+  { "x": 19, "y": 18, "pieces": ["edge.water_east", "edge.water_west"] },
+  { "x": 19, "y": 19, "pieces": ["edge.water_east", "edge.water_west"] },
+  { "x": 19, "y": 20, "pieces": ["edge.water_east", "edge.water_west"] }
+ ]
+}

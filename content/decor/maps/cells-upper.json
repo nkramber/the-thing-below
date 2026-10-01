@@ -1,0 +1,6 @@
+{
+ "comment": "The decor pieces of the upper floor of the hanging cells (D-844). No rule reads a piece, so this file stays out of the content hash (D-495). No wall torch hangs here yet, so the carried torch alone lights the dark, and PR-115 adds the lights of the first playable (D-1328).",
+ "map": "map.cells_upper",
+ "pieces": [],
+ "shafts": []
+}

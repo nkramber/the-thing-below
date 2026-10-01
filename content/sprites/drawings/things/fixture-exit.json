@@ -5,7 +5,11 @@
  "height": 32,
  "draws": [
   { "content": "exit.fixture_dungeon_way_up", "use": "map" },
-  { "content": "exit.fixture_hub_way_out", "use": "map" }
+  { "content": "exit.fixture_hub_way_out", "use": "map" },
+  { "content": "exit.town_cells_stair", "use": "map" },
+  { "content": "exit.cells_upper_stair_up", "use": "map" },
+  { "content": "exit.cells_upper_stair_down", "use": "map" },
+  { "content": "exit.cells_lower_stair_up", "use": "map" }
  ],
  "frames": [
   {

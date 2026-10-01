@@ -38,7 +38,7 @@ public sealed class EncounterLoadTests
          "things": [
           { "id": "spawn_point.test_cellar_start", "kind": "spawn_point", "x": 1, "y": 1 }
          ],
-         "enemies": [], "npcs": [], "services": [], "zones": [], "zone_grid": [], "reopen": [], "triggers": []
+         "enemies": [], "npcs": [], "services": [], "zones": [], "zone_grid": [], "time_changes": [], "reopen": [], "triggers": []
         }
         """;
 

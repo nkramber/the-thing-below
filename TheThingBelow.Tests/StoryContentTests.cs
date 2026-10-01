@@ -28,6 +28,8 @@ public sealed class StoryContentTests
     [InlineData("""{ "id": "step.s6", "kind": "hide", "actor": "character.test_second" }""", "steps[0].actor", "is not on the map at this step")]
     [InlineData("""{ "id": "step.s7", "kind": "move", "actor": "character.test_second", "path": ["west"] }""", "steps[0].actor", "is not on the map at this step")]
     [InlineData("""{ "id": "step.s8", "kind": "face", "actor": "character.test_second", "facing": "west" }""", "steps[0].actor", "is not on the map at this step")]
+    [InlineData("""{ "id": "step.s9", "kind": "pay", "speaker": "none", "line": "line.test_greet", "price": 5, "flag": "flag.test_lost", "refusal": "line.test_no" }""", "steps[0].flag", "flag.test_lost")]
+    [InlineData("""{ "id": "step.s10", "kind": "pay", "speaker": "character.test_absent", "line": "line.test_greet", "price": 5, "flag": "flag.test_yes", "refusal": "line.test_no" }""", "steps[0].speaker", "character.test_absent")]
     public void AStepThatNamesAnIdOfNoOtherFileFailsWithTheStorySceneTheStepAndTheId(string step, string field, string reason)
     {
         ContentException error = Assert.Throws<ContentException>(() => Load(Scene(step)));
@@ -122,6 +124,23 @@ public sealed class StoryContentTests
     }
 
     [Fact]
+    public void ATimeChangeThatNamesAnUndeclaredFlagFailsWithTheMapAndTheChange()
+    {
+        // D-543, D-1349: a time change joins the readers of the one condition form.
+        GameMap map = TimeMaps.Of(
+            "day",
+            """[{ "time": "dusk", "condition": { "flag": "flag.test_met" } }, { "time": "night", "condition": { "any": [{ "flag": "flag.test_met" }, { "flag": "flag.test_lost" }] } }]""");
+
+        ContentException error = Assert.Throws<ContentException>(() => TestStory.Content.RequireTimeChangesOf(map));
+
+        Assert.Contains("time-test.json", error.Message, StringComparison.Ordinal);
+        Assert.Contains("time_changes[1].condition", error.Message, StringComparison.Ordinal);
+        Assert.Contains("flag.test_lost", error.Message, StringComparison.Ordinal);
+        Assert.Throws<ContentException>(() => Simulation.Start(1, map, TestBattles.Content, TestBattles.Notices, TestStory.Content, DebugIntentHandlers.None));
+        TestStory.Content.RequireTimeChangesOf(TimeMaps.NightOnFlag);
+    }
+
+    [Fact]
     public void ARunRefusesAHubWhoseServiceNamesAnUndeclaredFlag()
     {
         Assert.Throws<ContentException>(() => Simulation.Start(
@@ -169,6 +188,21 @@ public sealed class StoryContentTests
         ContentException error = Assert.Throws<ContentException>(() => Load(TestStory.Scene(TestStory.MeetFile, "meet")).RequireStrings(strings));
 
         Assert.Contains("scene.test_meet.steps[6].options[1].line", error.Message, StringComparison.Ordinal);
+        Assert.Contains("line.test_no", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ARefusalOfAPayStepThatNamesAnAbsentStringFails()
+    {
+        // G-7, D-1335: the offer and the refusal each name a string of the table.
+        StringTable strings = StringTable.Read(
+            Encoding.UTF8.GetBytes("""{ "comment": "c", "strings": [ { "id": "line.test_greet", "text": "Five {price}." } ] }"""),
+            StringTable.Path);
+        StoryContent content = Load(Scene("""{ "id": "step.s1", "kind": "pay", "speaker": "none", "line": "line.test_greet", "price": 5, "flag": "flag.test_yes", "refusal": "line.test_no" }"""));
+
+        ContentException error = Assert.Throws<ContentException>(() => content.RequireStrings(strings));
+
+        Assert.Contains("scene.test_probe.steps[0].refusal", error.Message, StringComparison.Ordinal);
         Assert.Contains("line.test_no", error.Message, StringComparison.Ordinal);
     }
 

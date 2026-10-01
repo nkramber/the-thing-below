@@ -6,7 +6,11 @@
  "draws": [
   { "content": "cast.dagvar", "use": "map_front" },
   { "content": "npc.fixture_hub_keeper", "use": "map_front" },
-  { "content": "npc.fixture_hub_stranger", "use": "map_front" }
+  { "content": "npc.fixture_hub_stranger", "use": "map_front" },
+  { "content": "npc.village_aldo", "use": "map_front" },
+  { "content": "npc.village_orrin", "use": "map_front" },
+  { "content": "npc.town_innkeeper", "use": "map_front" },
+  { "content": "npc.town_turnkey", "use": "map_front" }
  ],
  "frames": [
   {

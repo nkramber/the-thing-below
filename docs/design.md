@@ -174,6 +174,8 @@ The shop window takes a count, and it shows the change of each fighter for a pie
 
 2026-09-27 region one pass: the one overworld of the game holds region one at 160 tiles by 128 (D-1274, D-1297). A generator in Tools writes the land from a settings file, and a test proves that the map matches it (D-1294 to D-1296). A place with no map yet is a mark, and each zone names its region (D-1271, D-1285, D-1289). PR-111 adds the treasure of the overworld (D-1298).
 
+2026-09-28 first playable pass: PR-17 writes the places of the first playable as rule content and text, with stand-in drawings (D-1328, D-1329). PR-112 to PR-115 then draw the tile sets and the edges, the sprites and the poses, the backdrops, and the light and the effects. By owner choice, PR-17 also builds six Core changes (D-1336, D-1347, D-1348, D-1350, D-1353, D-1357). They are a paid step, a gate on every map, and the time set by a flag. The other three are the kit of a newcomer, the cover, and the cap of a hit. OQ-249 now blocks PR-23, because no character of the first playable waits in reserve (D-1330).
+
 External facts, each with the date of its check:
 
 - The GitHub repository `nkramber/the-thing-below` is public. Its name changed from the working title on 2026-09-14 (D-410). Source: `gh repo view`, run 2026-09-14.
@@ -524,6 +526,9 @@ Status: ✅ done (code merged, or "doc" for a document-only correction) · 🔧 
 | F-153 | A window title of the playtest of PR-65 drew with a soft edge of two pixels on each stroke. A title doubles the strike of its bitmap font, and the frame viewport drew it with a linear filter. A `SubViewport` made in code takes the linear filter of `canvas_item_default_texture_filter`, and the project setting of the default filter reaches the root viewport alone. A pixel map of `menu-items-1x.png` showed the soft edge on 2026-09-26 | 2026-09-26 | ✅ PR-36: the frame viewport sets the Nearest filter, and a test reads the setting (D-1172) |
 | F-154 | The bot runs of PR-15 could reach no goal. Game starts each run in the fixture dungeon (D-1133), which holds no story scene, no NPC, and no service, and the hub holds the one flag that a scene sets. A measure of 2,000 greedy runs also found 12 hub seeds that wipe in the fight of the rats before any save, start again from the seed, and wipe the same way until the budget | 2026-09-26 | ✅ PR-15: the bot runs start in the dungeon and on the hub in turn, and a loop of that kind ends as budget, not as softlock (D-1179, D-1185) |
 | F-155 | The `bots` command kept each run result with its run record until the summary. 20,000 random runs held 5.8 GB. A night of D-1191 plays more than 150,000 random runs, and a macOS runner of a public repository has "7 GB". Source: `https://docs.github.com/en/actions/reference/runners/github-hosted-runners`, read 2026-09-26 | 2026-09-26 | ✅ PR-49: the totals of each policy keep no run record, and 60,000 random runs held 182 MB (G-14) |
+| F-156 | The lead walked south with no input in the playtest on Windows, and the S key stopped moving the menu cursor. The log named the device: a Logitech G29 racing wheel, with no controller mapping. One of its raw axes went past the dead zone after it rested, and it held the step south and the menu action `ui_down`. A first rule, a push only after the axis rests, did not stop it | 2026-09-28 | ✅ PR-17: the game ignores each device with no controller mapping, and the log names it. The rest rule is gone (D-1365) |
+| F-157 | The forest of the village and of the pasture let the lead walk through the border of the map in the playtest on Windows. The forest is walkable by D-1256, and the two maps used it as a border and as clumps | 2026-09-28 | ✅ PR-17: the thicket kind blocks the lead and stops sight, and the two maps write it (D-1362, D-1363) |
+| F-158 | The guided runs of PR-17 fell from 34 to 30 of 40 seeds that reach the join of Dagvar. The cause was the crow area of the pasture at (22, 11), which session 405 chose and which sat on the route of the runs. The run count stood at the floor of 34 before the change, so a small change of the route can fail the test | 2026-09-30 | ✅ PR-17: the crows take the strip at (18, 11), 5 by 2, north of the clump that they circled, and 34 of 40 runs reach the join. PR-90 measures the balance with the playthrough suite (D-1372, D-1373) |
 ## 6. Guardrails (the safety contract for every PR)
 
 ### 6.1 Tenets
@@ -613,7 +618,7 @@ Phase file: `docs/roadmaps/phase-1-foundations.md`.
 
 ### Phase 2: First playable (gate: the owner plays the village, one hub, and one dungeon with lessons and a shop, on the desktop and on the Deck, D-51, D-92, D-268, D-362, D-369)
 
-Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase: 59 PRs, and 56 of them land before Gate 2. Each system, each tool, and each group of screens takes an id of its own (D-486, G-8).
+Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase: 63 PRs, and 60 of them land before Gate 2. Each system, each tool, and each group of screens takes an id of its own (D-486, G-8).
 
 1. Owner: set the fonts, Terminus TTF and Terminus TTF Bold (D-263, D-264).
 2. PR-54: the export job, right before PR-7 (D-449, D-503).
@@ -670,8 +675,8 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 53. PR-51: the PNG import, with the hand-edit mode, the generator mode, and the frame PNG (D-107, D-497, D-688, D-1313).
 54. PR-52: the map preview as a PNG, with the sprites of a map and no hidden part (D-165, D-497, D-1317 to D-1320).
 55. PR-53: the tile-edge tool, the edge files, and the placeholder edge pieces of the water and the gorge (D-204, D-501, D-1321 to D-1327).
-56. PR-17: the village, the mining town, and the hanging cells as content (D-362, D-369, D-370).
-57. PR-38: the synthesizer, the two note formats, the render hashes, and the `listen` command, right after PR-17 (D-432, D-438, D-1079).
+56. PR-17: the village, the mining town, and the hanging cells as content (D-362, D-369, D-370, D-1328). PR-90 follows it with the balance harness and the playthrough suite (D-1373). Then PR-112 to PR-115 add the art and the effects of the first playable (D-1328).
+57. PR-38: the synthesizer, the two note formats, the render hashes, and the `listen` command, right after PR-115 (D-432, D-438, D-1079, D-1328).
 58. PR-69: the audio player, the four buses, and the mute (D-435, D-546).
 59. PR-70: every rule of what plays when (D-413, D-546).
 60. PR-71: the sound room in a development build (D-439, D-546).
@@ -708,7 +713,7 @@ PR-22 is retired. Jobs five to eight have no purpose after D-268, and no later i
 
 Phase file: `docs/roadmaps/phase-4-region-one.md`. Each item here is content, and the balance pass is the one item that moves a number that a replay reads.
 
-1. PR-90: the balance harness, with a careful bot, a report, bands, and a night check (D-822).
+1. PR-90 moved to Phase 2, right after PR-17 (D-1373).
 2. PR-23: the deep mine, and the sprite frames of Ottild and Elio (D-313, D-342).
 3. PR-24: the second visit to the hanging cells (D-327, F-29).
 4. PR-81: the sealed gallery, the fifth dungeon, where the flight begins (D-343, D-575).
@@ -780,7 +785,7 @@ Section 7 gives the same order inside each phase, with a link to each phase file
 22. PR-15 adds the `bots` check to the protection of `main` (D-1186). The PR-49 session adds `night-gate` after the first night passes (D-1192).
 23. PR-16, PR-64, PR-35, PR-109, PR-110, PR-111 (D-1254, D-1298).
 24. PR-51, PR-52, PR-53.
-25. PR-17.
+25. PR-17, PR-90, PR-112, PR-113, PR-114, PR-115 (D-1328, D-1373).
 26. PR-38, PR-69, PR-70, PR-71, PR-72 (D-1079).
 27. M-3, M-4, M-6.
 28. Owner: set the M-4 band from the M-4 numbers (D-571).
@@ -789,7 +794,7 @@ Section 7 gives the same order inside each phase, with a link to each phase file
 31. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
 32. PR-18, PR-19, PR-20, PR-21.
 33. **← GATE 3 (story systems).** The owner plays a branch and a hub that changes with an earlier choice.
-34. PR-90, then PR-23, PR-24, PR-81, PR-27, PR-25, PR-26.
+34. PR-23, PR-24, PR-81, PR-27, PR-25, PR-26. PR-90 runs in Phase 2 (D-1373).
 35. PR-42, PR-73.
 36. PR-28, PR-29, PR-77.
 37. PR-30.

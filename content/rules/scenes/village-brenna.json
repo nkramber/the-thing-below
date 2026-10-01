@@ -1,0 +1,8 @@
+{
+ "comment": "The talk of Brenna in the lanes of the village (D-1344, D-1354). A talk plays the two lines each time.",
+ "id": "scene.village_brenna",
+ "steps": [
+  { "id": "step.brenna_fourth", "kind": "say", "speaker": "npc.village_brenna", "line": "line.village_brenna_fourth" },
+  { "id": "step.brenna_seventh", "kind": "say", "speaker": "npc.village_brenna", "line": "line.village_brenna_seventh" }
+ ]
+}

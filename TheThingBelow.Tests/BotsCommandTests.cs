@@ -31,8 +31,10 @@ public sealed class BotsCommandTests : IDisposable
         Assert.Equal(string.Empty, errors.ToString());
         Assert.Equal(4, File.ReadAllLines(Path.Combine(this.folder, "results-greedy.txt")).Length);
         Assert.Contains("- Runs: 4, in ", output.ToString(), StringComparison.Ordinal);
-        // PR-35 links the dungeon and the hub, so the two dungeon runs reach the goal too (D-1259).
-        Assert.Contains("complete 4", output.ToString(), StringComparison.Ordinal);
+        // Seeds 1 to 4 start on the fixture hub, the village, the pasture, and the town (D-1185).
+        // The hub run reaches the goal, and each run of region one ends as budget, because no way
+        // leads from region one to the fixture hub (PR-17).
+        Assert.Contains("budget 3, complete 1", output.ToString(), StringComparison.Ordinal);
         Assert.False(Directory.Exists(Path.Combine(this.folder, "saves", "greedy-1")), "The folder of the saves of a run stays after the run.");
     }
 

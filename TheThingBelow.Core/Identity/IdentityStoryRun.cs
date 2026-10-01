@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Text;
 using TheThingBelow.Core.Battles;
+using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Hashing;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
@@ -24,7 +25,7 @@ public static partial class IdentitySet
     }
     """;
 
-    /// <summary>The flag file of the story run. PR-68 added it, and it never changes.</summary>
+    /// <summary>The flag file of the story run. PR-68 added it, and PR-17 added the flag of the offer (D-1335).</summary>
     private const string StoryFlagFile = """
     {
      "comment": "The flags of the story run of the identity set.",
@@ -33,6 +34,7 @@ public static partial class IdentitySet
       { "id": "flag.identity_trust", "note": "The hero trusts the friend." },
       { "id": "flag.identity_doubt", "note": "The hero doubts the friend." },
       { "id": "flag.identity_fought", "note": "The hero and the friend won the set fight." },
+      { "id": "flag.identity_paid", "note": "The hero paid the price of the offer after the fight." },
       { "id": "flag.identity_side", "note": "The side aptitude of each character of the set is open." }
      ]
     }
@@ -40,7 +42,7 @@ public static partial class IdentitySet
 
     /// <summary>
     /// The first story scene of the story run: every kind of step except the start battle
-    /// step. The map fires it on entry. It never changes.
+    /// step and the pay step. The map fires it on entry. It never changes.
     /// </summary>
     private const string MeetSceneFile = """
     {
@@ -67,17 +69,21 @@ public static partial class IdentitySet
     }
     """;
 
-    /// <summary>The second story scene of the story run: a set fight, then a walk and a line. It never changes.</summary>
+    /// <summary>
+    /// The second story scene of the story run: a set fight, then a walk, a line, and an offer. PR-17
+    /// added the offer as the last step, and the gold of the win pays its price (D-1335).
+    /// </summary>
     private const string FightSceneFile = """
     {
-     "comment": "A line with no speaker, a set fight, and the step after the win.",
+     "comment": "A line with no speaker, a set fight, the steps after the win, and an offer that the gold of the win pays.",
      "id": "scene.identity_fight",
      "steps": [
       { "id": "step.ambush", "kind": "say", "speaker": "none", "line": "line.identity_ambush" },
       { "id": "step.fight", "kind": "start_battle", "group": "group.identity_run" },
       { "id": "step.lead_steps", "kind": "move", "actor": "lead", "path": ["east"] },
       { "id": "step.after", "kind": "say", "speaker": "lead", "line": "line.identity_after" },
-      { "id": "step.fought", "kind": "set_flag", "flag": "flag.identity_fought" }
+      { "id": "step.fought", "kind": "set_flag", "flag": "flag.identity_fought" },
+      { "id": "step.offer", "kind": "pay", "speaker": "none", "line": "line.identity_offer", "price": 3, "flag": "flag.identity_paid", "refusal": "line.identity_refusal" }
      ]
     }
     """;
@@ -94,7 +100,7 @@ public static partial class IdentitySet
      "label": "label.identity_story",
      "time": "day",
      "dark": false,
-     "kind": "dungeon", "npcs": [], "services": [], "zones": [], "zone_grid": [], "reopen": [],
+     "kind": "dungeon", "npcs": [], "services": [], "zones": [], "zone_grid": [], "time_changes": [], "reopen": [],
      "terrain": [
       "#########",
       "#.......#",
@@ -164,6 +170,7 @@ public static partial class IdentitySet
         int turns = 0;
         bool savedPause = false;
         bool savedBattle = false;
+        bool blowTaken = false;
 
         for (int step = 0; step < StoryTickCount; step += 1)
         {
@@ -178,6 +185,7 @@ public static partial class IdentitySet
             foreach (BattleEvent battleEvent in simulation.TakeBattleEvents())
             {
                 hasher.AddText(battleEvent.Describe());
+                blowTaken |= battleEvent.Kind == BattleEventKind.TakeBlow;
             }
 
             if (!savedPause && simulation.State.Story.Paused)
@@ -193,6 +201,18 @@ public static partial class IdentitySet
             }
         }
 
+        // The gold of the win pays the offer, so the set proves the pay and not the refusal alone (D-1335).
+        CoreAssert.That(
+            simulation.State.Story.Flags.IsOn(ContentId.Parse("flag.identity_paid", "identity-set-story", "flag")),
+            "the story run of the identity set ended with the offer unpaid, so the set holds no pay (D-1335)",
+            simulation.State.Context("identity"));
+
+        // The friend covers the hero, and a melee strike at the hero meets the friend (D-1352).
+        CoreAssert.That(
+            blowTaken,
+            "the story run of the identity set ended with no blow that a holder took, so the set holds no cover (D-1352)",
+            simulation.State.Context("identity"));
+
         string text = RunRecordText.Write(recorder.Build());
         RunState replayed = RunReplay.Play(
             RunRecordText.Read(text), ReplayContentHash, map, content, ReplayNotices(), story, DebugIntentHandlers.None);
@@ -206,7 +226,8 @@ public static partial class IdentitySet
     /// <summary>
     /// The script of the story run. It reads the state, and the record holds each intent, so
     /// the replay needs no script (D-493). It answers each wait intent at once, as a bot does
-    /// (D-540), picks the first option, and pauses the wait step once.
+    /// (D-540), picks the first option, and pauses the wait step once. In the fight the friend
+    /// covers the hero on each third turn (D-1352).
     /// </summary>
     /// <remarks>
     /// The pause starts when the wait holds 10 ticks, and it ends on a tick that is a multiple
@@ -214,8 +235,19 @@ public static partial class IdentitySet
     /// </remarks>
     private static IReadOnlyList<Intent> IntentsOfStoryTick(RunState state, int turns)
     {
-        if (state.Battle is not null)
+        if (state.Battle is Battle battle)
         {
+            // D-1350, D-1352: the friend joined with the cover drill, and it covers the hero on
+            // each third turn that the rules allow, so the set holds a cover and a blow that its
+            // holder takes.
+            ContentId cover = ContentId.Parse("lesson.identity_cover", "identity-set-story", "lesson");
+            var hero = new BattleTarget(BattleSide.Party, 0);
+            BattleChoice covers = new(BattleAction.Lesson, hero, null, cover, 0);
+            if (battle.Next() is { Side: BattleSide.Party, Slot: 1 } && BattleTurns.RefusalOf(state, covers) is null)
+            {
+                return [Intent.OfBattleLesson(cover, 0, hero)];
+            }
+
             return IntentsOfBattleTick(state, turns, 0);
         }
 

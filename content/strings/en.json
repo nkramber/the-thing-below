@@ -78,6 +78,10 @@
    "text": "Step forward"
   },
   {
+   "id": "battle.cover",
+   "text": "{actor} covers {target}."
+  },
+  {
    "id": "battle.defend",
    "text": "{actor} braces."
   },
@@ -314,6 +318,10 @@
    "text": "+{amount} {stat}"
   },
   {
+   "id": "battle.take_blow",
+   "text": "{actor} takes the blow."
+  },
+  {
    "id": "battle.win_gold",
    "text": "The party takes {amount} gold."
   },
@@ -346,6 +354,18 @@
    "text": "The game stopped."
   },
   {
+   "id": "gear.ash_staff",
+   "text": "A staff of ash wood. Rites come easier through it."
+  },
+  {
+   "id": "gear.cell_bar",
+   "text": "A bar pried out of a cell door. Rust at one end."
+  },
+  {
+   "id": "gear.fathers_pick",
+   "text": "A miner's pick. The haft is dark where he held it."
+  },
+  {
    "id": "gear.fixture_ash_ring",
    "text": "Black iron. Fire slides off it. Cold bites through."
   },
@@ -370,6 +390,70 @@
    "text": "A miner's pick. The haft is split and bound."
   },
   {
+   "id": "gear.iron_buckler",
+   "text": "A small iron shield. Dented in the middle."
+  },
+  {
+   "id": "gear.iron_cap",
+   "text": "A plain iron cap. Heavy on the neck."
+  },
+  {
+   "id": "gear.jailers_coat",
+   "text": "Black wool with the church sign. Still warm."
+  },
+  {
+   "id": "gear.lamp_helm",
+   "text": "A miner's helm with a lamp bracket. The lamp is gone."
+  },
+  {
+   "id": "gear.leather_cap",
+   "text": "Boiled leather. Better than hair."
+  },
+  {
+   "id": "gear.oak_shield",
+   "text": "Oak planks under an iron rim."
+  },
+  {
+   "id": "gear.padded_jerkin",
+   "text": "Quilted wool in layers. It stops a knife, mostly."
+  },
+  {
+   "id": "gear.prison_smock",
+   "text": "Sackcloth. It smells of the cell."
+  },
+  {
+   "id": "gear.quilted_coat",
+   "text": "Thick quilting over rings of mail. Slow to move in."
+  },
+  {
+   "id": "gear.rock_hammer",
+   "text": "A quarry hammer. Slow, and it hits like a wall."
+  },
+  {
+   "id": "gear.short_sword",
+   "text": "A short blade for close work. Nicked, and oiled."
+  },
+  {
+   "id": "gear.tin_charm",
+   "text": "A stamped tin saint. Rites bite less."
+  },
+  {
+   "id": "gear.wolf_tooth",
+   "text": "A wolf fang on a thong. Hunters swear by it."
+  },
+  {
+   "id": "gear.work_coat",
+   "text": "Waxed canvas, patched at both elbows."
+  },
+  {
+   "id": "item.black_tea",
+   "text": "Restores AP. Brewed until it is black."
+  },
+  {
+   "id": "item.charcoal",
+   "text": "Ends poison and blindness. Chalky on the tongue."
+  },
+  {
    "id": "item.fixture_draught",
    "text": "Restores health. Bitter, and thick as tar."
   },
@@ -390,8 +474,32 @@
    "text": "Restores AP. It burns on the way down."
   },
   {
+   "id": "item.iron_key",
+   "text": "Opens a door in the hanging cells."
+  },
+  {
+   "id": "item.poultice",
+   "text": "Restores health. Moss and fat in a rag."
+  },
+  {
+   "id": "item.smelling_salts",
+   "text": "Stands a fallen ally up. It stings the eyes."
+  },
+  {
    "id": "item.torch",
    "text": "Lights the dark. The guards see it too."
+  },
+  {
+   "id": "item.yard_key",
+   "text": "Opens the yard door below the cells."
+  },
+  {
+   "id": "label.cells_lower",
+   "text": "The Hanging Cells, Below"
+  },
+  {
+   "id": "label.cells_upper",
+   "text": "The Hanging Cells"
   },
   {
    "id": "label.fixture_dungeon",
@@ -410,6 +518,10 @@
    "text": "Tin lamp"
   },
   {
+   "id": "label.mining_town",
+   "text": "Gruvhald"
+  },
+  {
    "id": "label.nail",
    "text": "Bent nail"
   },
@@ -420,6 +532,30 @@
   {
    "id": "label.rope",
    "text": "Wet rope"
+  },
+  {
+   "id": "label.village",
+   "text": "Ostby"
+  },
+  {
+   "id": "label.village_pasture",
+   "text": "Ostby Pasture"
+  },
+  {
+   "id": "lesson.brand",
+   "text": "More fire on one foe, either row."
+  },
+  {
+   "id": "lesson.cave_in",
+   "text": "A heavy blow at the front row. It can stun."
+  },
+  {
+   "id": "lesson.cover",
+   "text": "Stand in front of one ally. Take the blows meant for them."
+  },
+  {
+   "id": "lesson.ember",
+   "text": "Fire on one foe, either row."
   },
   {
    "id": "lesson.fixture_blaze",
@@ -462,6 +598,94 @@
    "text": "Closes the wounds of one ally."
   },
   {
+   "id": "lesson.frost",
+   "text": "Cold on one foe, either row."
+  },
+  {
+   "id": "lesson.gouge",
+   "text": "A cut at the eyes, front row. It can blind."
+  },
+  {
+   "id": "lesson.grave_rot",
+   "text": "A weak curse on one foe, either row. It can poison."
+  },
+  {
+   "id": "lesson.hamstring",
+   "text": "A cut at the legs, front row. It can slow."
+  },
+  {
+   "id": "lesson.hew",
+   "text": "A hard blow at the front row."
+  },
+  {
+   "id": "lesson.hush",
+   "text": "A weak curse on one foe, either row. It can silence."
+  },
+  {
+   "id": "lesson.lull",
+   "text": "A weak curse on one foe, either row. It can put it to sleep."
+  },
+  {
+   "id": "lesson.pin",
+   "text": "A bolt at the legs, either row. It can slow."
+  },
+  {
+   "id": "lesson.quarrel",
+   "text": "A bolt at one foe, either row."
+  },
+  {
+   "id": "lesson.snare",
+   "text": "A shot at the legs, either row. It can stun."
+  },
+  {
+   "id": "lesson.spark",
+   "text": "Lightning on one foe, either row."
+  },
+  {
+   "id": "lesson.undercut",
+   "text": "A low cut at the front row. It can bleed."
+  },
+  {
+   "id": "lesson.wedge",
+   "text": "A blow at the front row. It can stun."
+  },
+  {
+   "id": "line.cells_bergit_walking",
+   "text": "Say the rest walking."
+  },
+  {
+   "id": "line.cells_bergit_want",
+   "text": "We want what you saw down the deep shaft."
+  },
+  {
+   "id": "line.cells_dagvar_bless",
+   "text": "I did. That's a hanging crime now."
+  },
+  {
+   "id": "line.cells_dagvar_crew",
+   "text": "A crew going down alive. A guild seal going up behind them."
+  },
+  {
+   "id": "line.cells_dagvar_hands",
+   "text": "Big hands. Chipped tooth. He asked me to bless his lamp."
+  },
+  {
+   "id": "line.cells_dagvar_twice",
+   "text": "Get me out of this hole and I'll say it twice."
+  },
+  {
+   "id": "line.cells_dagvar_visitors",
+   "text": "More visitors. The last ones brought rope."
+  },
+  {
+   "id": "line.cells_first_playable_end",
+   "text": "The first playable ends here. The road stays open."
+  },
+  {
+   "id": "line.cells_marrek_father",
+   "text": "My father."
+  },
+  {
    "id": "line.fixture_hub_answer_no",
    "text": "Go yourself."
   },
@@ -494,6 +718,126 @@
    "text": "You came up out of the pit. My brother went down it a week ago."
   },
   {
+   "id": "line.pasture_bergit_carts",
+   "text": "I walk the carts up and down. When there are carts."
+  },
+  {
+   "id": "line.pasture_bergit_hexer",
+   "text": "There's a hexer in the chapel cells in Gruvhald. He kept the stone down that shaft."
+  },
+  {
+   "id": "line.pasture_bergit_kill",
+   "text": "Clean kill. Mostly."
+  },
+  {
+   "id": "line.pasture_bergit_looks",
+   "text": "She looks at him longer than she needs to."
+  },
+  {
+   "id": "line.pasture_bergit_market",
+   "text": "If anyone saw a crew go down, he did. They hang him on market day."
+  },
+  {
+   "id": "line.pasture_bergit_walk",
+   "text": "I'm going up. Walk with me. You'll cost me less than you're worth."
+  },
+  {
+   "id": "line.pasture_bergit_which",
+   "text": "Which crew."
+  },
+  {
+   "id": "line.pasture_marrek_crew",
+   "text": "My father went down the deep shaft with the last crew."
+  },
+  {
+   "id": "line.pasture_marrek_never",
+   "text": "He never said."
+  },
+  {
+   "id": "line.pasture_marrek_week",
+   "text": "There aren't. Not for a week."
+  },
+  {
+   "id": "line.pasture_marrek_who",
+   "text": "Who are you?"
+  },
+  {
+   "id": "line.town_bergit_jailers",
+   "text": "The jailers below won't be."
+  },
+  {
+   "id": "line.town_turnkey_offer",
+   "text": "Visiting hours are over. For {price} gold they start again."
+  },
+  {
+   "id": "line.town_turnkey_refusal",
+   "text": "Then he hangs with no visitors."
+  },
+  {
+   "id": "line.town_turnkey_stairs",
+   "text": "Stairs are yours. I was asleep."
+  },
+  {
+   "id": "line.village_aldo_counting",
+   "text": "Tell him I'm still counting."
+  },
+  {
+   "id": "line.village_aldo_drink",
+   "text": "Your father owes me a drink."
+  },
+  {
+   "id": "line.village_brenna_fourth",
+   "text": "The carts come down on the fourth day. Always the fourth."
+  },
+  {
+   "id": "line.village_brenna_seventh",
+   "text": "This is the seventh."
+  },
+  {
+   "id": "line.village_hadda_beasts",
+   "text": "Beasts are down off the high ground. Took a goat from Orrin's pen."
+  },
+  {
+   "id": "line.village_hadda_carts",
+   "text": "And the ore carts are late. Three days. Nobody up the road will say why."
+  },
+  {
+   "id": "line.village_hadda_door",
+   "text": "Door was open. You should bar it."
+  },
+  {
+   "id": "line.village_hadda_know",
+   "text": "I know."
+  },
+  {
+   "id": "line.village_hadda_pick",
+   "text": "If you go looking, take his pick. And stay off the road after dark."
+  },
+  {
+   "id": "line.village_marrek_father",
+   "text": "Father went down the deep shaft forty days back."
+  },
+  {
+   "id": "line.village_marrek_why",
+   "text": "Why?"
+  },
+  {
+   "id": "line.village_opening_bowls",
+   "text": "Two bowls on the table. One is clean."
+  },
+  {
+   "id": "line.village_opening_pick",
+   "text": "The pick hangs by the door. The handle is worn to his grip."
+  },
+  {
+   "id": "line.village_orrin_drag",
+   "text": "Wolves don't drag. Something bigger ran with them."
+  },
+  {
+   "id": "line.village_orrin_nanny",
+   "text": "She was my best nanny. Something dragged her up the slope."
+  },
+  {
    "id": "map.wiped",
    "text": "Nobody gets up."
   },
@@ -515,7 +859,7 @@
   },
   {
    "id": "menu.gear_help",
-   "text": "Left and right show the next one."
+   "text": "Left and right change the character."
   },
   {
    "id": "menu.gear_loss",
@@ -846,6 +1190,58 @@
    "text": "Yes"
   },
   {
+   "id": "name.ash_staff",
+   "text": "Ash staff"
+  },
+  {
+   "id": "name.bergit",
+   "text": "Bergit"
+  },
+  {
+   "id": "name.black_tea",
+   "text": "Black tea"
+  },
+  {
+   "id": "name.brand",
+   "text": "Brand"
+  },
+  {
+   "id": "name.cave_in",
+   "text": "Cave-in"
+  },
+  {
+   "id": "name.cell_bar",
+   "text": "Cell bar"
+  },
+  {
+   "id": "name.cell_hound",
+   "text": "Cell hound"
+  },
+  {
+   "id": "name.cell_rat",
+   "text": "Cell rat"
+  },
+  {
+   "id": "name.charcoal",
+   "text": "Charcoal"
+  },
+  {
+   "id": "name.cover",
+   "text": "Cover"
+  },
+  {
+   "id": "name.dagvar",
+   "text": "Dagvar"
+  },
+  {
+   "id": "name.ember",
+   "text": "Ember"
+  },
+  {
+   "id": "name.fathers_pick",
+   "text": "Father's pick"
+  },
+  {
    "id": "name.fixture_ash_ring",
    "text": "Ash ring"
   },
@@ -946,12 +1342,184 @@
    "text": "Tonic"
   },
   {
+   "id": "name.frost",
+   "text": "Frost"
+  },
+  {
+   "id": "name.gouge",
+   "text": "Gouge"
+  },
+  {
+   "id": "name.grave_rot",
+   "text": "Grave rot"
+  },
+  {
+   "id": "name.hamstring",
+   "text": "Hamstring"
+  },
+  {
+   "id": "name.hew",
+   "text": "Hew"
+  },
+  {
+   "id": "name.hush",
+   "text": "Hush"
+  },
+  {
+   "id": "name.iron_buckler",
+   "text": "Iron buckler"
+  },
+  {
+   "id": "name.iron_cap",
+   "text": "Iron cap"
+  },
+  {
+   "id": "name.iron_key",
+   "text": "Iron key"
+  },
+  {
+   "id": "name.jailer",
+   "text": "Jailer"
+  },
+  {
+   "id": "name.jailers_coat",
+   "text": "Jailer's coat"
+  },
+  {
+   "id": "name.lamp_helm",
+   "text": "Lamp helm"
+  },
+  {
+   "id": "name.lamp_jailer",
+   "text": "Lamp jailer"
+  },
+  {
+   "id": "name.lean_wolf",
+   "text": "Lean wolf"
+  },
+  {
+   "id": "name.leather_cap",
+   "text": "Leather cap"
+  },
+  {
+   "id": "name.lull",
+   "text": "Lull"
+  },
+  {
    "id": "name.marrek",
    "text": "Marrek"
   },
   {
+   "id": "name.oak_shield",
+   "text": "Oak shield"
+  },
+  {
+   "id": "name.padded_jerkin",
+   "text": "Padded jerkin"
+  },
+  {
+   "id": "name.pin",
+   "text": "Pin"
+  },
+  {
+   "id": "name.poultice",
+   "text": "Poultice"
+  },
+  {
+   "id": "name.prison_smock",
+   "text": "Prison smock"
+  },
+  {
+   "id": "name.quarrel",
+   "text": "Quarrel"
+  },
+  {
+   "id": "name.quilted_coat",
+   "text": "Quilted coat"
+  },
+  {
+   "id": "name.rock_hammer",
+   "text": "Rock hammer"
+  },
+  {
+   "id": "name.short_sword",
+   "text": "Short sword"
+  },
+  {
+   "id": "name.smelling_salts",
+   "text": "Smelling salts"
+  },
+  {
+   "id": "name.snare",
+   "text": "Snare"
+  },
+  {
+   "id": "name.snow_crow",
+   "text": "Snow crow"
+  },
+  {
+   "id": "name.spark",
+   "text": "Spark"
+  },
+  {
+   "id": "name.starved_boar",
+   "text": "Starved boar"
+  },
+  {
+   "id": "name.tin_charm",
+   "text": "Tin charm"
+  },
+  {
    "id": "name.torch",
    "text": "Torch"
+  },
+  {
+   "id": "name.town_innkeeper",
+   "text": "Innkeeper"
+  },
+  {
+   "id": "name.town_trader",
+   "text": "Trader"
+  },
+  {
+   "id": "name.town_turnkey",
+   "text": "Turnkey"
+  },
+  {
+   "id": "name.undercut",
+   "text": "Undercut"
+  },
+  {
+   "id": "name.village_aldo",
+   "text": "Aldo"
+  },
+  {
+   "id": "name.village_brenna",
+   "text": "Brenna"
+  },
+  {
+   "id": "name.village_hadda",
+   "text": "Hadda"
+  },
+  {
+   "id": "name.village_orrin",
+   "text": "Orrin"
+  },
+  {
+   "id": "name.wedge",
+   "text": "Wedge"
+  },
+  {
+   "id": "name.wolf_tooth",
+   "text": "Wolf tooth"
+  },
+  {
+   "id": "name.work_coat",
+   "text": "Work coat"
+  },
+  {
+   "id": "name.yard_key",
+   "text": "Yard key"
   },
   {
    "id": "notice.chest_empty",
@@ -1028,6 +1596,10 @@
   {
    "id": "notice.service_closed",
    "text": "Not now."
+  },
+  {
+   "id": "notice.town_cells_door",
+   "text": "The stair door is barred. The turnkey keeps the bar."
   },
   {
    "id": "notice.trap_blind",
@@ -1554,6 +2126,14 @@
    "text": "Window"
   },
   {
+   "id": "single.black_tea",
+   "text": "a tin of black tea"
+  },
+  {
+   "id": "single.charcoal",
+   "text": "a lump of charcoal"
+  },
+  {
    "id": "single.fixture_draught",
    "text": "a draught"
   },
@@ -1572,6 +2152,50 @@
   {
    "id": "single.fixture_tonic",
    "text": "a tonic"
+  },
+  {
+   "id": "single.gouge",
+   "text": "a drill: Gouge"
+  },
+  {
+   "id": "single.hush",
+   "text": "a rite: Hush"
+  },
+  {
+   "id": "single.iron_key",
+   "text": "an iron key"
+  },
+  {
+   "id": "single.jailers_coat",
+   "text": "a jailer's coat"
+  },
+  {
+   "id": "single.lamp_helm",
+   "text": "a lamp helm"
+  },
+  {
+   "id": "single.lull",
+   "text": "a rite: Lull"
+  },
+  {
+   "id": "single.poultice",
+   "text": "a poultice"
+  },
+  {
+   "id": "single.smelling_salts",
+   "text": "smelling salts"
+  },
+  {
+   "id": "single.snare",
+   "text": "a drill: Snare"
+  },
+  {
+   "id": "single.spark",
+   "text": "a rite: Spark"
+  },
+  {
+   "id": "single.yard_key",
+   "text": "a yard key"
   },
   {
    "id": "status.bleed",

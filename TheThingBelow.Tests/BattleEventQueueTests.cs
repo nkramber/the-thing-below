@@ -368,7 +368,7 @@ public sealed class BattleEventQueueTests
     public void AReloadResumesTheNewerSave()
     {
         // D-231: the later tick of the run wins.
-        RunSnapshot start = Simulation.Start(Seed, Content.Value.Map(MapIds.FirstMap), Content.Value.Battle, Content.Value.Notices, Content.Value.Story, DebugIntentHandlers.None).Snapshot();
+        RunSnapshot start = Simulation.Start(Seed, Content.Value.Map(MapIds.FixtureDungeon), Content.Value.Battle, Content.Value.Notices, Content.Value.Story, DebugIntentHandlers.None).Snapshot();
         SaveDocument older = new(SaveHeader.ForThisBuild(Content.Value.Hash, Seed), start with { Tick = 40 });
         SaveDocument newer = new(SaveHeader.ForThisBuild(Content.Value.Hash, Seed), start with { Tick = 90 });
 
@@ -508,7 +508,7 @@ public sealed class BattleEventQueueTests
         public static GameRunView Start()
         {
             Type type = GameAssemblyFile.Type("TheThingBelow.Game.GameRun");
-            MethodInfo start = type.GetMethod("Start", [typeof(ContentSet), typeof(ulong), typeof(DebugIntentHandlers), typeof(MessageSpeed)])
+            MethodInfo start = type.GetMethod("StartFixture", [typeof(ContentSet), typeof(ulong), typeof(DebugIntentHandlers), typeof(MessageSpeed)])
                 ?? throw new InvalidOperationException("The run holds no 'Start' method (T-2).");
             return new GameRunView(type, start.Invoke(null, [Content.Value, Seed, DebugIntentHandlers.None, MessageSpeed.Normal])!);
         }

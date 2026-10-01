@@ -281,7 +281,7 @@ Built by PR-53. Phase file: `phase-2-first-playable.md`.
 - A test proves that each edge file matches its map and the edge rules (D-501). `make edges` writes the files again.
 - Game reads the map and its edge file, and the rules of Core read the map alone (D-501, G-1). The map preview draws the same pieces.
 - An edge rule with an absent piece fails the load with the file and the place (T-2, D-1321).
-- PR-53 draws placeholder pieces for the water and the gorge alone. The tile sets of PR-17 and later add the other kinds (D-1323).
+- PR-53 draws placeholder pieces for the water and the gorge alone. The tile sets of PR-112 and later add the other kinds (D-1323, D-1328).
 
 > *In plain English:* a map names the ground, such as snow or rock, and this tool picks the right border tile for each edge. The picks live in a file of their own, so a new border drawing never breaks an old replay.
 
@@ -315,9 +315,10 @@ Each later tool PR keeps this list. The phase files make exit tests from it.
 
 ### 7.16 The balance harness
 
-Built by PR-90. Phase file: `phase-4-region-one.md`.
+Built by PR-90, right after PR-17. Phase file: `phase-2-first-playable.md` (D-1373).
 
-- A third policy plays as a careful player, beside the random and greedy policies of PR-15 (D-64, D-822).
+- Three bot levels, a beginner, an intermediate, and a perfect bot, play beside the random and greedy policies of PR-15. The careful policy is one of them (D-64, D-822, D-1372, D-1373).
+- The playthrough suite plays the first playable to the join of Dagvar for a seed count. It reports the share of each level that gets there (D-1372).
 - The `balance` command plays a loop of seeds and reports the metrics of each encounter, dungeon, item, and lesson (D-822). OQ-216 holds the metrics.
 - PR-15 already reports the turns and the outcome of each battle of the random and greedy bots (D-1182).
 - A content file holds one band for each metric, and the owner sets each band from the first report (D-571, D-822).
@@ -344,9 +345,9 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 13. PR-50: the screenplay tool, right after PR-68 (D-545).
 14. PR-15: the headless runner and the bots.
 15. PR-49: the `night` command and the night gate. Its live check first runs after the first night (D-500). PR-108 adds the walk, the promotion, the alert, and the watcher (D-1200).
-16. PR-51, PR-52, and PR-53: the PNG import, the map preview, and the tile-edge tool, before PR-17 (D-497).
+16. PR-51, PR-52, and PR-53: the PNG import, the map preview, and the tile-edge tool, before PR-17 (D-497). PR-90, the balance harness, follows PR-17 (D-1373).
 17. **← GATE 2 (first playable).**
-18. PR-90: the balance harness, first in Phase 4 (D-822).
+18. PR-90 moved before Gate 2, right after PR-17 (D-822, D-1373).
 
 ## 9. Open questions
 

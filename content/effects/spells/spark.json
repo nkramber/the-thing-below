@@ -1,0 +1,12 @@
+{
+ "comment": "The flash of Spark, the lightning rite of a chest of the hanging cells (D-1032, D-1341). A short double flash of hard white light at the target, a thin sky tint, and a burst of sparks. PR-17 writes it, and PR-115 can tune it (D-1032, D-1328).",
+ "id": "effect.spell_spark",
+ "serves": ["ability.spark"],
+ "shape": "double",
+ "length_ticks": 16,
+ "light": { "color": "w", "strength": 24000, "range": 96, "height": 24 },
+ "tint": { "color": "c", "strength": 500 },
+ "emitters": [
+  { "amount": 14, "lifetime_ticks": 14, "colors": ["w", "y", "C"], "size": 1, "area": 4, "direction": -90, "spread": 180, "slowest_speed": 60, "fastest_speed": 140, "gravity": 0 }
+ ]
+}

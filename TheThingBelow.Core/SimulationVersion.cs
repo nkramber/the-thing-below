@@ -139,6 +139,22 @@ public static class SimulationVersion
     /// PR-110 raised it to 39. The overworld gains road, snowfield, gorge, snow peak, and bridge tiles, and a mark of a
     /// place with no map, which the lead walks over (D-1271, D-1272, D-1277, D-1302). A zone names its region, which gives its groups
     /// (D-1285, D-1289).
+    /// PR-17 raised it to 40. A story scene gains the pay step: a yes with enough gold removes the price and turns on
+    /// a flag, and a yes with too little gold, or a no, shows a refusal line and ends the story scene (D-1335). A hub
+    /// and a dungeon can hold a gate (D-1347). A map file can hold time changes, and the party takes the time of the
+    /// first change that holds when it enters the map (D-1349). A join gives the cast member the lessons and the gear of
+    /// its record, and the load refuses a kit on a character of the start party, a second copy of a lesson, a kit lesson
+    /// that a shop stocks, and a kit that passes a slot or a stack limit (D-1350). A Guard drill can cover another
+    /// ally on the field: until the next turn of the holder, its fall, or the end of the battle, the holder takes each
+    /// melee strike that aims at that ally, and the latest cover of an ally wins. The state hash and the snapshot hold
+    /// each cover (D-1352). A run opens on the spawn point of the village of the first playable, and the plan of the
+    /// overworld takes an entrance for the role of a place (D-1243, D-1344). Each hit, heal, absorb, status share, and item
+    /// amount of a battle holds 9,999 at most (D-1357). The wait intent of the end of a battle meets a refusal while
+    /// the menu is open, as the list of accepted intents says (D-162, D-1179). A hub and a dungeon gain the thicket
+    /// tile, which the party cannot walk and which stops sight (D-1362). An entrance of the overworld puts the
+    /// party on the marker of its place that it names, and no more on the spawn point (D-1367). A fight of a zone or a
+    /// trap stops the step that started on its tick (D-1374). Each combatant of a neutral fight
+    /// starts at a random tick up to its push, from the battle stream (D-1375).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number
@@ -147,5 +163,5 @@ public static class SimulationVersion
     /// hash differs from this build takes the drift rules of D-1111 and D-1112. A change of this
     /// number also changes the expected hashes of the identity file (D-504).
     /// </remarks>
-    public const int Current = 39;
+    public const int Current = 40;
 }

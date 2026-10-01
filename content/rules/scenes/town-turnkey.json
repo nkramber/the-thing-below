@@ -1,0 +1,9 @@
+{
+ "comment": "The bribe of the turnkey in the chapel of Gruvhald (D-1334, D-1335, D-1354). A talk with the turnkey plays it until the party pays. The pay step asks for 40 gold. A yes with enough gold removes the gold and turns on the flag that opens the stair door, and a yes with too little gold, or a no, shows the refusal and ends the scene, so the next talk asks again.",
+ "id": "scene.town_turnkey",
+ "steps": [
+  { "id": "step.turnkey_offer", "kind": "pay", "speaker": "npc.town_turnkey", "line": "line.town_turnkey_offer", "price": 40, "flag": "flag.town_turnkey_paid", "refusal": "line.town_turnkey_refusal" },
+  { "id": "step.turnkey_stairs", "kind": "say", "speaker": "npc.town_turnkey", "line": "line.town_turnkey_stairs" },
+  { "id": "step.bergit_jailers", "kind": "say", "speaker": "character.bergit", "line": "line.town_bergit_jailers" }
+ ]
+}

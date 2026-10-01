@@ -1,0 +1,9 @@
+{
+ "comment": "The profile of the vermin of the hanging cells: the rat and the hound (D-956). Vermin weigh kills above all, so they close on a hurt foe. The steal list holds a little gold, and the drop list rare charcoal (D-383, D-949, D-1042). PR-30 tunes each number.",
+ "id": "profile.one_vermin",
+ "weights": { "damage": 80, "kills": 5, "threat": 20, "healing": 0, "timeline": 1, "row": 100 },
+ "steal_chance": 3000,
+ "steal_gear_chance": 0,
+ "steal": [{ "gold": 2 }],
+ "drops": [{ "item": "item.charcoal", "chance": 800 }]
+}

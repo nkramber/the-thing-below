@@ -9,8 +9,8 @@ namespace TheThingBelow.Core.Maps;
 
 /// <summary>
 /// One map of the game, as its rule file holds it: the kind, the terrain rows, every thing that
-/// a rule reads, every enemy, every NPC, every service, every story scene trigger, and the time
-/// of day (D-112, D-528, D-738, D-1004, D-1131).
+/// a rule reads, every enemy, every NPC, every service, every story scene trigger, the base time
+/// of day, and each change of it (D-112, D-528, D-738, D-1004, D-1131, D-1349).
 /// </summary>
 /// <remarks>
 /// One rule file holds each map, so one file holds each place for the author, for the review,
@@ -56,6 +56,11 @@ public sealed class GameMap
     private readonly MapService[] services;
     private readonly ContentId[] reopenFlags;
     private readonly EncounterZone[] zones;
+    private readonly TimeChange[] timeChanges;
+
+    // The base time, then each time of a change that the list names first, in the order of the
+    // file (D-1349). The load checks the light, the enemies, and the NPCs at each of them.
+    private readonly TimeOfDay[] times;
 
     // The index of the zone of each tile in `zones`, in the order of the terrain, or -1 on a tile
     // that holds no zone (D-1262). The encounter rule reads it on each step onto the overworld.
@@ -72,6 +77,7 @@ public sealed class GameMap
         ContentId label,
         MapKind kind,
         TimeOfDay time,
+        TimeChange[] timeChanges,
         bool dark,
         int width,
         int height,
@@ -91,7 +97,9 @@ public sealed class GameMap
         this.Region = region;
         this.Label = label;
         this.Kind = kind;
-        this.Time = time;
+        this.BaseTime = time;
+        this.timeChanges = timeChanges;
+        this.times = TimesOf(time, timeChanges);
         this.Dark = dark;
         this.Width = width;
         this.Height = height;
@@ -130,8 +138,21 @@ public sealed class GameMap
     /// <summary>The kind of the map: a hub or a dungeon (D-112, D-1131).</summary>
     public MapKind Kind { get; }
 
-    /// <summary>The time of day that the file gives (D-442). No rule of this build changes it.</summary>
-    public TimeOfDay Time { get; }
+    /// <summary>
+    /// The base time of day that the file gives (D-442). The map takes it at an entry when no time
+    /// change holds (D-1349). The party reads the time of its entry from <see cref="MapState.Time"/>.
+    /// </summary>
+    public TimeOfDay BaseTime { get; }
+
+    /// <summary>Every time change of the map, in the order of the file, which is the order of the pick (D-1349, G-4).</summary>
+    public IReadOnlyList<TimeChange> TimeChanges => this.timeChanges;
+
+    /// <summary>
+    /// Every time that the map can take: the base time, then each other time that a change names,
+    /// in the order of the file, each one time (D-1349, G-4). The light, the enemies, and the NPCs
+    /// of the map hold a setup and a layout for each of them.
+    /// </summary>
+    public IReadOnlyList<TimeOfDay> Times => this.times;
 
     /// <summary>
     /// True when the map is dark, apart from its time of day (D-1062). On a dark map, the sight of
@@ -171,6 +192,48 @@ public sealed class GameMap
 
     /// <summary>Every zone of the overworld, in the order of the file. A hub and a dungeon hold none (D-1247, D-1262, G-4).</summary>
     public IReadOnlyList<EncounterZone> Zones => this.zones;
+
+    /// <summary>Gives the time of day that the map takes at an entry with one set of flags (D-442, D-1349).</summary>
+    /// <param name="flags">The story flags of the run.</param>
+    /// <returns>The time of the first change whose condition holds, or the base time when no change holds.</returns>
+    /// <exception cref="ArgumentNullException">The flags are null (T-2).</exception>
+    /// <remarks>
+    /// The run reads it at each entry alone, and the party keeps that time while it stays on the
+    /// map. A flag that turns on while the party stands on the map changes the time at the next
+    /// entry (D-1349).
+    /// </remarks>
+    public TimeOfDay TimeFor(FlagSet flags)
+    {
+        ArgumentNullException.ThrowIfNull(flags);
+
+        foreach (TimeChange change in this.timeChanges)
+        {
+            if (change.Condition.Holds(flags))
+            {
+                return change.Time;
+            }
+        }
+
+        return this.BaseTime;
+    }
+
+    /// <summary>Tells whether the map can take one time of day: its base time, or the time of a change (D-1349).</summary>
+    /// <param name="time">The time.</param>
+    /// <returns>True when <see cref="Times"/> holds the time.</returns>
+    public bool CanTake(TimeOfDay time) => Array.IndexOf(this.times, time) >= 0;
+
+    /// <summary>Names every time that the map can take, for an error (T-2).</summary>
+    /// <returns>The names, such as `day, night`.</returns>
+    public string DescribeTimes()
+    {
+        string[] names = new string[this.times.Length];
+        for (int index = 0; index < names.Length; index += 1)
+        {
+            names[index] = TimesOfDay.NameOf(this.times[index]);
+        }
+
+        return string.Join(", ", names);
+    }
 
     /// <summary>Finds one zone by its id (D-1262).</summary>
     /// <param name="id">The id of the zone.</param>
@@ -423,6 +486,7 @@ public sealed class GameMap
         ContentId? label = null;
         string? kind = null;
         string? time = null;
+        List<TimeChange>? timeChanges = null;
         bool? dark = null;
         List<string>? terrain = null;
         List<ThingLine>? things = null;
@@ -458,6 +522,9 @@ public sealed class GameMap
                     break;
                 case "time":
                     time = reader.ReadString();
+                    break;
+                case TimeChange.ListField:
+                    timeChanges = TimeChange.ReadAll(ref reader);
                     break;
                 case "dark":
                     dark = reader.ReadBoolean();
@@ -501,6 +568,7 @@ public sealed class GameMap
             reader.Require(region, depth, "region"),
             reader.Require(label, depth, "label"),
             reader.Require(time, depth, "time"),
+            reader.Require(timeChanges, depth, TimeChange.ListField),
             reader.RequireValue(dark, depth, "dark"),
             reader.Require(terrain, depth, "terrain"),
             reader.Require(things, depth, "things"),
@@ -512,6 +580,21 @@ public sealed class GameMap
             reader.Require(reopen, depth, "reopen"),
             reader.Require(zones, depth, "zones"),
             reader.Require(zoneGrid, depth, "zone_grid"));
+    }
+
+    /// <summary>Gives the base time, then each other time of a change, each one time, in the order of the file (D-1349, G-4).</summary>
+    private static TimeOfDay[] TimesOf(TimeOfDay baseTime, TimeChange[] changes)
+    {
+        var times = new List<TimeOfDay> { baseTime };
+        foreach (TimeChange change in changes)
+        {
+            if (!times.Contains(change.Time))
+            {
+                times.Add(change.Time);
+            }
+        }
+
+        return [.. times];
     }
 
     private static List<ContentId> ReadReopenFlags(ref ContentReader reader)
@@ -657,6 +740,7 @@ public sealed class GameMap
         ContentId region,
         ContentId label,
         string time,
+        List<TimeChange> timeChanges,
         bool dark,
         List<string> rows,
         List<ThingLine> lines,
@@ -685,7 +769,7 @@ public sealed class GameMap
         MapThing[] things = BuildThings(ref reader, lines, tiles, width, height);
         TilePoint spawn = OneSpawn(ref reader, things);
         int[] zoneOf = ReadZoneGrid(ref reader, parsedKind, zones, zoneGrid, tiles, width);
-        var map = new GameMap(reader.File, id, region, label, parsedKind, parsed, dark, width, height, tiles, things, [.. patrols], [.. npcs], [.. services], [.. triggers], [.. reopen], [.. zones], zoneOf, spawn);
+        var map = new GameMap(reader.File, id, region, label, parsedKind, parsed, [.. timeChanges], dark, width, height, tiles, things, [.. patrols], [.. npcs], [.. services], [.. triggers], [.. reopen], [.. zones], zoneOf, spawn);
 
         // The map is complete here, so each check of a patrol reads the terrain and the
         // spawn point through the map itself and never through a second copy of them (T-1).
@@ -969,14 +1053,15 @@ public sealed class GameMap
     }
 
     /// <summary>
-    /// Reads the marker of the overworld where an exit puts the party (D-1255). An exit can name
-    /// one, and the content set requires it for an exit to an overworld. No other thing names one (T-2).
+    /// Reads the marker where an exit or an entrance puts the party (D-1255, D-1367). The content
+    /// set requires one for an exit to an overworld and for each entrance. No other thing names
+    /// one (T-2).
     /// </summary>
     private static ContentId? ArriveOf(ref ContentReader reader, ThingLine line, MapThingKind kind)
     {
-        if (line.Arrive is not null && kind != MapThingKind.Exit)
+        if (line.Arrive is not null && kind != MapThingKind.Exit && kind != MapThingKind.Entrance)
         {
-            throw reader.Refuse($"the thing '{line.Id.Value}' is a {MapThingKinds.NameOf(kind)} and it holds the field '{ArriveField}', which an exit alone holds (D-1255)");
+            throw reader.Refuse($"the thing '{line.Id.Value}' is a {MapThingKinds.NameOf(kind)} and it holds the field '{ArriveField}', which an exit or an entrance alone holds (D-1255, D-1367)");
         }
 
         return line.Arrive;
@@ -1160,7 +1245,8 @@ public sealed class GameMap
     /// <summary>
     /// Refuses a thing or an enemy that the kind of the map cannot hold (D-1243, D-1247, T-2). An
     /// overworld holds no enemy and no exit, because the party leaves it through an entrance. A
-    /// hub or a dungeon holds no entrance and no gate, which belong to the overworld.
+    /// hub or a dungeon holds no entrance and no mark, which belong to the overworld. Any map can
+    /// hold a gate, such as the paid door of the hanging cells (D-1347).
     /// </summary>
     private static void CheckKindOfThings(ref ContentReader reader, GameMap map)
     {
@@ -1177,9 +1263,9 @@ public sealed class GameMap
                 throw reader.Refuse($"the map is an overworld, and it holds the exit '{thing.Id.Value}'. The party leaves the overworld through an entrance (D-1243)");
             }
 
-            if (map.Kind != MapKind.Overworld && (thing.Kind == MapThingKind.Entrance || thing.Kind == MapThingKind.Gate || thing.Kind == MapThingKind.Mark))
+            if (map.Kind != MapKind.Overworld && (thing.Kind == MapThingKind.Entrance || thing.Kind == MapThingKind.Mark))
             {
-                throw reader.Refuse($"the map is a {name}, and it holds the {MapThingKinds.NameOf(thing.Kind)} '{thing.Id.Value}'. An overworld alone holds entrances, gates, and marks (D-1243, D-1271)");
+                throw reader.Refuse($"the map is a {name}, and it holds the {MapThingKinds.NameOf(thing.Kind)} '{thing.Id.Value}'. An overworld alone holds entrances and marks (D-1243, D-1271, D-1347)");
             }
         }
     }

@@ -80,6 +80,10 @@ public static class BattleTimes
             BattleEventKind.StealEmpty => pace.LineTicks,
             BattleEventKind.StealFull => pace.LineTicks,
 
+            // A cover and the blow that its holder takes are lines, and the strike follows the blow (D-1352).
+            BattleEventKind.Cover => pace.LineTicks,
+            BattleEventKind.TakeBlow => pace.LineTicks,
+
             // A drop is a line of the loot after the summary (D-975, D-1042).
             BattleEventKind.Drop => pace.LineTicks,
             BattleEventKind.DropLost => pace.LineTicks,

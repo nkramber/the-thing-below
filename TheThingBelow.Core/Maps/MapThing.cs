@@ -92,8 +92,9 @@ public sealed record MapGate(Condition Condition, ContentId Notice);
 /// <param name="Contents">The entries and the gold of this chest (D-1220). Every other kind holds no value.</param>
 /// <param name="Harm">What this trap does when it fires (D-1226). Every other kind holds no value.</param>
 /// <param name="Arrive">
-/// The marker of the overworld where the party arrives through this exit (D-1255). An exit to an
-/// overworld names one, and every other thing holds no value.
+/// The marker where the party arrives through this exit or this entrance (D-1255, D-1367). An
+/// exit to an overworld names a marker of the overworld, and an entrance names a marker of its
+/// place. Every other thing holds no value.
 /// </param>
 /// <param name="Gate">The condition and the notice of this gate (D-1243). Every other kind holds no value.</param>
 public sealed record MapThing(ContentId Id, MapThingKind Kind, TilePoint At, bool Pickable, ContentId? Key, ContentId? To, ChestContents? Contents, TrapHarm? Harm, ContentId? Arrive, MapGate? Gate);

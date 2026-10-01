@@ -1,0 +1,8 @@
+{
+ "comment": "The talk of Orrin in the lanes of the village (D-1344, D-1354). A talk plays the two lines each time.",
+ "id": "scene.village_orrin",
+ "steps": [
+  { "id": "step.orrin_nanny", "kind": "say", "speaker": "npc.village_orrin", "line": "line.village_orrin_nanny" },
+  { "id": "step.orrin_drag", "kind": "say", "speaker": "npc.village_orrin", "line": "line.village_orrin_drag" }
+ ]
+}

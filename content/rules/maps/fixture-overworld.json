@@ -5,6 +5,7 @@
  "label": "label.fixture_overworld",
  "kind": "overworld",
  "time": "day",
+ "time_changes": [],
  "dark": false,
  "terrain": [
   "^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
@@ -26,9 +27,9 @@
  ],
  "things": [
   { "id": "spawn_point.fixture_overworld_start", "kind": "spawn_point", "x": 14, "y": 9 },
-  { "id": "entrance.fixture_overworld_cut", "kind": "entrance", "x": 7, "y": 9, "to": "map.fixture_dungeon" },
+  { "id": "entrance.fixture_overworld_cut", "kind": "entrance", "x": 7, "y": 9, "to": "map.fixture_dungeon", "arrive": "marker.fixture_dungeon_way_in" },
   { "id": "marker.fixture_overworld_cut", "kind": "marker", "x": 7, "y": 10 },
-  { "id": "entrance.fixture_overworld_inn", "kind": "entrance", "x": 21, "y": 8, "to": "map.fixture_hub" },
+  { "id": "entrance.fixture_overworld_inn", "kind": "entrance", "x": 21, "y": 8, "to": "map.fixture_hub", "arrive": "marker.fixture_hub_way_in" },
   { "id": "marker.fixture_overworld_inn", "kind": "marker", "x": 21, "y": 9 },
   {
    "id": "gate.fixture_overworld_pass",

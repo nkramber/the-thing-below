@@ -1,0 +1,22 @@
+{
+ "comment": "The join of Bergit in Ostby Pasture (D-1331, D-1350, D-1354). The win over the starved boar plays it one time. Bergit shows on the far bank of the stream, which no step reaches, so the scene holds no move: the tile of the lead after the fight changes from run to run, and a move into a body fails (D-1012). The join gives her kit, and the flag opens the road to the town and her side aptitude (D-1281).",
+ "id": "scene.pasture_bergit",
+ "steps": [
+  { "id": "step.show_bergit", "kind": "show", "actor": "character.bergit", "at": "marker.pasture_bergit", "facing": "south" },
+  { "id": "step.look_bergit", "kind": "camera", "at": "marker.pasture_bergit" },
+  { "id": "step.bergit_kill", "kind": "say", "speaker": "character.bergit", "line": "line.pasture_bergit_kill" },
+  { "id": "step.marrek_who", "kind": "say", "speaker": "lead", "line": "line.pasture_marrek_who" },
+  { "id": "step.bergit_carts", "kind": "say", "speaker": "character.bergit", "line": "line.pasture_bergit_carts" },
+  { "id": "step.marrek_week", "kind": "say", "speaker": "lead", "line": "line.pasture_marrek_week" },
+  { "id": "step.marrek_crew", "kind": "say", "speaker": "lead", "line": "line.pasture_marrek_crew" },
+  { "id": "step.bergit_looks", "kind": "say", "speaker": "none", "line": "line.pasture_bergit_looks" },
+  { "id": "step.bergit_which", "kind": "say", "speaker": "character.bergit", "line": "line.pasture_bergit_which" },
+  { "id": "step.marrek_never", "kind": "say", "speaker": "lead", "line": "line.pasture_marrek_never" },
+  { "id": "step.bergit_hexer", "kind": "say", "speaker": "character.bergit", "line": "line.pasture_bergit_hexer" },
+  { "id": "step.bergit_market", "kind": "say", "speaker": "character.bergit", "line": "line.pasture_bergit_market" },
+  { "id": "step.bergit_walk", "kind": "say", "speaker": "character.bergit", "line": "line.pasture_bergit_walk" },
+  { "id": "step.bergit_joins", "kind": "join", "character": "character.bergit" },
+  { "id": "step.hide_bergit", "kind": "hide", "actor": "character.bergit" },
+  { "id": "step.bergit_done", "kind": "set_flag", "flag": "flag.region_one_bergit_joins" }
+ ]
+}

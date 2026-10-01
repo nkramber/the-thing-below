@@ -916,18 +916,25 @@ public sealed class PartyState
 
     /// <summary>
     /// Adds a cast member at its join level with full health and full AP, in the row of its
-    /// record (D-363, D-563). The cast member takes the last slot of the party while the party
-    /// holds fewer than three characters, and the end of the reserve otherwise (D-1136).
+    /// record, with the kit of its join: its join lessons from the first slot at zero points, and
+    /// its join gear, each piece in the first empty slot of its kind (D-363, D-563, D-1350). The
+    /// cast member takes the last slot of the party while the party holds fewer than three
+    /// characters, and the end of the reserve otherwise (D-1136).
     /// </summary>
     /// <param name="record">The cast member.</param>
-    /// <param name="rules">The rules, which hold the experience table.</param>
+    /// <param name="content">The battle content, which holds the rules, the gear file, and each stack limit.</param>
     /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
-    /// <exception cref="SimulationException">The cast member is in the party or in the reserve (T-2).</exception>
+    /// <exception cref="SimulationException">
+    /// The cast member is in the party or in the reserve, the player already owns a lesson of
+    /// the kit, or a piece of the kit passes its stack limit (T-2, D-1024, D-1039).
+    /// </exception>
     /// <remarks>
     /// The story adds each character in its order, so a second join of one character points at
-    /// a fault in the content (D-342).
+    /// a fault in the content (D-342). The load refuses a kit that the start or another kit
+    /// repeats, and a kit lesson that a shop stocks, so a second copy at the join points at a
+    /// fault too: a chest of the lesson, for example (D-1024).
     /// </remarks>
-    internal void Join(CharacterRecord record, BattleRules rules, RunContext context)
+    internal void Join(CharacterRecord record, BattleContent content, RunContext context)
     {
         foreach (PartyMember member in this.members)
         {
@@ -945,8 +952,27 @@ public sealed class PartyState
             }
         }
 
-        GrowthValues growth = PartyMember.JoinValues(record, rules);
-        var joined = new PartyMember(record, growth, record.At(growth.Level).Health, record.Row, [], PartyMember.EmptyLessons(growth.Level, rules), new ContentId?[GearRules.SlotCount]);
+        foreach (ContentId lesson in record.JoinLessons)
+        {
+            if (this.Owns(lesson))
+            {
+                throw new SimulationException($"a join of '{record.Id.Value}' with the lesson '{lesson.Value}', which the player already owns, and the player never owns two copies of one lesson (D-1024, D-1350)", context);
+            }
+        }
+
+        ContentId?[] worn = GearRules.SlotsOf(record.JoinGear, content.Gear, BattleFixture.Path, record.Id.Value);
+        foreach (ContentId piece in record.JoinGear)
+        {
+            int after = checked(this.OwnedCount(piece) + CountIn(record.JoinGear, piece));
+            int limit = content.LimitOf(piece);
+            if (after > limit)
+            {
+                throw new SimulationException($"a join of '{record.Id.Value}' with the piece '{piece.Value}', and the party would own {after} copies over the stack limit {limit} (D-1039, D-1350)", context);
+            }
+        }
+
+        GrowthValues growth = PartyMember.JoinValues(record, content.Rules);
+        var joined = new PartyMember(record, growth, record.At(growth.Level).Health, record.Row, [], KitLessonsOf(record.JoinLessons, growth.Level, content.Rules), worn);
         if (this.members.Length < BattleFixture.MostCharacters)
         {
             this.members = [.. this.members, joined];
@@ -1055,25 +1081,45 @@ public sealed class PartyState
     /// </summary>
     private static LessonValues StartLessonsOf(CharacterRecord record, int level, BattleContent content)
     {
-        var slots = new ContentId?[content.Rules.SlotsAt(level)];
-        var points = new SortedDictionary<string, LessonPoints>(StringComparer.Ordinal);
         foreach (StartLessons entry in content.Fixture.StartLessons)
         {
-            if (string.CompareOrdinal(entry.Character.Value, record.Id.Value) != 0)
+            if (string.CompareOrdinal(entry.Character.Value, record.Id.Value) == 0)
             {
-                continue;
-            }
-
-            // The battle content checked that the start lessons fit the slots of the join
-            // level, and a later level holds at least as many slots (D-1018).
-            for (int index = 0; index < entry.Lessons.Count; index += 1)
-            {
-                slots[index] = entry.Lessons[index];
-                points.Add(entry.Lessons[index].Value, new LessonPoints(entry.Lessons[index], 0));
+                return KitLessonsOf(entry.Lessons, level, content.Rules);
             }
         }
 
+        return PartyMember.EmptyLessons(level, content.Rules);
+    }
+
+    /// <summary>
+    /// Gives the lessons of a kit: the slots of the level, with each lesson of the kit from the
+    /// first slot, each at zero points (D-361, D-1030, D-1350). The battle content checked that
+    /// the kit fits the slots of the join level, and a later level holds at least as many slots (D-1018).
+    /// </summary>
+    private static LessonValues KitLessonsOf(IReadOnlyList<ContentId> kit, int level, BattleRules rules)
+    {
+        var slots = new ContentId?[rules.SlotsAt(level)];
+        var points = new SortedDictionary<string, LessonPoints>(StringComparer.Ordinal);
+        for (int index = 0; index < kit.Count; index += 1)
+        {
+            slots[index] = kit[index];
+            points.Add(kit[index].Value, new LessonPoints(kit[index], 0));
+        }
+
         return new LessonValues(slots, new List<LessonPoints>(points.Values));
+    }
+
+    /// <summary>Gives the count of one piece in a list of pieces.</summary>
+    private static int CountIn(IReadOnlyList<ContentId> pieces, ContentId piece)
+    {
+        int count = 0;
+        foreach (ContentId listed in pieces)
+        {
+            count += string.CompareOrdinal(listed.Value, piece.Value) == 0 ? 1 : 0;
+        }
+
+        return count;
     }
 
     /// <summary>

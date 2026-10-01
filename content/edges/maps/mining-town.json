@@ -1,0 +1,5 @@
+{
+ "comment": "The edge pieces of the map 'map.mining_town' (D-501, D-1326). The `edges` command of Tools writes this file from the map and the edge rules, and a test compares it with the output of the command. Run `make edges` after a change of the map or of an edge rule.",
+ "map": "map.mining_town",
+ "tiles": []
+}

@@ -107,6 +107,11 @@ public sealed record ScreenplayBatch(IReadOnlyList<StoryScene> Changed, IReadOnl
                 return true;
             }
 
+            if (step is PayStep pay && (TextChanged(pay.Line, headStrings, baseStrings) || TextChanged(pay.Refusal, headStrings, baseStrings)))
+            {
+                return true;
+            }
+
             if (step is ChooseStep choose)
             {
                 foreach (ChooseOption option in choose.Options)

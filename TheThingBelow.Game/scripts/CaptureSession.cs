@@ -326,7 +326,7 @@ public sealed partial class CaptureSession : Node
         }
 
         bool fade = string.CompareOrdinal(capture.Frame, ScreenCaptures.PitTorchFrame) == 0;
-        GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
+        GameRun open = GameRun.StartFixture(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
         if (fade)
         {
             this.HoldTorch(open);
@@ -367,7 +367,7 @@ public sealed partial class CaptureSession : Node
     /// <exception cref="InvalidOperationException">The run carries no Theft drill, or the pit does not show (T-2).</exception>
     private void BuildPitTrap(FrameRoot built, UiBase @base, ScreenCapture capture)
     {
-        GameRun start = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
+        GameRun start = GameRun.StartFixture(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
         SaveDocument save = start.Save();
         RunSnapshot snapshot = save.Snapshot;
         MapSnapshot map = snapshot.Map ?? throw new InvalidOperationException(
@@ -438,7 +438,7 @@ public sealed partial class CaptureSession : Node
     /// <exception cref="InvalidOperationException">The command put the party on no hub, or a tick wrote an error (T-2).</exception>
     private void BuildHub(FrameRoot built, UiBase @base)
     {
-        GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
+        GameRun open = GameRun.StartFixture(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
         MapScreen first = MapFixture.Build(built, @base, open, this.content, seekParticles: true);
         GoToHub(open);
         MapScreen drawn = MapFixture.Follow(first, built, @base, open, this.content);
@@ -455,7 +455,7 @@ public sealed partial class CaptureSession : Node
     /// <exception cref="InvalidOperationException">The story scene reached no frame of the capture in its ticks, or a tick wrote an error (T-2).</exception>
     private void BuildScene(FrameRoot built, UiBase @base, ScreenCapture capture)
     {
-        GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
+        GameRun open = GameRun.StartFixture(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
         MapScreen first = MapFixture.Build(built, @base, open, this.content, seekParticles: true);
         GoToHub(open);
         MapScreen drawn = MapFixture.Follow(first, built, @base, open, this.content);
@@ -565,7 +565,7 @@ public sealed partial class CaptureSession : Node
     /// <exception cref="InvalidOperationException">The command put the party on no overworld, or a tick wrote an error (T-2).</exception>
     private void BuildOverworld(FrameRoot built, UiBase @base, string map)
     {
-        GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
+        GameRun open = GameRun.StartFixture(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
         MapScreen first = MapFixture.Build(built, @base, open, this.content, seekParticles: true);
         GoToMap(open, map);
         MapScreen drawn = MapFixture.Follow(first, built, @base, open, this.content);
@@ -816,7 +816,7 @@ public sealed partial class CaptureSession : Node
 
         if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.MapFixture) == 0)
         {
-            GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
+            GameRun open = GameRun.StartFixture(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
             MapFixture.Build(built, @base, open, this.content, this.AmbientOf(capture), seekParticles: true, mode: capture.Mode);
             return;
         }
@@ -825,7 +825,7 @@ public sealed partial class CaptureSession : Node
         {
             // The map of the map fixture, with one transition over it at a fixed tick, so one frame
             // gives one picture (D-172, exit tests 1 and 2 of PR-60).
-            GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
+            GameRun open = GameRun.StartFixture(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
             MapFixture.Build(built, @base, open, this.content, seekParticles: true);
             TransitionFrame shown = ScreenCaptures.TransitionFrameOf(capture.Frame);
             Transition transition = this.TransitionOf(shown.Look);
@@ -842,7 +842,7 @@ public sealed partial class CaptureSession : Node
 
         if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.StillFixture) == 0)
         {
-            GameRun still = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
+            GameRun still = GameRun.StartFixture(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
             this.walkRun = still;
             this.walkMap = MapFixture.Build(built, @base, still, this.content, seekParticles: true);
             this.stepTicks = 0;
@@ -854,7 +854,7 @@ public sealed partial class CaptureSession : Node
             // The same map, walked to the pit room, where the view follows the lead. The frames
             // of this fixture then hold a step that scrolls the view, and each particle of the
             // weather and of a torch must stay on the world under it (F-97).
-            GameRun scrolled = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
+            GameRun scrolled = GameRun.StartFixture(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
             this.walkRun = scrolled;
             this.HoldTorch(scrolled);
             this.walkMap = MapFixture.Build(built, @base, scrolled, this.content, seekParticles: true);
@@ -871,7 +871,7 @@ public sealed partial class CaptureSession : Node
         {
             // The same running screen as the map fixture. The session keeps the run and the
             // map, and each later frame of the walk runs one tick of them (D-782).
-            GameRun walked = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
+            GameRun walked = GameRun.StartFixture(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
             this.walkRun = walked;
             // The walk holds the torch out, so each frame of a step shows the light and the torch
             // at the drawn place of the lead, inside the step too (D-847, D-1066).
@@ -967,7 +967,7 @@ public sealed partial class CaptureSession : Node
     /// </remarks>
     private void BuildMenu(FrameRoot built, UiBase @base, ScreenCapture capture)
     {
-        GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
+        GameRun open = GameRun.StartFixture(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
         string frame = ScreenCaptures.MomentOf(capture.Frame);
         if (string.CompareOrdinal(frame, ScreenCaptures.MenuMapFrame) == 0)
         {
@@ -1097,7 +1097,7 @@ public sealed partial class CaptureSession : Node
     /// <exception cref="InvalidOperationException">A tick wrote an error, or no notice shows at the frame (T-2).</exception>
     private void BuildNotice(FrameRoot built, UiBase @base, ScreenCapture capture)
     {
-        GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
+        GameRun open = GameRun.StartFixture(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
         _ = DebugSeam.Run("notice", () => open.State, open.Queue);
         this.RunTicks(open, 1);
         bool typing = string.CompareOrdinal(ScreenCaptures.MomentOf(capture.Frame), ScreenCaptures.NoticeTypeFrame) == 0;
@@ -1134,7 +1134,7 @@ public sealed partial class CaptureSession : Node
     /// </summary>
     private void BuildSettings(FrameRoot built, UiBase @base, ScreenCapture capture)
     {
-        GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
+        GameRun open = GameRun.StartFixture(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
         MapFixture.Build(built, @base, open, this.content);
 
         int autoBody = BodySize.DefaultFor(built.Fit.Height, this.content.Style.SmallBody, this.content.Style.LargeBody);
@@ -1187,7 +1187,7 @@ public sealed partial class CaptureSession : Node
     /// </remarks>
     private void BuildBattle(FrameRoot built, UiBase @base, ScreenCapture capture)
     {
-        GameRun fight = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
+        GameRun fight = GameRun.StartFixture(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
         string moment = ScreenCaptures.MomentOf(capture.Frame);
         if (string.CompareOrdinal(moment, ScreenCaptures.BattleSparksFrame) == 0
             || string.CompareOrdinal(moment, ScreenCaptures.BattleWaitingFrame) == 0)

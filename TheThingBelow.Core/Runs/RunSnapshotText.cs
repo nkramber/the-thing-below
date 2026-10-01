@@ -119,6 +119,22 @@ public static class RunSnapshotText
     }
 
     /// <summary>
+    /// Writes the time of day that the party took at its entry to the map (D-1349). This build
+    /// writes save format 21, so the field is always present in a file that this build writes.
+    /// </summary>
+    private static void WriteTime(Utf8JsonWriter writer, TimeOfDay? time)
+    {
+        if (time is not TimeOfDay written)
+        {
+            throw new ArgumentException(
+                "A snapshot that this build writes holds the time of its map. A snapshot with none comes from save format 20 or older, and this build never writes one (T-2, D-166).",
+                nameof(time));
+        }
+
+        writer.WriteString("time", TimesOfDay.NameOf(written));
+    }
+
+    /// <summary>
     /// Writes the party and the enemies on the map. A snapshot of save format 1 holds no
     /// map, and this build writes save format 5, so the field is always present in a file
     /// that this build writes (D-166, D-654, D-750).
@@ -134,6 +150,7 @@ public static class RunSnapshotText
 
         writer.WriteStartObject("map");
         writer.WriteString("id", map.Map.Value);
+        WriteTime(writer, map.Time);
         writer.WriteNumber("x", map.LeadX);
         writer.WriteNumber("y", map.LeadY);
         writer.WriteString("facing", StepDirections.NameOf(map.Facing));
@@ -493,6 +510,16 @@ public static class RunSnapshotText
     /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
     public static RunSnapshot ReadFormatNineteen(ref ContentReader reader, ulong seed) => ReadLine(ref reader, 19, seed);
+
+    /// <summary>
+    /// Reads a snapshot of save format 20, whose map holds no time of day (D-1349). The resume
+    /// takes the time that the flags of the snapshot give, as an entry to the map does.
+    /// </summary>
+    /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <returns>The snapshot, with no time on its map.</returns>
+    /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
+    /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
+    public static RunSnapshot ReadFormatTwenty(ref ContentReader reader) => ReadLine(ref reader, 20, null);
 
     private static RunSnapshot ReadLine(ref ContentReader reader, int format, ulong? seed)
     {
@@ -971,6 +998,7 @@ public static class RunSnapshotText
     private static MapSnapshot ReadMap(ref ContentReader reader, int format)
     {
         ContentId? id = null;
+        TimeOfDay? time = null;
         List<PatrolValues>? enemies = null;
         SightMark? mark = null;
         MapEncounter? encounter = null;
@@ -989,6 +1017,13 @@ public static class RunSnapshotText
             {
                 case "id":
                     id = reader.ReadContentId(GameMap.IdKind);
+                    break;
+                // Save format 20 and older predate the time of the map (D-1349).
+                case "time" when format < 21:
+                    throw reader.Refuse(
+                        $"the map of save format {format} holds a time, and that format predates it (D-1349)");
+                case "time":
+                    time = ReadTime(ref reader);
                     break;
                 case "x":
                     x = reader.ReadInt();
@@ -1047,8 +1082,15 @@ public static class RunSnapshotText
             _ = reader.Require(npcs, depth, "npcs");
         }
 
+        // Save format 21 and each later format hold the time of the map (D-1349).
+        if (format >= 21)
+        {
+            _ = reader.RequireValue(time, depth, "time");
+        }
+
         return new MapSnapshot(
             reader.Require(id, depth, "id"),
+            time,
             reader.RequireInt(x, depth, "x"),
             reader.RequireInt(y, depth, "y"),
             ReadDirection(ref reader, reader.Require(facing, depth, "facing"), "facing"),
@@ -1059,6 +1101,17 @@ public static class RunSnapshotText
             mark,
             encounter,
             npcs);
+    }
+
+    private static TimeOfDay ReadTime(ref ContentReader reader)
+    {
+        string name = reader.ReadString();
+        if (!TimesOfDay.TryOf(name, out TimeOfDay time))
+        {
+            throw reader.Refuse($"the time '{name}' names no time, and a map takes one of {TimesOfDay.EveryName} (D-442, D-1349)");
+        }
+
+        return time;
     }
 
     private static List<NpcValues> ReadNpcs(ref ContentReader reader)

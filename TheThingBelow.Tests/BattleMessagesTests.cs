@@ -12,15 +12,20 @@ namespace TheThingBelow.Tests;
 
 /// <summary>
 /// The message line of each battle event: every line comes from the string table, and each
-/// one holds the limit of 40 characters with the longest names (D-213, D-241, G-7, G-20). The
-/// tests read the built Game assembly, because Tests takes no reference to Game (D-614).
+/// one wraps into two lines of 40 characters at most with the longest names and the cap of a
+/// battle amount (D-213, D-241, D-1356, D-1357, G-7, G-20). A common name is lower case in the
+/// middle of a line (D-1358). The tests read the built Game assembly, because Tests takes no
+/// reference to Game (D-614).
 /// </summary>
 public sealed class BattleMessagesTests
 {
     private const string MessagesTypeName = "TheThingBelow.Game.Ui.BattleMessages";
 
-    /// <summary>The limit of a battle message, from the `game-text-style` skill (D-241).</summary>
+    /// <summary>The limit of one line of a battle message, from the `game-text-style` skill (D-241, D-1356).</summary>
     private const int MessageLimit = 40;
+
+    /// <summary>The most lines of one battle message (D-1356).</summary>
+    private const int MostLines = 2;
 
     private static readonly Lazy<ContentSet> Content =
         new(() => ContentSet.Load(ContentFolder.Read(RepositoryRoot.Find())));
@@ -86,11 +91,12 @@ public sealed class BattleMessagesTests
     }
 
     [Fact]
-    public void EveryLineHoldsFortyCharactersWithTheLongestNames()
+    public void EveryLineWrapsIntoTwoLinesOfFortyWithTheLongestNamesAndTheCap()
     {
-        // D-241: a battle message holds 40 characters. The test fills each place with the
-        // longest name of its kind, the longest status, and the largest stat (D-775). A piece
-        // of gear never enters a battle line, so its name takes no place (D-1046).
+        // D-1356: a battle message wraps at a space into two lines of 40 characters at most. The
+        // test fills each place with the longest name of its kind, the longest status, and the
+        // cap of a battle amount (D-1357). A piece of gear never enters a battle line, so its name
+        // takes no place (D-1046).
         StringTable strings = Content.Value.Strings;
         BattleContent battle = Content.Value.Battle;
         string longestName = LongestNameOf(strings, NamedInFights(battle));
@@ -105,7 +111,7 @@ public sealed class BattleMessagesTests
         string longestCombatant = longestEnemy.Length >= longestCharacter.Length ? longestEnemy : longestCharacter;
         string longestItem = LongestNameOf(strings, battle.Items.Ids);
         string longestStatus = Longest(strings, "status.");
-        string amount = BattleFixture.MostStat.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        string amount = BattleRules.MostAmount.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
         foreach (BattleEvent played in EveryEvent())
         {
@@ -122,8 +128,68 @@ public sealed class BattleMessagesTests
                 .Replace("{form}", longestName, StringComparison.Ordinal)
                 .Replace("{item}", longestItem, StringComparison.Ordinal)
                 .Replace("{amount}", amount, StringComparison.Ordinal);
-            Assert.True(text.Length <= MessageLimit, $"The line '{id.Value}' reads '{text}', {text.Length} characters, above {MessageLimit} (D-241).");
+            IReadOnlyList<string> lines = WrapOf(text);
+            Assert.True(lines.Count <= MostLines, $"The line '{id.Value}' reads '{text}', {lines.Count} lines (D-1356).");
+            foreach (string part in lines)
+            {
+                Assert.True(part.Length <= MessageLimit, $"The line '{id.Value}' reads '{part}', {part.Length} characters, above {MessageLimit} (D-1356).");
+            }
         }
+    }
+
+    [Fact]
+    public void AMessageWrapsAtTheLastSpaceThatKeepsFortyAndNeverSplitsAWord()
+    {
+        // D-1356: the first line takes as many whole words as 40 characters hold.
+        string forty = new('a', 40);
+        string words = "Starved boar B absorbs the hit. Regains 9999.";
+
+        Assert.Equal(["Starved boar B absorbs the hit. Regains", "9999."], WrapOf(words));
+        Assert.Equal([forty], WrapOf(forty));
+        Assert.Equal([forty, "b"], WrapOf($"{forty} b"));
+        Assert.Equal(["Marrek braces."], WrapOf("Marrek braces."));
+    }
+
+    [Fact]
+    public void AMessageOfThreeLinesOrAWordLongerThanALineIsAnError()
+    {
+        // D-1356, T-2: the box holds two lines, and a word never splits.
+        string forty = new('a', 40);
+
+        TargetInvocationException three = Assert.Throws<TargetInvocationException>(() => Method("Wrap").Invoke(null, [$"{forty} {forty} {forty}"]));
+        TargetInvocationException word = Assert.Throws<TargetInvocationException>(() => Method("Wrap").Invoke(null, [new string('a', 41)]));
+
+        Assert.Contains("3 lines", three.InnerException!.Message, StringComparison.Ordinal);
+        Assert.Contains("41 characters", word.InnerException!.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ACommonNameIsLowerCaseInTheMiddleOfALineAndTakesACapitalAtTheStart()
+    {
+        // D-1358: "Marrek hits grunt B." A common name at the start of a line takes a capital.
+        var marrek = new BattleTarget(BattleSide.Party, 0);
+        var second = new BattleTarget(BattleSide.Enemy, 1);
+        object view = EnemyNamedFirst();
+
+        Assert.Equal("Marrek covers grunt B.", TextOf(new BattleEvent(BattleEventKind.Cover, marrek, second, 0), view));
+        Assert.Equal("Grunt B takes 16.", TextOf(new BattleEvent(BattleEventKind.Hit, marrek, second, 16), view));
+        Assert.Equal("Grunt B covers Marrek.", TextOf(new BattleEvent(BattleEventKind.Cover, second, marrek, 0), view));
+    }
+
+    [Fact]
+    public void AProperNameKeepsItsCapitalInTheMiddleOfALine()
+    {
+        // D-1358: an enemy file names a proper name, such as the name of a boss, and the name
+        // keeps its capital. The test content marks the grunt proper.
+        List<ContentFile> files = [.. ContentFolder.Read(RepositoryRoot.Find())];
+        int index = files.FindIndex(file => string.CompareOrdinal(file.Path, "rules/enemies/fixture-grunt.json") == 0);
+        string text = System.Text.Encoding.UTF8.GetString(files[index].Bytes).Replace("\"proper\": false", "\"proper\": true", StringComparison.Ordinal);
+        files[index] = new ContentFile(files[index].Path, System.Text.Encoding.UTF8.GetBytes(text));
+        ContentSet proper = ContentSet.Load(files);
+        object view = ViewOf("group.fixture_pair", proper);
+
+        Assert.True(proper.Battle.Enemy(ContentId.Parse("enemy.fixture_grunt", "test", "enemy")).Proper);
+        Assert.Equal("Marrek covers Grunt B.", TextOf(new BattleEvent(BattleEventKind.Cover, new BattleTarget(BattleSide.Party, 0), new BattleTarget(BattleSide.Enemy, 1), 0), view, proper));
     }
 
     [Fact]
@@ -261,17 +327,20 @@ public sealed class BattleMessagesTests
     [Fact]
     public void ALineNamesTheLetteredEnemy()
     {
-        // D-1194: the message of a blow names the grunt that it reached.
+        // D-1194: the message of a blow names the grunt that it reached, in lower case inside the
+        // line, because its name is common (D-1358).
         var played = new BattleEvent(BattleEventKind.Hit, new BattleTarget(BattleSide.Party, 0), new BattleTarget(BattleSide.Enemy, 1), 16);
         object line = LineOf(played, EnemyNamedFirst()) ?? throw new InvalidOperationException("The hit gave no line.");
         var values = (IReadOnlyDictionary<string, string>)line.GetType().GetProperty("Values")!.GetValue(line)!;
 
-        Assert.Equal("Grunt B", values["target"]);
+        Assert.Equal("grunt B", values["target"]);
     }
 
-    private static object ViewOf(string group)
+    private static object ViewOf(string group) => ViewOf(group, Content.Value);
+
+    private static object ViewOf(string group, ContentSet content)
     {
-        Simulation run = Simulation.Start(20260918, BattleRuns.Map(group), Content.Value.Battle, Content.Value.Notices, Content.Value.Story, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(20260918, BattleRuns.Map(group), content.Battle, content.Notices, content.Story, DebugIntentHandlers.None);
         run.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
         Type viewType = GameAssemblyFile.Type("TheThingBelow.Game.Ui.BattleView");
         return viewType.GetMethod("AtStart")!.Invoke(null, [run.State, viewType.GetMethod("PartyOf")!.Invoke(null, [run.State])])!;
@@ -301,6 +370,17 @@ public sealed class BattleMessagesTests
 
     private static object? LineOf(BattleEvent played, object view) =>
         Method("Of").Invoke(null, [played, view, Content.Value.Strings]);
+
+    /// <summary>Gives the text of the line of one event as the message box shows it (D-1356, D-1358).</summary>
+    private static string TextOf(BattleEvent played, object view) => TextOf(played, view, Content.Value);
+
+    private static string TextOf(BattleEvent played, object view, ContentSet content)
+    {
+        object line = Method("Of").Invoke(null, [played, view, content.Strings]) ?? throw new InvalidOperationException($"The event '{played.Kind}' gave no line.");
+        return string.Join(" ", (IReadOnlyList<string>)Method("LinesOf").Invoke(null, [line, content.Strings])!);
+    }
+
+    private static IReadOnlyList<string> WrapOf(string text) => (IReadOnlyList<string>)Method("Wrap").Invoke(null, [text])!;
 
     private static MethodInfo Method(string name) =>
         GameAssemblyFile.Type(MessagesTypeName).GetMethod(name, BindingFlags.Public | BindingFlags.Static)

@@ -305,6 +305,15 @@ public sealed class MenuLayoutTests
                     }
                 }
 
+                if (step is TheThingBelow.Core.Story.PayStep pay)
+                {
+                    // D-1335: the offer and the refusal of a pay step show in the same box.
+                    foreach (ContentId shown in new[] { pay.Line, pay.Refusal })
+                    {
+                        Assert.True(WrappedLines(Text(shown), across) <= 3, $"The line '{shown.Value}' takes more than three lines of {across} characters.");
+                    }
+                }
+
                 if (step is TheThingBelow.Core.Story.ChooseStep choose)
                 {
                     foreach (TheThingBelow.Core.Story.ChooseOption each in choose.Options)

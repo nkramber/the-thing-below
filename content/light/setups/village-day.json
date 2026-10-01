@@ -1,0 +1,9 @@
+{
+ "comment": "The light of the village by day (D-442). The ambient light is the one canvas modulate of the world, flame white at full strength, with no torch and no added light, as the fixture hub (D-843, D-1148). A battle that begins here takes the ambient light and the key light of `battle` (D-850). Each color is a palette key with a strength in basis points (D-846).",
+ "map": "map.village",
+ "time": "day",
+ "ambient": { "color": "a", "strength": 10000 },
+ "battle": { "color": "A", "strength": 24000, "range": 720, "height": 96 },
+ "changes": [],
+ "added": []
+}

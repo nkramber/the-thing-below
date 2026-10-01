@@ -4,7 +4,9 @@
  "width": 64,
  "height": 64,
  "draws": [
-  { "content": "npc.fixture_hub_barmaid", "use": "portrait" }
+  { "content": "npc.fixture_hub_barmaid", "use": "portrait" },
+  { "content": "npc.village_hadda", "use": "portrait" },
+  { "content": "npc.village_brenna", "use": "portrait" }
  ],
  "frames": [
   {

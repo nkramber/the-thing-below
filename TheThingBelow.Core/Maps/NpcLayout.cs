@@ -164,7 +164,8 @@ public static class NpcLayout
     /// <summary>
     /// Refuses a start tile that another NPC or the start body of an enemy already holds, because
     /// an NPC is solid (D-1139, T-2). The time of day of the map picks the station of each enemy,
-    /// so this check reads that time alone (D-743). The check of the things covers the spawn point.
+    /// so this check reads each time that the map can take (D-743, D-1349). The check of the
+    /// things covers the spawn point.
     /// </summary>
     private static void RefuseCrowdedStart(ref ContentReader reader, GameMap map)
     {
@@ -181,13 +182,16 @@ public static class NpcLayout
                 }
             }
 
-            foreach (Patrol patrol in map.Patrols)
+            foreach (TimeOfDay time in map.Times)
             {
-                PatrolStation? station = patrol.StationOf(map.Time);
-                if (station is not null && new EnemyBody(station.Start, patrol.Size).Holds(npc.Start))
+                foreach (Patrol patrol in map.Patrols)
                 {
-                    throw reader.Refuse(
-                        $"the NPC '{npc.Id.Value}' starts at {npc.Start}, and the enemy '{patrol.Id.Value}' starts on that tile (D-1139)");
+                    PatrolStation? station = patrol.StationOf(time);
+                    if (station is not null && new EnemyBody(station.Start, patrol.Size).Holds(npc.Start))
+                    {
+                        throw reader.Refuse(
+                            $"the NPC '{npc.Id.Value}' starts at {npc.Start}, and the enemy '{patrol.Id.Value}' starts on that tile at the time {TimesOfDay.NameOf(time)} (D-1139, D-1349)");
+                    }
                 }
             }
         }

@@ -1,0 +1,12 @@
+{
+ "comment": "The flash of Grave Rot, the blight of Dagvar (D-1355). A spike of moss light at the target, a green tint, and a drip of rot that falls. PR-17 writes it, and PR-115 can tune it (D-1032, D-1328).",
+ "id": "effect.spell_grave_rot",
+ "serves": ["ability.grave_rot"],
+ "shape": "spike",
+ "length_ticks": 24,
+ "light": { "color": "N", "strength": 14000, "range": 64, "height": 16 },
+ "tint": { "color": "n", "strength": 900 },
+ "emitters": [
+  { "amount": 12, "lifetime_ticks": 24, "colors": ["N", "v", "n"], "size": 2, "area": 5, "direction": 90, "spread": 60, "slowest_speed": 10, "fastest_speed": 40, "gravity": 150 }
+ ]
+}

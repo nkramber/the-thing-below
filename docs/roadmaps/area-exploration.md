@@ -114,7 +114,7 @@ Built by PR-7. Phase file: `phase-2-first-playable.md`.
 - D-566 resolved OQ-116, because no fog exists to remember.
 - The time of day of the map sets the sight range, the routes, and the enemies, and the story sets the time (D-193, D-442).
 - The wrong things keep no time rule, and the story places each one (D-446).
-- A story flag can change the time of day while the party stands on the map. The light and the music then change on the spot (D-428, D-442).
+- A story flag can change the time of day of a map. The new time takes effect at the next entry of the party, and it holds until the story changes it again (D-442, D-1349).
 - The light of the screen never reaches a rule of sight (G-1, `area-effects.md` section 7.1).
 
 > *In plain English:* the ground of a place is always on screen, and the party sees only the things near it. At night it sees less, so a guard comes out of the dark. A guard sees the quarter that it faces, and the party can pass behind it. The game remembers each square that the party walked.
@@ -277,7 +277,7 @@ Built by PR-35, PR-109, PR-110, and PR-111. Phase file: `phase-2-first-playable.
 | PR-110 | The overworld of region one, its generator, its marks, its gates, and the region of each zone | D-1270 to D-1302 |
 | PR-111 | The treasure of the overworld | D-1298 |
 | PR-21 | The switches, the blocks, the light and dark, and the secrets | D-41 |
-| PR-17 | The village, the land near it, the mining town, and the hanging cells | D-313, D-362, D-369 |
+| PR-17 | The village, the land near it, the mining town, and the hanging cells | D-313, D-362, D-369, D-1331 |
 | PR-23 to PR-27 | The deep mine, the second visit to the cells, the border fort, the ice crossing, and the second hub, the refuge | D-313, D-327, D-574 |
 | PR-81 | The sealed gallery, the fifth dungeon, with its second passage | D-343, D-562, D-575 |
 
@@ -289,7 +289,7 @@ Built by PR-35, PR-109, PR-110, and PR-111. Phase file: `phase-2-first-playable.
 | The battle that an encounter starts | `area-battle.md` | PR-9 |
 | The frame, the camera input, the map HUD, and the dungeon map screen | `area-ui-input.md` | PR-61 and PR-62 |
 | The light setup and the ambient effects of each map | `area-effects.md` | PR-56 and PR-58 |
-| The tile sets, the edge tiles, and the map preview | `area-art.md` and `area-tools.md` | PR-17, PR-52, and PR-53 |
+| The tile sets, the edge tiles, and the map preview | `area-art.md` and `area-tools.md` | PR-52, PR-53, and PR-112 |
 | The story scenes that play on a map, and their triggers | `area-story.md` | PR-68 and PR-36 |
 | The lessons, the gear, and the items that a chest holds | `area-progression.md` | PR-12 and PR-13 |
 

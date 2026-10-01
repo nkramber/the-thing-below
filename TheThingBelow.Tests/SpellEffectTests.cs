@@ -19,7 +19,8 @@ public sealed class SpellEffectTests
     public void EachFormOfARiteOfTheCheckoutTakesItsOwnFlash()
     {
         // Exit test 12 of PR-12 (D-1032): the load checks each rite form and each look, so the
-        // checkout loads with six flashes, and each serves one form.
+        // checkout loads with six flashes of the fixture rites and seven of the rites of the first
+        // playable (D-1355), and each serves one form.
         ContentSet content = ContentSet.Load(ContentFolder.Read(RepositoryRoot.Find()));
 
         var looks = new SortedSet<string>(StringComparer.Ordinal);
@@ -30,7 +31,15 @@ public sealed class SpellEffectTests
             Assert.True(looks.Add(spell.Look), $"The flash of '{form}' has the look of another flash.");
         }
 
-        Assert.Equal(6, content.Effects.Spells.Count);
+        foreach (string form in new[] { "ember", "brand", "grave_rot", "frost", "hush", "lull", "spark" })
+        {
+            SpellEffect spell = content.Effects.SpellOf(ContentId.Parse($"ability.{form}", "test", "ability"))
+                ?? throw new InvalidOperationException($"The form '{form}' has no flash.");
+            Assert.True(looks.Add(spell.Look), $"The flash of '{form}' has the look of another flash.");
+            Assert.Single(spell.Serves);
+        }
+
+        Assert.Equal(13, content.Effects.Spells.Count);
         Assert.Null(content.Effects.SpellOf(ContentId.Parse("ability.fixture_hew", "test", "ability")));
     }
 

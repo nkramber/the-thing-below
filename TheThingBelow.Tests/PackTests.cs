@@ -6,6 +6,7 @@ using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
 using Xunit;
+using TheThingBelow.Core.Streams;
 
 namespace TheThingBelow.Tests;
 
@@ -212,7 +213,7 @@ public sealed class PackTests
         run.Step([Intent.OfPlayer(IntentIds.CloseMenu)]);
         PartyMember marrek = run.State.Characters.Members[0];
 
-        Battle battle = Battle.Start(TestBattles.Content, new MapEncounter(Id("patrol.test_guard"), Id("group.test_pair"), EncounterSide.None), run.State.Characters, run.State.Context("the test"));
+        Battle battle = Battle.Start(TestBattles.Content, new MapEncounter(Id("patrol.test_guard"), Id("group.test_pair"), EncounterSide.None), run.State.Characters, run.State.Stream(StreamId.Battle), run.State.Context("the test"));
 
         Combatant fighter = battle.Party[0];
         Assert.Equal(marrek.Stats.Attack + 5, fighter.Attack);

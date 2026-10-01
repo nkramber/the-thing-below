@@ -1,0 +1,48 @@
+{
+ "id": "drawing.tile_thicket",
+ "page": "tiles",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "tile.thicket", "use": "map" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "KKKKN6Nnnnn5KKbbKKKKN6Nnnnn5KKbb",
+    "KKKNNNnnnnn55KbbKKKNNNnnnnn55Kbb",
+    "KKKN6Nnnnnnn5KKEKKKN6Nnnnnnn5KKE",
+    "nKENNNnnnnnn55NEnKENNNnnnnnn55NE",
+    "n5N6NNnnnnnnn5N6n5N6NNnnnnnnn5N6",
+    "n55NNnnnnnnnnNNnn55NNnnnnnnnnNNn",
+    "nn5NNnnnnnnnnN6nnn5NNnnnnnnnnN6n",
+    "nn5555555555ENNnnn5555555555ENNn",
+    "nnn5KKbbKKKKN6Nnnnn5KKbbKKKKN6Nn",
+    "nnn55KbbKKKNNNnnnnn55KbbKKKNNNnn",
+    "nnnn5KKEKKKN6Nnnnnnn5KKEKKKN6Nnn",
+    "nnnn55NEnKENNNnnnnnn55NEnKENNNnn",
+    "nnnnn5N6n5N6NNnnnnnnn5N6n5N6NNnn",
+    "nnnnnNNnn55NNnnnnnnnnNNnn55NNnnn",
+    "nnnnnN6nnn5NNnnnnnnnnN6nnn5NNnnn",
+    "5555ENNnnn5555555555ENNnnn555555",
+    "KKKKN6Nnnnn5KKbbKKKKN6Nnnnn5KKbb",
+    "KKKNNNnnnnn55KbbKKKNNNnnnnn55Kbb",
+    "KKKN6Nnnnnnn5KKEKKKN6Nnnnnnn5KKE",
+    "nKENNNnnnnnn55NEnKENNNnnnnnn55NE",
+    "n5N6NNnnnnnnn5N6n5N6NNnnnnnnn5N6",
+    "n55NNnnnnnnnnNNnn55NNnnnnnnnnNNn",
+    "nn5NNnnnnnnnnN6nnn5NNnnnnnnnnN6n",
+    "nn5555555555ENNnnn5555555555ENNn",
+    "nnn5KKbbKKKKN6Nnnnn5KKbbKKKKN6Nn",
+    "nnn55KbbKKKNNNnnnnn55KbbKKKNNNnn",
+    "nnnn5KKEKKKN6Nnnnnnn5KKEKKKN6Nnn",
+    "nnnn55NEnKENNNnnnnnn55NEnKENNNnn",
+    "nnnnn5N6n5N6NNnnnnnnn5N6n5N6NNnn",
+    "nnnnn55nnNNNNnnnnnnnn55nnNNNNnnn",
+    "nnnnnn5nnN6NNnnnnnnnnn5nnN6NNnnn",
+    "5555555nnn5555555555555nnn555555"
+   ]
+  }
+ ]
+}

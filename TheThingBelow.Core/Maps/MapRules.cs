@@ -150,21 +150,28 @@ public static class MapRules
     /// </summary>
     public const int TorchSightBonus = 4;
 
-    /// <summary>Gives the sight range of the party on one map, in tiles (D-720, D-1063).</summary>
+    /// <summary>Gives the sight range of the party on one map at one time of day, in tiles (D-720, D-1063).</summary>
     /// <param name="map">The map.</param>
+    /// <param name="time">The time of day that the party took at its entry to the map (D-1349).</param>
     /// <param name="torchHeld">True while the party holds the torch out (D-1064).</param>
     /// <returns>
     /// On a dark map, 2 tiles, and 6 tiles with the torch held out. On any other map, the range
-    /// of its time of day, and the torch changes nothing.
+    /// of the time of day, and the torch changes nothing.
     /// </returns>
     /// <exception cref="ArgumentNullException">The map is null (T-2).</exception>
-    public static int PartySightRange(GameMap map, bool torchHeld)
+    /// <exception cref="ArgumentException">The map cannot take the time (D-1349, T-2).</exception>
+    public static int PartySightRange(GameMap map, TimeOfDay time, bool torchHeld)
     {
         ArgumentNullException.ThrowIfNull(map);
 
+        if (!map.CanTake(time))
+        {
+            throw new ArgumentException($"The map '{map.Id.Value}' takes no time '{TimesOfDay.NameOf(time)}', and its base time and its time changes give no other (D-1349, T-2).", nameof(time));
+        }
+
         if (!map.Dark)
         {
-            return PartySightRange(map.Time);
+            return PartySightRange(time);
         }
 
         return torchHeld ? DarkSightRange + TorchSightBonus : DarkSightRange;

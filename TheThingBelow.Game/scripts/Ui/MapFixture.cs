@@ -60,8 +60,9 @@ public static class MapFixture
 
     /// <summary>
     /// Keeps the map on screen while the party stays on it, and builds the map again when the
-    /// party enters another map, such as after the debug command `goto` (D-1133). The old map
-    /// leaves the tree at once, so it draws no later frame.
+    /// party enters another map, such as after the debug command `goto` (D-1133), or enters the
+    /// same map at another time (D-1349). The old map leaves the tree at once, so it draws no
+    /// later frame.
     /// </summary>
     /// <param name="drawn">The map on screen now.</param>
     /// <param name="frame">The frame that holds the world viewport.</param>
@@ -82,7 +83,9 @@ public static class MapFixture
         ArgumentNullException.ThrowIfNull(run);
         ArgumentNullException.ThrowIfNull(content);
 
-        if (string.CompareOrdinal(drawn.MapId.Value, run.Party.Map.Id.Value) == 0)
+        // An entry again at another time builds the map again, so the light, the enemies, and the
+        // sight take the new time (D-1349).
+        if (string.CompareOrdinal(drawn.MapId.Value, run.Party.Map.Id.Value) == 0 && drawn.MapTime == run.Party.Time)
         {
             return drawn;
         }
