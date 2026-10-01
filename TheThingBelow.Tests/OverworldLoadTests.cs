@@ -118,7 +118,7 @@ public sealed class OverworldLoadTests
 
         ContentException error = Assert.Throws<ContentException>(() => OverworldMaps.Read(text));
 
-        Assert.Contains("the field 'arrive', which an exit alone holds", error.Message, StringComparison.Ordinal);
+        Assert.Contains("the field 'arrive', which an exit or an entrance alone holds", error.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -141,7 +141,7 @@ public sealed class OverworldLoadTests
 
     [Theory]
     [InlineData(", \"to\": \"map.test_place\"", "which an exit or an entrance alone holds")]
-    [InlineData(", \"arrive\": \"marker.test_overworld_place\"", "which an exit alone holds")]
+    [InlineData(", \"arrive\": \"marker.test_overworld_place\"", "which an exit or an entrance alone holds")]
     [InlineData(", \"condition\": { \"always\": true }", "which a gate alone holds")]
     public void AMarkWithTheFieldOfAnotherKindIsAnError(string field, string reason)
     {

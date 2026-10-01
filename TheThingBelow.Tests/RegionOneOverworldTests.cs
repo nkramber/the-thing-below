@@ -70,6 +70,28 @@ public sealed class RegionOneOverworldTests
         Assert.Contains(Content.Value.Map(Id(place)).Things, thing => thing.Kind == MapThingKind.Exit && string.CompareOrdinal(thing.Arrive?.Value, marker) == 0);
     }
 
+    [Theory]
+    [InlineData("entrance.overworld_village", "map.village", "marker.village_road_in", "exit.village_road")]
+    [InlineData("entrance.overworld_pasture", "map.village_pasture", "marker.pasture_way_in", "exit.pasture_way_out")]
+    [InlineData("entrance.overworld_town", "map.mining_town", "marker.town_gate_in", "exit.town_gate")]
+    public void AnEntranceArrivesBesideTheExitOfItsPlace(string entrance, string place, string marker, string exit)
+    {
+        // The playtest: a return from the overworld put the party in the house of Marrek, the
+        // spawn point where the run starts. An entrance names the marker of its place, and each
+        // place of the first playable puts it next to its exit to the overworld (D-1367).
+        Simulation run = Start();
+        run.State.Story.Flags.TurnOn(Id("flag.region_one_bergit_joins"));
+        _ = WalkSteps(run, PathOf(run.State.Party.LeadAt, At(entrance)));
+
+        GameMap map = Content.Value.Map(Id(place));
+        TilePoint arrived = map.ThingOf(Id(marker), MapThingKind.Marker)!.At;
+        TilePoint way = map.ThingOf(Id(exit), MapThingKind.Exit)!.At;
+        Assert.Equal(place, run.State.Party.Map.Id.Value);
+        Assert.Equal(arrived, run.State.Party.LeadAt);
+        Assert.NotEqual(map.Spawn, run.State.Party.LeadAt);
+        Assert.Equal(1, Math.Abs(arrived.X - way.X) + Math.Abs(arrived.Y - way.Y));
+    }
+
     [Fact]
     public void EachOtherPlaceOfRegionOneIsAMarkWithNoLink()
     {
@@ -111,8 +133,8 @@ public sealed class RegionOneOverworldTests
     public void TheLeadWalksFromTheVillageToTheMiningTownOnceBergitJoins()
     {
         // Exit test 1 of PR-110 (D-1270): the walk on the overworld from the village to the town,
-        // through the two gates of the low pass. The entrance of the town enters the town on its
-        // spawn point (D-1243, D-1331).
+        // through the two gates of the low pass. The entrance of the town enters the town on the
+        // marker inside its gate, and no more on the spawn point at the chapel (D-1331, D-1367).
         Simulation run = Start();
         WalkTo(run, At("marker.overworld_village"));
         run.State.Story.Flags.TurnOn(Id("flag.region_one_bergit_joins"));
@@ -121,7 +143,7 @@ public sealed class RegionOneOverworldTests
 
         GameMap town = Content.Value.Map(Id("map.mining_town"));
         Assert.Equal("map.mining_town", run.State.Party.Map.Id.Value);
-        Assert.Equal(town.Spawn, run.State.Party.LeadAt);
+        Assert.Equal(town.ThingOf(Id("marker.town_gate_in"), MapThingKind.Marker)!.At, run.State.Party.LeadAt);
         Assert.Empty(run.TakeNotices());
     }
 

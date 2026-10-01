@@ -151,7 +151,8 @@ public static class SimulationVersion
     /// overworld takes an entrance for the role of a place (D-1243, D-1344). Each hit, heal, absorb, status share, and item
     /// amount of a battle holds 9,999 at most (D-1357). The wait intent of the end of a battle meets a refusal while
     /// the menu is open, as the list of accepted intents says (D-162, D-1179). A hub and a dungeon gain the thicket
-    /// tile, which the party cannot walk and which stops sight (D-1362).
+    /// tile, which the party cannot walk and which stops sight (D-1362). An entrance of the overworld puts the
+    /// party on the marker of its place that it names, and no more on the spawn point (D-1367).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number

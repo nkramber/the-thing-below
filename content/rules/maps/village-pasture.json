@@ -31,6 +31,7 @@
  ],
  "things": [
   { "id": "spawn_point.pasture_start", "kind": "spawn_point", "x": 2, "y": 10 },
+  { "id": "marker.pasture_way_in", "kind": "marker", "x": 1, "y": 10 },
   { "id": "exit.pasture_way_out", "kind": "exit", "x": 0, "y": 10, "to": "map.overworld", "arrive": "marker.overworld_pasture" },
   { "id": "marker.pasture_bergit", "kind": "marker", "x": 27, "y": 1 },
   { "id": "chest.pasture_hollow", "kind": "chest", "x": 1, "y": 7, "contents": [{ "thing": "lesson.gouge", "count": 1, "fallback": "item.poultice" }], "gold": 0 },
@@ -39,7 +40,7 @@
  "enemies": [
   { "id": "patrol.pasture_wolves_near", "group": "group.one_wolves", "size": "common", "facing": "east", "step_ticks": 32, "sight_range": 3, "routes": [{ "times": ["dawn", "day", "dusk", "night"], "tiles": [{ "x": 3, "y": 15 }, { "x": 9, "y": 15 }] }] },
   { "id": "patrol.pasture_wolves_far", "group": "group.one_wolves", "size": "common", "facing": "east", "step_ticks": 32, "sight_range": 3, "routes": [{ "times": ["dawn", "day", "dusk", "night"], "tiles": [{ "x": 21, "y": 16 }, { "x": 25, "y": 16 }] }] },
-  { "id": "patrol.pasture_crows", "group": "group.one_crows", "size": "common", "facing": "west", "step_ticks": 32, "sight_range": 3, "areas": [{ "times": ["dawn", "day", "dusk", "night"], "x": 22, "y": 11, "width": 5, "height": 5 }] },
+  { "id": "patrol.pasture_crows", "group": "group.one_crows", "size": "common", "facing": "west", "step_ticks": 32, "sight_range": 3, "areas": [{ "times": ["dawn", "day", "dusk", "night"], "x": 18, "y": 11, "width": 5, "height": 2 }] },
   { "id": "patrol.pasture_boar", "group": "group.one_boar", "size": "elite", "facing": "west", "step_ticks": 32, "sight_range": 3, "areas": [{ "times": ["dawn", "day", "dusk", "night"], "x": 25, "y": 4, "width": 5, "height": 5 }] }
  ],
  "npcs": [],

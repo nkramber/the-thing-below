@@ -132,6 +132,8 @@ Game terms from the roadmap interview of 2026-09-12:
 | bridge | a tile kind of the overworld over water, which the lead walks (D-1302) | ford, crossing, when the text means this tile |
 | thicket | a tile kind of a hub or a dungeon: trees that the lead cannot walk and that stop sight (D-1362, D-1363) | woods, trees, forest, when the text means this tile |
 | forest | a tile kind of the overworld: trees that the lead walks and that let sight pass (D-1256) | woods, thicket, when the text means this tile |
+| playthrough suite | the command of PR-90 that plays the first playable to the join of Dagvar with three bot levels, and reports the share of each level that gets there (D-1372) | guided run, run suite |
+| bot level | the skill of a bot of the playthrough suite: beginner, intermediate, or perfect (D-1372) | AI level, difficulty, when the text means this skill |
 | story scene | a scripted story beat on the map, which Core runs (D-114, D-540, D-572) | cutscene, event, scene alone |
 | map scene | the Game screen that draws a map (D-572) | scene alone |
 | battle scene | the Game screen that draws a fight (D-572) | scene alone |

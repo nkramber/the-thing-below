@@ -3140,6 +3140,46 @@ Area file: `area-effects.md`.
 
 > *In plain English:* the first places get their snow, their dust, and their lamps. A test proves that the Deck still holds its frame rate.
 
+### 7.75 PR-90: the balance harness and the playthrough suite
+
+Area files: `area-tools.md` section 7.16, `area-ci.md` section 7.14. The owner moved this PR from Phase 4 to right after PR-17, and added the playthrough suite (D-1372, D-1373).
+
+**Scope.**
+
+- Three bot levels (D-1372, OQ-258). A beginner plays with errors and no plan. An intermediate plays a fair plan with few errors. A perfect bot plays the best plan that it can find.
+- The careful policy of D-822 is one of the three levels (D-1373, OQ-258).
+- The playthrough suite, a command of Tools (D-1372, OQ-259). It plays the first playable from the spawn point in the village to the join of Dagvar, for a seed count that the person gives. One third of the seeds play each level.
+- A report of the share of each level that reaches the join of Dagvar with no wipe, with the place of each wipe (D-1372, OQ-259).
+- The guided-run test of PR-17 moves to the suite (D-1372).
+- The `balance` command of Tools, which plays a loop of seeds and reports the metrics of each encounter, dungeon, item, and lesson (D-822, OQ-216).
+- A content file of bands, one for each metric, which the owner sets from the first report (D-571, D-822).
+- A check of the night job that fails when a metric leaves its band, with the seed and the report (D-507, D-822, OQ-260).
+
+**Out of scope.**
+
+- A change of a number. The owner balances the enemies, the stats, the gains of each level, and the items from the reports. PR-30 moves the numbers of region one (D-822, D-1372).
+- The turns and the outcome of each battle of the random and greedy bots, which PR-15 reports (D-1182). The `balance` command can read them.
+- The balance of later regions, which their own phases hold.
+
+**Exit tests.**
+
+1. The suite runs with a seed count, and it splits the seeds across the three levels (D-1372).
+2. The report gives the share of each level that reaches the join of Dagvar (D-1372).
+3. Two runs of the suite and of the `balance` command with one seed list give the same reports (T-7).
+4. A planted metric outside its band fails the night check with the metric, the band, and the seed.
+5. Over the same seeds, the perfect bot reaches the join of Dagvar at least as often as the intermediate bot. The intermediate bot reaches it at least as often as the beginner.
+6. Each bot makes the same intents that Game makes, and a test proves it (D-493).
+7. det-lint finds no float type in the report code (D-502).
+
+**Review focus.**
+
+- The answers of OQ-216 and OQ-258 to OQ-260 set the metrics, the bands, the play of each level, the report, and the night check.
+- The report reads a run record, so a replay repeats each number (G-5).
+
+**Questions.** OQ-216, OQ-258, OQ-259, and OQ-260.
+
+> *In plain English:* robots of three skills play the first playable many times. The report says how many of each reach the end alive, and how hard each fight is and how useful each item is. The owner tunes the balance from those numbers, and the nightly check then keeps each later change inside the limits.
+
 ## 8. Sequence
 
 The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). Phase 2 holds this order:
@@ -3156,7 +3196,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 10. PR-15 requires the bot check (D-1186). The PR-49 session requires `night-gate` after the first night on `main` (D-1192).
 11. PR-16, PR-64, PR-35, PR-109, PR-110, PR-111: the dungeon, the overworld, its encounters, the overworld of region one, and its treasure (D-1254, D-1298).
 12. PR-51, PR-52, PR-53: the PNG import, the map preview, and the tile-edge tool.
-13. PR-17: the village, the mining town, and the hanging cells. Then PR-112 to PR-115: their art and their effects (D-1328).
+13. PR-17: the village, the mining town, and the hanging cells. Then PR-90: the balance harness and the playthrough suite (D-1373). Then PR-112 to PR-115: their art and their effects (D-1328).
 14. PR-38, PR-69, PR-70, PR-71: the audio tool, the player, the rules, and the sound room (D-1079).
 15. PR-72: the music and the sounds of the first playable.
 16. M-3, M-4, M-6: the night numbers, the encounter numbers, and the Deck.
@@ -3187,6 +3227,10 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-89 | Pixel snap in Game, resolved by D-715 | PR-7 |
 | OQ-91 | The operations of a large picture on a piece, resolved by D-812 | PR-55 |
 | OQ-94 | How the budget test counts one view, resolved by D-842 | PR-56 |
+| OQ-216 | The metrics, the bands, and the policy of the balance harness | PR-90 |
+| OQ-258 | The play of each bot level | PR-90 |
+| OQ-259 | The report of the playthrough suite | PR-90 |
+| OQ-260 | Where the playthrough suite runs | PR-90 |
 | OQ-95 | Where a torch light comes from, resolved by D-843 | PR-56 |
 | OQ-96 | Where the shape of a shadow comes from, resolved by D-845 | PR-56 |
 | OQ-97 | The colors of light, resolved by D-846 | PR-56 |

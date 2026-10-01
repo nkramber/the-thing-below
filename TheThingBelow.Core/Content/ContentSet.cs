@@ -717,8 +717,8 @@ public sealed class ContentSet
 
     /// <summary>
     /// Checks that each exit and each entrance of a map names a map of the content (D-1216,
-    /// D-1243). An exit to an overworld names a marker of that overworld, and an exit to another
-    /// kind of map names none (D-1255, T-2).
+    /// D-1243). An exit to an overworld names a marker of that overworld, an exit to another kind
+    /// of map names none, and an entrance names a marker of its place (D-1255, D-1367, T-2).
     /// </summary>
     private static void RequireExitsOf(GameMap map, SortedDictionary<string, GameMap> maps)
     {
@@ -742,10 +742,36 @@ public sealed class ContentSet
         }
     }
 
-    /// <summary>Checks the marker of the overworld that one exit names (D-1255, T-2).</summary>
+    /// <summary>
+    /// Checks the marker that one exit or one entrance names: an exit to an overworld and each
+    /// entrance name a marker of the map that they enter (D-1255, D-1367, T-2).
+    /// </summary>
+    /// <remarks>
+    /// Before D-1367 an entrance entered the spawn point of its place, and the spawn point of the
+    /// village is the house where the run starts, so a return from the overworld put the party
+    /// in the house and not on the road where it left.
+    /// </remarks>
     private static void RequireArriveOf(GameMap map, MapThing thing, GameMap target)
     {
         string field = $"{thing.Id.Value}.{GameMap.ArriveField}";
+        if (thing.Kind == MapThingKind.Entrance)
+        {
+            ContentId arrival = thing.Arrive
+                ?? throw ContentException.ForField(
+                    map.File,
+                    field,
+                    $"the entrance leads to the map '{target.Id.Value}' and names no marker, and an entrance names the marker of its place where the party arrives (D-1367)");
+            if (target.ThingOf(arrival, MapThingKind.Marker) is null)
+            {
+                throw ContentException.ForField(
+                    map.File,
+                    field,
+                    $"the entrance names the marker '{arrival.Value}', and the map '{target.Id.Value}' holds no such marker (D-1367)");
+            }
+
+            return;
+        }
+
         if (target.Kind != MapKind.Overworld)
         {
             if (thing.Arrive is ContentId named)

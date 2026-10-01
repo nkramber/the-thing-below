@@ -1,3 +1,40 @@
+## Session 399: 2026-09-28, Claude Code
+
+Author: Claude Code
+Session: author PR-53, round 1. Repository: the-thing-below. Branch: `feat/pr-53-tile-edges`. PR: the one PR of PR-53, before GitHub gives a number. Role: author. Base: `f0db115`.
+
+### What this session did, and why
+
+- Asked the seven open points of PR-53 in two batches. The owner took each recommended option, and D-1321 to D-1327 record them.
+- The model: 8 edge pieces for each kind with edges, 4 sides and 4 inner corners, drawn over the tiles of that kind (D-1321, D-1322). A neighbour outside the map joins (D-1324).
+- Added the edge records to Core (`EdgeRule`, `EdgeFile`, `EdgeContent`), which the content set loads and no rule reads (D-501, D-517).
+- Added the `edges` command and `make edges`. They write one edge file for each map, and `--check` compares.
+- Drew placeholder pieces for the water and the gorge, and their edge rules. The bridge joins the water (D-1323, D-1325). This keeps D-1290, which the roadmap line on the art contradicted.
+- Game draws 4 edge layers over the ground, and the map preview draws the same pieces.
+
+### The state of the build
+
+- `make verify` passed with 4,581 tests. The remote head is `f0db115` until the first push of this PR.
+- The mutation check: an outside neighbour that does not join fails 4 tests of `EdgePickerTests`.
+
+### What is in flight
+
+- The first push, the Gitar pass, the new screen baselines from CI, then `make codex-review`.
+
+### Traps and gotchas
+
+- A change of a map needs `make edges`, and `make overworld` too for the overworld. The test of the committed edge files fails until the command runs.
+- The `edges` command reads the map files and the rules alone, because a stale edge file fails the load of the content set.
+- The screen baselines of `overworld` and `region-one` change with the shore and the lip. CI gives the new frames (D-733).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push, attach the previews of the two overworld maps to the PR description, and run the Gitar poll of the `gitar-review` skill.
+
 ## Session 398: 2026-09-28, Codex
 
 Author: Codex

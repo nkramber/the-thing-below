@@ -134,6 +134,41 @@ public sealed class FirstPlayableContentTests
     }
 
     [Fact]
+    public void EachSpeakerShowsAPortraitOfTheLookOfItsMapSprite()
+    {
+        // The playtest found Orrin with the map sprite of Bergit and the portrait of the stranger,
+        // and Bergit with the portrait of the barmaid. Each stand-in map sprite has one stand-in
+        // portrait of the same look until the cast portraits of PR-28 (D-1329).
+        var looks = new SortedDictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["drawing.marrek_map_front"] = "drawing.marrek_portrait",
+            ["drawing.bergit_map_front"] = "drawing.bergit_portrait",
+            ["drawing.dagvar_map_front"] = "drawing.fixture_stranger_portrait",
+            ["drawing.ottild_map_front"] = "drawing.fixture_barmaid_portrait",
+        };
+        AtlasIndex atlas = Content.Value.Atlas;
+        int checkedSpeakers = 0;
+        foreach (AtlasEntry portrait in atlas.Entries)
+        {
+            foreach (DrawingUse use in portrait.Draws)
+            {
+                if (use.Use != "portrait" || !atlas.Draws(use.Content, "map_front"))
+                {
+                    continue;
+                }
+
+                string sprite = atlas.Entry(use.Content, "map_front").Id.Value;
+                Assert.True(
+                    looks.TryGetValue(sprite, out string? look) && look == portrait.Id.Value,
+                    $"The speaker '{use.Content.Value}' has the map sprite '{sprite}' and the portrait '{portrait.Id.Value}', which show two looks.");
+                checkedSpeakers += 1;
+            }
+        }
+
+        Assert.True(checkedSpeakers >= 10, $"The test read {checkedSpeakers} speakers, and the content holds at least 10.");
+    }
+
+    [Fact]
     public void EachMapOutsideTurnsToNightAtTheEndAndTheCellsStayNight()
     {
         // Exit test 9 of PR-17 (D-1338, D-1349): the village is day, the pasture and the town

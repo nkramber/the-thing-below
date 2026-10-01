@@ -33,6 +33,7 @@
  ],
  "things": [
   { "id": "spawn_point.town_chapel", "kind": "spawn_point", "x": 27, "y": 7 },
+  { "id": "marker.town_gate_in", "kind": "marker", "x": 17, "y": 20 },
   { "id": "save_point.town_waystone", "kind": "save_point", "x": 5, "y": 2 },
   { "id": "gate.town_cells_door", "kind": "gate", "x": 30, "y": 4, "condition": { "flag": "flag.town_turnkey_paid" }, "notice": "notice.town_cells_door" },
   { "id": "exit.town_cells_stair", "kind": "exit", "x": 32, "y": 4, "to": "map.cells_upper" },

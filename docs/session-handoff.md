@@ -1,3 +1,43 @@
+## Session 409: 2026-09-30, Claude Code
+
+Author: Claude Code
+Session: author of PR #100 (PR-17), the round of five playtest items and the replan of PR-90. Repository: the-thing-below. Branch: `feat/pr-17-first-playable-content`. Role: author. Base: `9a567d6`.
+
+### What this session did, and why
+
+- The owner reported five items of the playtest. Each one has its decision:
+  - The portrait of Orrin did not match his map sprite. Orrin takes the map sprite of the stranger, and Bergit takes a stand-in portrait, which is her map sprite at twice its size (D-1371).
+  - A return from the overworld put the party in the house of Marrek. Each entrance now names the marker of its place in `arrive`, and the content set requires it. The village, the pasture, the town, and the two fixture places have one (D-1367).
+  - The exit tile of the village showed a stair. The three road exits of the first playable draw `drawing.road_exit`, which is empty (D-1368).
+  - The party arrived west of the village. `marker.overworld_village` sits on the road east of the entrance, at (61, 99) (D-1370).
+  - The village was a plain rectangle. The new Ostby is 36 by 21, with a ragged thicket border, a stream and one bridge, a winding road, and four houses. The owner approved the draft preview (D-1369).
+- The guided runs fell from 34 to 30 of 40. The old head gave exactly 34. Three teas in the first chest changed nothing. With no crows, the runs passed. The crow area of session 405 sat on the route, and the strip at (18, 11), 5 by 2, gives 34 again (F-158).
+- The owner asked for a playthrough suite with three bot levels (D-1372). It overlaps PR-90, so the owner moved PR-90 whole to right after PR-17, with the suite (D-1373). The entry of PR-90 is now section 7.75 of `phase-2-first-playable.md`. OQ-258 to OQ-260 hold its open details.
+- Tests: `AnEntranceArrivesBesideTheExitOfItsPlace` and `EachSpeakerShowsAPortraitOfTheLookOfItsMapSprite` fail on the old code. Three tests take the new rule: two error texts, and the arrival of the town.
+
+### The state of the build
+
+- `make verify` passed on this machine before the last text edits, and it runs again before the push. `f8ea16c` had a clean Gitar approval. This entry sits in the commit of the round, above `f8ea16c`.
+
+### What is in flight
+
+- The owner playtest of exit test 1 on Windows, then the review of the other provider (D-943).
+
+### Traps and gotchas
+
+- The guided runs sit exactly on the floor of 34 of 40. A small change of a route or a patrol can fail the test. PR-90 replaces the test with the playthrough suite.
+- A map file of a place needs a marker for each entrance that leads to it (D-1367). A new place of a later PR adds one.
+- The overworld command moves only the things that its settings place. The arrival markers stay where `overworld.json` puts them.
+- A `git checkout` of a map file drops the markers of this round. Edit the file, never restore it.
+
+### The questions that block progress
+
+- None for PR-17. OQ-216 and OQ-258 to OQ-260 block PR-90.
+
+### The next concrete action
+
+Run the Gitar poll of this push, and answer each item. Then wait for the owner playtest from Ostby to the join of Dagvar.
+
 ## Session 408: 2026-09-30, Claude Code
 
 Author: Claude Code
@@ -305,40 +345,3 @@ None.
 ### The next concrete action
 
 Reply on the Gitar thread with the commit, run the Gitar poll, then run `make codex-review PR=99` when every check of the head is green but the review-gate.
-
-## Session 399: 2026-09-28, Claude Code
-
-Author: Claude Code
-Session: author PR-53, round 1. Repository: the-thing-below. Branch: `feat/pr-53-tile-edges`. PR: the one PR of PR-53, before GitHub gives a number. Role: author. Base: `f0db115`.
-
-### What this session did, and why
-
-- Asked the seven open points of PR-53 in two batches. The owner took each recommended option, and D-1321 to D-1327 record them.
-- The model: 8 edge pieces for each kind with edges, 4 sides and 4 inner corners, drawn over the tiles of that kind (D-1321, D-1322). A neighbour outside the map joins (D-1324).
-- Added the edge records to Core (`EdgeRule`, `EdgeFile`, `EdgeContent`), which the content set loads and no rule reads (D-501, D-517).
-- Added the `edges` command and `make edges`. They write one edge file for each map, and `--check` compares.
-- Drew placeholder pieces for the water and the gorge, and their edge rules. The bridge joins the water (D-1323, D-1325). This keeps D-1290, which the roadmap line on the art contradicted.
-- Game draws 4 edge layers over the ground, and the map preview draws the same pieces.
-
-### The state of the build
-
-- `make verify` passed with 4,581 tests. The remote head is `f0db115` until the first push of this PR.
-- The mutation check: an outside neighbour that does not join fails 4 tests of `EdgePickerTests`.
-
-### What is in flight
-
-- The first push, the Gitar pass, the new screen baselines from CI, then `make codex-review`.
-
-### Traps and gotchas
-
-- A change of a map needs `make edges`, and `make overworld` too for the overworld. The test of the committed edge files fails until the command runs.
-- The `edges` command reads the map files and the rules alone, because a stale edge file fails the load of the content set.
-- The screen baselines of `overworld` and `region-one` change with the shore and the lip. CI gives the new frames (D-733).
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Push, attach the previews of the two overworld maps to the PR description, and run the Gitar poll of the `gitar-review` skill.

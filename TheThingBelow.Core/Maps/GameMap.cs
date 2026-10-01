@@ -1053,14 +1053,15 @@ public sealed class GameMap
     }
 
     /// <summary>
-    /// Reads the marker of the overworld where an exit puts the party (D-1255). An exit can name
-    /// one, and the content set requires it for an exit to an overworld. No other thing names one (T-2).
+    /// Reads the marker where an exit or an entrance puts the party (D-1255, D-1367). The content
+    /// set requires one for an exit to an overworld and for each entrance. No other thing names
+    /// one (T-2).
     /// </summary>
     private static ContentId? ArriveOf(ref ContentReader reader, ThingLine line, MapThingKind kind)
     {
-        if (line.Arrive is not null && kind != MapThingKind.Exit)
+        if (line.Arrive is not null && kind != MapThingKind.Exit && kind != MapThingKind.Entrance)
         {
-            throw reader.Refuse($"the thing '{line.Id.Value}' is a {MapThingKinds.NameOf(kind)} and it holds the field '{ArriveField}', which an exit alone holds (D-1255)");
+            throw reader.Refuse($"the thing '{line.Id.Value}' is a {MapThingKinds.NameOf(kind)} and it holds the field '{ArriveField}', which an exit or an entrance alone holds (D-1255, D-1367)");
         }
 
         return line.Arrive;
