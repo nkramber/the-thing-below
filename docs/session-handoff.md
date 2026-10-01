@@ -16,7 +16,7 @@ Session: author of PR #100 (PR-17), the round of the fight start and the first t
 
 ### What is in flight
 
-- The CI legs of this push. The smoke fight is neutral and now ends sooner, so a battle capture of the screen test can change. Take a changed baseline from the artifact of the `screen-test` job (D-733).
+- The CI legs of the push. The screen test of `d0156d4` changed 28 battle captures, because each fight now reaches its captured moment on another tick, and an enemy can open it. The frames `battle-menu-1x`, `battle-blow-1x`, and `battle-level-up-1x` were read, and each one shows its subject. The 28 baselines come from the artifact of run 36801576846 (D-733).
 - The owner playtest of exit test 1 on Windows, then the review of the other provider (D-943).
 
 ### Traps and gotchas
