@@ -1,3 +1,38 @@
+## Session 398: 2026-09-28, Codex
+
+Author: Codex
+Session: review PR #98 (PR-52). Repository: the-thing-below. Branch: `review/pr-98`, tracking `origin/feat/pr-52-map-preview`. Role: reviewer. Base: `2fc559a17cd5bc55c0a12ecf270cddd18f9a167e`.
+
+### What this session did, and why
+
+- Reviewed effective head `e9d5bb8a37a65d829c1d3fac44f07ae5dd734115`, the full diff, the PR comments, the roadmap exit tests, and the applicable contracts.
+- Built the solution and ran 19 focused preview tests, format, and STE. Each passed.
+- Verified Gitar's CI-analysis item against the failed `review-gate` log. RG 3 alone failed because this review record was absent. The record answers the item (D-964).
+- Found no defect. The PR description contains the four fixture previews required by exit test 4.
+
+### The state of the build
+
+- CI on effective head `e9d5bb8a37a65d829c1d3fac44f07ae5dd734115` passed build, test, format, smoke, replay identity, and bots on all three platforms. STE, det-lint, screen-test, and night-gate passed.
+- The remote head before this metadata commit is `e9d5bb8a37a65d829c1d3fac44f07ae5dd734115`.
+
+### What is in flight
+
+- The review record and this handoff entry form one metadata commit (D-610).
+
+### Traps and gotchas
+
+- The pre-record `review-gate` run failed RG 3 because no record existed yet. RG 4 and RG 5 skipped, and RG 6 to RG 8 passed.
+- Push with `git push origin HEAD:feat/pr-52-map-preview`.
+- Session 388 moved to the top of `docs/session-handoff-archive.md` to keep ten current entries.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Verify the pushed metadata commit, the remote PR head, and the post-push `review-gate` result.
+
 ## Session 397: 2026-09-28, Claude Code
 
 Author: Claude Code

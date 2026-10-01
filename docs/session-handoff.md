@@ -1,3 +1,33 @@
+## Session 408: 2026-09-30, Claude Code
+
+Author: Claude Code
+Session: author of PR #100 (PR-17), the round of two end marks during the owner playtest. Repository: the-thing-below. Branch: `feat/pr-17-first-playable-content`. Role: author. Base: `9a567d6`.
+
+### What this session did, and why
+
+- Ran `58d2148` on the Steam Deck over SSH. The Deck logged its pad as known and not ignored, so D-1365 does not block the Deck. Session 407 records the steps.
+- The owner read "Why." in the opening and said: "This needs a question mark, not a period." The line `line.village_marrek_why` now reads "Why?". The owner also chose "Who are you?" for `line.pasture_marrek_who`, the one other question of Marrek with a period (D-1366). No test and no capture reads either line.
+
+### The state of the build
+
+- `58d2148` had a clean Gitar approval, and a PR comment answered its CI analysis of RG 4 and RG 5. This entry sits in the commit of the round, above `df623c7`.
+
+### What is in flight
+
+- The owner playtest of exit test 1 on Windows, then the review of the other provider (D-943).
+
+### Traps and gotchas
+
+- A question in player text takes a question mark. The voice of Marrek asks short questions, and the period made them read as a fault (D-1346, D-1366).
+
+### The questions that block progress
+
+- None. The owner playtest of exit test 1 blocks the review verdict.
+
+### The next concrete action
+
+Run the Gitar poll of this push, and answer each item. Then wait for the owner playtest from Ostby to the join of Dagvar.
+
 ## Session 407: 2026-09-29, Claude Code
 
 Author: Claude Code
@@ -312,38 +342,3 @@ None.
 ### The next concrete action
 
 Push, attach the previews of the two overworld maps to the PR description, and run the Gitar poll of the `gitar-review` skill.
-
-## Session 398: 2026-09-28, Codex
-
-Author: Codex
-Session: review PR #98 (PR-52). Repository: the-thing-below. Branch: `review/pr-98`, tracking `origin/feat/pr-52-map-preview`. Role: reviewer. Base: `2fc559a17cd5bc55c0a12ecf270cddd18f9a167e`.
-
-### What this session did, and why
-
-- Reviewed effective head `e9d5bb8a37a65d829c1d3fac44f07ae5dd734115`, the full diff, the PR comments, the roadmap exit tests, and the applicable contracts.
-- Built the solution and ran 19 focused preview tests, format, and STE. Each passed.
-- Verified Gitar's CI-analysis item against the failed `review-gate` log. RG 3 alone failed because this review record was absent. The record answers the item (D-964).
-- Found no defect. The PR description contains the four fixture previews required by exit test 4.
-
-### The state of the build
-
-- CI on effective head `e9d5bb8a37a65d829c1d3fac44f07ae5dd734115` passed build, test, format, smoke, replay identity, and bots on all three platforms. STE, det-lint, screen-test, and night-gate passed.
-- The remote head before this metadata commit is `e9d5bb8a37a65d829c1d3fac44f07ae5dd734115`.
-
-### What is in flight
-
-- The review record and this handoff entry form one metadata commit (D-610).
-
-### Traps and gotchas
-
-- The pre-record `review-gate` run failed RG 3 because no record existed yet. RG 4 and RG 5 skipped, and RG 6 to RG 8 passed.
-- Push with `git push origin HEAD:feat/pr-52-map-preview`.
-- Session 388 moved to the top of `docs/session-handoff-archive.md` to keep ten current entries.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Verify the pushed metadata commit, the remote PR head, and the post-push `review-gate` result.
